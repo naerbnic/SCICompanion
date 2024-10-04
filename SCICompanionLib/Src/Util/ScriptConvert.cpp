@@ -24,10 +24,11 @@
 #include "ResourceMap.h"
 #include "CompiledScript.h"
 #include <regex>
+#include <filesystem>
 
 using namespace sci;
 using namespace std;
-using namespace std::tr2::sys;
+using namespace std::filesystem;
 
 
 

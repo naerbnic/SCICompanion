@@ -388,7 +388,9 @@ void CResourceMap::AbortPostBuildThread()
 void CResourceMap::PokeResourceMapReloaded()
 {
     // Refresh everything.
-    for_each(_syncs.begin(), _syncs.end(), bind2nd(mem_fun(&IResourceMapEvents::OnResourceMapReloaded), false));
+    for_each(_syncs.begin(), _syncs.end(), [&](IResourceMapEvents *events) {
+      events->OnResourceMapReloaded(false);
+    });
 }
 
 void CResourceMap::StartDebuggerThread(int optionalResourceNumber)
@@ -661,12 +663,17 @@ void CResourceMap::_SniffSCIVersion()
 
 void CResourceMap::NotifyToRegenerateImages()
 {
-    for_each(_syncs.begin(), _syncs.end(), mem_fun(&IResourceMapEvents::OnImagesInvalidated));
+    for_each(_syncs.begin(), _syncs.end(), [&](IResourceMapEvents *events) {
+      events->OnImagesInvalidated();
+    });
 }
 
 void CResourceMap::NotifyToReloadResourceType(ResourceType iType)
 {
-	for_each(_syncs.begin(), _syncs.end(), bind2nd(mem_fun(&IResourceMapEvents::OnResourceTypeReloaded), iType));
+    for_each(_syncs.begin(), _syncs.end(), [&](IResourceMapEvents *events) {
+      events->OnResourceTypeReloaded(iType);
+    });
+
     if (iType == ResourceType::Palette)
     {
         _paletteListNeedsUpdate = true;
@@ -726,7 +733,9 @@ void CResourceMap::DeleteResource(const ResourceBlob *pData)
         _globalCompiledScriptLookups.reset(nullptr);
     }
 
-    for_each(_syncs.begin(), _syncs.end(), bind2nd(mem_fun(&IResourceMapEvents::OnResourceDeleted), pData));
+    for_each(_syncs.begin(), _syncs.end(), [&](IResourceMapEvents *events) {
+      events->OnResourceDeleted(pData);
+    });
     if (pData->GetType() == ResourceType::Palette)
     {
         _paletteListNeedsUpdate = true;
@@ -1278,7 +1287,7 @@ void CResourceMap::SetGameFolder(const string &gameFolder)
             _SniffSCIVersion();
 
             // Send initial load notification
-            for_each(_syncs.begin(), _syncs.end(), bind2nd(mem_fun(&IResourceMapEvents::OnResourceMapReloaded), true));
+            for_each(_syncs.begin(), _syncs.end(), [](IResourceMapEvents *events) { events->OnResourceMapReloaded(true); });
 
             _paletteListNeedsUpdate = true;
         }
