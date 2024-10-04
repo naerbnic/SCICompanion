@@ -18,12 +18,13 @@
     <ProjectGuid>{00FF83C9-DD78-4F2C-BC94-8577D79B52CE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>UnitTests</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>

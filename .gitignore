@@ -193,3 +193,6 @@ ModelManifest.xml
 Bin_1000/
 /SCICompanion.VC.VC.opendb
 /SCICompanion.VC.db
+
+# Visual Studio Build Files
+/.vs/
