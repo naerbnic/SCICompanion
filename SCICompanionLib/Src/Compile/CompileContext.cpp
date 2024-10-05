@@ -36,7 +36,7 @@ using namespace std;
 
 static const WORD c_TempIndex = 0x1957; // A sentinel marker for an index we don't yet know.
 
-WORD read_word(vector<BYTE> &output, vector<BYTE>::iterator index)
+WORD read_word(vector<BYTE>& output, vector<BYTE>::iterator index)
 {
     WORD w = *index;
     index++;
@@ -44,7 +44,7 @@ WORD read_word(vector<BYTE> &output, vector<BYTE>::iterator index)
     return w;
 }
 
-WORD read_word(vector<BYTE> &output, WORD wOffset)
+WORD read_word(vector<BYTE>& output, WORD wOffset)
 {
     assert((WORD)output.size() > wOffset);
     return output[wOffset] + (((WORD)output[wOffset + 1]) << 8);
@@ -58,19 +58,21 @@ struct IndexAndType
     WORD index;
     SpeciesIndex type;
 };
+
 const key_value_pair<std::string, IndexAndType> c_specialSelectors[] =
 {
-    { "objectFunctionArea", { 0xFFFC, DataTypeVoid } },
-    { "objectInfo", { 0x0004, DataTypeUInt } },
-    { "objectLocal", { 0xFFFA, DataTypeVoid } },
-    { "objectName", { 0x0006, DataTypeString } },
-    { "objectSize", { 0xFFF6, DataTypeInt } },
-    { "objectSpecies", { 0x0000, DataTypeInt} },
-    { "objectSuperclass", { 0x0002, DataTypeInt } },
-    { "objectTotalProperties", { 0xFFFE, DataTypeInt } },
-    { "objectType", { 0xFFF4, DataTypeInt} },
+    {"objectFunctionArea", {0xFFFC, DataTypeVoid}},
+    {"objectInfo", {0x0004, DataTypeUInt}},
+    {"objectLocal", {0xFFFA, DataTypeVoid}},
+    {"objectName", {0x0006, DataTypeString}},
+    {"objectSize", {0xFFF6, DataTypeInt}},
+    {"objectSpecies", {0x0000, DataTypeInt}},
+    {"objectSuperclass", {0x0002, DataTypeInt}},
+    {"objectTotalProperties", {0xFFFE, DataTypeInt}},
+    {"objectType", {0xFFF4, DataTypeInt}},
 };
-bool IsSpecialSelector(const string &str, WORD &wOffset, SpeciesIndex &type)
+
+bool IsSpecialSelector(const string& str, WORD& wOffset, SpeciesIndex& type)
 {
     IndexAndType iat;
     bool fRet = FindKeyValue(c_specialSelectors, ARRAYSIZE(c_specialSelectors), str, iat);
@@ -83,7 +85,7 @@ bool CompileTables::Load(CResourceMap& resource_map, SCIVersion version)
 {
     // REVIEW: this could be deleted while we're compiling.
     _pVocab = resource_map.GetVocab000();
-    const GameFolderHelper &helper = resource_map.Helper();
+    const GameFolderHelper& helper = resource_map.Helper();
     return _kernels.Load(helper) && _species.Load(helper) && _selectors.Load(helper);
 }
 
@@ -93,15 +95,17 @@ void CompileTables::Save()
     _selectors.Save();
 }
 
-CompileResults::CompileResults(ICompileLog &log) : _log(log), _text(CreateDefaultTextResource(appState->GetVersion())) {}
+CompileResults::CompileResults(ICompileLog& log) : _log(log), _text(CreateDefaultTextResource(appState->GetVersion()))
+{
+}
 
-TextComponent &CompileResults::GetTextComponent()
+TextComponent& CompileResults::GetTextComponent()
 {
     return _text->GetComponent<TextComponent>();
 }
 
 // e.g. Name is "Feature"
-void CompileContext::_LoadSCO(const std::string &name, bool fErrorIfNotFound)
+void CompileContext::_LoadSCO(const std::string& name, bool fErrorIfNotFound)
 {
     assert(!name.empty());
     string scoFileName = appState->GetResourceMap().Helper().GetScriptObjectFileName(name);
@@ -137,10 +141,11 @@ void CompileContext::_LoadSCO(const std::string &name, bool fErrorIfNotFound)
 // Doesn't produce an error if we can't get one.  (Maybe it should?)
 void CompileContext::_LoadSCOIfNone(WORD wScript)
 {
-    WordSCOMap::iterator iter = _scos.find(wScript);
+    auto iter = _scos.find(wScript);
     if ((iter == _scos.end()) || (iter->second.IsEmpty()))
     {
-        assert((wScript != _wScriptNumber) && (_wScriptNumber != InvalidResourceNumber)); // The "this" script should always be found.
+        assert((wScript != _wScriptNumber) && (_wScriptNumber != InvalidResourceNumber));
+        // The "this" script should always be found.
         std::string scriptName = _numberToNameMap[wScript];
         if (scriptName.empty())
         {
@@ -157,19 +162,20 @@ void CompileContext::_LoadSCOIfNone(WORD wScript)
 
 const uint16_t TempTokenBase = 2345;
 
-CompileContext::CompileContext(SCIVersion version, Script &script, PrecompiledHeaders &headers, CompileTables &tables, ICompileLog &results, bool generateDebugInfo) :
-        _browser(appState->GetClassBrowser()),
-        _resourceMap(appState->GetResourceMap()),
-        _results(results),
-        _tables(tables),
-        _headers(headers),
-        _script(script),
-        _version(version),
-        _code(_version),
-        _nextTempToken(TempTokenBase),
-        _autoTextNumber(InvalidResourceNumber),
-        FunctionBaseForPrescan(nullptr),
-        GenerateDebugInfo(generateDebugInfo)
+CompileContext::CompileContext(SCIVersion version, Script& script, PrecompiledHeaders& headers, CompileTables& tables,
+                               ICompileLog& results, bool generateDebugInfo) :
+    FunctionBaseForPrescan(nullptr),
+    GenerateDebugInfo(generateDebugInfo),
+    _nextTempToken(TempTokenBase),
+    _browser(appState->GetClassBrowser()),
+    _resourceMap(appState->GetResourceMap()),
+    _script(script),
+    _results(results),
+    _tables(tables),
+    _headers(headers),
+    _version(version),
+    _code(_version),
+    _autoTextNumber(InvalidResourceNumber)
 {
     _pErrorScript = &_script;
     _modifier = VM_None;
@@ -180,8 +186,8 @@ CompileContext::CompileContext(SCIVersion version, Script &script, PrecompiledHe
     //
     // Load all the sco files for the "use" statements.
     //
-    const vector<string> &uses = _script.GetUses();
-	for (const string &use : uses)
+    const vector<string>& uses = _script.GetUses();
+    for (const string& use : uses)
     {
         _LoadSCO(use, true);
     }
@@ -200,25 +206,30 @@ LangSyntax CompileContext::GetLanguage()
 {
     return _pErrorScript->Language();
 }
+
 OutputContext CompileContext::GetOutputContext()
 {
     return _oc.top();
 }
+
 WORD CompileContext::GetScriptNumber()
 {
     assert(_wScriptNumber != 0xffff);
     return _wScriptNumber;
 }
-WORD CompileContext::AddStringResourceTuple(const string &str)
+
+WORD CompileContext::AddStringResourceTuple(const string& str)
 {
     _resourceStrings.push_back(str);
     return (WORD)(_resourceStrings.size() - 1);
 }
-const vector<string> &CompileContext::GetResourceStrings()
+
+const vector<string>& CompileContext::GetResourceStrings()
 {
     return _resourceStrings;
 }
-WORD CompileContext::LookupSelectorAndAdd(const string &str)
+
+WORD CompileContext::LookupSelectorAndAdd(const string& str)
 {
     WORD w;
     if (!_tables.Selectors().ReverseLookup(str, w))
@@ -229,15 +240,18 @@ WORD CompileContext::LookupSelectorAndAdd(const string &str)
     }
     return w;
 }
-bool CompileContext::LookupSelector(const string &str, WORD &wIndex)
+
+bool CompileContext::LookupSelector(const string& str, WORD& wIndex)
 {
     return _tables.Selectors().ReverseLookup(str, wIndex);
 }
-void CompileContext::DefineNewSelector(const std::string &str, WORD &wIndex)
+
+void CompileContext::DefineNewSelector(const std::string& str, WORD& wIndex)
 {
     wIndex = _tables.Selectors().Add(str);
 }
-bool CompileContext::LookupDefine(const std::string &str, WORD &wValue)
+
+bool CompileContext::LookupDefine(const std::string& str, WORD& wValue)
 {
     bool fRet;
     // One special case
@@ -263,11 +277,12 @@ bool CompileContext::LookupDefine(const std::string &str, WORD &wValue)
     }
     return fRet;
 }
-void CompileContext::AddDefine(Define *pDefine)
+
+void CompileContext::AddDefine(Define* pDefine)
 {
     WORD wDummy;
     bool fDupe = false;
-    const string &defineLabel = pDefine->GetLabel();
+    const string& defineLabel = pDefine->GetLabel();
     if (_localDefines.find(defineLabel) != _localDefines.end())
     {
         fDupe = true;
@@ -287,7 +302,8 @@ void CompileContext::AddDefine(Define *pDefine)
 // wIndex - index of the item.  Valid for all.
 // pwScript - script of the item.  Only valid for ResolvedToken::ExportInstance (wIndex and wScript)
 //
-ResolvedToken CompileContext::LookupToken(const SyntaxNode *pNodeForError, const string &str, WORD &wIndex, SpeciesIndex &dataType, WORD *pwScript)
+ResolvedToken CompileContext::LookupToken(const SyntaxNode* pNodeForError, const string& str, WORD& wIndex,
+                                          SpeciesIndex& dataType, WORD* pwScript)
 {
     // Figure out what this thing is.
     // This is the order in which we should proceed:
@@ -295,7 +311,7 @@ ResolvedToken CompileContext::LookupToken(const SyntaxNode *pNodeForError, const
     // 2) class name/instance name
     // 3) class properties
     // e.g. the earlier ones have precedence over the others.
-    ResolvedToken tokenType = ResolvedToken::Unknown;
+    auto tokenType = ResolvedToken::Unknown;
     PropertyValue value;
     if (str == "self")
     {
@@ -342,14 +358,15 @@ ResolvedToken CompileContext::LookupToken(const SyntaxNode *pNodeForError, const
         while ((tokenType == ResolvedToken::Unknown) && (index != _varContext._Get_container().rend()))
         {
             tokenType = (*index)->LookupVariableName(*this, str, wIndex, dataType);
-            index++;   
+            index++;
         }
 
         if (tokenType == ResolvedToken::Unknown)
         {
             // ResolvedToken::GlobalVariable
             // Keep going - check for global vars (script 0)
-            if (_scos[0].GetVariableIndex(str, wIndex)) // May not have a main - that's ok, this will create a dummy empty one.
+            if (_scos[0].GetVariableIndex(str, wIndex))
+            // May not have a main - that's ok, this will create a dummy empty one.
             {
                 dataType = DataTypeAny;
                 tokenType = ResolvedToken::GlobalVariable;
@@ -375,7 +392,7 @@ ResolvedToken CompileContext::LookupToken(const SyntaxNode *pNodeForError, const
         // ResolvedToken::Instance
         if (tokenType == ResolvedToken::Unknown)
         {
-            for (auto &classDef : _script.GetClasses())
+            for (auto& classDef : _script.GetClasses())
             {
                 if (classDef->IsInstance() && (str == classDef->GetName()))
                 {
@@ -383,7 +400,8 @@ ResolvedToken CompileContext::LookupToken(const SyntaxNode *pNodeForError, const
                     wIndex = GetTempToken(ValueType::Token, classDef->GetName());
                     // Then, the caller should call TrackInstanceReference(name, code_pos), and we'll
                     // track his code_pos, and fix it up later when we write the code!
-                    dataType = LookupTypeSpeciesIndex(classDef->GetSuperClass(), pNodeForError); // Data type of an instance is its super class. REVIEW: we could change this to be the instance itself.
+                    dataType = LookupTypeSpeciesIndex(classDef->GetSuperClass(), pNodeForError);
+                    // Data type of an instance is its super class. REVIEW: we could change this to be the instance itself.
                     tokenType = ResolvedToken::Instance;
                     break;
                 }
@@ -414,13 +432,14 @@ ResolvedToken CompileContext::LookupToken(const SyntaxNode *pNodeForError, const
     }
     return tokenType;
 }
-bool CompileContext::LookupSpeciesIndex(const string &str, SpeciesIndex &wSpeciesIndex)
+
+bool CompileContext::LookupSpeciesIndex(const string& str, SpeciesIndex& wSpeciesIndex)
 {
     // Check the scoFiles for this class. We used to check the index of the class in the sco file, then
     // reference the global class table to find the species#. No need for that though.
-    for (WordSCOMap::value_type &p : _scos)
+    for (WordSCOMap::value_type& p : _scos)
     {
-        CSCOFile &scoFile = p.second;
+        CSCOFile& scoFile = p.second;
         if (scoFile.GetClassSpecies(str, wSpeciesIndex))
         {
             return true;
@@ -428,11 +447,13 @@ bool CompileContext::LookupSpeciesIndex(const string &str, SpeciesIndex &wSpecie
     }
     return false;
 }
+
 bool CompileContext::IsDefaultSelector(uint16_t value)
 {
     return _tables.Selectors().IsDefaultSelector(value);
 }
-bool CompileContext::LookupTypeSpeciesIndex(const string &str, SpeciesIndex &wSpeciesIndex)
+
+bool CompileContext::LookupTypeSpeciesIndex(const string& str, SpeciesIndex& wSpeciesIndex)
 {
     // This is just like LookupSpeciesIndex, except that we also map standard types.
     bool fRet = GetBuiltInDataTypeSpecies(str, wSpeciesIndex);
@@ -442,7 +463,8 @@ bool CompileContext::LookupTypeSpeciesIndex(const string &str, SpeciesIndex &wSp
     }
     return fRet;
 }
-SpeciesIndex CompileContext::LookupTypeSpeciesIndex(const string &str, const ISourceCodePosition *pNodeForError)
+
+SpeciesIndex CompileContext::LookupTypeSpeciesIndex(const string& str, const ISourceCodePosition* pNodeForError)
 {
     // Call this one when it's an error if the type doesn't match something.
     SpeciesIndex wType = DataTypeAny;
@@ -455,6 +477,7 @@ SpeciesIndex CompileContext::LookupTypeSpeciesIndex(const string &str, const ISo
     }
     return wType;
 }
+
 std::string CompileContext::SpeciesIndexToDataTypeString(SpeciesIndex wSpeciesIndex)
 {
     std::string dataType = GetBuiltInDataTypeString(wSpeciesIndex);
@@ -465,18 +488,19 @@ std::string CompileContext::SpeciesIndexToDataTypeString(SpeciesIndex wSpeciesIn
         if (_tables.Species().GetSpeciesLocation(wSpeciesIndex, wScript, wClassIndexInScript))
         {
             _LoadSCOIfNone(wScript);
-            CSCOFile &scoFile = _scos[wScript];
+            CSCOFile& scoFile = _scos[wScript];
             // Find the name.
             dataType = scoFile.GetClassName(wClassIndexInScript);
         }
     }
- 
+
     if (dataType.empty())
     {
         dataType = "Unknown-type";
     }
     return dataType;
 }
+
 SpeciesIndex CompileContext::GetSpeciesSuperClass(SpeciesIndex wSpeciesIndex)
 {
     SpeciesIndex ret = DataTypeNone;
@@ -489,11 +513,16 @@ SpeciesIndex CompileContext::GetSpeciesSuperClass(SpeciesIndex wSpeciesIndex)
 }
 
 
-const char* c_rgCommonPropsSCI0[] = { "species", "superClass", "-info-", "name" };
-const WORD c_rgCommonPropsTypesSCI0[] = { DataTypeAny, DataTypeAny, DataTypeUInt, DataTypeString };
+const char* c_rgCommonPropsSCI0[] = {"species", "superClass", "-info-", "name"};
+const WORD c_rgCommonPropsTypesSCI0[] = {DataTypeAny, DataTypeAny, DataTypeUInt, DataTypeString};
 
-const char* c_rgCommonPropsSCI1[] = { "-objID-", "-size-","-propDict-","-methDict-","-classScript-", "-script-", "-super-", "-info-", "name" };
-const WORD c_rgCommonPropsTypesSCI1[] = { DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeUInt, DataTypeString };
+const char* c_rgCommonPropsSCI1[] = {
+    "-objID-", "-size-", "-propDict-", "-methDict-", "-classScript-", "-script-", "-super-", "-info-", "name"
+};
+const WORD c_rgCommonPropsTypesSCI1[] = {
+    DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeAny, DataTypeUInt,
+    DataTypeString
+};
 
 unordered_set<string> GetDefaultSelectorNames(SCIVersion version)
 {
@@ -509,23 +538,23 @@ unordered_set<string> GetDefaultSelectorNames(SCIVersion version)
 
 // The properties returned here, include the 4 default ones.  Even if we can't find the
 // species, we'll return the 4 default ones.
-vector<species_property> CompileContext::GetSpeciesProperties(const string &speciesNames)
+vector<species_property> CompileContext::GetSpeciesProperties(const string& speciesNames)
 {
     vector<species_property> propertiesRet;
     if (!speciesNames.empty())
     {
         // Find the scofile that contains this species.
-        for (WordSCOMap::value_type &p : _scos)
+        for (WordSCOMap::value_type& p : _scos)
         {
-            CSCOFile &scoFile = p.second;
-            const CSCOObjectClass *pClass = nullptr;
+            CSCOFile& scoFile = p.second;
+            const CSCOObjectClass* pClass = nullptr;
             if (scoFile.GetClass(speciesNames, &pClass))
             {
                 // We have the class.
-                const vector<CSCOObjectProperty> &properties = pClass->GetProperties();
-                for (auto &theProp : properties)
+                const vector<CSCOObjectProperty>& properties = pClass->GetProperties();
+                for (auto& theProp : properties)
                 {
-                    species_property specProp = { theProp.GetSelector(), theProp.GetValue(), DataTypeAny, false };
+                    species_property specProp = {theProp.GetSelector(), theProp.GetValue(), DataTypeAny, false};
                     propertiesRet.push_back(specProp);
                 }
                 break;
@@ -535,8 +564,12 @@ vector<species_property> CompileContext::GetSpeciesProperties(const string &spec
     if (propertiesRet.empty())
     {
         const char** commonProps = this->_version.SeparateHeapResources ? c_rgCommonPropsSCI1 : c_rgCommonPropsSCI0;
-        const uint16_t* commonPropsTypes = this->_version.SeparateHeapResources ? c_rgCommonPropsTypesSCI1 : c_rgCommonPropsTypesSCI0;
-        int commonPropsCount = this->_version.SeparateHeapResources ? ARRAYSIZE(c_rgCommonPropsSCI1) : ARRAYSIZE(c_rgCommonPropsSCI0);
+        const uint16_t* commonPropsTypes = this->_version.SeparateHeapResources
+                                               ? c_rgCommonPropsTypesSCI1
+                                               : c_rgCommonPropsTypesSCI0;
+        int commonPropsCount = this->_version.SeparateHeapResources
+                                   ? ARRAYSIZE(c_rgCommonPropsSCI1)
+                                   : ARRAYSIZE(c_rgCommonPropsSCI0);
         // Either we have inherited from nothing (which is fine), or we couldn't find the species.
         // In any case, return the default four properties.
         // REVIEW: can we better describe species and superClass?  They are sort of Obj's
@@ -544,33 +577,38 @@ vector<species_property> CompileContext::GetSpeciesProperties(const string &spec
         {
             WORD wSelector = 0;
             _tables.Selectors().ReverseLookup(commonProps[i], wSelector);
-            species_property commonProp = { wSelector, 0, commonPropsTypes[i], false };
+            species_property commonProp = {wSelector, 0, commonPropsTypes[i], false};
             propertiesRet.push_back(commonProp);
         }
     }
     return propertiesRet;
 }
-void CompileContext::SetClassContext(const string &className, const string &superClass, bool fInstance)
+
+void CompileContext::SetClassContext(const string& className, const string& superClass, bool fInstance)
 {
     _superClassName = superClass;
     _className = className;
     _fInstance = fInstance;
 }
+
 string CompileContext::GetClassName()
 {
     return _className;
 }
+
 bool CompileContext::IsInstance()
 {
     return _fInstance;
 }
+
 string CompileContext::GetSuperClassName()
 {
     return _superClassName;
 }
-const ClassDefinition *CompileContext::LookupClassDefinition(const std::string &name)
+
+const ClassDefinition* CompileContext::LookupClassDefinition(const std::string& name)
 {
-	return match_name(_script.GetClasses(), name);
+    return match_name(_script.GetClasses(), name);
 }
 
 const std::string UndeclaredKernelPrefix = "kernel_";
@@ -584,7 +622,7 @@ const std::string NonExistantExportPrefix = "__proc";
 // ProcedureExternal:   wScript, wIndex
 //
 // pSignatures - optional: accepts the list of function signatures for this call.
-ProcedureType CompileContext::LookupProc(const string &str, WORD &wScript, WORD &wIndex, string &classOwner)
+ProcedureType CompileContext::LookupProc(const string& str, WORD& wScript, WORD& wIndex, string& classOwner)
 {
     ProcedureType type = ProcedureUnknown;
     // First try kernel.
@@ -614,9 +652,9 @@ ProcedureType CompileContext::LookupProc(const string &str, WORD &wScript, WORD 
             else
             {
                 // Then other sco files.
-                for (WordSCOMap::value_type &p : _scos)
+                for (WordSCOMap::value_type& p : _scos)
                 {
-                    CSCOFile &scoFile = p.second;
+                    CSCOFile& scoFile = p.second;
                     if (scoFile.GetExportIndex(str, wIndex))
                     {
                         // Found it.
@@ -655,14 +693,16 @@ ProcedureType CompileContext::LookupProc(const string &str, WORD &wScript, WORD 
 
     return type;
 }
-ProcedureType CompileContext::LookupProc(const std::string &str)
+
+ProcedureType CompileContext::LookupProc(const std::string& str)
 {
     // Version where caller doesn't care about the information... just wants to know if its a proc
     WORD wScript, wIndex;
     string classOwner;
     return LookupProc(str, wScript, wIndex, classOwner);
 }
-bool CompileContext::_GetSCOObject(SpeciesIndex wSpecies, CSCOObjectClass &scoObject)
+
+bool CompileContext::_GetSCOObject(SpeciesIndex wSpecies, CSCOObjectClass& scoObject)
 {
     bool fRet = false;
     if (!IsPODType(wSpecies))
@@ -671,14 +711,16 @@ bool CompileContext::_GetSCOObject(SpeciesIndex wSpecies, CSCOObjectClass &scoOb
         if (_tables.Species().GetSpeciesLocation(wSpecies, wScript, wClassIndexInScript))
         {
             _LoadSCOIfNone(wScript);
-            CSCOFile &scoFile = _scos[wScript];
+            CSCOFile& scoFile = _scos[wScript];
             scoObject = scoFile.GetObjectBySpecies(wSpecies);
             fRet = true;
         }
     }
     return fRet;
 }
-bool CompileContext::LookupSpeciesMethodOrProperty(SpeciesIndex wCallee, WORD wSelector, SpeciesIndex &propertyType, bool &fMethod)
+
+bool CompileContext::LookupSpeciesMethodOrProperty(SpeciesIndex wCallee, WORD wSelector, SpeciesIndex& propertyType,
+                                                   bool& fMethod)
 {
     bool fRet = false;
     fMethod = false;
@@ -686,7 +728,7 @@ bool CompileContext::LookupSpeciesMethodOrProperty(SpeciesIndex wCallee, WORD wS
     CSCOObjectClass object;
     while (!fRet && _GetSCOObject(wCallee, object))
     {
-        for(uint16_t method : object.GetMethods())
+        for (uint16_t method : object.GetMethods())
         {
             fRet = (method == wSelector);
             if (fRet)
@@ -697,7 +739,7 @@ bool CompileContext::LookupSpeciesMethodOrProperty(SpeciesIndex wCallee, WORD wS
         }
         if (!fRet)
         {
-            for(const CSCOObjectProperty &property : object.GetProperties())
+            for (const CSCOObjectProperty& property : object.GetProperties())
             {
                 fRet = (property.GetSelector() == wSelector);
                 if (fRet)
@@ -711,62 +753,76 @@ bool CompileContext::LookupSpeciesMethodOrProperty(SpeciesIndex wCallee, WORD wS
     }
     return fRet;
 }
+
 void CompileContext::PushOutputContext(OutputContext outputContext)
 {
     _oc.push(outputContext);
 }
+
 void CompileContext::PopOutputContext()
 {
     _oc.pop();
 }
+
 bool CompileContext::HasMeaning() { return _meaning.top(); }
 void CompileContext::PushMeaning(bool fMeaning) { _meaning.push(fMeaning); }
 void CompileContext::PopMeaning() { _meaning.pop(); }
 bool CompileContext::InConditional() { return _conditional.top(); }
 void CompileContext::PushConditional(bool fConditional) { _conditional.push(fConditional); }
 void CompileContext::PopConditional() { _conditional.pop(); }
-void CompileContext::PushQuery(CompileQuery *query) { _queries.push_back(query); }
+void CompileContext::PushQuery(CompileQuery* query) { _queries.push_back(query); }
+
 void CompileContext::NotifySendOrProcCall()
 {
-    for (CompileQuery *query : _queries)
+    for (CompileQuery* query : _queries)
     {
         query->SendOrProcCallWasOutput = true;
     }
 }
+
 void CompileContext::PopQuery() { _queries.pop_back(); }
+
 bool CompileContext::SupportTypeChecking()
 {
     // Used to be used for experimental cpp syntax.
     return false;
 }
-bool CompileContext::LookupWord(const string &word, WORD &wWordGroup)
+
+bool CompileContext::LookupWord(const string& word, WORD& wWordGroup)
 {
     Vocab000::WordGroup group;
     bool fRet = _tables.Vocab()->LookupWord(word, group);
     wWordGroup = (WORD)group;
     return fRet;
 }
-bool CompileContext::LookupWordGroupClass(uint16_t group, WordClass *wordClass)
+
+bool CompileContext::LookupWordGroupClass(uint16_t group, WordClass* wordClass)
 {
     return _tables.Vocab()->GetGroupClass(group, wordClass);
 }
-sci::Script *CompileContext::SetErrorContext(sci::Script *pScript)
+
+sci::Script* CompileContext::SetErrorContext(sci::Script* pScript)
 {
-    sci::Script *pOld = _pErrorScript;
+    sci::Script* pOld = _pErrorScript;
     _pErrorScript = pScript;
     return pOld;
 }
-void CompileContext::ReportResult(const CompileResult &result) {
-  _results.ReportResult(result);
+
+void CompileContext::ReportResult(const CompileResult& result)
+{
+    _results.ReportResult(result);
 }
-void CompileContext::ReportWarning(const ISourceCodePosition *pPos,
-                                   const char *pszFormat, ...) {
-  va_list argList;
-  va_start(argList, pszFormat);
-  _ReportThing(false, pPos, pszFormat, argList);
-  va_end(argList);
+
+void CompileContext::ReportWarning(const ISourceCodePosition* pPos,
+                                   const char* pszFormat, ...)
+{
+    va_list argList;
+    va_start(argList, pszFormat);
+    _ReportThing(false, pPos, pszFormat, argList);
+    va_end(argList);
 }
-void CompileContext::ReportError(const ISourceCodePosition *pPos, const char *pszFormat, ...)
+
+void CompileContext::ReportError(const ISourceCodePosition* pPos, const char* pszFormat, ...)
 {
     va_list argList;
     va_start(argList, pszFormat);
@@ -774,13 +830,16 @@ void CompileContext::ReportError(const ISourceCodePosition *pPos, const char *ps
     va_end(argList);
     _fErrors = true;
 }
-void CompileContext::ReportTypeError(const ISourceCodePosition *pPos, SpeciesIndex w1, SpeciesIndex w2, const char *pszFormat)
+
+void CompileContext::ReportTypeError(const ISourceCodePosition* pPos, SpeciesIndex w1, SpeciesIndex w2,
+                                     const char* pszFormat)
 {
     std::string s1 = SpeciesIndexToDataTypeString(w1);
     std::string s2 = SpeciesIndexToDataTypeString(w2);
     ReportError(pPos, pszFormat, s1.c_str(), s2.c_str());
 }
-void CompileContext::_ReportThing(bool fError, const ISourceCodePosition *pPos, const char *pszFormat, va_list argList)
+
+void CompileContext::_ReportThing(bool fError, const ISourceCodePosition* pPos, const char* pszFormat, va_list argList)
 {
     char szMessage[300];
     StringCchVPrintf(szMessage, ARRAYSIZE(szMessage), pszFormat, argList);
@@ -789,16 +848,20 @@ void CompileContext::_ReportThing(bool fError, const ISourceCodePosition *pPos, 
     // Add one to line number, since they are reported from a 0-base (parser), but displayed from a 1-base (script editor)
     int line = pPos->GetLineNumber() + 1;
     ScriptId scriptIdThing(_pErrorScript->GetPath().c_str());
-    StringCchPrintf(sz, ARRAYSIZE(sz), "%s: (%s) %s  Line: %d, col: %d", fError ? "Error" : "Warning", scriptIdThing.GetFileNameOrig().c_str(), szMessage, line, pPos->GetColumnNumber());
-    _results.ReportResult(CompileResult(sz, scriptIdThing, line, pPos->GetColumnNumber(), fError ? CompileResult::CRT_Error : CompileResult::CRT_Warning));
+    StringCchPrintf(sz, ARRAYSIZE(sz), "%s: (%s) %s  Line: %d, col: %d", fError ? "Error" : "Warning",
+                    scriptIdThing.GetFileNameOrig().c_str(), szMessage, line, pPos->GetColumnNumber());
+    _results.ReportResult(CompileResult(sz, scriptIdThing, line, pPos->GetColumnNumber(),
+                                        fError ? CompileResult::CRT_Error : CompileResult::CRT_Warning));
 }
+
 bool CompileContext::HasErrors() { return _fErrors; }
 
-bool CompileContext::IsAutoText(uint16_t &number)
+bool CompileContext::IsAutoText(uint16_t& number)
 {
     number = _autoTextNumber;
     return _autoTextNumber != InvalidResourceNumber;
 }
+
 void CompileContext::SetAutoText(uint16_t number)
 {
     _autoTextNumber = number;
@@ -806,10 +869,10 @@ void CompileContext::SetAutoText(uint16_t number)
 
 // Try to figure out which script, if any, this identifier is exported from.
 // This is just used for error reporting.
-string CompileContext::ScanForIdentifiersScriptName(const std::string &identifier)
+string CompileContext::ScanForIdentifiersScriptName(const std::string& identifier)
 {
     string strRet;
-    const VariableDeclVector *globals = _browser.GetMainGlobals();
+    const VariableDeclVector* globals = _browser.GetMainGlobals();
     if (globals)
     {
         if (matches_name(globals->begin(), globals->end(), identifier))
@@ -819,9 +882,9 @@ string CompileContext::ScanForIdentifiersScriptName(const std::string &identifie
     }
     if (strRet.empty())
     {
-        const Script *pContainerScript = nullptr;
+        const Script* pContainerScript = nullptr;
         // Try exported procedures.
-        const RawProcedureVector &procs = _browser.GetPublicProcedures();
+        const RawProcedureVector& procs = _browser.GetPublicProcedures();
         auto procIt = match_name(procs.begin(), procs.end(), identifier);
         if (procIt != procs.end())
         {
@@ -830,8 +893,8 @@ string CompileContext::ScanForIdentifiersScriptName(const std::string &identifie
         if (pContainerScript == nullptr)
         {
             // Try classes.
-			const RawClassVector &classes = _browser.GetAllClasses();
-			auto classIt = match_name(classes.begin(), classes.end(), identifier);
+            const RawClassVector& classes = _browser.GetAllClasses();
+            auto classIt = match_name(classes.begin(), classes.end(), identifier);
             if (classIt != classes.end())
             {
                 pContainerScript = (*classIt)->GetOwnerScript();
@@ -851,18 +914,20 @@ string CompileContext::ScanForIdentifiersScriptName(const std::string &identifie
     return strRet;
 }
 
-scicode &CompileContext::code() { return _code; }
+scicode& CompileContext::code() { return _code; }
 
 // Tell someone about where we have 1) exports, 2) saids, and 3) internal strings
 void CompileContext::TrackExport(code_pos where)
 {
     _exports.push_back(where);
 }
+
 void CompileContext::TrackPublicInstance(WORD wOffset)
 {
     _publicInstances.push_back(wOffset);
 }
-bool CompileContext::PreScanLocalProc(const string &name, const std::string &ownerClass)
+
+bool CompileContext::PreScanLocalProc(const string& name, const std::string& ownerClass)
 {
     // Inform the context about a local procedure name.
     if (_localProcs.find(name) == _localProcs.end())
@@ -876,7 +941,8 @@ bool CompileContext::PreScanLocalProc(const string &name, const std::string &own
         return false; // Already exists.
     }
 }
-void CompileContext::TrackLocalProc(const string &name, code_pos where)
+
+void CompileContext::TrackLocalProc(const string& name, code_pos where)
 {
     // Tell the context the code position of the implemented procedure.
     assert(_localProcs.find(name) != _localProcs.end());
@@ -892,15 +958,18 @@ void CompileContext::FixupAsmLabelBranches()
         _code.set_call_target(labelRef.second, labelLocation);
     }
 }
-void CompileContext::TrackAsmLabelLocation(const std::string &label)
+
+void CompileContext::TrackAsmLabelLocation(const std::string& label)
 {
     _labelLocations[label] = code().get_cur_pos();
 }
-void CompileContext::TrackAsmLabelReference(const std::string &label)
+
+void CompileContext::TrackAsmLabelReference(const std::string& label)
 {
     _labelReferences.insert(ref_multimap::value_type(label, code().get_cur_pos()));
 }
-void CompileContext::ReportLabelName(ISourceCodePosition *position, const std::string &labelName)
+
+void CompileContext::ReportLabelName(ISourceCodePosition* position, const std::string& labelName)
 {
     if (_labelNames.find(labelName) == _labelNames.end())
     {
@@ -911,11 +980,13 @@ void CompileContext::ReportLabelName(ISourceCodePosition *position, const std::s
         this->ReportError(position, "Duplicate label '%s'", labelName.c_str());
     }
 }
-bool CompileContext::DoesLabelExist(const std::string &label)
+
+bool CompileContext::DoesLabelExist(const std::string& label)
 {
     return _labelNames.find(label) != _labelNames.end();
 }
-bool CompileContext::TrackMethod(const string &name, code_pos where)
+
+bool CompileContext::TrackMethod(const string& name, code_pos where)
 {
     if (_localProcs.find(name) == _localProcs.end())
     {
@@ -927,16 +998,19 @@ bool CompileContext::TrackMethod(const string &name, code_pos where)
         return false; // Already exists.
     }
 }
-void CompileContext::TrackLocalProcCall(const string &name)
+
+void CompileContext::TrackLocalProcCall(const string& name)
 {
     assert(_localProcs.find(name) != _localProcs.end());
     _localProcCalls.insert(ref_multimap::value_type(name, code().get_cur_pos()));
 }
-code_pos CompileContext::GetLocalProcPos(const string &name)
+
+code_pos CompileContext::GetLocalProcPos(const string& name)
 {
     assert(_localProcs.find(name) != _localProcs.end());
     return _localProcs[name];
 }
+
 void CompileContext::FixupLocalCalls()
 {
     // Tell all the calls where they're calling to.
@@ -949,60 +1023,72 @@ void CompileContext::FixupLocalCalls()
         theCall++;
     }
 }
-void CompileContext::PreScanSaid(const std::string &theSaid, const ISourceCodePosition *pPos)
+
+void CompileContext::PreScanSaid(const std::string& theSaid, const ISourceCodePosition* pPos)
 {
     ParseSaidString(this, *this, theSaid, nullptr, pPos);
     GetTempToken(ValueType::Said, theSaid);
 }
+
 void CompileContext::TrackCallOffsetInstruction(WORD wProcIndex)
 {
     _calls.push_back(call_pair(_code.get_cur_pos(), wProcIndex));
 }
 
-void CompileContext::PushVariableLookupContext(const IVariableLookupContext *pVarContext)
+void CompileContext::PushVariableLookupContext(const IVariableLookupContext* pVarContext)
 {
     _varContext.push(pVarContext);
 }
+
 void CompileContext::PopVariableLookupContext()
 {
     _varContext.pop();
 }
-void CompileContext::SetClassPropertyLookupContext(const IVariableLookupContext *pVarContext)
+
+void CompileContext::SetClassPropertyLookupContext(const IVariableLookupContext* pVarContext)
 {
     _pClassProperties = pVarContext;
 }
-void CompileContext::SetReturnValueTypes(const std::vector<SpeciesIndex> &types)
+
+void CompileContext::SetReturnValueTypes(const std::vector<SpeciesIndex>& types)
 {
     _allowedReturnValues = types;
 }
+
 std::vector<SpeciesIndex> CompileContext::GetReturnValueTypes()
 {
     return _allowedReturnValues;
 }
+
 void CompileContext::SetVariableModifier(VariableModifier modifier)
 {
     _modifier = modifier;
 }
+
 VariableModifier CompileContext::GetVariableModifier()
 {
     return _modifier;
 }
-void CompileContext::PushSendCallType(SpeciesIndex wType, const std::string &typeName)
+
+void CompileContext::PushSendCallType(SpeciesIndex wType, const std::string& typeName)
 {
     _sendCallType.push(wType);
     _sendCallTypeName.push(typeName);
 }
+
 void CompileContext::PopSendCallType()
 {
     _sendCallType.pop();
     _sendCallTypeName.pop();
 }
-SpeciesIndex CompileContext::GetSendCalleeType(std::string &objectName)
+
+SpeciesIndex CompileContext::GetSendCalleeType(std::string& objectName)
 {
     objectName = _sendCallTypeName.top();
     return _sendCallType.top();
 }
-bool CompileContext::DoesScriptObjectHaveMethod(const std::string &objectName, const std::string &selector)
+
+bool CompileContext::DoesScriptObjectHaveMethod(const std::string& objectName, const std::string& selector)
 {
     auto itFind = _objectMethods.find(objectName);
     if (itFind != _objectMethods.end())
@@ -1011,9 +1097,10 @@ bool CompileContext::DoesScriptObjectHaveMethod(const std::string &objectName, c
     }
     return false;
 }
-bool CompileContext::ScanObjectMethod(const std::string &objectName, const std::string &selector)
+
+bool CompileContext::ScanObjectMethod(const std::string& objectName, const std::string& selector)
 {
-    auto &objectMethods = _objectMethods[objectName];
+    auto& objectMethods = _objectMethods[objectName];
     if (objectMethods.find(selector) != objectMethods.end())
     {
         return false; // already defined
@@ -1023,9 +1110,9 @@ bool CompileContext::ScanObjectMethod(const std::string &objectName, const std::
 }
 
 // Other public functions
-vector<call_pair> &CompileContext::GetCalls() { return _calls; }
-vector<code_pos> &CompileContext::GetExports() { return _exports; }
-vector<WORD> &CompileContext::GetPublicInstanceOffsets() { return _publicInstances; }
+vector<call_pair>& CompileContext::GetCalls() { return _calls; }
+vector<code_pos>& CompileContext::GetExports() { return _exports; }
+vector<WORD>& CompileContext::GetPublicInstanceOffsets() { return _publicInstances; }
 
 void CompileResults::SetAutoTextNumber(uint16_t autoTextNumber)
 {
@@ -1040,25 +1127,30 @@ void CompileContext::SetScriptNumber()
         _wScriptNumber = 0; // Safe, because we'll report an error if we leave it at zero.
         if (!LookupDefine(_script.GetScriptNumberDefine(), _wScriptNumber))
         {
-            ReportError(&_script, "Couldn't determine script number: '%s' is undefined.", _script.GetScriptNumberDefine().c_str());
+            ReportError(&_script, "Couldn't determine script number: '%s' is undefined.",
+                        _script.GetScriptNumberDefine().c_str());
         }
     }
     if (_wScriptNumber > _version.GetMaximumResourceNumber())
     {
-        ReportError(&_script, "Script number must be less than %d: %d", _version.GetMaximumResourceNumber(), _wScriptNumber);
+        ReportError(&_script, "Script number must be less than %d: %d", _version.GetMaximumResourceNumber(),
+                    _wScriptNumber);
     }
     _scos[_wScriptNumber].SetScriptNumber(_wScriptNumber);
 }
+
 WORD CompileContext::EnsureSpeciesTableEntry(WORD wIndexInScript)
 {
     // This won't work unless we have a valid script number
     assert(_wScriptNumber != InvalidResourceNumber);
     return _tables.Species().MaybeAddSpeciesIndex(_wScriptNumber, wIndexInScript);
 }
+
 void CompileContext::LoadIncludes()
 {
     _headers.Update(*this, _script);
 }
+
 void CompileContext::AddSCOClass(CSCOObjectClass scoClass, bool fInstance)
 {
     // TODO - if it's a class, add it to some list that gets used when looking classnames up, etc...
@@ -1074,39 +1166,46 @@ void CompileContext::AddSCOClass(CSCOObjectClass scoClass, bool fInstance)
         _scos[_wScriptNumber].AddObject(scoClass);
     }
 }
+
 void CompileContext::ReplaceSCOClass(CSCOObjectClass scoClass)
 {
     // This is a bit of a hack.
     assert(_wScriptNumber != InvalidResourceNumber);
     _scos[_wScriptNumber].ReplaceObject(scoClass);
 }
+
 void CompileContext::AddSCOVariable(CSCOLocalVariable scoVar)
 {
     assert(_wScriptNumber != InvalidResourceNumber);
     _scos[_wScriptNumber].AddVariable(scoVar);
 }
+
 void CompileContext::AddSCOPublics(CSCOPublicExport scoPublic)
 {
     assert(_wScriptNumber != InvalidResourceNumber);
     _scos[_wScriptNumber].AddPublic(scoPublic);
 }
-std::vector<CSCOObjectClass> &CompileContext::GetInstanceSCOs()
+
+std::vector<CSCOObjectClass>& CompileContext::GetInstanceSCOs()
 {
     return _instances;
 }
-CSCOFile &CompileContext::GetScriptSCO()
+
+CSCOFile& CompileContext::GetScriptSCO()
 {
     assert(_wScriptNumber != InvalidResourceNumber);
     return _scos[_wScriptNumber];
 }
+
 std::string CompileContext::LookupSelectorName(WORD wIndex) const
 {
     return _tables.Selectors().Lookup(wIndex);
 }
+
 vector<uint16_t> CompileContext::GetRelocations()
 {
     vector<uint16_t> relocs;
-    for (auto &pair : _tokenToSinkOffsets)
+    for (auto& pair : _tokenToSinkOffsets)
     {
         // For codesinks in games where lofsa is relative, we don't want to add these to
         // relocations.
@@ -1122,19 +1221,25 @@ vector<uint16_t> CompileContext::GetRelocations()
     return relocs;
 }
 
-PrecompiledHeaders::PrecompiledHeaders(CResourceMap &resourceMap) : _resourceMap(resourceMap), _fValid(false), _versionCompiled(resourceMap.Helper().Version) {}
+PrecompiledHeaders::PrecompiledHeaders(CResourceMap& resourceMap) : _fValid(false), _resourceMap(resourceMap),
+                                                                    _versionCompiled(resourceMap.Helper().Version)
+{
+}
 
 std::vector<std::string> g_defaultCPPHeaders;
 std::vector<std::string> g_defaultSCIStudioHeaders;
-std::vector<std::string> &GetDefaultHeaders(Script &script)
+
+std::vector<std::string>& GetDefaultHeaders(Script& script)
 {
     // No default headers for SCI Studio syntax, sorry!
     return g_defaultSCIStudioHeaders; // empty
 }
 
-PrecompiledHeaders::~PrecompiledHeaders() {}
+PrecompiledHeaders::~PrecompiledHeaders()
+{
+}
 
-void PrecompiledHeaders::Update(CompileContext &context, Script &script)
+void PrecompiledHeaders::Update(CompileContext& context, Script& script)
 {
     assert(context.GetVersion() == _versionCompiled);
 
@@ -1153,11 +1258,11 @@ void PrecompiledHeaders::Update(CompileContext &context, Script &script)
     while (!fDone)
     {
         set<string> newHeaders; // The additional ones we'll pick up
-        set<string>::iterator curHeaderIt = headerScanList.begin();
+        auto curHeaderIt = headerScanList.begin();
         for (; curHeaderIt != headerScanList.end(); ++curHeaderIt)
         {
             // Get the script for this header.
-            header_map::iterator oldHeader = _allHeaders.find(*curHeaderIt);
+            auto oldHeader = _allHeaders.find(*curHeaderIt);
             if (oldHeader == _allHeaders.end())
             {
                 auto encounteredIt = nonHeadersEncountered.find(*curHeaderIt);
@@ -1170,8 +1275,9 @@ void PrecompiledHeaders::Update(CompileContext &context, Script &script)
                     {
                         CScriptStreamLimiter limiter(&buffer);
                         CCrystalScriptStream stream(&limiter);
-                        unique_ptr<Script> pNewHeader = std::make_unique<Script>(scriptId);
-                        if (SyntaxParser_Parse(*pNewHeader, stream, PreProcessorDefinesFromSCIVersion(context.GetVersion()), &context))
+                        auto pNewHeader = std::make_unique<Script>(scriptId);
+                        if (SyntaxParser_Parse(*pNewHeader, stream,
+                                               PreProcessorDefinesFromSCIVersion(context.GetVersion()), &context))
                         {
                             if (pNewHeader->IsHeader())
                             {
@@ -1205,7 +1311,7 @@ void PrecompiledHeaders::Update(CompileContext &context, Script &script)
             }
             else
             {
-                Script *pOldHeader = oldHeader->second.get();
+                Script* pOldHeader = oldHeader->second.get();
                 newHeaders.insert(pOldHeader->GetIncludes().begin(), pOldHeader->GetIncludes().end());
             }
         }
@@ -1228,30 +1334,31 @@ void PrecompiledHeaders::Update(CompileContext &context, Script &script)
         // Clear out our defines
         _defines.clear();
         // And generate them anew
-        set<string>::iterator nameIt = _curHeaderList.begin();
+        auto nameIt = _curHeaderList.begin();
         while (nameIt != _curHeaderList.end())
         {
-            header_map::iterator headerIt = _allHeaders.find(*nameIt);
+            auto headerIt = _allHeaders.find(*nameIt);
             if (headerIt != _allHeaders.end())
             {
-                Script *pHeaderScript = headerIt->second.get();
+                Script* pHeaderScript = headerIt->second.get();
 
                 // Get the script for this.  We know it exists, so no need to check for failure
-                Script *pOldError = context.SetErrorContext(pHeaderScript);    // All errors henceforth are in this header.
+                Script* pOldError = context.SetErrorContext(pHeaderScript); // All errors henceforth are in this header.
 
-                const DefineVector &defines = pHeaderScript->GetDefines();
-                DefineVector::const_iterator defineIt = defines.begin();
+                const DefineVector& defines = pHeaderScript->GetDefines();
+                auto defineIt = defines.begin();
                 for (; defineIt != defines.end(); ++defineIt)
                 {
-                    const string &defineLabel = (*defineIt)->GetLabel();
+                    const string& defineLabel = (*defineIt)->GetLabel();
                     if (_defines.find(defineLabel) != _defines.end())
                     {
                         context.ReportWarning((*defineIt).get(), "Duplicate defines: '%s'", defineLabel.c_str());
                     }
-                    _defines[defineLabel] = (*defineIt).get(); // This is risky... I hope the container lifetime outlasts _defines.
+                    _defines[defineLabel] = (*defineIt).get();
+                    // This is risky... I hope the container lifetime outlasts _defines.
                 }
 
-                context.SetErrorContext(pOldError);   // Now they're in the main script again.
+                context.SetErrorContext(pOldError); // Now they're in the main script again.
             }
             ++nameIt;
         }
@@ -1260,7 +1367,7 @@ void PrecompiledHeaders::Update(CompileContext &context, Script &script)
     _versionCompiled = context.GetVersion();
 }
 
-bool PrecompiledHeaders::LookupDefine(const std::string &str, WORD &wValue)
+bool PrecompiledHeaders::LookupDefine(const std::string& str, WORD& wValue)
 {
     assert(_fValid);
     bool fRet = false;
@@ -1275,26 +1382,25 @@ bool PrecompiledHeaders::LookupDefine(const std::string &str, WORD &wValue)
 
 void GenericOutputByteCode::operator()(const IOutputByteCode* proc)
 {
-	_results.push_back(proc->OutputByteCode(_context));
+    _results.push_back(proc->OutputByteCode(_context));
 }
 
 // This merges scriptToBeMerged into mainScript.
 // Note: The items merged from scriptToBeMerged are removed from it.
-void MergeScripts(sci::Script &mainScript, sci::Script &scriptToBeMerged)
+void MergeScripts(sci::Script& mainScript, sci::Script& scriptToBeMerged)
 {
     // For now, just support procedures and local variables
-    auto &procs = scriptToBeMerged.GetProceduresNC();
-    for (auto &proc : procs)
+    auto& procs = scriptToBeMerged.GetProceduresNC();
+    for (auto& proc : procs)
     {
         mainScript.AddProcedure(move(proc));
     }
-    auto &localVars = scriptToBeMerged.GetScriptVariables();
-    for (auto &localVar : localVars)
+    auto& localVars = scriptToBeMerged.GetScriptVariables();
+    for (auto& localVar : localVars)
     {
         mainScript.AddVariable(move(localVar));
     }
 }
-
 
 
 void CompileContext::WroteSink(uint16_t tempToken, uint16_t offset, ResourceType resType)
@@ -1302,6 +1408,7 @@ void CompileContext::WroteSink(uint16_t tempToken, uint16_t offset, ResourceType
     assert((tempToken < _nextTempToken) && (tempToken >= TempTokenBase));
     _tokenToSinkOffsets.insert(std::make_pair(tempToken, SinkOffset(offset, resType)));
 }
+
 bool CompileContext::_WasSinkWritten(uint16_t tempToken)
 {
     return _tokenToSinkOffsets.find(tempToken) != _tokenToSinkOffsets.end();
@@ -1328,7 +1435,7 @@ void CompileContext::WroteSource(uint16_t tempToken, uint16_t offset)
     _tokenToSourceOffset[tempToken] = offset;
 }
 
-void CompileContext::WriteOutOffsetsOfHepPointersInScr(std::vector<uint8_t> &scrResource)
+void CompileContext::WriteOutOffsetsOfHepPointersInScr(std::vector<uint8_t>& scrResource)
 {
     push_word(scrResource, (uint16_t)_scrSinks.size());
     for (uint16_t scrSinkOffsets : _scrSinks)
@@ -1337,10 +1444,10 @@ void CompileContext::WriteOutOffsetsOfHepPointersInScr(std::vector<uint8_t> &scr
     }
 }
 
-void CompileContext::WriteOutOffsetsOfHepPointersInHep(std::vector<uint8_t> &hepResource)
+void CompileContext::WriteOutOffsetsOfHepPointersInHep(std::vector<uint8_t>& hepResource)
 {
     uint16_t count = 0;
-    for (auto &pair : _tokenToSinkOffsets)
+    for (auto& pair : _tokenToSinkOffsets)
     {
         if (pair.second.resType == ResourceType::Heap)
         {
@@ -1349,7 +1456,7 @@ void CompileContext::WriteOutOffsetsOfHepPointersInHep(std::vector<uint8_t> &hep
     }
 
     push_word(hepResource, count);
-    for (auto &pair : _tokenToSinkOffsets)
+    for (auto& pair : _tokenToSinkOffsets)
     {
         if (pair.second.resType == ResourceType::Heap)
         {
@@ -1358,9 +1465,9 @@ void CompileContext::WriteOutOffsetsOfHepPointersInHep(std::vector<uint8_t> &hep
     }
 }
 
-void CompileContext::FixupSinksAndSources(std::vector<uint8_t> &scriptResource, std::vector<uint8_t> &heapOrScrResource)
+void CompileContext::FixupSinksAndSources(std::vector<uint8_t>& scriptResource, std::vector<uint8_t>& heapOrScrResource)
 {
-    for (auto &pair : _tokenToSinkOffsets)
+    for (auto& pair : _tokenToSinkOffsets)
     {
         uint16_t sinkOffset = pair.second.offset;
         uint16_t token = pair.first;
@@ -1369,7 +1476,7 @@ void CompileContext::FixupSinksAndSources(std::vector<uint8_t> &scriptResource, 
         uint16_t sourceOffset = itFind->second;
 
         bool isSinkInHeap = pair.second.resType == ResourceType::Heap;
-        std::vector<uint8_t> &resourceToUse = isSinkInHeap ? heapOrScrResource : scriptResource;
+        std::vector<uint8_t>& resourceToUse = isSinkInHeap ? heapOrScrResource : scriptResource;
 
         if (!_version.lofsaOpcodeIsAbsolute && (_codeSinks.find(sinkOffset) != _codeSinks.end()))
         {
@@ -1392,39 +1499,39 @@ void CompileContext::FixupSinksAndSources(std::vector<uint8_t> &scriptResource, 
     }
 }
 
-std::map<std::string, uint16_t> *CompileContext::_GetTempTokenMap(ValueType type)
+std::map<std::string, uint16_t>* CompileContext::_GetTempTokenMap(ValueType type)
 {
-    std::map<std::string, uint16_t> *tempTokens = nullptr;
+    std::map<std::string, uint16_t>* tempTokens = nullptr;
     switch (type)
     {
-        case ValueType::String:
-            tempTokens = &_stringTempTokens;
-            break;
-        case ValueType::Said:
-            tempTokens = &_saidTempTokens;
-            break;
-        case ValueType::Token:
-            tempTokens = &_instanceTempTokens;
-            break;
-        case ValueType::ResourceString:
-            tempTokens = &_stringTempTokens;
-            break;
-        default:
-            assert(false);
+    case ValueType::String:
+        tempTokens = &_stringTempTokens;
+        break;
+    case ValueType::Said:
+        tempTokens = &_saidTempTokens;
+        break;
+    case ValueType::Token:
+        tempTokens = &_instanceTempTokens;
+        break;
+    case ValueType::ResourceString:
+        tempTokens = &_stringTempTokens;
+        break;
+    default:
+        assert(false);
     }
     return tempTokens;
 }
 
 // SCI Studio compatibility
 // Assumes that token is already been resolved as ResolvedToken::ScriptString.
-std::string CompileContext::GetScriptStringFromToken(const std::string &stringToken)
+std::string CompileContext::GetScriptStringFromToken(const std::string& stringToken)
 {
-    for (auto &stringDecl : _script.GetScriptStringsDeclarations())
+    for (auto& stringDecl : _script.GetScriptStringsDeclarations())
     {
         if (stringDecl->GetName() == stringToken)
         {
             assert(stringDecl->GetInitializers().size() == 1);
-            PropertyValue *value = SafeSyntaxNode<PropertyValue>(stringDecl->GetInitializers()[0].get());
+            PropertyValue* value = SafeSyntaxNode<PropertyValue>(stringDecl->GetInitializers()[0].get());
             assert(value && "Should have already resolve string declaration during pre-scan");
             return value->GetStringValue();
         }
@@ -1433,10 +1540,10 @@ std::string CompileContext::GetScriptStringFromToken(const std::string &stringTo
     return "";
 }
 
-uint16_t CompileContext::GetTempToken(ValueType type, const std::string &text)
+uint16_t CompileContext::GetTempToken(ValueType type, const std::string& text)
 {
-    std::map<std::string, uint16_t> *tempTokens = _GetTempTokenMap(type);
- 
+    std::map<std::string, uint16_t>* tempTokens = _GetTempTokenMap(type);
+
     auto it = tempTokens->find(text);
     if (it != tempTokens->end())
     {
@@ -1452,7 +1559,7 @@ uint16_t CompileContext::GetTempToken(ValueType type, const std::string &text)
 std::vector<std::string> CompileContext::GetStringsThatWereWritten()
 {
     std::vector<std::string> strings;
-    for (const auto &pair : _stringTempTokens)
+    for (const auto& pair : _stringTempTokens)
     {
         if (_WasSinkWritten(pair.second))
         {
@@ -1466,6 +1573,9 @@ std::vector<std::string> CompileContext::GetSaids()
 {
     std::vector<std::string> said;
     std::transform(_saidTempTokens.begin(), _saidTempTokens.end(), std::back_inserter(said), []
-        (const std::pair<std::string, uint16_t> &pair) { return pair.first; });
+               (const std::pair<std::string, uint16_t>& pair)
+                   {
+                       return pair.first;
+                   });
     return said;
 }
