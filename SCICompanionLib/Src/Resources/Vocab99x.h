@@ -13,8 +13,11 @@
 ***************************************************************************/
 #pragma once
 
+#include <unordered_map>
+
 #include "interfaces.h"
 #include "CompileCommon.h"
+#include "Version.h"
 
 class SpeciesIndex;
 class CompiledObject;

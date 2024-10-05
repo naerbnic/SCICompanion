@@ -756,6 +756,16 @@ sci::Script *CompileContext::SetErrorContext(sci::Script *pScript)
     _pErrorScript = pScript;
     return pOld;
 }
+void CompileContext::ReportResult(const CompileResult &result) {
+  _results.ReportResult(result);
+}
+void CompileContext::ReportWarning(const ISourceCodePosition *pPos,
+                                   const char *pszFormat, ...) {
+  va_list argList;
+  va_start(argList, pszFormat);
+  _ReportThing(false, pPos, pszFormat, argList);
+  va_end(argList);
+}
 void CompileContext::ReportError(const ISourceCodePosition *pPos, const char *pszFormat, ...)
 {
     va_list argList;

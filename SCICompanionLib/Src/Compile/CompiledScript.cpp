@@ -21,6 +21,7 @@
 #include "ResourceEntity.h"
 #include "PMachine.h"
 #include "ResourceBlob.h"
+#include <string>
 
 const uint16_t KQ5CD_BadExport = 0xfffe;
 

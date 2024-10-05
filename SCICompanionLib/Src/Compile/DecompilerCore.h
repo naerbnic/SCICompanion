@@ -27,6 +27,9 @@ namespace sci
     class RestStatement;
 }
 
+// fwd decl
+class DecompileLookups;
+
 
 //
 // Represents whether an instruction consumes or generates stack or accumulator

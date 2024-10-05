@@ -12,24 +12,17 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
+
+#include <string>
+#include <vector>
+
 #include "interfaces.h"
 #include "Vocab99x.h"
 #include "SCO.h"
 #include "DisassembleHelper.h"
 #include "CompileCommon.h"
-
-enum OperandType : uint8_t;
-struct Vocab000;
-
-namespace sci
-{
-    enum class ValueType : uint32_t;
-    class Script;
-	class FunctionBase;
-}
-class DecompileLookups;
-class GameFolderHelper;
-class SelectorTable;
+#include "scii.h"
+#include "ScriptOMSmall.h"
 
 //
 // Information gleaned from the actual script resources.
