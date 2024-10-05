@@ -139,7 +139,7 @@ void CompileContext::_LoadSCO(CResourceMap& resource_map, const std::string& nam
 
 // Loads an SCOFile if we don't already have one for this script.
 // Doesn't produce an error if we can't get one.  (Maybe it should?)
-void CompileContext::_LoadSCOIfNone(WORD wScript)
+void CompileContext::_LoadSCOIfNone(CResourceMap& resource_map, WORD wScript)
 {
     auto iter = _scos.find(wScript);
     if ((iter == _scos.end()) || (iter->second.IsEmpty()))
@@ -155,7 +155,7 @@ void CompileContext::_LoadSCOIfNone(WORD wScript)
         }
         else
         {
-            _LoadSCO(appState->GetResourceMap(), scriptName);
+            _LoadSCO(resource_map, scriptName);
         }
     }
 }
@@ -189,13 +189,13 @@ CompileContext::CompileContext(SCIClassBrowser& browser, CResourceMap& resource_
     const vector<string>& uses = _script.GetUses();
     for (const string& use : uses)
     {
-        _LoadSCO(appState->GetResourceMap(), use, true);
+        _LoadSCO(resource_map, use, true);
     }
 
     // Get a map of script numbers to script names.  We use this when looking up a species index in the
     // global class table, and then looking in the script for its name.  This is for type checking, and
     // is only needed for the Cpp syntax.
-    appState->GetResourceMap().GetNumberToNameMap(_numberToNameMap);
+    resource_map.GetNumberToNameMap(_numberToNameMap);
 
     // We'll always have an accumulator stack context at the top, so just add it now
     PushOutputContext(OC_Accumulator);
@@ -487,7 +487,7 @@ std::string CompileContext::SpeciesIndexToDataTypeString(SpeciesIndex wSpeciesIn
         WORD wScript, wClassIndexInScript;
         if (_tables.Species().GetSpeciesLocation(wSpeciesIndex, wScript, wClassIndexInScript))
         {
-            _LoadSCOIfNone(wScript);
+            _LoadSCOIfNone(appState->GetResourceMap(), wScript);
             CSCOFile& scoFile = _scos[wScript];
             // Find the name.
             dataType = scoFile.GetClassName(wClassIndexInScript);
@@ -710,7 +710,7 @@ bool CompileContext::_GetSCOObject(SpeciesIndex wSpecies, CSCOObjectClass& scoOb
         WORD wScript, wClassIndexInScript;
         if (_tables.Species().GetSpeciesLocation(wSpecies, wScript, wClassIndexInScript))
         {
-            _LoadSCOIfNone(wScript);
+            _LoadSCOIfNone(appState->GetResourceMap(), wScript);
             CSCOFile& scoFile = _scos[wScript];
             scoObject = scoFile.GetObjectBySpecies(wSpecies);
             fRet = true;

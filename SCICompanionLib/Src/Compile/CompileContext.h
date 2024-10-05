@@ -222,7 +222,7 @@ private:
     void _LoadSCO(CResourceMap& resource_map, const std::string &name, bool fErrorIfNotFound = false);
     // Loads an SCOFile if we don't already have one for this script.
     // Doesn't produce an error if we can't get one.  (Maybe it should?)
-    void _LoadSCOIfNone(WORD wScript);
+    void _LoadSCOIfNone(CResourceMap& resource_map, WORD wScript);
 
     bool _WasSinkWritten(uint16_t tempToken);
 
