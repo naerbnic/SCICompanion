@@ -413,10 +413,10 @@ std::set<BinaryOperator> coalesceBinaryOps =
 class TransformDeterminePropSelectors : public IExploreNode
 {
 public:
-    TransformDeterminePropSelectors(sci::Script &script, GlobalCompiledScriptLookups *lookups) : _lookups(lookups)
+    TransformDeterminePropSelectors(const GameFolderHelper& game_folder_helper, sci::Script &script, GlobalCompiledScriptLookups *lookups) : _lookups(lookups)
     {
         // We need to determine what is a property and what is a method
-        if (!_lookups && _lookupsOwned.Load(appState->GetResourceMap().Helper()))
+        if (!_lookups && _lookupsOwned.Load(game_folder_helper))
         {
             _lookups = &_lookupsOwned;
         }
@@ -502,9 +502,9 @@ std::string _GetCommentText(const Comment &comment)
     return newComment;
 }
 
-void ConvertToSCISyntaxHelper(Script &script, GlobalCompiledScriptLookups *lookups)
+void ConvertToSCISyntaxHelper(const GameFolderHelper& game_folder_helper, Script &script, GlobalCompiledScriptLookups *lookups)
 {
-    TransformDeterminePropSelectors txPropSelectors(script, lookups);
+    TransformDeterminePropSelectors txPropSelectors(game_folder_helper, script, lookups);
 
     // Transform comments
     for (auto &comment : script.GetComments())

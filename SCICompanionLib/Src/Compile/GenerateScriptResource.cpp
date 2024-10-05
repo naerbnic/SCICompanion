@@ -1226,12 +1226,12 @@ void CommonScriptPrep(Script &script, CompileContext &context, CompileResults &r
     }
 }
 
-bool GenerateScriptResource_SCI0(Script &script, PrecompiledHeaders &headers, CompileTables &tables, CompileResults &results, bool generateDebugInfo)
+bool GenerateScriptResource_SCI0(SCIClassBrowser& browser, CResourceMap& resource_map, const SCIVersion& version, Script &script, PrecompiledHeaders &headers, CompileTables &tables, CompileResults &results, bool generateDebugInfo)
 {
     vector<BYTE> &output = results.GetScriptResource();
 
     // Create our "CompileContext", which holds state during the compilation.
-    CompileContext context(appState->GetClassBrowser(), appState->GetResourceMap(), appState->GetVersion(), script, headers, tables, results.GetLog(), generateDebugInfo);
+    CompileContext context(browser, resource_map, version, script, headers, tables, results.GetLog(), generateDebugInfo);
 
     _Section3_Synonyms(script, context, output, results);
 
@@ -1392,7 +1392,7 @@ void WriteClassToHeap(const CSCOObjectClass &oClass, bool isInstance, vector<uin
     }
 }
 
-bool GenerateScriptResource_SCI11(Script &script, PrecompiledHeaders &headers, CompileTables &tables, CompileResults &results, bool generateDebugInfo)
+bool GenerateScriptResource_SCI11(SCIClassBrowser& browser, CResourceMap& resource_map, const SCIVersion& version, Script &script, PrecompiledHeaders &headers, CompileTables &tables, CompileResults &results, bool generateDebugInfo)
 {
     vector<BYTE> &outputScr = results.GetScriptResource();
     vector<BYTE> &outputHeap = results.GetHeapResource();
@@ -1413,8 +1413,7 @@ bool GenerateScriptResource_SCI11(Script &script, PrecompiledHeaders &headers, C
     vector<uint16_t> trackMethodCodePointerOffsets;
 
     // Create our "CompileContext", which holds state during the compilation.
-    CompileContext context(appState->GetClassBrowser(),
-                           appState->GetResourceMap(), appState->GetVersion(),
+    CompileContext context(browser, resource_map, version,
                            script, headers, tables, results.GetLog(),
                            generateDebugInfo);
 
@@ -1557,14 +1556,14 @@ bool GenerateScriptResource_SCI11(Script &script, PrecompiledHeaders &headers, C
     return !context.HasErrors();
 }
 
-bool GenerateScriptResource(SCIVersion version, sci::Script &script, PrecompiledHeaders &headers, CompileTables &tables, CompileResults &results, bool generateDebugInfo)
+bool GenerateScriptResource(SCIClassBrowser& browser, CResourceMap& resource_map, const SCIVersion& version, sci::Script &script, PrecompiledHeaders &headers, CompileTables &tables, CompileResults &results, bool generateDebugInfo)
 {
     if (version.SeparateHeapResources)
     {
-        return GenerateScriptResource_SCI11(script, headers, tables, results, generateDebugInfo);
+        return GenerateScriptResource_SCI11(browser, resource_map, version, script, headers, tables, results, generateDebugInfo);
     }
     else
     {
-        return GenerateScriptResource_SCI0(script, headers, tables, results, generateDebugInfo);
+        return GenerateScriptResource_SCI0(browser, resource_map, version, script, headers, tables, results, generateDebugInfo);
     }
 }

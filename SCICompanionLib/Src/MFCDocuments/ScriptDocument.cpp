@@ -241,7 +241,7 @@ bool NewCompileScript(CompileResults &results, CompileLog &log, CompileTables &t
 
             // Compile and save script resource.
             // Compile our own script!
-            if (GenerateScriptResource(appState->GetVersion(), *pScript, headers, tables, results, appState->GetResourceMap().Helper().GetGenerateDebugInfo()))
+            if (GenerateScriptResource(appState->GetClassBrowser(), appState->GetResourceMap(), appState->GetVersion(), *pScript, headers, tables, results, appState->GetResourceMap().Helper().GetGenerateDebugInfo()))
             {
                 WORD wNum = results.GetScriptNumber();
 
@@ -396,7 +396,7 @@ std::unique_ptr<sci::Script> DecompileScript(const IDecompilerConfig *config, Gl
 
     if (helper.Language == LangSyntaxSCI)
     {
-        ConvertToSCISyntaxHelper(*pScript, &scriptLookups);
+        ConvertToSCISyntaxHelper(appState->GetResourceMap().Helper(), *pScript, &scriptLookups);
     }
 
     return pScript;
@@ -486,7 +486,7 @@ void CScriptDocument::OnViewSyntaxTree()
     bool fCompile = SyntaxParser_Parse(script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log);;
     if (fCompile)
     {
-        PrepForLanguage(appState->GetResourceMap().Helper().GetDefaultGameLanguage(), script);
+        PrepForLanguage(appState->GetResourceMap().Helper(), appState->GetResourceMap().Helper().GetDefaultGameLanguage(), script);
 
         std::stringstream out;
         sci::SourceCodeWriter theCode(out, appState->GetResourceMap().Helper().GetDefaultGameLanguage(), &script);
@@ -541,7 +541,7 @@ void CScriptDocument::OnConvertScript()
 {
     CompileLog log;
 
-    if (ConvertScript(appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultGameLanguage(), _scriptId, log, true))
+    if (ConvertScript(appState->GetResourceMap().Helper(), appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultGameLanguage(), _scriptId, log, true))
     {
         _buffer.FreeAll();
         _buffer.LoadFromFile(_scriptId.GetFullPath().c_str());

@@ -64,7 +64,7 @@ class DummyLog : public ICompileLog
     void ReportResult(const CompileResult &result) override {}
 };
 
-AvailableMethods::AvailableMethods(LangSyntax language) : _targetLanguage(language)
+AvailableMethods::AvailableMethods(const GameFolderHelper* game_folder_helper, LangSyntax language) : _targetLanguage(language), _gameFolderHelper(game_folder_helper)
 {
     string fullPath = appState->GetResourceMap().GetObjectsFolder() + "\\Methods.sc";
     DummyLog log;
@@ -90,7 +90,7 @@ AvailableMethods::AvailableMethods(LangSyntax language) : _targetLanguage(langua
 
 void AvailableMethods::PrepareBuffer(const sci::MethodDefinition *methodDef, CString &buffer)
 {
-    PrepForLanguage(_targetLanguage, *_script);
+    PrepForLanguage(*_gameFolderHelper, _targetLanguage, *_script);
     std::stringstream ss;
     //sci::SourceCodeWriter out(ss, _targetLanguage, _objectToScript[theClass]);
     // Providing the script lets us sync comments, but it is not working properly. They merge with newlines, and comments in
@@ -104,7 +104,7 @@ void AvailableMethods::PrepareBuffer(const sci::MethodDefinition *methodDef, CSt
     buffer = ss.str().c_str();
 }
 
-AvailableObjects::AvailableObjects(LangSyntax language) : _targetLanguage(language)
+AvailableObjects::AvailableObjects(const GameFolderHelper* game_folder_helper, LangSyntax language) : _gameFolderHelper(game_folder_helper), _targetLanguage(language)
 {
     vector<string> filenames;
 
@@ -161,7 +161,7 @@ void AvailableObjects::PrepareBuffer(sci::ClassDefinition *theClass, CString &bu
 {
     for (auto &script : _scripts)
     {
-        PrepForLanguage(_targetLanguage, *script);
+        PrepForLanguage(*_gameFolderHelper, _targetLanguage, *script);
     }
 
     // Grab any properties from the "fake ego"
@@ -264,7 +264,7 @@ void AvailableObjects::PrepareBuffer(sci::ClassDefinition *theClass, CString &bu
 
 // CInsertObject dialog
 CInsertObject::CInsertObject(LangSyntax lang, CWnd* pParent /*=NULL*/)
-    : CExtResizableDialog(CInsertObject::IDD, pParent), _availableObjects(lang)
+    : CExtResizableDialog(CInsertObject::IDD, pParent), _availableObjects(&appState->GetResourceMap().Helper(), lang)
 {
 }
 

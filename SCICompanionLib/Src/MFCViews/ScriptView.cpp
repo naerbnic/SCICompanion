@@ -1385,7 +1385,7 @@ void CScriptView::OnContextMenu(CWnd *pWnd, CPoint point)
             CMenu *subMenu = pTracker->GetSubMenu(insertObjectIndex);
             if (subMenu)
             {
-                _availableObjects = make_unique<AvailableObjects>(GetDocument()->GetScriptId().Language());
+                _availableObjects = make_unique<AvailableObjects>(&appState->GetResourceMap().Helper(), GetDocument()->GetScriptId().Language());
                 for (size_t i = 0; i < _availableObjects->GetObjects().size(); i++)
                 {
                     int iIndex = 0;
@@ -1408,7 +1408,7 @@ void CScriptView::OnContextMenu(CWnd *pWnd, CPoint point)
             if (subMenu)
             {
                 subMenu->RemoveMenu(0, MF_BYPOSITION);
-                _availableMethods = make_unique<AvailableMethods>(GetDocument()->GetScriptId().Language());
+                _availableMethods = make_unique<AvailableMethods>(&appState->GetResourceMap().Helper(), GetDocument()->GetScriptId().Language());
                 for (size_t i = 0; i < _availableMethods->GetMethods().size(); i++)
                 {
                     int iIndex = 0;
