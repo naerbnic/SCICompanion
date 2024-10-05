@@ -49,9 +49,9 @@ namespace sci
         bool IsMethod() const { return _fIsMethodCall; }
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
 
         bool ContainsRest() const;
 
@@ -79,9 +79,9 @@ namespace sci
         bool HasIndexer() const { return _indexer.get() != nullptr; }
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
 
         void SetIndexer(std::unique_ptr<SyntaxNode> indexer) { _indexer = std::move(indexer); }
         
@@ -103,9 +103,10 @@ namespace sci
 		RestStatement& operator=(const RestStatement& src) = delete;
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
+        CodeResult OutputByteCode(
+            CompileContext &context) const override;
         
-        void Traverse(IExploreNode &en);
+        void Traverse(IExploreNode &en) override;
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
     };
@@ -122,9 +123,12 @@ namespace sci
 		Cast& operator=(const Cast &src) = delete;
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context) { _statement1->PreScan(context); }
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(
+            CompileContext &context) const override;
+        void PreScan(CompileContext &context) override {
+            _statement1->PreScan(context);
+        }
+        void Traverse(IExploreNode &en) override;
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
     };
@@ -150,9 +154,9 @@ namespace sci
         void SimplifySendObject();
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
 
         void SetLValue(std::unique_ptr<LValue> var) { _object3 = std::move(var); }
 		void AddSendParam(std::unique_ptr<SendParam> pParam) { _params.push_back(std::move(pParam)); }
@@ -187,9 +191,9 @@ namespace sci
         void StealParams(SyntaxNodeVector &stolen) { stolen.swap(_segments); }
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
         
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
@@ -207,9 +211,12 @@ namespace sci
 		ReturnStatement& operator=(const ReturnStatement& src) = delete;
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context) { if (_statement1) _statement1->PreScan(context); }
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(
+            CompileContext &context) const override;
+        void PreScan(CompileContext &context) override {
+            if (_statement1) _statement1->PreScan(context);
+        }
+        void Traverse(IExploreNode &en) override;
         
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
@@ -227,9 +234,9 @@ namespace sci
 		ForLoop& operator=(const ForLoop& src) = delete;
         
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context); 
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(CompileContext &context) const override;
+        void PreScan(CompileContext &context) override; 
+        void Traverse(IExploreNode &en) override;
         
         void SetLooper(std::unique_ptr<CodeBlock> block) { _looper = std::move(block); }
 		CodeBlock *GetInitializer() const { return _list.get(); }
@@ -249,9 +256,10 @@ namespace sci
 		WhileLoop& operator=(const WhileLoop& src) = delete;
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(
+            CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
         
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;

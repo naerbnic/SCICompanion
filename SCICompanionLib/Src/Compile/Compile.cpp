@@ -3872,7 +3872,7 @@ public:
     EvaluateConstantExpressionsHelper(CompileContext &context) : _context(context) {}
 
 private:
-    void ExploreNode(sci::SyntaxNode &node, sci::ExploreNodeState state)
+    void ExploreNode(sci::SyntaxNode &node, sci::ExploreNodeState state) override
     {
         if (state == sci::ExploreNodeState::Pre)
         {

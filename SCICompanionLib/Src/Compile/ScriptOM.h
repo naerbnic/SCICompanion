@@ -425,7 +425,7 @@ namespace sci
 #define DECLARE_NODE_TYPE(type)\
     public: \
     const static NodeType MyNodeType = type; \
-    virtual NodeType GetNodeType() const { return type; }
+    NodeType GetNodeType() const override { return type; }
 
     template <typename _T>
     const _T *SafeSyntaxNode(const SyntaxNode *pNode)
@@ -487,7 +487,7 @@ namespace sci
         PropertyValueBase& operator=(const PropertyValueBase& src);
         bool operator==(const PropertyValueBase& value2) const;
         bool operator!=(const PropertyValueBase& value);
-        std::string ToString() const;
+        std::string ToString() const override;
         void SetValue(WORD wValue, bool fHexIn = false)
         {
             _numberValue = wValue; _type = sci::ValueType::Number; _fHex = fHexIn; _fNegate = false; _stringValue.clear();
@@ -555,7 +555,7 @@ namespace sci
             }
         }
 
-		void Traverse(IExploreNode &en);
+		void Traverse(IExploreNode &en) override;
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 	};
 
@@ -574,12 +574,12 @@ namespace sci
         ComplexPropertyValue& operator=(ComplexPropertyValue& src);
         void SetIndexer(SyntaxNode *pIndexer) { _pArrayInternal.reset(pIndexer); }
         void SetIndexer(std::unique_ptr<SyntaxNode> pIndexer) { _pArrayInternal = std::move(pIndexer); }
-        virtual SyntaxNode *GetIndexer() const { return _pArrayInternal.get(); }
+        SyntaxNode *GetIndexer() const override { return _pArrayInternal.get(); }
         std::unique_ptr<SyntaxNode> StealIndexer() { return move(_pArrayInternal); }
         
         bool Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const override;
 
-        void Traverse(IExploreNode &en);
+        void Traverse(IExploreNode &en) override;
         void Accept(ISyntaxNodeVisitor &visitor) const override;
     private:
         std::unique_ptr<SyntaxNode> _pArrayInternal;
@@ -604,7 +604,7 @@ namespace sci
         
 
         // IOutputByteCode
-        void PreScan(CompileContext &context);
+        void PreScan(CompileContext &context) override;
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
     private:
@@ -702,9 +702,9 @@ namespace sci
         void SetValue(const PropertyValue &value);
 
         // IOutputByteCode
-        void PreScan(CompileContext &context);
+        void PreScan(CompileContext &context) override;
 
-        void Traverse(IExploreNode &en);
+        void Traverse(IExploreNode &en)override;
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
@@ -796,7 +796,7 @@ namespace sci
         void Traverse(IExploreNode &en) override;
 
         // IVariableLookupContext
-        ResolvedToken LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const;
+        ResolvedToken LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const override;
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
@@ -825,7 +825,7 @@ namespace sci
 		void AddSignature(std::unique_ptr<FunctionSignature> pSig) { _signatures.push_back(std::move(pSig)); }
 		void AddVariable(std::unique_ptr<VariableDecl> pVar, PropertyValue value);
         void AddVariable(std::unique_ptr<VariableDecl> pVar) { _tempVars.push_back(std::move(pVar)); }
-        std::string ToString() const;
+        std::string ToString() const override;
         const VariableDeclVector &GetVariables() const { return _tempVars; }
         const ClassDefinition *GetOwnerClass() const { return _pOwnerClass; }
         void SetOwnerClass(const ClassDefinition *pOwnerClass) { _pOwnerClass = pOwnerClass; }
@@ -834,12 +834,14 @@ namespace sci
         void AddParam(const std::string &param);
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
 
         // IVariableLookupContext
-        ResolvedToken LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const;
+        ResolvedToken LookupVariableName(CompileContext &context,
+                                         const std::string &str, WORD &wIndex,
+                                         SpeciesIndex &dataType) const override;
         
 
         void PruneExtraneousReturn();
@@ -893,8 +895,8 @@ namespace sci
         void SetClass(const std::string className) { _class = className; }
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
+        CodeResult OutputByteCode(CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
         
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
@@ -936,13 +938,15 @@ namespace sci
         bool GetPropertyConst(PCTSTR pszName, PropertyValue &value) const;
 
         // ISCIPropertyBag
-        bool SetProperty(PCTSTR pszName, PropertyValue value);
-        bool GetProperty(PCTSTR pszName, PropertyValue &value);
-        void SetBagName(PCTSTR pszName) { _innerName = pszName; }
-		const std::string GetBagName() { return _innerName; }
-        void SetSpecies(PCTSTR pszName) { _superClass = pszName; }
-        const std::string GetSpecies() const { return _superClass; }
-        const ClassPropertyVector &GetProperties() { return _properties; }
+        bool SetProperty(PCTSTR pszName, PropertyValue value) override;
+        bool GetProperty(PCTSTR pszName, PropertyValue &value) override;
+        void SetBagName(PCTSTR pszName) override { _innerName = pszName; }
+        const std::string GetBagName() override { return _innerName; }
+        void SetSpecies(PCTSTR pszName) override { _superClass = pszName; }
+        const std::string GetSpecies() const override { return _superClass; }
+        const ClassPropertyVector &GetProperties() override {
+            return _properties;
+        }
 
         void SetSuperClass(const std::string &superClass) { _superClass = superClass; }
         void SetPublic(bool fPublic) { _fPublic = fPublic; }
@@ -952,12 +956,15 @@ namespace sci
 		void AddMethod(std::unique_ptr<MethodDefinition> method) { _methods.push_back(std::move(method)); }
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(
+            CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
 
         // IVariableLookupContext
-        virtual ResolvedToken LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const;
+        ResolvedToken LookupVariableName(
+            CompileContext &context, const std::string &str, WORD &wIndex,
+            SpeciesIndex &dataType) const override;
 
         void OutputSourceCode(SourceCodeWriter &out) const;
 
@@ -1052,9 +1059,10 @@ namespace sci
 		ConditionalExpression& operator=(const ConditionalExpression& src) = delete;
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const;
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        CodeResult OutputByteCode(
+            CompileContext &context) const override;
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
         bool Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const override;
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
@@ -1093,9 +1101,11 @@ namespace sci
         Comment(const std::string &comment, CommentType type) : NamedNode(comment), CommentType(type) {}
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const { return CodeResult(); }
-        void PreScan(CompileContext &context) {}
-        void Traverse(IExploreNode &en) {}
+        CodeResult OutputByteCode(CompileContext &context) const override {
+            return CodeResult();
+        }
+        void PreScan(CompileContext &context) override {}
+        void Traverse(IExploreNode &en) override {}
         
         std::string GetSanitizedText() const;
 
@@ -1117,9 +1127,11 @@ namespace sci
         ExportEntry& operator=(const ExportEntry& src) = delete;
 
         // IOutputByteCode
-        CodeResult OutputByteCode(CompileContext &context) const { return CodeResult(); }
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en) {}
+        CodeResult OutputByteCode(CompileContext &context) const override {
+            return CodeResult();
+        }
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override {}
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         std::string Name;
@@ -1168,10 +1180,12 @@ namespace sci
         bool IsExport(const std::string &name) const;
 
         // IVariableLookupContext
-        ResolvedToken LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const;
+        ResolvedToken LookupVariableName(CompileContext &context,
+                                         const std::string &str, WORD &wIndex,
+                                         SpeciesIndex &dataType) const override;
 
-        void PreScan(CompileContext &context);
-        void Traverse(IExploreNode &en);
+        void PreScan(CompileContext &context) override;
+        void Traverse(IExploreNode &en) override;
 
         void TrackGenText(CompileContext &context);
 

@@ -154,7 +154,7 @@ public:
 
     // Called to specify the position in the heap (or script) resource at which a string, said or object is referenced.
     void WroteSink(uint16_t tempToken, uint16_t offset, ResourceType resType);        // Can be many per token. For sinks in hep resources (or scr in SCI0)
-    void WroteCodeSink(uint16_t tempToken, uint16_t offset);    // Can be many per token. These are lofsa/lofss, so they may be relative.
+    void WroteCodeSink(uint16_t tempToken, uint16_t offset) override;    // Can be many per token. These are lofsa/lofss, so they may be relative.
     void WroteScrSink(uint16_t tempToken, uint16_t offset);     // Can be many per token. For sinks in scr resources.
 
     // Does the heavy work of writing the final offsets into the token reference positions:
@@ -231,7 +231,7 @@ public:
     WORD LookupSelectorAndAdd(const std::string &str);
     bool LookupSelector(const std::string &str, WORD &wIndex);
     void DefineNewSelector(const std::string &str, WORD &wIndex);
-    bool LookupDefine(const std::string &str, WORD &wValue);
+    bool LookupDefine(const std::string &str, WORD &wValue) override;
     void AddDefine(sci::Define *pDefine);
     const SCIVersion &GetVersion() { return _version; }
     //
@@ -277,10 +277,10 @@ public:
     void NotifySendOrProcCall();
     void PopQuery();
     bool SupportTypeChecking();
-    bool LookupWord(const std::string &word, WORD &wWordGroup);
+    bool LookupWord(const std::string &word, WORD &wWordGroup) override;
     bool LookupWordGroupClass(uint16_t group, WordClass *wordClass);
     sci::Script *SetErrorContext(sci::Script *pScript);
-    void ReportResult(const CompileResult &result);
+    void ReportResult(const CompileResult &result) override;
     void ReportWarning(const ISourceCodePosition *pPos, const char *pszFormat, ...);
     void ReportError(const ISourceCodePosition *pPos, const char *pszFormat, ...);
     void ReportTypeError(const ISourceCodePosition *pPos, SpeciesIndex w1, SpeciesIndex w2, const char *pszFormat);
@@ -533,11 +533,11 @@ class CompileLog : public ICompileLog
 {
 public:
     CompileLog() { _cErrors = 0; _cWarnings = 0; }
-    void ReportResult(const CompileResult &result)
+    void ReportResult(const CompileResult &result) override
     {
         _compileResults.push_back(result);
     }
-    void SummarizeAndReportErrors();
+    void SummarizeAndReportErrors() override;
     void Clear() { _compileResults.clear(); }
     std::vector<CompileResult> &Results() { return _compileResults; }
     void CalculateErrors();
