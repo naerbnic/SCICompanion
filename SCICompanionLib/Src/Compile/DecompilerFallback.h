@@ -20,4 +20,4 @@ namespace sci
     class FunctionBase;
 }
 
-void DisassembleFallback(sci::FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups, IDecompilerResults& log);
+void DisassembleFallback(sci::FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups);

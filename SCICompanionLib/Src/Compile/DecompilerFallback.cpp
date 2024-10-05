@@ -187,7 +187,7 @@ private:
     stack<CallFrame> callFrames;
 };
 
-void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups, IDecompilerResults& log)
+void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups)
 {
     // We'll need to keep track of send frames so we can detect which ones are selectors.
     // etc... Then later we can go back and convert selectors into selectors.
@@ -385,7 +385,7 @@ void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, Decom
                     if (name.empty())
                     {
                         name = InvalidLookupError;
-                        log.AddResult(DecompilerResultType::Error, fmt::sprintf("Unable to find symbol for %d.", wName));
+                        lookups.DecompileResults().AddResult(DecompilerResultType::Error, fmt::sprintf("Unable to find symbol for %d.", wName));
                     }
                     _AddString(*asmStatement, name, _ScriptObjectTypeToPropertyValueType(type));
                     break;
