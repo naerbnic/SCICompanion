@@ -196,11 +196,13 @@ public:
 class ILookupSaids
 {
 public:
+    virtual ~ILookupSaids() = default;
     virtual bool LookupWord(const std::string& word, uint16_t& wordGroup) = 0;
 };
 
 class ILookupDefine
 {
 public:
+    virtual ~ILookupDefine() = default;
     virtual bool LookupDefine(const std::string& str, uint16_t& wValue) = 0;
 };

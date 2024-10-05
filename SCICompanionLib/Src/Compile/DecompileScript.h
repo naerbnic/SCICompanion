@@ -22,4 +22,4 @@ class DecompileLookups;
 class ILookupNames;
 class GameFolderHelper;
 struct Vocab000;
-sci::Script *Decompile(const GameFolderHelper &helper, const CompiledScript &compiledScript, DecompileLookups &lookups, const Vocab000 *pWords);
+sci::Script *Decompile(const GameFolderHelper &helper, const SCIVersion& version, const CompiledScript &compiledScript, DecompileLookups &lookups, const Vocab000 *pWords);

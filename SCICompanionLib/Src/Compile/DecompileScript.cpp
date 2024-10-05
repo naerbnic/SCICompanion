@@ -30,7 +30,8 @@ using namespace std;
 
 const char InvalidLookupError[] = "LOOKUP_ERROR";
 
-void DecompileObject(const CompiledObject &object,
+void DecompileObject(const SCIVersion& version,
+    const CompiledObject &object,
     sci::Script &script,
     DecompileLookups &lookups,
     const std::vector<BYTE> &scriptResource,
@@ -133,7 +134,7 @@ void DecompileObject(const CompiledObject &object,
                 pMethod->SetOwnerClass(pClass.get());
                 pMethod->SetScript(&script);
                 pMethod->SetName(lookups.LookupSelectorName(functionSelectors[i]));
-                DecompileRaw(*pMethod, lookups, pStartCode, pEndCode, pEndScript, functionOffsetsTO[i]);
+                DecompileRaw(version, *pMethod, lookups, pStartCode, pEndCode, pEndScript, functionOffsetsTO[i]);
                 pClass->AddMethod(std::move(pMethod));
             }
         }
@@ -145,7 +146,7 @@ void DecompileObject(const CompiledObject &object,
 
 const uint16_t BogusSQ5Export = 0x3af;
 
-void DecompileFunction(const CompiledScript &compiledScript, ProcedureDefinition &func, DecompileLookups &lookups, uint16_t wCodeOffsetTO, const set<uint16_t> &sortedCodePointersTO)
+void DecompileFunction(const SCIVersion& version, const CompiledScript &compiledScript, ProcedureDefinition &func, DecompileLookups &lookups, uint16_t wCodeOffsetTO, const set<uint16_t> &sortedCodePointersTO)
 {
     lookups.EndowWithProperties(lookups.GetPossiblePropertiesForProc(wCodeOffsetTO));
     set<uint16_t>::const_iterator codeStartIt = sortedCodePointersTO.find(wCodeOffsetTO);
@@ -157,7 +158,7 @@ void DecompileFunction(const CompiledScript &compiledScript, ProcedureDefinition
         const BYTE *pBegin = &compiledScript.GetRawBytes()[section.begin];
         const BYTE *pEnd = &compiledScript.GetRawBytes()[section.end];
         const BYTE *pEndScript = compiledScript.GetEndOfRawBytes();
-        DecompileRaw(func, lookups, pBegin, pEnd, pEndScript, wCodeOffsetTO);
+        DecompileRaw(version, func, lookups, pBegin, pEnd, pEndScript, wCodeOffsetTO);
         if (lookups.WasPropertyRequested() && lookups.GetPossiblePropertiesForProc(wCodeOffsetTO))
         {
             const CompiledObject *object = static_cast<const CompiledObject *>(lookups.GetPossiblePropertiesForProc(wCodeOffsetTO));
@@ -373,7 +374,7 @@ private:
     const IDecompilerConfig &_config;
 };
 
-Script *Decompile(const GameFolderHelper &helper, const CompiledScript &compiledScript, DecompileLookups &lookups, const Vocab000 *pWords)
+Script *Decompile(const GameFolderHelper &helper, const SCIVersion& version, const CompiledScript &compiledScript, DecompileLookups &lookups, const Vocab000 *pWords)
 {
     unique_ptr<Script> pScript = std::make_unique<Script>();
     pScript->SyntaxVersion = 2;
@@ -441,7 +442,7 @@ Script *Decompile(const GameFolderHelper &helper, const CompiledScript &compiled
     // First, the objects (instances, classes)
     for (auto &object : compiledScript._objects)
     {
-        DecompileObject(*object, *pScript, lookups, compiledScript.GetRawBytes(), compiledScript._codeSections, codePointersTO);
+        DecompileObject(version, *object, *pScript, lookups, compiledScript.GetRawBytes(), compiledScript._codeSections, codePointersTO);
         if (lookups.DecompileResults().IsAborted())
         {
             break;
@@ -464,7 +465,7 @@ Script *Decompile(const GameFolderHelper &helper, const CompiledScript &compiled
             pProc->SetName(lookups.ReverseLookupPublicExportName(compiledScript.GetScriptNumber(), (uint16_t)i));
             exportSlotToName[i] = pProc->GetName();
             pProc->SetPublic(true);
-            DecompileFunction(compiledScript, *pProc, lookups, exportPointer, codePointersTO);
+            DecompileFunction(version, compiledScript, *pProc, lookups, exportPointer, codePointersTO);
             pScript->AddProcedure(std::move(pProc));
         }
         else if ((exportPointer == 0) || (exportPointer == KQ5CD_BadExport))
@@ -494,7 +495,7 @@ Script *Decompile(const GameFolderHelper &helper, const CompiledScript &compiled
         pProc->SetScript(pScript.get());
         pProc->SetName(_GetProcNameFromScriptOffset(offset));
         pProc->SetPublic(false);
-        DecompileFunction(compiledScript, *pProc, lookups, offset, codePointersTO);
+        DecompileFunction(version, compiledScript, *pProc, lookups, offset, codePointersTO);
         pScript->AddProcedure(std::move(pProc));
     }
 

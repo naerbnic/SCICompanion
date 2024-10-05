@@ -187,7 +187,7 @@ private:
     stack<CallFrame> callFrames;
 };
 
-void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups)
+void DisassembleFallback(const SCIVersion& version, FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups)
 {
     // We'll need to keep track of send frames so we can detect which ones are selectors.
     // etc... Then later we can go back and convert selectors into selectors.
@@ -376,7 +376,6 @@ void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, Decom
                     // In SCI0 is this a relative offset from the post operation program counter.
                     // In SCI1 it appears to be an absolute offset.
                     ICompiledScriptSpecificLookups::ObjectType type;
-                    SCIVersion version = appState->GetVersion();
                     uint16_t wName = version.lofsaOpcodeIsAbsolute ?
                         cur->get_first_operand() :
                         (cur->get_first_operand() + cur->get_final_postop_offset());

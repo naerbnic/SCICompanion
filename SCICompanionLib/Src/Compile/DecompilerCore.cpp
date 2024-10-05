@@ -1103,7 +1103,7 @@ void _TrackExternalScriptUsage(std::list<scii> code, DecompileLookups &lookups)
 }
 
 // pEnd can be teh end of script data. I have added autodetection support.
-void DecompileRaw(FunctionBase &func, DecompileLookups &lookups, const BYTE *pBegin, const BYTE *pEstimatedMaxEnd, const BYTE *pScriptResourceEnd, WORD wBaseOffset)
+void DecompileRaw(const SCIVersion& version, FunctionBase &func, DecompileLookups &lookups, const BYTE *pBegin, const BYTE *pEstimatedMaxEnd, const BYTE *pScriptResourceEnd, WORD wBaseOffset)
 {
     bool allowContinues = func.GetOwnerScript()->GetScriptId().Language() == LangSyntaxSCI;
 
@@ -1170,7 +1170,7 @@ void DecompileRaw(FunctionBase &func, DecompileLookups &lookups, const BYTE *pBe
         lookups.ResetOnFailure();
 
         lookups.DecompileResults().AddResult(DecompilerResultType::Important, fmt::format("Falling back to disassembly for {0}", func.GetName()));
-        DisassembleFallback(func, code.begin(), code.end(), lookups);
+        DisassembleFallback(version, func, code.begin(), code.end(), lookups);
     }
 
     // Give some statistics.

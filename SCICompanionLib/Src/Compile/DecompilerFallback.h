@@ -12,7 +12,8 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
-#include "DecompilerResults.h"
+
+#include "Version.h"
 
 class DecompileLookups;
 namespace sci
@@ -20,4 +21,4 @@ namespace sci
     class FunctionBase;
 }
 
-void DisassembleFallback(sci::FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups);
+void DisassembleFallback(const SCIVersion& version, sci::FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups);
