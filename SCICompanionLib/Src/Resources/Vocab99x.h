@@ -14,6 +14,9 @@
 #pragma once
 
 #include <unordered_map>
+#include <string>
+#include <stdint.h>
+#include <vector>
 
 #include "interfaces.h"
 #include "CompileCommon.h"
@@ -22,6 +25,8 @@
 class SpeciesIndex;
 class CompiledObject;
 class GameFolderHelper;
+class CompiledScript;
+class SpeciesTable;
 
 //
 // This can represent any vocab resource with names
@@ -90,10 +95,6 @@ public:
 protected:
     std::string _GetMissingName(uint16_t wName) const;
 };
-
-// fwd decl
-class CompiledScript;
-class SpeciesTable;
 
 //
 // Given a "class #", returns the script that it is in.
