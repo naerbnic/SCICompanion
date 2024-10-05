@@ -14,10 +14,12 @@
 #include "stdafx.h"
 #include "scii.h"
 #include "DecompilerFallback.h"
+#include "CompileInterfaces.h"
 #include "ScriptOMAll.h"
 #include "DecompilerCore.h"
 #include "format.h"
 #include "AppState.h"
+#include "DecompilerResults.h"
 #include "PMachine.h"
 
 using namespace std;
@@ -185,7 +187,7 @@ private:
     stack<CallFrame> callFrames;
 };
 
-void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups)
+void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, DecompileLookups &lookups, IDecompilerResults& log)
 {
     // We'll need to keep track of send frames so we can detect which ones are selectors.
     // etc... Then later we can go back and convert selectors into selectors.
@@ -383,7 +385,7 @@ void DisassembleFallback(FunctionBase &func, code_pos start, code_pos end, Decom
                     if (name.empty())
                     {
                         name = InvalidLookupError;
-                        appState->LogInfo("Unable to find symbol for %d.", wName);
+                        log.AddResult(DecompilerResultType::Error, fmt::sprintf("Unable to find symbol for %d.", wName));
                     }
                     _AddString(*asmStatement, name, _ScriptObjectTypeToPropertyValueType(type));
                     break;

@@ -1170,7 +1170,7 @@ void DecompileRaw(FunctionBase &func, DecompileLookups &lookups, const BYTE *pBe
         lookups.ResetOnFailure();
 
         lookups.DecompileResults().AddResult(DecompilerResultType::Important, fmt::format("Falling back to disassembly for {0}", func.GetName()));
-        DisassembleFallback(func, code.begin(), code.end(), lookups);
+        DisassembleFallback(func, code.begin(), code.end(), lookups, lookups.DecompileResults());
     }
 
     // Give some statistics.
