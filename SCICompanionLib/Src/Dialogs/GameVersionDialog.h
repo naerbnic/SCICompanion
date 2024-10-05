@@ -30,8 +30,8 @@ public:
 
 
 private:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual void OnOK() override;
+    void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
+    void OnOK() override;
     afx_msg void OnViewResourceMap();
     afx_msg void OnViewMessageMap();
     DECLARE_MESSAGE_MAP()

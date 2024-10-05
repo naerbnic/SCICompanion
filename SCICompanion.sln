@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SCICompanionLib", "SCICompanionLib\SCICompanionLib.vcxproj", "{761DE01C-57F6-45C5-AAFC-AC48000C423F}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -22,10 +22,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\Unit
 		{6F805ECA-9DC8-42E0-A918-38A7315C7E8F} = {6F805ECA-9DC8-42E0-A918-38A7315C7E8F}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{93320AFE-9CBC-4C08-AB78-7A5D6F911BA1}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		ANSI Debug RDE|Win32 = ANSI Debug RDE|Win32
 		ANSI Debug RDE|x64 = ANSI Debug RDE|x64
@@ -700,5 +702,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

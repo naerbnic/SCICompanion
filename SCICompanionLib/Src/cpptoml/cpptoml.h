@@ -287,7 +287,7 @@ class array : public base
         // nothing
     }
 
-    virtual bool is_array() const override
+    bool is_array() const override
     {
         return true;
     }
@@ -350,7 +350,7 @@ class array : public base
         return result;
     }
 
-    virtual void print(std::ostream& stream) const override
+    void print(std::ostream& stream) const override
     {
         stream << "[ ";
         auto it = values_.begin();
@@ -374,7 +374,7 @@ class table_array : public base
     friend class table;
 
   public:
-    virtual bool is_table_array() const override
+    bool is_table_array() const override
     {
         return true;
     }

@@ -249,7 +249,7 @@ public:
         return packageByteStream;
     }
 
-    virtual sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(const ResourceMapEntryAgnostic &mapEntry, uint32_t &size, bool &includesHeader) override
+    sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(const ResourceMapEntryAgnostic &mapEntry, uint32_t &size, bool &includesHeader) override
     {
         includesHeader = true;
         sci::istream packageByteStream = _GetVolumeStream(mapEntry.PackageNumber);
@@ -266,7 +266,7 @@ public:
         return packageByteStream;
     }
 
-    virtual void RemoveEntry(const ResourceMapEntryAgnostic &mapEntryToRemove) override
+    void RemoveEntry(const ResourceMapEntryAgnostic &mapEntryToRemove) override
     {
         // The stream might be in a failbit state (because someone enumerated and read off the end), so reset them before continuing.
         // Otherwise, the enumeration will fail, and the resource map will get cleaned out.
