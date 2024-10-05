@@ -63,7 +63,7 @@ namespace UnitTests
             PrecompiledHeaders headers(appState->GetResourceMap());
             for (auto &script : scripts)
             {
-                CompileResults results(log);
+                CompileResults results(appState->GetVersion(), log);
                 NewCompileScript(results, log, tables, headers, script);
             }
             Assert::IsFalse(log.HasErrors());

@@ -95,8 +95,8 @@ void CompileTables::Save()
     _selectors.Save();
 }
 
-CompileResults::CompileResults(ICompileLog& log) : _log(log), _text(CreateDefaultTextResource(appState->GetVersion()))
-{
+CompileResults::CompileResults(SCIVersion version, ICompileLog& log)
+    : _log(log), _text(CreateDefaultTextResource(version)) {
 }
 
 TextComponent& CompileResults::GetTextComponent()

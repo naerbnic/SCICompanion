@@ -90,7 +90,7 @@ LRESULT CNewCompileDialog::CompileAll(WPARAM wParam, LPARAM lParam)
     else
     {
         // Do a compile
-        CompileResults results(_log);
+      CompileResults results(appState->GetVersion() ,_log);
         NewCompileScript(results, _log, _tables, _headers, scriptId);
 
         // The compile is done.  Post the results.

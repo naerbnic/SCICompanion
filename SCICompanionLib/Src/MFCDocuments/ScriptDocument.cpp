@@ -143,7 +143,7 @@ void CScriptDocument::OnCompile()
         CompileTables tables;
         tables.Load(appState->GetResourceMap(), appState->GetVersion());
         PrecompiledHeaders headers(appState->GetResourceMap());
-        CompileResults results(log);
+        CompileResults results(appState->GetVersion(), log);
         bool fSuccess = NewCompileScript(results, log, tables, headers, _scriptId);
         if (fSuccess)
         {

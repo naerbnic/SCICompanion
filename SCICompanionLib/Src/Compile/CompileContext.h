@@ -507,7 +507,7 @@ private:
 class CompileResults
 {
 public:
-    CompileResults(ICompileLog &log);
+    CompileResults(SCIVersion version, ICompileLog &log);
     std::vector<uint8_t> &GetScriptResource() { return _outputScr; }
     std::vector<uint8_t> &GetHeapResource() { return _outputHep; }
     std::vector<uint8_t> &GetDebugInfo() { return _outputDebug; }
