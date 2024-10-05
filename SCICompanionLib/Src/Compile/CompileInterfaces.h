@@ -34,10 +34,10 @@ enum class ResolvedToken
 enum ProcedureType
 {
     ProcedureUnknown,
-    ProcedureMain,      // Something in the main script (wIndex)
-    ProcedureExternal,  // Something in another script  (wScript, wIndex)
-    ProcedureLocal,     // Something in the current script (wIndex)
-    ProcedureKernel,    // A kernel function (wIndex)
+    ProcedureMain, // Something in the main script (wIndex)
+    ProcedureExternal, // Something in another script  (wScript, wIndex)
+    ProcedureLocal, // Something in the current script (wIndex)
+    ProcedureKernel, // A kernel function (wIndex)
 };
 
 //
@@ -47,17 +47,27 @@ enum ProcedureType
 class ISourceCodePosition
 {
 public:
-    ISourceCodePosition() {}
-    ISourceCodePosition(const ISourceCodePosition &src) = default;
+    ISourceCodePosition()
+    {
+    }
+
+    ISourceCodePosition(const ISourceCodePosition& src) = default;
     int GetLineNumber() const { return _start.Line(); }
     int GetColumnNumber() const { return _start.Column(); }
     int GetEndLineNumber() const { return _end.Line(); }
-    void SetPosition(LineCol pos) { _start = pos; _end = pos; }
+
+    void SetPosition(LineCol pos)
+    {
+        _start = pos;
+        _end = pos;
+    }
+
     void SetEndPosition(LineCol pos) { _end = pos; }
     LineCol GetPosition() const { return _start; }
     LineCol GetEndPosition() const { return _end; }
+
 protected:
-    ISourceCodePosition &operator=(const ISourceCodePosition &src) = default;
+    ISourceCodePosition& operator=(const ISourceCodePosition& src) = default;
 
 private:
     LineCol _start;
@@ -66,10 +76,12 @@ private:
 
 
 class CompileContext;
+
 class IVariableLookupContext
 {
 public:
-    virtual ResolvedToken LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const = 0;
+    virtual ResolvedToken LookupVariableName(CompileContext& context, const std::string& str, WORD& wIndex,
+                                             SpeciesIndex& dataType) const = 0;
 };
 
 // Selector/value pair.
@@ -84,10 +96,11 @@ struct species_property
 
 enum class IntegerFlags : uint16_t
 {
-    None =      0x00000000,
-    Hex =       0x00000001,  // Originally represented as a hex number.
-    Negative =  0x00000002,  // Originally represented as a -ve number. (value is already correct)
+    None = 0x00000000,
+    Hex = 0x00000001, // Originally represented as a hex number.
+    Negative = 0x00000002, // Originally represented as a -ve number. (value is already correct)
 };
+
 DEFINE_ENUM_FLAGS(IntegerFlags, uint16_t)
 
 //
@@ -113,7 +126,7 @@ public:
         _resourceType = ResourceType::None;
     }
 
-    CompileResult(const std::string &message, CompileResultType type = CRT_Message)
+    CompileResult(const std::string& message, CompileResultType type = CRT_Message)
     {
         _message = message;
         _nLine = 0;
@@ -123,7 +136,7 @@ public:
     }
 
     // For other resources.
-    CompileResult(const std::string &message, ResourceType type, int number, int index)
+    CompileResult(const std::string& message, ResourceType type, int number, int index)
     {
         _message = message;
         _nLine = number;
@@ -132,7 +145,7 @@ public:
         _resourceType = type;
     }
 
-    CompileResult(const std::string &message, ScriptId script, int nLineNumber)
+    CompileResult(const std::string& message, ScriptId script, int nLineNumber)
     {
         _message = message;
         _script = script;
@@ -141,7 +154,8 @@ public:
         _type = CRT_Message;
         _resourceType = ResourceType::None;
     }
-    CompileResult(const std::string &message, ScriptId script, int nLineNumber, int nCol, CompileResultType type)
+
+    CompileResult(const std::string& message, ScriptId script, int nLineNumber, int nCol, CompileResultType type)
     {
         _message = message;
         _script = script;
@@ -154,7 +168,7 @@ public:
     bool IsError() const { return (_type == CRT_Error); }
     bool IsWarning() const { return (_type == CRT_Warning); }
     ScriptId GetScript() const { return _script; }
-    const std::string &GetMessage() const { return _message; }
+    const std::string&GetMessage() const { return _message; }
     int GetLineNumber() const { return _nLine; }
     int GetColumn() const { return _nCol; }
     BOOL CanGotoScript() const { return !_script.IsNone(); }
@@ -172,18 +186,21 @@ private:
 class ICompileLog
 {
 public:
-    virtual void ReportResult(const CompileResult &result) = 0;
-    virtual void SummarizeAndReportErrors() {}; // Optional to implement
+    virtual void ReportResult(const CompileResult& result) = 0;
+
+    virtual void SummarizeAndReportErrors()
+    {
+    }; // Optional to implement
 };
 
 class ILookupSaids
 {
 public:
-    virtual bool LookupWord(const std::string &word, uint16_t &wordGroup) = 0;
+    virtual bool LookupWord(const std::string& word, uint16_t& wordGroup) = 0;
 };
 
 class ILookupDefine
 {
 public:
-    virtual bool LookupDefine(const std::string &str, uint16_t &wValue) = 0;
+    virtual bool LookupDefine(const std::string& str, uint16_t& wValue) = 0;
 };
