@@ -12,6 +12,7 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
+#include "ResourceMap.h"
 
 class IExtractProgress
 {
@@ -20,4 +21,4 @@ public:
     virtual bool SetProgress(const std::string &info, int amountDone, int totalAmount) = 0;
 };
 
-void ExtractAllResources(SCIVersion version, const std::string &destinationFolder, bool extractResources, bool extractPicImages, bool extractViewImages, bool disassembleScripts, bool extractMessages, bool generateWavs, IExtractProgress *progress = nullptr);
+void ExtractAllResources(CResourceMap& resource_map, SCIVersion version, const std::string &destinationFolder, bool extractResources, bool extractPicImages, bool extractViewImages, bool disassembleScripts, bool extractMessages, bool generateWavs, IExtractProgress *progress = nullptr);

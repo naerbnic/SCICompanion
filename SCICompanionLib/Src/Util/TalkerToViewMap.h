@@ -13,7 +13,7 @@
 ***************************************************************************/
 #pragma once
 
-class AppState;
+#include <unordered_map>
 
 class TalkerToViewMap
 {

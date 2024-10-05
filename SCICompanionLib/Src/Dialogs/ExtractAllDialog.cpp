@@ -236,7 +236,7 @@ void ExtractAllDialog::OnBnClickedExtract()
 
 void ExtractAllDialog::s_ThreadWorker(ExtractAllDialog *pThis)
 {
-    ExtractAllResources(pThis->_version, (PCSTR)pThis->_location, pThis->_extractResources, pThis->_extractPicImages, pThis->_extractViewImages, pThis->_disassembleScripts, pThis->_exportMessages, pThis->_generateWavs, pThis);
+    ExtractAllResources(appState->GetResourceMap(), pThis->_version, (PCSTR)pThis->_location, pThis->_extractResources, pThis->_extractPicImages, pThis->_extractViewImages, pThis->_disassembleScripts, pThis->_exportMessages, pThis->_generateWavs, pThis);
 }
 
 void ExtractAllDialog::OnTimer(UINT_PTR nIDEvent)

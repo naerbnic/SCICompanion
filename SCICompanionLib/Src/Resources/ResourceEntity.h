@@ -17,6 +17,7 @@
 #include <memory>
 #include <typeinfo>
 #include <typeindex>
+#include <map>
 
 class ResourceBlob;
 class ResourceEntity;

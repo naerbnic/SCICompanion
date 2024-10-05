@@ -32,7 +32,7 @@
 #include "format.h"
 #include "AudioCacheResourceSource.h"
 
-void ExtractAllResources(SCIVersion version, const std::string &destinationFolderIn, bool extractResources, bool extractPicImages, bool extractViewImages, bool disassembleScripts, bool extractMessages, bool generateWavs, IExtractProgress *progress)
+void ExtractAllResources(CResourceMap& resource_map, SCIVersion version, const std::string &destinationFolderIn, bool extractResources, bool extractPicImages, bool extractViewImages, bool disassembleScripts, bool extractMessages, bool generateWavs, IExtractProgress *progress)
 {
     std::string destinationFolder = destinationFolderIn;
     if (destinationFolder.back() != '\\')
@@ -40,18 +40,23 @@ void ExtractAllResources(SCIVersion version, const std::string &destinationFolde
         destinationFolder += "\\";
     }
 
-    ObjectFileScriptLookups objectFileLookups(appState->GetResourceMap().Helper(), appState->GetResourceMap().GetCompiledScriptLookups()->GetSelectorTable());
+    ObjectFileScriptLookups objectFileLookups(resource_map.Helper(),
+                                              resource_map
+                                                  .GetCompiledScriptLookups()
+                                                  ->GetSelectorTable());
     GlobalCompiledScriptLookups scriptLookups;
     if (disassembleScripts)
     {
-        if (!scriptLookups.Load(appState->GetResourceMap().Helper()))
+      if (!scriptLookups.Load(resource_map.Helper()))
         {
             disassembleScripts = false;
         }
     }
 
     int totalCount = 0;
-    auto resourceContainer = appState->GetResourceMap().Resources(ResourceTypeFlags::All, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+    auto resourceContainer = resource_map.Resources(
+        ResourceTypeFlags::All, ResourceEnumFlags::MostRecentOnly |
+                                    ResourceEnumFlags::ExcludePatchFiles);
     for (auto &blob : *resourceContainer)
     {
         if (extractResources)
@@ -83,7 +88,10 @@ void ExtractAllResources(SCIVersion version, const std::string &destinationFolde
     // sync36/audio36
     if (generateWavs || extractResources)
     {
-        resourceContainer = appState->GetResourceMap().Resources(ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+      resourceContainer =
+          resource_map.Resources(ResourceTypeFlags::AudioMap,
+                                 ResourceEnumFlags::MostRecentOnly |
+                                     ResourceEnumFlags::ExcludePatchFiles);
         for (auto &blob : *resourceContainer)
         {
             if (blob->GetNumber() != version.AudioMapResourceNumber)
@@ -99,7 +107,9 @@ void ExtractAllResources(SCIVersion version, const std::string &destinationFolde
 
     int count = 0;
     // Get it again, because we don't supprot reset.
-    resourceContainer = appState->GetResourceMap().Resources(ResourceTypeFlags::All, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+    resourceContainer = resource_map.Resources(
+        ResourceTypeFlags::All, ResourceEnumFlags::MostRecentOnly |
+                                    ResourceEnumFlags::ExcludePatchFiles);
     bool keepGoing = true;
     for (auto &blob : *resourceContainer)
     {
@@ -152,7 +162,8 @@ void ExtractAllResources(SCIVersion version, const std::string &destinationFolde
                     std::unique_ptr<PaletteComponent> optionalPalette;
                     if (view->GetComponent<RasterComponent>().Traits.PaletteType == PaletteType::VGA_256)
                     {
-                        optionalPalette = appState->GetResourceMap().GetMergedPalette(*view, 999);
+                      optionalPalette =
+                          resource_map.GetMergedPalette(*view, 999);
                     }
                     bitmap.Attach(CreateBitmapFromResource(*view, optionalPalette.get(), &bmi, &pBitsDest));
                 }
@@ -173,16 +184,24 @@ void ExtractAllResources(SCIVersion version, const std::string &destinationFolde
 
                     // Supply the heap stream here, since we want it match patch vs vs not.
                     std::unique_ptr<sci::istream> heapStream;
-                    std::unique_ptr<ResourceBlob> heapBlob = appState->GetResourceMap().Helper().MostRecentResource(ResourceType::Heap, blob->GetNumber(), ResourceEnumFlags::ExcludePatchFiles);
+                    std::unique_ptr<ResourceBlob> heapBlob =
+                        resource_map.Helper().MostRecentResource(
+                            ResourceType::Heap, blob->GetNumber(),
+                            ResourceEnumFlags::ExcludePatchFiles);
                     if (heapBlob)
                     {
                         heapStream = std::make_unique<sci::istream>(heapBlob->GetReadStream());
                     }
 
                     CompiledScript compiledScript(blob->GetNumber());
-                    compiledScript.Load(appState->GetResourceMap().Helper(), appState->GetVersion(), blob->GetNumber(), blob->GetReadStream(), heapStream.get());
+                    compiledScript.Load(
+                        resource_map.Helper(), version,
+                        blob->GetNumber(), blob->GetReadStream(),
+                        heapStream.get());
                     std::stringstream out;
-                    DisassembleScript(compiledScript, out, &scriptLookups, &objectFileLookups, appState->GetResourceMap().GetVocab000());
+                    DisassembleScript(compiledScript, out, &scriptLookups,
+                                      &objectFileLookups,
+                                      resource_map.GetVocab000());
                     std::string actualPath = MakeTextFile(out.str().c_str(), scriptPath.c_str());
                 }
 
@@ -212,7 +231,10 @@ void ExtractAllResources(SCIVersion version, const std::string &destinationFolde
     // Finally, the sync36 and audio36 resources and the audio maps
     if (keepGoing)
     {
-        auto audioMapContainer = appState->GetResourceMap().Resources(ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+      auto audioMapContainer =
+          resource_map.Resources(ResourceTypeFlags::AudioMap,
+                                 ResourceEnumFlags::MostRecentOnly |
+                                     ResourceEnumFlags::ExcludePatchFiles);
         for (auto &blob : *audioMapContainer)
         {
             if (extractResources)
@@ -226,7 +248,9 @@ void ExtractAllResources(SCIVersion version, const std::string &destinationFolde
             if ((blob->GetNumber() != version.AudioMapResourceNumber) && (extractResources || generateWavs))
             {
                 count++;
-                auto subResourceContainer = appState->GetResourceMap().Resources(ResourceTypeFlags::Audio, ResourceEnumFlags::MostRecentOnly, blob->GetNumber());
+              auto subResourceContainer = resource_map.Resources(
+                  ResourceTypeFlags::Audio, ResourceEnumFlags::MostRecentOnly,
+                  blob->GetNumber());
                 if (progress)
                 {
                     keepGoing = progress->SetProgress(fmt::format("Files for audio map {0}", blob->GetNumber()).c_str(), count, totalCount);
