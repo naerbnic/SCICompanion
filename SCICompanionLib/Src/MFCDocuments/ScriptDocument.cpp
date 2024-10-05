@@ -141,7 +141,7 @@ void CScriptDocument::OnCompile()
         CompileLog log;
         _ClearErrorCount();
         CompileTables tables;
-        tables.Load(appState->GetVersion());
+        tables.Load(appState->GetResourceMap(), appState->GetVersion());
         PrecompiledHeaders headers(appState->GetResourceMap());
         CompileResults results(log);
         bool fSuccess = NewCompileScript(results, log, tables, headers, _scriptId);

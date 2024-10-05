@@ -79,11 +79,11 @@ bool IsSpecialSelector(const string &str, WORD &wOffset, SpeciesIndex &type)
     return fRet;
 }
 
-bool CompileTables::Load(SCIVersion version)
+bool CompileTables::Load(CResourceMap& resource_map, SCIVersion version)
 {
     // REVIEW: this could be deleted while we're compiling.
-    _pVocab = appState->GetResourceMap().GetVocab000();
-    const GameFolderHelper &helper = appState->GetResourceMap().Helper();
+    _pVocab = resource_map.GetVocab000();
+    const GameFolderHelper &helper = resource_map.Helper();
     return _kernels.Load(helper) && _species.Load(helper) && _selectors.Load(helper);
 }
 

@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <memory>
+
 #include "scii.h"
 #include "SCO.h"
 #include "Vocab000.h"
@@ -482,7 +484,7 @@ private:
 class CompileTables
 {
 public:
-    bool Load(SCIVersion version);
+    bool Load(CResourceMap& resource_map, SCIVersion version);
     void Save();
     const Vocab000 *Vocab() { return _pVocab; }
     const KernelTable &Kernels() { return _kernels; }
