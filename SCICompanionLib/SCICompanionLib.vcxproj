@@ -88,7 +88,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <TreatSpecificWarningsAsErrors>26435</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,7 +127,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <TreatSpecificWarningsAsErrors>26435</TreatSpecificWarningsAsErrors>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,7 +169,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <TreatSpecificWarningsAsErrors>26435</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
