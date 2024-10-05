@@ -21,8 +21,9 @@
 #include "interfaces.h"
 #include "CompileCommon.h"
 #include "Version.h"
+#include "Types.h"
+#include "Stream.h"
 
-class SpeciesIndex;
 class CompiledObject;
 class GameFolderHelper;
 class CompiledScript;
@@ -35,7 +36,7 @@ class CVocabWithNames : public ILookupNames
 {
 public:
     CVocabWithNames() { _fDirty = false; }
-    virtual std::string Lookup(uint16_t wName) const;
+    std::string Lookup(uint16_t wName) const override;
     virtual bool ReverseLookup(std::string name, uint16_t &wIndex) const;
     const std::vector<std::string> &GetNames() const { return _names; }
     virtual uint16_t Add(const std::string &str);
@@ -90,10 +91,10 @@ class KernelTable : public CVocabWithNames
 {
 public:
     bool Load(const GameFolderHelper &helper);
-    virtual bool ReverseLookup(std::string name, uint16_t &wIndex) const;
+    bool ReverseLookup(std::string name, uint16_t &wIndex) const override;
 
 protected:
-    std::string _GetMissingName(uint16_t wName) const;
+    std::string _GetMissingName(uint16_t wName) const override;
 };
 
 //
@@ -113,7 +114,7 @@ public:
     std::vector<uint16_t> GetSubclassesOf(uint16_t species);
 
     // ILookupNames
-    std::string Lookup(uint16_t wIndex) const;
+    std::string Lookup(uint16_t wIndex) const override;
     bool GetSpeciesPropertySelector(uint16_t wSpeciesIndex, std::vector<uint16_t> &props, std::vector<CompiledVarValue> &values);
 
     std::vector<CompiledScript*> GetAllScripts();
