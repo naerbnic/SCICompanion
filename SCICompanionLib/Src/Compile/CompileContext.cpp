@@ -105,14 +105,14 @@ TextComponent& CompileResults::GetTextComponent()
 }
 
 // e.g. Name is "Feature"
-void CompileContext::_LoadSCO(CResourceMap& resource_map, const std::string& name, bool fErrorIfNotFound)
+void CompileContext::_LoadSCO(const std::string& name, bool fErrorIfNotFound)
 {
     assert(!name.empty());
-  string scoFileName = resource_map.Helper().GetScriptObjectFileName(name);
+  string scoFileName = _resourceMap.Helper().GetScriptObjectFileName(name);
     HANDLE hFile = CreateFile(scoFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
     if (hFile == INVALID_HANDLE_VALUE)
     {
-      scoFileName = resource_map.Helper().GetScriptObjectFileName(name);
+      scoFileName = _resourceMap.Helper().GetScriptObjectFileName(name);
         hFile = CreateFile(scoFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
     }
     if (hFile != INVALID_HANDLE_VALUE)
@@ -139,7 +139,7 @@ void CompileContext::_LoadSCO(CResourceMap& resource_map, const std::string& nam
 
 // Loads an SCOFile if we don't already have one for this script.
 // Doesn't produce an error if we can't get one.  (Maybe it should?)
-void CompileContext::_LoadSCOIfNone(CResourceMap& resource_map, WORD wScript)
+void CompileContext::_LoadSCOIfNone(WORD wScript)
 {
     auto iter = _scos.find(wScript);
     if ((iter == _scos.end()) || (iter->second.IsEmpty()))
@@ -155,7 +155,7 @@ void CompileContext::_LoadSCOIfNone(CResourceMap& resource_map, WORD wScript)
         }
         else
         {
-            _LoadSCO(resource_map, scriptName);
+            _LoadSCO(scriptName);
         }
     }
 }
@@ -189,7 +189,7 @@ CompileContext::CompileContext(SCIClassBrowser& browser, CResourceMap& resource_
     const vector<string>& uses = _script.GetUses();
     for (const string& use : uses)
     {
-        _LoadSCO(resource_map, use, true);
+        _LoadSCO(use, true);
     }
 
     // Get a map of script numbers to script names.  We use this when looking up a species index in the
@@ -487,7 +487,7 @@ std::string CompileContext::SpeciesIndexToDataTypeString(SpeciesIndex wSpeciesIn
         WORD wScript, wClassIndexInScript;
         if (_tables.Species().GetSpeciesLocation(wSpeciesIndex, wScript, wClassIndexInScript))
         {
-            _LoadSCOIfNone(appState->GetResourceMap(), wScript);
+            _LoadSCOIfNone(wScript);
             CSCOFile& scoFile = _scos[wScript];
             // Find the name.
             dataType = scoFile.GetClassName(wClassIndexInScript);
@@ -710,7 +710,7 @@ bool CompileContext::_GetSCOObject(SpeciesIndex wSpecies, CSCOObjectClass& scoOb
         WORD wScript, wClassIndexInScript;
         if (_tables.Species().GetSpeciesLocation(wSpecies, wScript, wClassIndexInScript))
         {
-            _LoadSCOIfNone(appState->GetResourceMap(), wScript);
+            _LoadSCOIfNone(wScript);
             CSCOFile& scoFile = _scos[wScript];
             scoObject = scoFile.GetObjectBySpecies(wSpecies);
             fRet = true;
@@ -834,8 +834,8 @@ void CompileContext::ReportError(const ISourceCodePosition* pPos, const char* ps
 void CompileContext::ReportTypeError(const ISourceCodePosition* pPos, SpeciesIndex w1, SpeciesIndex w2,
                                      const char* pszFormat)
 {
-    std::string s1 = SpeciesIndexToDataTypeString(w1);
-    std::string s2 = SpeciesIndexToDataTypeString(w2);
+  std::string s1 = SpeciesIndexToDataTypeString(w1);
+  std::string s2 = SpeciesIndexToDataTypeString(w2);
     ReportError(pPos, pszFormat, s1.c_str(), s2.c_str());
 }
 

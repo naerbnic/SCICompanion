@@ -219,10 +219,10 @@ private:
     SCIVersion _version;
 
     // e.g. Name is "Feature"
-    void _LoadSCO(CResourceMap& resource_map, const std::string &name, bool fErrorIfNotFound = false);
+    void _LoadSCO(const std::string &name, bool fErrorIfNotFound = false);
     // Loads an SCOFile if we don't already have one for this script.
     // Doesn't produce an error if we can't get one.  (Maybe it should?)
-    void _LoadSCOIfNone(CResourceMap& resource_map, WORD wScript);
+    void _LoadSCOIfNone(WORD wScript);
 
     bool _WasSinkWritten(uint16_t tempToken);
 
@@ -268,7 +268,8 @@ public:
     // pSignatures - optional: accepts the list of function signatures for this call.
     ProcedureType LookupProc(const std::string &str, WORD &wScript, WORD &wIndex, std::string &classOwner);
     ProcedureType LookupProc(const std::string &str);
-    bool _GetSCOObject(SpeciesIndex wSpecies, CSCOObjectClass &scoObject);
+    bool _GetSCOObject(SpeciesIndex wSpecies,
+                       CSCOObjectClass &scoObject);
     bool LookupSpeciesMethodOrProperty(SpeciesIndex wCallee, WORD wSelector, SpeciesIndex &propertyType, bool &fMethod);
     void PushOutputContext(OutputContext outputContext);
     void PopOutputContext();

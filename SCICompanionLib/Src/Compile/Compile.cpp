@@ -18,6 +18,7 @@
 //
 
 #include "stdafx.h"
+#include "AppState.h"
 #include "ScriptOMAll.h"
 #include "CompileInterfaces.h"
 #include "CompileContext.h"
@@ -1653,7 +1654,8 @@ CodeResult SendParam::OutputByteCode(CompileContext &context) const
             // their own methods.
             if (!context.DoesScriptObjectHaveMethod(typeName, GetSelectorName()))
             {
-                std::string objectTypeString = context.SpeciesIndexToDataTypeString(calleeSpecies);
+              std::string objectTypeString =
+                  context.SpeciesIndexToDataTypeString(calleeSpecies);
                 context.ReportError(this, "%s is not a property or method on type '%s'.", GetSelectorName().c_str(), objectTypeString.c_str());
             }
         }
@@ -1811,7 +1813,11 @@ CodeResult ConditionalExpression::OutputByteCode(CompileContext &context) const
         // Whatever the result was, it must be convertable to bool (basically only void should fail)
         if (!DoesTypeMatch(context, DataTypeBool, result.GetType(), nullptr, (*it).get()))
         {
-            context.ReportError((*it).get(), "Conditional expression of type '%s' is illegal.", context.SpeciesIndexToDataTypeString(result.GetType()).c_str());
+          context.ReportError(
+              (*it).get(), "Conditional expression of type '%s' is illegal.",
+              context
+                  .SpeciesIndexToDataTypeString(result.GetType())
+                  .c_str());
         }
     }
     return 0; // void
