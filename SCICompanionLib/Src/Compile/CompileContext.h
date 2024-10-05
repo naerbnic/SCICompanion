@@ -135,7 +135,10 @@ struct CompileStats
 class CompileContext : public ICompileLog, public ILookupDefine, public ITrackCodeSink, public ILookupSaids
 {
 public:
-    CompileContext(SCIVersion version, sci::Script &script, PrecompiledHeaders &headers, CompileTables &tables, ICompileLog &results, bool generateDebugInfo);
+  CompileContext(SCIClassBrowser &browser, CResourceMap &resource_map,
+                 SCIVersion version, sci::Script &script,
+                 PrecompiledHeaders &headers, CompileTables &tables,
+                 ICompileLog &results, bool generateDebugInfo);
     CompileContext(const CompileContext &src) = delete;
     CompileContext operator=(const CompileContext &src) = delete;
     ~CompileContext() = default;
@@ -216,7 +219,7 @@ private:
     SCIVersion _version;
 
     // e.g. Name is "Feature"
-    void _LoadSCO(const std::string &name, bool fErrorIfNotFound = false);
+    void _LoadSCO(CResourceMap& resource_map, const std::string &name, bool fErrorIfNotFound = false);
     // Loads an SCOFile if we don't already have one for this script.
     // Doesn't produce an error if we can't get one.  (Maybe it should?)
     void _LoadSCOIfNone(WORD wScript);

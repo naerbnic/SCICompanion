@@ -1231,7 +1231,7 @@ bool GenerateScriptResource_SCI0(Script &script, PrecompiledHeaders &headers, Co
     vector<BYTE> &output = results.GetScriptResource();
 
     // Create our "CompileContext", which holds state during the compilation.
-    CompileContext context(appState->GetVersion(), script, headers, tables, results.GetLog(), generateDebugInfo);
+    CompileContext context(appState->GetClassBrowser(), appState->GetResourceMap(), appState->GetVersion(), script, headers, tables, results.GetLog(), generateDebugInfo);
 
     _Section3_Synonyms(script, context, output, results);
 
@@ -1413,7 +1413,10 @@ bool GenerateScriptResource_SCI11(Script &script, PrecompiledHeaders &headers, C
     vector<uint16_t> trackMethodCodePointerOffsets;
 
     // Create our "CompileContext", which holds state during the compilation.
-    CompileContext context(appState->GetVersion(), script, headers, tables, results.GetLog(), generateDebugInfo);
+    CompileContext context(appState->GetClassBrowser(),
+                           appState->GetResourceMap(), appState->GetVersion(),
+                           script, headers, tables, results.GetLog(),
+                           generateDebugInfo);
 
     CommonScriptPrep(script, context, results);
     // Errors above could mean crashes below. Bail out now.

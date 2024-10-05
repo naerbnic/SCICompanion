@@ -105,14 +105,14 @@ TextComponent& CompileResults::GetTextComponent()
 }
 
 // e.g. Name is "Feature"
-void CompileContext::_LoadSCO(const std::string& name, bool fErrorIfNotFound)
+void CompileContext::_LoadSCO(CResourceMap& resource_map, const std::string& name, bool fErrorIfNotFound)
 {
     assert(!name.empty());
-    string scoFileName = appState->GetResourceMap().Helper().GetScriptObjectFileName(name);
+  string scoFileName = resource_map.Helper().GetScriptObjectFileName(name);
     HANDLE hFile = CreateFile(scoFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
     if (hFile == INVALID_HANDLE_VALUE)
     {
-        scoFileName = appState->GetResourceMap().Helper().GetScriptObjectFileName(name);
+      scoFileName = resource_map.Helper().GetScriptObjectFileName(name);
         hFile = CreateFile(scoFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
     }
     if (hFile != INVALID_HANDLE_VALUE)
@@ -155,20 +155,20 @@ void CompileContext::_LoadSCOIfNone(WORD wScript)
         }
         else
         {
-            _LoadSCO(scriptName);
+            _LoadSCO(appState->GetResourceMap(), scriptName);
         }
     }
 }
 
 const uint16_t TempTokenBase = 2345;
 
-CompileContext::CompileContext(SCIVersion version, Script& script, PrecompiledHeaders& headers, CompileTables& tables,
+CompileContext::CompileContext(SCIClassBrowser& browser, CResourceMap& resource_map, SCIVersion version, Script& script, PrecompiledHeaders& headers, CompileTables& tables,
                                ICompileLog& results, bool generateDebugInfo) :
     FunctionBaseForPrescan(nullptr),
     GenerateDebugInfo(generateDebugInfo),
     _nextTempToken(TempTokenBase),
-    _browser(appState->GetClassBrowser()),
-    _resourceMap(appState->GetResourceMap()),
+      _browser(browser),
+      _resourceMap(resource_map),
     _script(script),
     _results(results),
     _tables(tables),
@@ -189,7 +189,7 @@ CompileContext::CompileContext(SCIVersion version, Script& script, PrecompiledHe
     const vector<string>& uses = _script.GetUses();
     for (const string& use : uses)
     {
-        _LoadSCO(use, true);
+        _LoadSCO(appState->GetResourceMap(), use, true);
     }
 
     // Get a map of script numbers to script names.  We use this when looking up a species index in the
