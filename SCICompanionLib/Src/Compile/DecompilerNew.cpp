@@ -1758,19 +1758,6 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
 
         case Opcode::DUP:
             assert(false); // In what conditions do we hit this? Should already be handled in switch statements.
-            /*
-            if (node.GetPrevious())
-            {
-                return _CodeNodeToSyntaxNode(*node.GetPrevious(), lookups);
-            }
-            else
-            {
-                // TODO: Walk backwards until we have an instruction that puts something on the stack.
-                // This may not work in all cases (if we pass a branch, etc...)
-                appState->LogInfo("WARNING: Possible incorrect logic.");
-                // How do we handle this one?
-                // assert(false);
-            }*/
             break;
 
         case Opcode::JMP:
