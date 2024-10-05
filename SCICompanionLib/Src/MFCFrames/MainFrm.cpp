@@ -2768,7 +2768,7 @@ void CMainFrame::OnValidateAllSaids()
     if (vocab)
     {
         CompileLog log;
-        ValidateSaids(log, *vocab);
+        ValidateSaids(appState->GetResourceMap(), appState->GetVersion(), log, *vocab);
         appState->OutputResults(OutputPaneType::Compile, log.Results());
     }
 }

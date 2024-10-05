@@ -6,7 +6,6 @@
 #include "ResourceContainer.h"
 #include "Vocab000.h"
 #include "CompileContext.h"
-#include "AppState.h"
 #include "ScriptOM.h"
 #include <format.h>
 
@@ -238,7 +237,7 @@ private:
     map<string, int> _roots;
 };
 
-void ListMostPopularVerbs(CompileLog &log, const map<string, int> &rootsUsedInScript)
+void ListMostPopularVerbs(const SCIVersion& version, CompileLog &log, const map<string, int> &rootsUsedInScript)
 {
     // Let's just output it alphabetically for now
     for (auto pair : rootsUsedInScript)
@@ -251,14 +250,14 @@ void ListMostPopularVerbs(CompileLog &log, const map<string, int> &rootsUsedInSc
         log.ReportResult(CompileResult(
             errorMessage,
             ResourceType::Vocab,
-            appState->GetVersion().MainVocabResource,
+            version.MainVocabResource,
             0
         ));
     }
 
 }
 
-void ListMostPopularOfType(CompileLog &log, const Vocab000 &vocab000, WordClass wordClass, const map<uint16_t, int> &saidsUsedInScripts)
+void ListMostPopularOfType(const SCIVersion& version, CompileLog &log, const Vocab000 &vocab000, WordClass wordClass, const map<uint16_t, int> &saidsUsedInScripts)
 {
     multimap<int, uint16_t> sortedSaids;
     for (const auto &pair : saidsUsedInScripts)
@@ -280,13 +279,13 @@ void ListMostPopularOfType(CompileLog &log, const Vocab000 &vocab000, WordClass 
         log.ReportResult(CompileResult(
             errorMessage,
             ResourceType::Vocab,
-            appState->GetVersion().MainVocabResource,
+            version.MainVocabResource,
             (int)it->second
         ));
     }
 }
 
-void ListUnusedOfType(CompileLog &log, const Vocab000 &vocab000, WordClass wordClass, const std::map<uint16_t, int> &saidsUsedInScripts)
+void ListUnusedOfType(const SCIVersion& version, CompileLog &log, const Vocab000 &vocab000, WordClass wordClass, const std::map<uint16_t, int> &saidsUsedInScripts)
 {
     std::string wordClassName = GetWordClassString(wordClass);
 
@@ -310,7 +309,7 @@ void ListUnusedOfType(CompileLog &log, const Vocab000 &vocab000, WordClass wordC
                 log.ReportResult(CompileResult(
                     errorMessage,
                     ResourceType::Vocab,
-                    appState->GetVersion().MainVocabResource,
+                    version.MainVocabResource,
                     (int)dwGroup
                 ));
             }
@@ -320,13 +319,13 @@ void ListUnusedOfType(CompileLog &log, const Vocab000 &vocab000, WordClass wordC
 
 }
 
-void ValidateSaids(CompileLog &log, const Vocab000 &vocab000)
+void ValidateSaids(CResourceMap& resource_map, const SCIVersion& version, CompileLog &log, const Vocab000 &vocab000)
 {
     std::map<uint16_t, int> saidsUsedInScripts;
     std::map<string, int> rootsUsedInScripts;
 
     std::vector<ScriptId> scripts;
-    appState->GetResourceMap().GetAllScripts(scripts);
+    resource_map.GetAllScripts(scripts);
     std::unique_ptr<Script> mainScript;
     std::unique_ptr<ExtractSaids> mainSaids;
     for (ScriptId script : scripts)
@@ -369,11 +368,12 @@ void ValidateSaids(CompileLog &log, const Vocab000 &vocab000)
     uint16_t wordClass = (uint16_t)WordClass::ImperativeVerb;
     while (wordClass)
     {
-        ListUnusedOfType(log, vocab000, (WordClass)wordClass, saidsUsedInScripts);
+      ListUnusedOfType(version, log, vocab000, (WordClass)wordClass,
+                       saidsUsedInScripts);
         wordClass >>= 1;
     }
 
     //ListMostPopularOfType(log, vocab000, WordClass::ImperativeVerb, saidsUsedInScripts);
-    ListMostPopularVerbs(log, rootsUsedInScripts);
+    ListMostPopularVerbs(version, log, rootsUsedInScripts);
 
 }
