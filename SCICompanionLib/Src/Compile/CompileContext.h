@@ -543,7 +543,7 @@ public:
     {
         _compileResults.push_back(result);
     }
-    void SummarizeAndReportErrors() override;
+    void SummarizeAndReportErrors();
     void Clear() { _compileResults.clear(); }
     std::vector<CompileResult> &Results() { return _compileResults; }
     void CalculateErrors();

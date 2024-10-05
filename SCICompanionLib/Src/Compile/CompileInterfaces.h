@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <string_view>
+
 #include "Types.h"
 
 enum class ResolvedToken
@@ -186,11 +188,9 @@ private:
 class ICompileLog
 {
 public:
-    virtual void ReportResult(const CompileResult& result) = 0;
+    virtual ~ICompileLog() = default;
 
-    virtual void SummarizeAndReportErrors()
-    {
-    }; // Optional to implement
+    virtual void ReportResult(const CompileResult& result) = 0;
 };
 
 class ILookupSaids

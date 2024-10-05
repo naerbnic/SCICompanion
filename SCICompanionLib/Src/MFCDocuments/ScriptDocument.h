@@ -106,7 +106,6 @@ private:
     // Other...
     void OnFileSave();
     void OnFileSaveAs();
-    void _DoErrorSummary(ICompileLog &log);
     void _ClearErrorCount();
     void _OnUpdateTitle();
 

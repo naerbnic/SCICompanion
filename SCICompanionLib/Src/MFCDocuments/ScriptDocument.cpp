@@ -189,7 +189,7 @@ void CScriptDocument::OnCompile()
             log.ReportResult(CompileResult(sz, CompileResult::CRT_Error));
             log.CalculateErrors();
         }
-        _DoErrorSummary(log);
+        log.SummarizeAndReportErrors();
 
         appState->OutputResults(OutputPaneType::Compile, log.Results());
     }
@@ -573,11 +573,6 @@ void CScriptDocument::OnUpdateConvertScript(CCmdUI *pCmdUI)
 void CScriptDocument::OnUpdateLineCount(CCmdUI *pCmdUI)
 {
     pCmdUI->SetText(fmt::format("{0} lines.", _buffer.GetLineCount()).c_str());
-}
-
-void CScriptDocument::_DoErrorSummary(ICompileLog &log)
-{
-    log.SummarizeAndReportErrors();
 }
 
 void CScriptDocument::_ClearErrorCount()
