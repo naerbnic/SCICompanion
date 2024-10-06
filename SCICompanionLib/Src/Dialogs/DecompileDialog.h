@@ -88,7 +88,7 @@ private:
 
     // Our own copy of this
     SCIVersion _version;
-    GameFolderHelper _helper;
+    std::shared_ptr<GameFolderHelper> _helper;
 
     CTreeCtrl m_wndTreeSCO;
     std::unique_ptr<CSCOFile> _sco;

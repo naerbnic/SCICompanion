@@ -39,7 +39,7 @@ using namespace std;
 #define SELECTION_TIMER 4567     
 
 DecompileDialog::DecompileDialog(CWnd* pParent /*=NULL*/)
-    : CExtResizableDialog(DecompileDialog::IDD, pParent), previousSelection(-1), _inScriptListLabelEdit(false), _inSCOLabelEdit(false), initialized(false), _version(appState->GetResourceMap().GetSCIVersion()), _helper(appState->GetResourceMap().Helper()), _syncSelection(false)
+    : CExtResizableDialog(DecompileDialog::IDD, pParent), previousSelection(-1), _inScriptListLabelEdit(false), _inSCOLabelEdit(false), initialized(false), _version(appState->GetResourceMap().GetSCIVersion()), _helper(appState->GetResourceMap().HelperPtr()), _syncSelection(false)
 {
     // If we already have a game.ini, great, we'll honor that.
     string gameIniFile = appState->GetResourceMap().Helper().GetGameIniFileName();
@@ -49,7 +49,6 @@ DecompileDialog::DecompileDialog(CWnd* pParent /*=NULL*/)
         // But if not, set the default language to Sierra syntax.
         appState->GetResourceMap().SetGameLanguage(LangSyntaxSCI);
     }
-    _helper.SetLanguage(appState->GetResourceMap().Helper().GetLanguage());
 }
 
 BOOL DecompileDialog::OnInitDialog()
@@ -111,7 +110,7 @@ void DecompileDialog::DoDataExchange(CDataExchange* pDX)
     if (!initialized)
     {
         // Ensure we have a src directory
-        string sourceFolder = _helper.GetSrcFolder();
+        string sourceFolder = _helper->GetSrcFolder();
         if (!EnsureFolderExists(sourceFolder, false))
         {
             std::string error = GetMessageFromLastError(sourceFolder);
@@ -177,19 +176,19 @@ void DecompileDialog::_UpdateScripts(set<uint16_t> updatedScripts)
         uint16_t scriptNum = (uint16_t)m_wndListScripts.GetItemData(i);
         if (contains(updatedScripts, scriptNum))
         {
-            string name = _helper.FigureOutName(ResourceType::Script, scriptNum, NoBase36);
+            string name = _helper->FigureOutName(ResourceType::Script, scriptNum, NoBase36);
             LVITEM item = {};
             item.iItem = i;
 
             item.mask = LVIF_TEXT;
             item.iSubItem = SCOColumn;
-            string scoFilename = _helper.GetScriptObjectFileName(name);
+            string scoFilename = _helper->GetScriptObjectFileName(name);
             item.pszText = PathFileExists(scoFilename.c_str()) ? c_Yes : c_Empty;
             m_wndListScripts.SetItem(&item);
 
             item.mask = LVIF_TEXT;
             item.iSubItem = SourceColumn;
-            string scriptFilename = _helper.GetScriptFileName(name);
+            string scriptFilename = _helper->GetScriptFileName(name);
             item.pszText = PathFileExists(scriptFilename.c_str()) ? c_Yes : c_Empty;
             m_wndListScripts.SetItem(&item);
         }
@@ -207,7 +206,7 @@ void DecompileDialog::_PopulateScripts()
     SetRedraw(FALSE);
     m_wndListScripts.DeleteAllItems();
 
-    auto scriptResources = _helper.Resources(_version, ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups);
+    auto scriptResources = _helper->Resources(_version, ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups);
     int itemNumber = 0;
     for (auto &blob : *scriptResources)
     {
@@ -228,13 +227,13 @@ void DecompileDialog::_PopulateScripts()
 
         item.mask = LVIF_TEXT;
         item.iSubItem = SCOColumn;
-        string scoFilename = _helper.GetScriptObjectFileName(name);
+        string scoFilename = _helper->GetScriptObjectFileName(name);
         item.pszText = PathFileExists(scoFilename.c_str()) ? c_Yes : c_Empty;
         m_wndListScripts.SetItem(&item);
 
         item.mask = LVIF_TEXT;
         item.iSubItem = SourceColumn;
-        string scriptFilename = _helper.GetScriptFileName(name);
+        string scriptFilename = _helper->GetScriptFileName(name);
         item.pszText = PathFileExists(scriptFilename.c_str()) ? c_Yes : c_Empty;
         m_wndListScripts.SetItem(&item);
 
@@ -326,7 +325,7 @@ void DecompileDialog::_SyncSelection(bool force)
         if (force || (selectedItem != previousSelection))
         {
             LPARAM param = m_wndListScripts.GetItemData(selectedItem);
-            string sourceFileName = _helper.GetScriptFileName((uint16_t)param);
+            string sourceFileName = _helper->GetScriptFileName((uint16_t)param);
             std::ifstream scriptFile(sourceFileName.c_str());
             if (scriptFile.is_open())
             {
@@ -347,13 +346,13 @@ void DecompileDialog::_SyncSelection(bool force)
             // Load the .sco file
             _sco.reset(nullptr);
             _scoPublicProcIndices.clear();
-            _sco = GetExistingSCOFromScriptNumber(_helper, (uint16_t)param, appState->GetResourceMap().GetCompiledScriptLookups()->GetSelectorTable());
+            _sco = GetExistingSCOFromScriptNumber(*_helper, (uint16_t)param, appState->GetResourceMap().GetCompiledScriptLookups()->GetSelectorTable());
             if (_sco)
             {
                 // Detect which exports are not procedures by seeing if its name
                 // matches a public instance in the compiled script (which should be sync'd with the SCO)
                 CompiledScript compiledScript((uint16_t)param);
-                compiledScript.Load(_helper, _version, param);
+                compiledScript.Load(*_helper, _version, param);
                 int exportIndex = 0;
                 for (auto &publicExport : _sco->GetExports())
                 {
@@ -510,9 +509,9 @@ void DecompileDialog::OnTvnEndlabeleditTreesco(NMHDR *pNMHDR, LRESULT *pResult)
             _sco->GetExports()[_scoPublicProcIndices[index]].SetName(pTVDispInfo->item.pszText);
         }
         *pResult = 1;
-        SaveSCOFile(_helper, *_sco);
+        SaveSCOFile(*_helper, *_sco);
         m_wndStatus.SetWindowTextA(fmt::format("Saved changes to {0}",
-            PathFindFileName(_helper.GetScriptObjectFileName(_sco->GetScriptNumber()).c_str())).c_str()
+            PathFindFileName(_helper->GetScriptObjectFileName(_sco->GetScriptNumber()).c_str())).c_str()
             );
     }
     else
@@ -539,15 +538,15 @@ void DecompileDialog::OnLvnEndlabeleditListscripts(NMHDR *pNMHDR, LRESULT *pResu
     {
         uint16_t scriptNumber = (uint16_t)pDispInfo->item.lParam;
         // Rename the .sco and .sc files
-        string scOld = _helper.GetScriptFileName(scriptNumber);
-        string scoOld = _helper.GetScriptObjectFileName(scriptNumber);
+        string scOld = _helper->GetScriptFileName(scriptNumber);
+        string scoOld = _helper->GetScriptObjectFileName(scriptNumber);
         appState->GetResourceMap().AssignName(ResourceType::Script, scriptNumber, NoBase36, pDispInfo->item.pszText);
         
         // And move them.
         try
         {
-            movefile(scOld, _helper.GetScriptFileName(scriptNumber));
-            movefile(scoOld, _helper.GetScriptObjectFileName(scriptNumber));
+            movefile(scOld, _helper->GetScriptFileName(scriptNumber));
+            movefile(scoOld, _helper->GetScriptObjectFileName(scriptNumber));
         }
         catch (std::exception &e)
         {
@@ -654,7 +653,7 @@ void DecompileDialog::OnBnClickedDecompile()
 
     // If filenames have not been set, set them now. Do this *after* we get selection, since assigning filenames
     // clears selection.
-    if (!_helper.DoesSectionExistWithEntries("Script"))
+    if (!_helper->DoesSectionExistWithEntries("Script"))
     {
         _AssignFilenames();
     }
@@ -769,7 +768,7 @@ void DecompileDialog::s_DecompileThreadWorker(DecompileDialog *pThis)
     try
     {
         set<uint16_t> scriptNumbers = pThis->_scriptNumbers;
-        GameFolderHelper helper = pThis->_helper;
+        auto& helper = *pThis->_helper;
 
         if (!pThis->_lookups)
         {
@@ -913,7 +912,7 @@ void DecompileDialog::OnBnClickedClearsco()
     {
         int selectedItem = m_wndListScripts.GetNextSelectedItem(pos);
         uint16_t scriptNumber = (uint16_t)m_wndListScripts.GetItemData(selectedItem);
-        string scoFilename = _helper.GetScriptObjectFileName(scriptNumber);
+        string scoFilename = _helper->GetScriptObjectFileName(scriptNumber);
         try
         {
             deletefile(scoFilename);

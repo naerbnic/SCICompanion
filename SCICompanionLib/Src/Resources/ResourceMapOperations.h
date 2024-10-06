@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <memory>
+
 class GameFolderHelper;
 class CResourceMap;
 class ResourceBlob;
@@ -21,4 +23,4 @@ class SCIVersion;
 enum class ResourceSourceAccessFlags;
 enum class ResourceTypeFlags;
 void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data);
-std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, ResourceTypeFlags flagsHint, const GameFolderHelper &helper, ResourceSourceFlags source, ResourceSourceAccessFlags access = ResourceSourceAccessFlags::Read, int mapContext = -1);
+std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, ResourceTypeFlags flagsHint, const std::shared_ptr<const GameFolderHelper> &helper, ResourceSourceFlags source, ResourceSourceAccessFlags access = ResourceSourceAccessFlags::Read, int mapContext = -1);

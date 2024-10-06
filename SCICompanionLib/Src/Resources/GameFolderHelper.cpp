@@ -378,7 +378,7 @@ std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(const SCIVersion&
             // Our audio cache files take precedence
             if (IsFlagSet(types, ResourceTypeFlags::Audio))
             {
-                mapAndVolumes->push_back(make_unique<AudioCacheResourceSource>(&appState->GetResourceMap(), *this, mapContext, ResourceSourceAccessFlags::Read));
+                mapAndVolumes->push_back(make_unique<AudioCacheResourceSource>(&appState->GetResourceMap(), this->shared_from_this(), mapContext, ResourceSourceAccessFlags::Read));
             }
 
             // Audiomaps can come from the cache files folder too... but we can re-use PatchFilesResourceSource for this
@@ -410,19 +410,19 @@ std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(const SCIVersion&
             }
             if (fd && fd->DoesMapExist())
             {
-                mapAndVolumes->push_back(CreateResourceSource(version, ResourceTypeFlags::Message, *this, fd->SourceFlags));
+                mapAndVolumes->push_back(CreateResourceSource(version, ResourceTypeFlags::Message, this->shared_from_this(), fd->SourceFlags));
             }
         }
         
         if (IsFlagSet(types, ResourceTypeFlags::Audio) && !IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles))
         {
-            mapAndVolumes->push_back(make_unique<AudioResourceSource>(version, *this, mapContext, ResourceSourceAccessFlags::Read));
+            mapAndVolumes->push_back(make_unique<AudioResourceSource>(version, this->shared_from_this(), mapContext, ResourceSourceAccessFlags::Read));
         }
 
         // Now the standard resource maps
         if (!IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles) && (mapContext == -1))
         {
-            mapAndVolumes->push_back(CreateResourceSource(version, types, *this, ResourceSourceFlags::ResourceMap));
+            mapAndVolumes->push_back(CreateResourceSource(version, types, this->shared_from_this(), ResourceSourceFlags::ResourceMap));
         }
     }
 

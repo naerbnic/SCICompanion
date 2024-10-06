@@ -133,15 +133,15 @@ const char *pszAudioCacheFolder = "\\audiocache";
 
 AudioCacheResourceSource::AudioCacheResourceSource(
     CResourceMap *resourceMap,
-    const GameFolderHelper &helper,
+    const std::shared_ptr<const GameFolderHelper> &helper,
     int mapContext,
     ResourceSourceAccessFlags access) :
-    _gameFolder(helper.GetGameFolder()),
-    _cacheFolder(helper.GetGameFolder() + pszAudioCacheFolder),
     _version(resourceMap->GetSCIVersion()),
     _mapContext(mapContext),
-    _enumInitialized(false),
     _access(access),
+    _enumInitialized(false),
+    _gameFolder(helper->GetGameFolder()),
+    _cacheFolder(helper->GetGameFolder() + pszAudioCacheFolder),
     _helper(helper),
     _resourceMap(resourceMap)
 {
@@ -171,7 +171,7 @@ void AudioCacheResourceSource::_EnsureEnumInitialized()
         std::string mapFilename = _cacheFolder + "\\";
         mapFilename += mapName;
         ResourceBlob blob;
-        if (SUCCEEDED(blob.CreateFromFile(mapFilename.c_str(), mapFilename, _version, _helper.GetResourceSaveLocation(ResourceSaveLocation::Default), 0, mapNumber)))
+        if (SUCCEEDED(blob.CreateFromFile(mapFilename.c_str(), mapFilename, _version, _helper->GetResourceSaveLocation(ResourceSaveLocation::Default), 0, mapNumber)))
         {
             _audioMap = CreateResourceFromResourceData(blob);
 
@@ -401,13 +401,13 @@ std::unique_ptr<ResourceEntity> AudioCacheResourceSource::_PrepareForAddOrRemove
     // Now, we need to write the existing audio map. This audio map *could* come from us, or it could come from the original.
     // If it came from the original, we need to extract all the files for the first time.
     int resourceNumber = (_mapContext == -1) ? _version.AudioMapResourceNumber : _mapContext;
-    std::unique_ptr<ResourceBlob> audioMapBlobTest = _helper.MostRecentResource(_version, ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
+    std::unique_ptr<ResourceBlob> audioMapBlobTest = _helper->MostRecentResource(_version, ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
     if (audioMapBlobTest)
     {
         if (!IsFlagSet(audioMapBlobTest->GetSourceFlags(), ResourceSourceFlags::AudioMapCache))
         {
-            FirstTimeAudioExtraction(_helper, _cacheFolder, _cacheSubFolderForEnum, _version, _mapContext);
-            audioMapBlobTest = _helper.MostRecentResource(_version, ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
+            FirstTimeAudioExtraction(*_helper, _cacheFolder, _cacheSubFolderForEnum, _version, _mapContext);
+            audioMapBlobTest = _helper->MostRecentResource(_version, ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
         }
 
         // Verify we're reading the one from the audio cache.
@@ -681,7 +681,7 @@ void AudioCacheResourceSource::RebuildResources(bool force, ResourceSource &sour
     std::set<int> audioMapNumbers;
     audioMapNumbers.insert(_version.AudioMapResourceNumber); // The default audio map.
     {
-        auto resourceContainer = _helper.Resources(_resourceMap->GetSCIVersion(), ResourceTypeFlags::Message, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::AddInDefaultEnumFlags);
+        auto resourceContainer = _helper->Resources(_resourceMap->GetSCIVersion(), ResourceTypeFlags::Message, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::AddInDefaultEnumFlags);
         // Use iterator directly so we don't instantiate the blobs
         for (auto it = resourceContainer->begin(); it != resourceContainer->end(); ++it)
         {
@@ -696,7 +696,7 @@ void AudioCacheResourceSource::RebuildResources(bool force, ResourceSource &sour
     bool allCacheFilesUpToDate = true;
     std::map<int, std::unique_ptr<ResourceEntity>> audioMaps;
     {   
-        auto resourceContainer = _helper.Resources(_resourceMap->GetSCIVersion(), ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::AddInDefaultEnumFlags);
+        auto resourceContainer = _helper->Resources(_resourceMap->GetSCIVersion(), ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::AddInDefaultEnumFlags);
         for (auto &blob : *resourceContainer)
         {
             // If this audio map is sourced from the cache, then if it's out of date we definitely need to rebuild.

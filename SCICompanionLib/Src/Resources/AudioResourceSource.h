@@ -26,8 +26,8 @@ class ResourceBlob;
 class AudioResourceSource : public ResourceSource
 {
 public:
-    AudioResourceSource(const SCIVersion& version, const GameFolderHelper &helper, int mapContext, ResourceSourceAccessFlags access) :
-        _gameFolder(helper.GetGameFolder()),
+    AudioResourceSource(const SCIVersion& version, const std::shared_ptr<const GameFolderHelper> &helper, int mapContext, ResourceSourceAccessFlags access) :
+        _gameFolder(helper->GetGameFolder()),
         _version(version),
         _mapContext(mapContext),
         _access(access),
@@ -71,6 +71,6 @@ private:
     std::unique_ptr<sci::streamOwner> _volumeStreamOwnerSfx;
     std::unique_ptr<sci::streamOwner> _volumeStreamOwnerAud;
 
-    GameFolderHelper _helper;
+    std::shared_ptr<const GameFolderHelper> _helper;
 };
 

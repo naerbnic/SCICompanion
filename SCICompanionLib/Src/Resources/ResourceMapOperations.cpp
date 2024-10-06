@@ -25,7 +25,7 @@
 #include "AppState.h"
 
 template<typename _TFileDescriptor>
-std::unique_ptr<ResourceSource> _CreateResourceSource(const std::string &gameFolder, SCIVersion version, ResourceSourceFlags source)
+std::unique_ptr<ResourceSource> _CreateResourceSource(const std::string &gameFolder, const SCIVersion& version, ResourceSourceFlags source)
 {
     if (version.MapFormat == ResourceMapFormat::SCI0)
     {
@@ -60,23 +60,23 @@ std::unique_ptr<ResourceSource> _CreateResourceSource(const std::string &gameFol
     }
 }
 
-std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, ResourceTypeFlags flagsHint, const GameFolderHelper &helper, ResourceSourceFlags source, ResourceSourceAccessFlags access, int mapContext)
+std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, ResourceTypeFlags flagsHint, const std::shared_ptr<const GameFolderHelper> &helper, ResourceSourceFlags source, ResourceSourceAccessFlags access, int mapContext)
 {
     if (source == ResourceSourceFlags::ResourceMap)
     {
-        return _CreateResourceSource<FileDescriptorResourceMap>(helper.GetGameFolder(), version, source);
+        return _CreateResourceSource<FileDescriptorResourceMap>(helper->GetGameFolder(), version, source);
     }
     else if (source == ResourceSourceFlags::MessageMap)
     {
-        return _CreateResourceSource<FileDescriptorMessageMap>(helper.GetGameFolder(), version, source);
+        return _CreateResourceSource<FileDescriptorMessageMap>(helper->GetGameFolder(), version, source);
     }
     else if (source == ResourceSourceFlags::AltMap)
     {
-        return _CreateResourceSource<FileDescriptorAltMap>(helper.GetGameFolder(), version, source);
+        return _CreateResourceSource<FileDescriptorAltMap>(helper->GetGameFolder(), version, source);
     }
     else if (source == ResourceSourceFlags::PatchFile)
     {
-        return std::make_unique<PatchFilesResourceSource>(flagsHint, version, helper.GetGameFolder(), ResourceSourceFlags::PatchFile);
+        return std::make_unique<PatchFilesResourceSource>(flagsHint, version, helper->GetGameFolder(), ResourceSourceFlags::PatchFile);
     }
     else if ((source == ResourceSourceFlags::Aud) || (source == ResourceSourceFlags::Sfx))
     {
@@ -89,7 +89,7 @@ std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, 
     }
     else if (source == ResourceSourceFlags::AudioMapCache)
     {
-        return std::make_unique<PatchFilesResourceSource>(ResourceTypeFlags::AudioMap, version, helper.GetGameFolder() + pszAudioCacheFolder, ResourceSourceFlags::AudioMapCache);
+        return std::make_unique<PatchFilesResourceSource>(ResourceTypeFlags::AudioMap, version, helper->GetGameFolder() + pszAudioCacheFolder, ResourceSourceFlags::AudioMapCache);
     }
     else
     {
@@ -120,7 +120,7 @@ void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data)
     }
 
     // This is the thing that changes based on version and messagemap or blah.
-    std::unique_ptr<ResourceSource> resourceSource = CreateResourceSource(resourceMap.GetSCIVersion(), ResourceTypeToFlag(data.GetType()), resourceMap.Helper(), sourcFlags, ResourceSourceAccessFlags::ReadWrite);
+    std::unique_ptr<ResourceSource> resourceSource = CreateResourceSource(resourceMap.GetSCIVersion(), ResourceTypeToFlag(data.GetType()), resourceMap.HelperPtr(), sourcFlags, ResourceSourceAccessFlags::ReadWrite);
     if (resourceSource)
     {
         ResourceMapEntryAgnostic mapEntry;

@@ -11,7 +11,7 @@ class GenerateDocsDialog : public CDialog
     DECLARE_DYNAMIC(GenerateDocsDialog)
 
 public:
-    GenerateDocsDialog(const SCIVersion& version, GameFolderHelper helper, CWnd* pParent = NULL);   // standard constructor
+    GenerateDocsDialog(const SCIVersion& version, const std::shared_ptr<const GameFolderHelper> helper, CWnd* pParent = NULL);   // standard constructor
     virtual ~GenerateDocsDialog();
 
     // Dialog Data
@@ -40,7 +40,7 @@ protected:
 
     CWnd m_wndBrowser;
     SCIVersion _version;
-    GameFolderHelper _helper;
+    std::shared_ptr<const GameFolderHelper> _helper;
     bool _fInitialized;
 public:
     afx_msg void OnBnClickedGeneratedoc();

@@ -1897,13 +1897,13 @@ void CMainFrame::OnShowAudioPreferences()
     }
 }
 
-HRESULT RebuildResources(const GameFolderHelper &helper, SCIVersion version, BOOL fShowUI, ResourceSaveLocation saveLocation, std::map<ResourceType, RebuildStats> &stats);
+HRESULT RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, SCIVersion version, BOOL fShowUI, ResourceSaveLocation saveLocation, std::map<ResourceType, RebuildStats> &stats);
 
 void PurgeUnnecessaryResources()
 {
     std::map<ResourceType, RebuildStats> stats;
     const GameFolderHelper &helper = appState->GetResourceMap().Helper();
-    HRESULT hr = RebuildResources(helper, appState->GetResourceMap().GetSCIVersion(), TRUE, helper.GetResourceSaveLocation(ResourceSaveLocation::Default), stats);
+    HRESULT hr = RebuildResources(appState->GetResourceMap().HelperPtr(), appState->GetResourceMap().GetSCIVersion(), TRUE, helper.GetResourceSaveLocation(ResourceSaveLocation::Default), stats);
     if (SUCCEEDED(hr))
     {
         size_t totalSize = 0;
@@ -2729,7 +2729,7 @@ void CMainFrame::OnClassBrowser()
 #ifdef DOCSUPPORT
 void CMainFrame::OnGenerateDocs()
 {
-    _docsDialog = std::make_unique<GenerateDocsDialog>(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper());
+    _docsDialog = std::make_unique<GenerateDocsDialog>(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().HelperPtr());
     _docsDialog->Create(GenerateDocsDialog::IDD);
     _docsDialog->ShowWindow(SW_SHOW);
 }

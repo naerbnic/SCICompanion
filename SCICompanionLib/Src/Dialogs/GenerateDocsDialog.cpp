@@ -35,7 +35,7 @@ std::string docBuildFolder = "build/html";
 using namespace sci;
 
 IMPLEMENT_DYNAMIC(GenerateDocsDialog, CDialog)
-GenerateDocsDialog::GenerateDocsDialog(const SCIVersion& version, GameFolderHelper helper, CWnd* pParent /*=NULL*/)
+GenerateDocsDialog::GenerateDocsDialog(const SCIVersion& version, const std::shared_ptr<const GameFolderHelper> helper, CWnd* pParent /*=NULL*/)
 : CDialog(GenerateDocsDialog::IDD, pParent), _fInitialized(false), _version(version), _helper(helper)
 {
 }
@@ -47,7 +47,7 @@ GenerateDocsDialog::~GenerateDocsDialog()
 void GenerateDocsDialog::_PopulateScripts()
 {
     m_wndScripts.SetRedraw(FALSE);
-    auto scriptResources = _helper.Resources(_version, ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups | ResourceEnumFlags::AddInDefaultEnumFlags);
+    auto scriptResources = _helper->Resources(_version, ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups | ResourceEnumFlags::AddInDefaultEnumFlags);
     int itemNumber = 0;
     for (auto &blob : *scriptResources)
     {
@@ -249,7 +249,7 @@ void GenerateDocsDialog::OnBnClickedGeneratedoc()
             {
                 CString strText = m_wndScripts.GetItemText(item, 0);
                 std::string scriptName = (PCSTR)strText;
-                std::string fullPath = _helper.GetScriptFileName(scriptName);
+                std::string fullPath = _helper->GetScriptFileName(scriptName);
                 CompileLog log;
                 std::unique_ptr<sci::Script> script = SimpleCompile(log, ScriptId(fullPath), true);
                 if (script)

@@ -13,6 +13,9 @@
 ***************************************************************************/
 
 #pragma once
+
+#include <memory>
+
 #include "GameFolderHelper.h"
 #include "ResourceEntity.h"
 #include "TalkerToViewMap.h"
@@ -99,12 +102,13 @@ public:
     std::string GetTopLevelSamplesFolder();
     std::string GetObjectsFolder();
     std::string GetDecompilerFolder();
-    bool IsGameLoaded() { return !_gameFolderHelper.GetGameFolder().empty(); }
+    bool IsGameLoaded() { return !_gameFolderHelper->GetGameFolder().empty(); }
     HRESULT GetGameIni(PTSTR pszBuf, size_t cchBuf);
     HRESULT GetScriptNumber(ScriptId script, WORD &wScript);
     const SCIVersion &GetSCIVersion() const;
     void SetVersion(const SCIVersion &version);
-    const GameFolderHelper &Helper() const { return _gameFolderHelper; }
+    const GameFolderHelper &Helper() const { return *_gameFolderHelper; }
+    const std::shared_ptr<GameFolderHelper>& HelperPtr() const { return _gameFolderHelper; }
     const Vocab000 *GetVocab000();
     const PaletteComponent *GetPalette999();
     void SaveAudioMap65535(const AudioMapComponent &newAudioMap, int mapContext);
@@ -171,7 +175,7 @@ private:
     BOOL _cDeferAppend;
     std::vector<ResourceBlob> _deferredResources;
 
-    GameFolderHelper _gameFolderHelper;
+    std::shared_ptr<GameFolderHelper> _gameFolderHelper;
 
     bool _skipVersionSniffOnce;                     // Skip version sniffing when loading a game the next time.
 

@@ -49,12 +49,14 @@ public:
     virtual void SetIniBool(const std::string& sectionName, const std::string& keyName, bool value) const = 0;
 };
 
-class GameFolderHelper
+class GameFolderHelper : public std::enable_shared_from_this<GameFolderHelper>
 {
 public:
-    GameFolderHelper() {}
-    GameFolderHelper(const GameFolderHelper &orig) = default;
-    GameFolderHelper &operator=(const GameFolderHelper &other) = default;
+    GameFolderHelper() = default;
+    GameFolderHelper(const GameFolderHelper &orig) = delete;
+    GameFolderHelper(GameFolderHelper&& orig) = delete;
+    GameFolderHelper &operator=(const GameFolderHelper &other) = delete;
+    GameFolderHelper& operator=(GameFolderHelper&& other) = delete;
 
     std::string GetScriptFileName(const std::string &name) const;
     std::string GetScriptFileName(uint16_t wScript) const;
