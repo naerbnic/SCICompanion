@@ -112,14 +112,16 @@ void EnumScriptIds(vector<ScriptId> &scripts, const std::string &folder, const s
     path enumPath = path(folder);
     std::string searchString = "(\\w+)\\.";
     auto matchRSTRegex = std::regex(searchString + fileExt);
-    for (auto it = directory_iterator(enumPath); it != directory_iterator(); ++it)
-    {
-        const auto &file = it->path();
-        std::smatch sm;
-        std::string temp = file.filename().string();
-        if (!is_directory(file) && std::regex_search(temp, sm, matchRSTRegex) && (sm.size() > 1))
+    if (exists(enumPath) && is_directory(enumPath)) {
+        for (auto it = directory_iterator(enumPath); it != directory_iterator(); ++it)
         {
-            scripts.push_back(ScriptId(file.string()));
+            const auto& file = it->path();
+            std::smatch sm;
+            std::string temp = file.filename().string();
+            if (!is_directory(file) && std::regex_search(temp, sm, matchRSTRegex) && (sm.size() > 1))
+            {
+                scripts.push_back(ScriptId(file.string()));
+            }
         }
     }
 }
