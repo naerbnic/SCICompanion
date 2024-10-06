@@ -75,7 +75,7 @@ public:
     GlobalCompiledScriptLookups(const GlobalCompiledScriptLookups &other) = delete;
     GlobalCompiledScriptLookups &operator=(const GlobalCompiledScriptLookups &other) = delete;
 
-    bool Load(const SCIVersion& version, const GameFolderHelper &helper);
+    bool Load(const SCIVersion& version, const ResourceLoader& resource_loader);
     std::string LookupSelectorName(uint16_t wIndex);
     std::string LookupKernelName(uint16_t wIndex);
     std::string LookupClassName(uint16_t wIndex);

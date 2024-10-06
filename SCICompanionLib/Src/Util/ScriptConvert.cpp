@@ -149,7 +149,7 @@ void ConvertGame(CResourceMap &map, LangSyntax targetLanguage, CompileLog &log)
 
     // Convert it all!
     GlobalCompiledScriptLookups lookups;
-    if (lookups.Load(map.GetSCIVersion(), helper))
+    if (lookups.Load(map.GetSCIVersion(), helper.GetResourceLoader()))
     {
         for (auto &scriptId : scripts)
         {

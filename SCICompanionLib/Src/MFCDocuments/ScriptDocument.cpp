@@ -312,7 +312,7 @@ void DisassembleScript(WORD wScript)
         // Write some crap.
         GlobalCompiledScriptLookups scriptLookups;
         ObjectFileScriptLookups objectFileLookups(appState->GetResourceMap().Helper(), appState->GetResourceMap().GetCompiledScriptLookups()->GetSelectorTable());
-        if (scriptLookups.Load(appState->GetVersion(), appState->GetResourceMap().Helper()))
+        if (scriptLookups.Load(appState->GetVersion(), appState->GetResourceMap().Helper().GetResourceLoader()))
         {
             std::stringstream out;
             ::DisassembleScript(compiledScript, out, &scriptLookups, &objectFileLookups, appState->GetResourceMap().GetVocab000());
@@ -416,7 +416,7 @@ void CScriptDocument::OnViewObjectFile()
                 sci::streamOwner streamOwner(hFile);
                 CSCOFile scoFile;
                 SelectorTable selectorTable;
-                selectorTable.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
+                selectorTable.Load(appState->GetVersion(), appState->GetResourceMap().Helper().GetResourceLoader());
                 if (scoFile.Load(streamOwner.getReader(), selectorTable))
                 {
                     stringstream out;
@@ -487,7 +487,7 @@ void CScriptDocument::OnViewSyntaxTree()
     if (fCompile)
     {
         GlobalCompiledScriptLookups lookupsOwned;
-        lookupsOwned.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
+        lookupsOwned.Load(appState->GetVersion(), appState->GetResourceMap().Helper().GetResourceLoader());
         PrepForLanguage(appState->GetResourceMap().Helper().GetDefaultGameLanguage(), script, &lookupsOwned);
 
         std::stringstream out;

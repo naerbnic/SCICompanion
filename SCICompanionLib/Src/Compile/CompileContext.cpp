@@ -86,7 +86,7 @@ bool CompileTables::Load(CResourceMap& resource_map)
     // REVIEW: this could be deleted while we're compiling.
     _pVocab = resource_map.GetVocab000();
     const GameFolderHelper& helper = resource_map.Helper();
-    return _kernels.Load(resource_map.GetSCIVersion(), helper) && _species.Load(resource_map.GetSCIVersion(), helper) && _selectors.Load(resource_map.GetSCIVersion(), helper);
+    return _kernels.Load(resource_map.GetSCIVersion(), helper.GetResourceLoader()) && _species.Load(resource_map.GetSCIVersion(), helper.GetResourceLoader()) && _selectors.Load(resource_map.GetSCIVersion(), helper.GetResourceLoader());
 }
 
 void CompileTables::Save()

@@ -506,7 +506,7 @@ void VocabPreviewer::SetResource(const ResourceBlob &blob)
         case 996: // species table
         {
             SpeciesTable species;
-            if (species.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper()))
+            if (species.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper().GetResourceLoader()))
             {
                 _Populate(species.GetNames());
                 fSuccess = true;
@@ -516,7 +516,7 @@ void VocabPreviewer::SetResource(const ResourceBlob &blob)
         case 997: // selector table
         {
             SelectorTable selectors;
-            if (selectors.Load(appState->GetVersion(), appState->GetResourceMap().Helper()))
+            if (selectors.Load(appState->GetVersion(), appState->GetResourceMap().Helper().GetResourceLoader()))
             {
                 _Populate(selectors.GetNamesForDisplay(), false);
                 fSuccess = true;
@@ -526,7 +526,7 @@ void VocabPreviewer::SetResource(const ResourceBlob &blob)
         case 999: // kernel functions
         {
             KernelTable kernels;
-            if (kernels.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper()))
+            if (kernels.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper().GetResourceLoader()))
             {
                 _Populate(kernels.GetNames(), true);
                 fSuccess = true;

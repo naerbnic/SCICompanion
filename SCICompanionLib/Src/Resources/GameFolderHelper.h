@@ -117,6 +117,8 @@ public:
     LangSyntax GetLanguage() const { return Language; }
     void SetLanguage(LangSyntax language) { Language = language; }
 
+    const ResourceLoader& GetResourceLoader() const { return *resource_loader_; }
+
 private:
     std::string _GetSubfolder(const char *key, const std::string *prefix = nullptr) const;
 

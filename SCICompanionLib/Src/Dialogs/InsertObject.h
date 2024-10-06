@@ -27,7 +27,7 @@ extern const char c_szUnnamedObject[];
 class AvailableMethods
 {
 public:
-    AvailableMethods(const SCIVersion& version, const GameFolderHelper* game_folder_helper, LangSyntax language);
+    AvailableMethods(const SCIVersion& version, const ResourceLoader* resource_loader, LangSyntax language);
 
     std::vector<const sci::MethodDefinition*> &GetMethods() {
         return _methods;
@@ -39,7 +39,7 @@ private:
     std::vector<const sci::MethodDefinition*> _methods;
     std::unique_ptr<sci::Script> _script;
     SCIVersion _version;
-    const GameFolderHelper* _gameFolderHelper;
+    const ResourceLoader* _resourceLoader;
     LangSyntax _targetLanguage;
 };
     
@@ -47,7 +47,7 @@ private:
 class AvailableObjects
 {
 public:
-    AvailableObjects(const SCIVersion& version, const GameFolderHelper* game_folder_helper, LangSyntax language);
+    AvailableObjects(const SCIVersion& version, const ResourceLoader* resource_loader, LangSyntax language);
     
     std::vector<sci::ClassDefinition*> &GetObjects() {
         return _objects;
@@ -60,7 +60,7 @@ private:
     std::vector<std::unique_ptr<sci::Script>> _scripts;
     std::unordered_map<sci::ClassDefinition*, sci::Script*> _objectToScript;
     SCIVersion _version;
-    const GameFolderHelper* _gameFolderHelper;
+    const ResourceLoader* _resourceLoader;
     LangSyntax _targetLanguage;
 };
 

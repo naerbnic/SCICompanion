@@ -335,8 +335,8 @@ bool SCIClassBrowser::ReLoadFromSources(ITaskStatus &task)
     if (IsBrowseInfoEnabled())
     {
         // Load the kernel and selector names
-        _kernelNamesResource.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper());
-        _selectorNames.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
+        _kernelNamesResource.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper().GetResourceLoader());
+        _selectorNames.Load(appState->GetVersion(), appState->GetResourceMap().Helper().GetResourceLoader());
 
         // Add headers first, since they have defines that are needed by the other scripts.
         _AddHeaders();
@@ -450,11 +450,11 @@ void SCIClassBrowser::ReLoadFromCompiled(ITaskStatus &task)
 #ifdef REENABLE_COMPILEDSCRIPTS
 
     // Load the kernel and selector names
-    _kernelNamesResource.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper());
-    _selectorNames.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
+    _kernelNamesResource.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper().GetResourceLoader());
+    _selectorNames.Load(appState->GetVersion(), appState->GetResourceMap().Helper().GetResourceLoader());
 
     GlobalClassTable classTable;
-    if (!classTable.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper()))
+    if (!classTable.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper().GetResourceLoader()))
     {
         return;
     }

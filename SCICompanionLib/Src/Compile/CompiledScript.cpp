@@ -1313,11 +1313,11 @@ bool CompiledScript::LookupSpeciesPropertyListAndValues(uint16_t wIndex, std::ve
 //
 // GlobalCompiledScriptLookups
 //
-bool GlobalCompiledScriptLookups::Load(const SCIVersion& version, const GameFolderHelper &helper)
+bool GlobalCompiledScriptLookups::Load(const SCIVersion& version, const ResourceLoader& resource_loader)
 {
-    bool selOk = _selectors.Load(version, helper);
-    bool kernelOk = _kernels.Load(version, helper);
-    bool classesOk = _classes.Load(version, helper);
+    bool selOk = _selectors.Load(version, resource_loader);
+    bool kernelOk = _kernels.Load(version, resource_loader);
+    bool classesOk = _classes.Load(version, resource_loader);
     return selOk && kernelOk && classesOk;
 }
 

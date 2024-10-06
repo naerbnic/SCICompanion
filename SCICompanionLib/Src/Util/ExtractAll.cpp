@@ -47,7 +47,7 @@ void ExtractAllResources(CResourceMap& resource_map, SCIVersion version, const s
     GlobalCompiledScriptLookups scriptLookups;
     if (disassembleScripts)
     {
-      if (!scriptLookups.Load(resource_map.GetSCIVersion(), resource_map.Helper()))
+      if (!scriptLookups.Load(resource_map.GetSCIVersion(), resource_map.Helper().GetResourceLoader()))
         {
             disassembleScripts = false;
         }

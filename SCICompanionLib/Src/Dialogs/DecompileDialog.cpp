@@ -774,7 +774,7 @@ void DecompileDialog::s_DecompileThreadWorker(DecompileDialog *pThis)
         {
             pThis->_decompileResults->AddResult(DecompilerResultType::Update, "Creating script lookups...");
             pThis->_lookups = make_unique<GlobalCompiledScriptLookups>();
-            pThis->_lookups->Load(pThis->_version, helper);
+            pThis->_lookups->Load(pThis->_version, helper.GetResourceLoader());
             pThis->_decompileResults->AddResult(DecompilerResultType::Update, "Loading decompiler.ini...");
         }
 

@@ -1126,7 +1126,7 @@ GlobalCompiledScriptLookups *CResourceMap::GetCompiledScriptLookups()
     if (!_globalCompiledScriptLookups)
     {
         _globalCompiledScriptLookups = make_unique<GlobalCompiledScriptLookups>();
-        if (!_globalCompiledScriptLookups->Load(_version, Helper()))
+        if (!_globalCompiledScriptLookups->Load(_version, Helper().GetResourceLoader()))
         {
             // Warning... (happens in LB Dagger)
         }

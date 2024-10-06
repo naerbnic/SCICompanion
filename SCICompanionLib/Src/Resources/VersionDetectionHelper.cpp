@@ -29,14 +29,14 @@
 
 using namespace std;
 
-static ViewFormat _DetectViewVGAVersion(const GameFolderHelper &helper, const SCIVersion& version)
+static ViewFormat _DetectViewVGAVersion(const ResourceLoader& resource_loader, const SCIVersion& version)
 {
     ViewFormat viewFormat = version.ViewFormat;
     // Enclose this in a try/catch block, as we need to be robust here.
     try
     {
         int remainingToCheck = 5;
-        auto viewContainer = helper.Resources(version, ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+        auto viewContainer = resource_loader.Resources(version, ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
         for (auto &blob : *viewContainer)
         {
             sci::istream stream = blob->GetReadStream();
@@ -204,7 +204,7 @@ static bool _HasEarlySCI0Scripts(const GameFolderHelper &helper, const SCIVersio
     return hasEarly;
 }
 
-std::optional<SoundFormat> _DetectSoundType(const GameFolderHelper &helper, const SCIVersion& currentVersion)
+std::optional<SoundFormat> _DetectSoundType(const ResourceLoader& resource_loader, const SCIVersion& currentVersion)
 {
     // We'll mirror (a slightly simplified version of) what ScummVM does here, which
     // is to look for certain kernel calls in sound::play
@@ -212,7 +212,7 @@ std::optional<SoundFormat> _DetectSoundType(const GameFolderHelper &helper, cons
     try
     {
         GlobalCompiledScriptLookups scriptLookups;
-        if (scriptLookups.Load(currentVersion, helper))
+        if (scriptLookups.Load(currentVersion, resource_loader))
         {
             uint16_t species;
             if (scriptLookups.GetGlobalClassTable().LookupSpeciesCompiledName("Sound", species))
@@ -270,7 +270,7 @@ std::optional<SoundFormat> _DetectSoundType(const GameFolderHelper &helper, cons
     return std::nullopt;
 }
 
-KernelSet _DetectKernelSet(const GameFolderHelper &helper, const SCIVersion& currentVersion)
+KernelSet _DetectKernelSet(const ResourceLoader& resource_loader, const SCIVersion& currentVersion)
 {
     KernelSet kernelSet = KernelSet::Provided;
     if (currentVersion.PackageFormat >= ResourcePackageFormat::SCI2)
@@ -284,7 +284,7 @@ KernelSet _DetectKernelSet(const GameFolderHelper &helper, const SCIVersion& cur
         try
         {
             GlobalCompiledScriptLookups scriptLookups;
-            if (scriptLookups.Load(currentVersion, helper))
+            if (scriptLookups.Load(currentVersion, resource_loader))
             {
                 uint16_t species;
                 if (scriptLookups.GetGlobalClassTable().LookupSpeciesCompiledName("Sound", species))
@@ -332,7 +332,7 @@ KernelSet _DetectKernelSet(const GameFolderHelper &helper, const SCIVersion& cur
     }
     else
     {
-        if (helper.DoesResourceExist(currentVersion, ResourceType::Vocab, VocabKernelNames, nullptr, ResourceSaveLocation::Package))
+        if (resource_loader.DoesResourceExist(currentVersion, ResourceType::Vocab, VocabKernelNames, nullptr, ResourceSaveLocation::Package))
         {
             // The kernels are listed in a vocab resource (typical for SCI0).
             kernelSet = KernelSet::Provided;
@@ -751,7 +751,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
         }
         else
         {
-            result.ViewFormat = _DetectViewVGAVersion(helper, result);
+            result.ViewFormat = _DetectViewVGAVersion(helper.GetResourceLoader(), result);
         }
 
         // ASSUMPTION: All VGA games uses SCI1 sound.
@@ -919,7 +919,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
 
     if (needSoundAutoDetect)
     {
-        if (auto sound_type = _DetectSoundType(helper, result))
+        if (auto sound_type = _DetectSoundType(helper.GetResourceLoader(), result))
         {
             result.SoundFormat = *sound_type;
         }
@@ -928,6 +928,6 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     result.UsesPolygons = (result.PicFormat != PicFormat::EGA);
     result.UsesPolygons = helper.GetIniBool("Version", "UsesPolygons", result.UsesPolygons);
 
-    result.Kernels = _DetectKernelSet(helper, result);
+    result.Kernels = _DetectKernelSet(helper.GetResourceLoader(), result);
     return result;
 }
