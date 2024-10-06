@@ -69,7 +69,7 @@ namespace
 
         void SetIniString(const std::string& sectionName, const std::string& keyName, const std::string& value) const override
         {
-            WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), value.empty() ? nullptr : value.c_str(), GetGameIniFileName().c_str());
+            WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), value.empty() ? nullptr : value.c_str(), config_file_path_.c_str());
         }
 
         void SetIniBool(const std::string& sectionName, const std::string& keyName, bool value) const override
