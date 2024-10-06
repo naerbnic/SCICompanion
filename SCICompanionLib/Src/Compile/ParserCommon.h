@@ -513,20 +513,20 @@ public:
     std::string Name;
 #endif
 
-    typedef bool(*MATCHINGFUNCTION)(const ParserBase *pParser, _TContext *pContext, _It &stream);
-    typedef void(*DEBUGFUNCTION)(bool fEnter, bool fResult);
-    typedef void(*ACTION)(MatchResult &match, const ParserBase *pParser, _TContext *pContext, const _It &stream);
+    using MatchingFunction = bool(*)(const ParserBase *pParser, _TContext *pContext, _It &stream);
+    using DebugFunction = void(*)(bool fEnter, bool fResult);
+    using Action = void(*)(MatchResult &match, const ParserBase *pParser, _TContext *pContext, const _It &stream);
 
     struct ActionAndContext
     {
-        ACTION pfn;
+        Action pfn;
         ParseAutoCompleteContext pacc;
         PCSTR pszDebugName;
     };
 
     struct ActionAndContexts
     {
-        ACTION pfn;
+        Action pfn;
         ParseACChannels paccs;
         PCSTR pszDebugName;
     };
@@ -628,9 +628,9 @@ public:
     // The default constructor will create an object that can only be copied by reference (see the copy constructor
     // and == operator, and _pRef)
     ParserBase() : _pfn(nullptr), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(true), _psz(nullptr), _pacc(NoChannels) {}
-    ParserBase(MATCHINGFUNCTION pfn) : _pfn(pfn), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _psz(nullptr), _pacc(NoChannels)  {}
-    ParserBase(MATCHINGFUNCTION pfn, const ParserBase &a) : _pfn(pfn), _pa(new ParserBase(a)), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _psz(nullptr), _pacc(NoChannels)  {}
-    ParserBase(MATCHINGFUNCTION pfn, const char *psz) : _pfn(pfn), _psz(psz), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _pacc(NoChannels)
+    ParserBase(MatchingFunction pfn) : _pfn(pfn), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _psz(nullptr), _pacc(NoChannels)  {}
+    ParserBase(MatchingFunction pfn, const ParserBase &a) : _pfn(pfn), _pa(new ParserBase(a)), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _psz(nullptr), _pacc(NoChannels)  {}
+    ParserBase(MatchingFunction pfn, const char *psz) : _pfn(pfn), _psz(psz), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _pacc(NoChannels)
     {
     }
     MatchResult Match(_TContext *pContext, _It &stream) const
@@ -684,7 +684,7 @@ public:
     }
 
     // This is for actions.
-    ParserBase operator[](ACTION pfn)
+    ParserBase operator[](Action pfn)
     {
         assert(_pfnA == nullptr); // Ensure we're not overwriting any action.
         ParserBase newOne(*this);
@@ -743,7 +743,7 @@ public:
         return newOne;
     }
 
-    void SetDebug(DEBUGFUNCTION pfnDebug)
+    void SetDebug(DebugFunction pfnDebug)
     {
         _pfnDebug = pfnDebug;
     }
@@ -766,10 +766,10 @@ public:
     std::vector<std::unique_ptr<ParserBase>> _parsers;
     const char *_psz;
     // PERF: perhaps we could optimize for some cases here, and not have a matching functino (e.g. char)
-    MATCHINGFUNCTION _pfn;
-    ACTION _pfnA;
+    MatchingFunction _pfn;
+    Action _pfnA;
     ParseACChannels _pacc;
-    DEBUGFUNCTION _pfnDebug;
+    DebugFunction _pfnDebug;
     const ParserBase *_pRef;
     bool _fLiteral; // Don't skip whitespace
     bool _fOnlyRef; // Only references to this parser... it's lifetime is guaranteed.
