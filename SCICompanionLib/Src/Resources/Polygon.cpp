@@ -70,7 +70,7 @@ const string AccessType[] =
 unique_ptr<ProcedureCall> GetSetUpPolyProcedureCall(int picResource)
 {
     unique_ptr<ProcedureCall> procCall = make_unique<ProcedureCall>(c_szAddPolysToRoomFunction);
-    _AddStatement(*procCall, make_unique<PropertyValue>(fmt::format("{0}{1}", c_szDefaultPolyName, picResource), ValueType::Pointer));
+    procCall->AddNewStatement<PropertyValue>(fmt::format("{0}{1}", c_szDefaultPolyName, picResource), ValueType::Pointer);
     return procCall;
 }
 

@@ -181,10 +181,10 @@ void _AddPrevRoomNumSwitch(MethodDefinition &method, NewRoomProfile profile)
     {
         unique_ptr<ProcedureCall> pSetUpEgo = std::make_unique<ProcedureCall>();
         pSetUpEgo->SetName("SetUpEgo");
-        _AddStatement(*pCase, std::make_unique<Comment>("// Set up ego view and loop (direction)", CommentType::Indented));
-        _AddStatement(*pSetUpEgo, std::make_unique<PropertyValue>(-1, true)); // view = -1
-        _AddStatement(*pSetUpEgo, std::make_unique<PropertyValue>(0));  // loop = 0
-        _AddStatement(*pCase, std::move(pSetUpEgo));
+        pCase->AddNewStatement<Comment>("// Set up ego view and loop (direction)", CommentType::Indented);
+        pSetUpEgo->AddNewStatement<PropertyValue>(-1, true); // view = -1
+        pSetUpEgo->AddNewStatement<PropertyValue>(0);  // loop = 0
+        pCase->AddStatement(std::move(pSetUpEgo));
     }
 
     // Now set the ego's position
@@ -197,12 +197,12 @@ void _AddPrevRoomNumSwitch(MethodDefinition &method, NewRoomProfile profile)
         {
 			unique_ptr<SyntaxNode> pValue = std::make_unique<ComplexPropertyValue>();
             static_cast<ComplexPropertyValue*>(pValue.get())->SetValue(150);
-            _AddStatement(*pParam, std::move(pValue));
+            pParam->AddStatement(std::move(pValue));
         }
         {
 			unique_ptr<SyntaxNode> pValue = std::make_unique<ComplexPropertyValue>();
 			static_cast<ComplexPropertyValue*>(pValue.get())->SetValue(100);
-            _AddStatement(*pParam, std::move(pValue));
+            pParam->AddStatement(std::move(pValue));
         }
         pSend->AddSendParam(std::move(pParam));
     }
@@ -213,18 +213,17 @@ void _AddPrevRoomNumSwitch(MethodDefinition &method, NewRoomProfile profile)
         pParam->SetName("loop");
 		unique_ptr<SyntaxNode> pValue = std::make_unique<ComplexPropertyValue>();
 		static_cast<ComplexPropertyValue*>(pValue.get())->SetValue(1);
-        _AddStatement(*pParam, std::move(pValue));
+        pParam->AddStatement(std::move(pValue));
         pSend->AddSendParam(std::move(pParam));
     }
 
-    _AddStatement(*pCase, std::move(pSend));
+    pCase->AddStatement(std::move(pSend));
 
 
     //_AddComment(*pCase, case0Comments);
     pSwitch->AddCase(std::move(pCase));
 
-    // Add the switch to the method
-    _AddStatement(method, std::move(pSwitch));
+    method.AddStatement(std::move(pSwitch));
 }
 
 void _CreateMessageFile(int scriptNumber)
@@ -356,7 +355,7 @@ void CNewRoomDialog::_PrepareBuffer()
                 
             if (includePolys)
             {
-                _AddStatement(*pInit, GetSetUpPolyProcedureCall(_nPicScript));
+                pInit->AddStatement(GetSetUpPolyProcedureCall(_nPicScript));
             }
 
             _AddSendCall(*pInit, "super", "init", "");
@@ -368,7 +367,7 @@ void CNewRoomDialog::_PrepareBuffer()
             {
 				unique_ptr<ProcedureCall> pSetUpEgo = std::make_unique<ProcedureCall>();
                 pSetUpEgo->SetName("SetUpEgo");
-                _AddStatement(*pInit, std::move(pSetUpEgo));
+                pInit->AddStatement(std::move(pSetUpEgo));
             }
 
             _AddSendCall(*pInit, "gEgo", "init", "", true);
@@ -397,7 +396,7 @@ void CNewRoomDialog::_PrepareBuffer()
             }
                 
             _AddSendCall(*pDoit, "super", "doit", "");
-            _AddComment(*pDoit, "// code executed each game cycle", CommentType::Indented);
+            pDoit->AddNewStatement<Comment>("// code executed each game cycle", CommentType::Indented);
 			pClass->AddMethod(std::move(pDoit));
         }
 
@@ -417,7 +416,7 @@ void CNewRoomDialog::_PrepareBuffer()
             }
                 
             _AddSendCall(*pHE, "super", "handleEvent", "pEvent");
-            _AddComment(*pHE, "// handle Said's, etc...", CommentType::Indented);
+            pHE->AddNewStatement<Comment>("// handle events", CommentType::Indented);
 
 			pClass->AddMethod(std::move(pHE));
         }

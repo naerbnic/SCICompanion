@@ -641,6 +641,11 @@ namespace sci
 		StatementsNode& operator=(const StatementsNode& src) = delete;
 
 		void AddStatement(std::unique_ptr<SyntaxNode> pStatement) { _segments.push_back(std::move(pStatement)); }
+        template<class T, class... Args>
+        void AddNewStatement(Args&&... args)
+        {
+            _segments.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+        }
         const SyntaxNodeVector &GetStatements() const { return _segments; }
         SyntaxNodeVector &GetStatements() { return _segments; }
     protected:
