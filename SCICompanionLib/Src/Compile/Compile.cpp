@@ -172,41 +172,13 @@ WORD PushToStackIfAppropriate(CompileContext &context, int lineNumber)
     return wBytes;
 }
 
-class PerformPreScan
+template<typename T>
+void ForwardPreScan(const T& container, CompileContext &context)
 {
-public:
-    PerformPreScan(CompileContext &context) : _context(context) {}
-    void operator()(IOutputByteCode* proc) const
+    for (auto const& item : container)
     {
-        proc->PreScan(_context);
+        item->PreScan(context);
     }
-private:
-    CompileContext &_context;
-};
-
-template<typename T>
-void ForwardPreScan(const T &container, CompileContext &context)
-{
-    for_each(container.begin(), container.end(), PerformPreScan(context));
-}
-
-template<typename T>
-class PerformPreScan2
-{
-public:
-    PerformPreScan2(CompileContext &context) : _context(context) {}
-    void operator()(const unique_ptr<T> &proc) const
-    {
-        proc->PreScan(_context);
-    }
-private:
-    CompileContext &_context;
-};
-
-template<typename T>
-void ForwardPreScan2(const vector<unique_ptr<T>> &container, CompileContext &context)
-{
-    for_each(container.begin(), container.end(), PerformPreScan2<T>(context));
 }
 
 //
@@ -1519,7 +1491,7 @@ bool SendParam::ContainsRest() const
 
 void SendParam::PreScan(CompileContext &context) 
 {
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 
 CodeResult SendParam::OutputByteCode(CompileContext &context) const
@@ -2533,7 +2505,7 @@ void CaseStatementBase::PreScan(CompileContext &context)
     {
         _statement1->PreScan(context);
     }
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 
 CodeResult CaseStatement::OutputByteCode(CompileContext &context) const
@@ -2901,7 +2873,7 @@ void VariableDecl::PreScan(CompileContext &context)
     {
         context.ReportError(this, "Array size is not a constant expression: %s", _size.GetStringValue().c_str());
     }
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 
 void ClassDefDeclaration::PreScan(CompileContext &context) {}
@@ -3349,8 +3321,8 @@ void ClassDefinition::PreScan(CompileContext &context)
     // Notify about our name
     context.GetTempToken(ValueType::String, _innerName);
 
-    ForwardPreScan2(_properties, context);
-    ForwardPreScan2(_methods, context);
+    ForwardPreScan(_properties, context);
+    ForwardPreScan(_methods, context);
 
     // For error-checking.
     for (auto &method : _methods)
@@ -3498,26 +3470,26 @@ void FunctionBase::PreScan(CompileContext &context)
         }
         tempVarCollection.insert(variable->GetName());
     }
-    ForwardPreScan2(_tempVars, context);
-    ForwardPreScan2(_segments, context);
-    ForwardPreScan2(_signatures, context);
+    ForwardPreScan(_tempVars, context);
+    ForwardPreScan(_segments, context);
+    ForwardPreScan(_signatures, context);
 
     // TODO: emit warning when a local variable hides a class member.
     context.FunctionBaseForPrescan = nullptr;
 }
 void CodeBlock::PreScan(CompileContext &context)
 {
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 void NaryOp::PreScan(CompileContext &context)
 {
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 
 void SendCall::PreScan(CompileContext &context)
 {
     // One of three forms of send params.
-    ForwardPreScan2(_params, context);
+    ForwardPreScan(_params, context);
     if (GetTargetName().empty())
     {
         if (!_object3 || _object3->GetName().empty())
@@ -3537,28 +3509,28 @@ void ProcedureCall::PreScan(CompileContext &context)
         // Can't use keywords as procedure calls.
         ReportKeywordError(context, this, _innerName, "procedure call");
     }
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 void ConditionalExpression::PreScan(CompileContext &context)
 {
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 void SwitchStatement::PreScan(CompileContext &context)
 {
     _statement1->PreScan(context);
-    ForwardPreScan2(_cases, context);
+    ForwardPreScan(_cases, context);
 }
 void ForLoop::PreScan(CompileContext &context) 
 {
     GetInitializer()->PreScan(context);
     _innerCondition->PreScan(context);
     _looper->PreScan(context);
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 void WhileLoop::PreScan(CompileContext &context) 
 {
     _innerCondition->PreScan(context);
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 
 void ExportEntry::PreScan(CompileContext &context) {}
@@ -3582,13 +3554,13 @@ void Script::TrackGenText(CompileContext &context)
 
 void Script::PreScan(CompileContext &context)
 {
-    ForwardPreScan2(_defines, context);
+    ForwardPreScan(_defines, context);
 
     //
-    ForwardPreScan2(Globals, context);
-    ForwardPreScan2(Externs, context);
-    ForwardPreScan2(Selectors, context);
-    ForwardPreScan2(ClassDefs, context);
+    ForwardPreScan(Globals, context);
+    ForwardPreScan(Externs, context);
+    ForwardPreScan(Selectors, context);
+    ForwardPreScan(ClassDefs, context);
 
     std::set<int> slots;
     for (auto &theExport : _exports)
@@ -3647,8 +3619,8 @@ void Script::PreScan(CompileContext &context)
         classNames.insert(theClass->GetName());
     }
 
-    ForwardPreScan2(_procedures, context);
-    ForwardPreScan2(_classes, context);
+    ForwardPreScan(_procedures, context);
+    ForwardPreScan(_classes, context);
 
 
     // Check for duplicate local variable names.
@@ -3661,7 +3633,7 @@ void Script::PreScan(CompileContext &context)
         }
         scriptVarNames.insert(scriptVar->GetName());
     }
-    ForwardPreScan2(_scriptVariables, context);
+    ForwardPreScan(_scriptVariables, context);
 
     // We need to do special stuff with these, we can't just forward.
     // Here is where we turn them into strings.
@@ -3740,7 +3712,7 @@ void Script::_PreScanStringDeclaration(CompileContext &context, VariableDecl &st
 void DoLoop::PreScan(CompileContext &context) 
 {
     _innerCondition->PreScan(context);
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 void Assignment::PreScan(CompileContext &context)
 {
@@ -3750,7 +3722,7 @@ void Assignment::PreScan(CompileContext &context)
 
 void AsmBlock::PreScan(CompileContext &context)
 {
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 void Asm::PreScan(CompileContext &context)
 {
@@ -3758,7 +3730,7 @@ void Asm::PreScan(CompileContext &context)
     {
         context.ReportLabelName(this, _label);
     }
-    ForwardPreScan2(_segments, context);
+    ForwardPreScan(_segments, context);
 }
 
 void WeakSyntaxNode::PreScan(CompileContext &context)
