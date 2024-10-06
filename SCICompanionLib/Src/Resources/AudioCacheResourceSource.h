@@ -21,7 +21,7 @@ class ResourceEntity;
 class ResourceBlob;
 class CResourceMap;
 
-extern const char *pszAudioCacheFolder;
+extern const char* pszAudioCacheFolder;
 
 // ResourceSource for the audio resources cached by SCI Companion
 //
@@ -41,28 +41,40 @@ extern const char *pszAudioCacheFolder;
 class AudioCacheResourceSource : public ResourceSource
 {
 public:
-    AudioCacheResourceSource(CResourceMap *resourceMap, const std::shared_ptr<const GameFolderHelper> &helper, int mapContext, ResourceSourceAccessFlags access);
+    AudioCacheResourceSource(CResourceMap* resourceMap,
+                             const std::shared_ptr<const GameFolderHelper>&
+                             helper, int mapContext,
+                             ResourceSourceAccessFlags access);
     ~AudioCacheResourceSource();
 
-    AudioCacheResourceSource& operator=(AudioCacheResourceSource &src) = delete;
+    AudioCacheResourceSource& operator=(AudioCacheResourceSource& src) = delete;
 
-    bool ReadNextEntry(ResourceTypeFlags typeFlags, IteratorState &state, ResourceMapEntryAgnostic &entry, std::vector<uint8_t> *optionalRawData = nullptr) override;
-    sci::istream GetHeaderAndPositionedStream(const ResourceMapEntryAgnostic &mapEntry, ResourceHeaderAgnostic &headerEntry) override;
+    bool ReadNextEntry(ResourceTypeFlags typeFlags, IteratorState& state,
+                       ResourceMapEntryAgnostic& entry,
+                       std::vector<uint8_t>* optionalRawData =
+                           nullptr) override;
+    sci::istream GetHeaderAndPositionedStream(
+        const ResourceMapEntryAgnostic& mapEntry,
+        ResourceHeaderAgnostic& headerEntry) override;
 
-    sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(const ResourceMapEntryAgnostic &mapEntry, uint32_t &size, bool &includesHeader) override
+    sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(
+        const ResourceMapEntryAgnostic& mapEntry, uint32_t& size,
+        bool& includesHeader) override
     {
         assert(false && "Not implemented");
         return sci::istream(nullptr, 0);
     }
 
-    void RemoveEntry(const ResourceMapEntryAgnostic &mapEntry) override;
-    AppendBehavior AppendResources(const std::vector<const ResourceBlob*> &blobs) override;
-    void RebuildResources(bool force, ResourceSource &source, std::map<ResourceType, RebuildStats> &stats) override;
+    void RemoveEntry(const ResourceMapEntryAgnostic& mapEntry) override;
+    AppendBehavior AppendResources(
+        const std::vector<const ResourceBlob*>& blobs) override;
+    void RebuildResources(bool force, ResourceSource& source,
+                          std::map<ResourceType, RebuildStats>& stats) override;
 
     // A way to call RemoveEntry directly, for more efficiency.
     void RemoveEntries(int number, const std::vector<uint32_t> tuples);
     void SaveOrRemoveNegatives(const std::vector<ResourceEntity*> negatives);
-    void MaybeAddNegative(ResourceEntity &resource);
+    void MaybeAddNegative(ResourceEntity& resource);
 
     void Clear();
 
@@ -76,12 +88,13 @@ private:
     ResourceSourceFlags _sourceFlags;
 
     // Enumeration
-    std::vector<uint32_t> _audioTuplesPresent;          // base 36
+    std::vector<uint32_t> _audioTuplesPresent; // base 36
     std::unordered_set<uint32_t> _syncTuplesPresent;
     std::unique_ptr<ResourceEntity> _audioMap;
-    std::vector<int> _audioFilesPresent;          // regular
+    std::vector<int> _audioFilesPresent; // regular
 
-    std::unordered_map<uint64_t, std::unique_ptr<sci::streamOwner>> _streamHolders;
+    std::unordered_map<uint64_t, std::unique_ptr<sci::streamOwner>>
+    _streamHolders;
     std::unordered_map<uint64_t, std::unique_ptr<sci::ostream>> _streamHolders2;
 
     bool _enumInitialized;
@@ -94,7 +107,8 @@ private:
     std::shared_ptr<const GameFolderHelper> _helper;
 
     // But we do need this sometimes...
-    CResourceMap *_resourceMap;
+    CResourceMap* _resourceMap;
 };
 
-void SaveAudioBlobToFiles(const ResourceBlob &blob, const std::string &cacheSubFolder);
+void SaveAudioBlobToFiles(const ResourceBlob& blob,
+                          const std::string& cacheSubFolder);
