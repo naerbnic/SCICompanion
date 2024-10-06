@@ -66,6 +66,10 @@ namespace UnitTests
                 CompileResults results(appState->GetVersion(), log);
                 NewCompileScript(results, log, tables, headers, script);
             }
+            for (auto const& result : log.Results())
+            {
+                std::cerr << result.GetMessageA() + "\n";
+            }
             Assert::IsFalse(log.HasErrors());
         }
 

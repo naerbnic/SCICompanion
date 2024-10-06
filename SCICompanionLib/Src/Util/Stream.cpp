@@ -13,6 +13,9 @@
 ***************************************************************************/
 #include "stdafx.h"
 #include "Stream.h"
+
+#include <optional>
+
 #include "PerfTimer.h"
 
 namespace sci
@@ -132,37 +135,269 @@ void ostream::seekp(int32_t offset, std::ios_base::seekdir way)
     }
 }
 
+// CRTP base class for scoped values.
+template <class Derived, class T>
+class ScopedValue
+{
+public:
+    ScopedValue() = default;
+    explicit ScopedValue(T value)
+    {
+        if (Derived::IsValidImpl(value))
+        {
+            value_ = std::move(value);
+        }
+    }
+    ~ScopedValue()
+    {
+        if (IsValid())
+        {
+            Derived::CleanupValue(std::move(value_).value());
+        }
+    }
 
-istream::istream(const sci::istream& original,
+    ScopedValue(const ScopedValue&) = delete;
+    ScopedValue(ScopedValue&& other) noexcept {
+        std::swap(value_, other.value_);
+    }
+    ScopedValue& operator=(const ScopedValue&) = delete;
+    ScopedValue& operator=(ScopedValue&& other) noexcept
+    {
+        std::swap(value_, other.value_);
+        return *this;
+    }
+
+    const T& GetValue() const { return *value_; }
+
+    explicit operator bool() const { return IsValid(); }
+
+    bool IsValid() const { return value_.has_value(); }
+
+private:
+    std::optional<T> value_;
+};
+
+class ScopedHandle : public ScopedValue<ScopedHandle, HANDLE>
+{
+public:
+    using ScopedValue::ScopedValue;
+
+    static bool IsValidImpl(HANDLE value) { return value != nullptr && value != INVALID_HANDLE_VALUE; }
+    static void CleanupValue(HANDLE value)
+    {
+        if (!CloseHandle(value))
+        {
+            throw std::exception("Failed to close handle.");
+        }
+    }
+};
+
+class ScopedMappedMemory : public ScopedValue<ScopedMappedMemory, const uint8_t*>
+{
+public:
+    using ScopedValue::ScopedValue;
+
+    static bool IsValidImpl(const uint8_t* value) { return value != nullptr; }
+    static void CleanupValue(const uint8_t* value)
+    {
+        BOOL result = UnmapViewOfFile(value);
+        if (!result)
+        {
+            throw std::exception("Failed to unmap memory.");
+        }
+    }
+};
+
+// We need at least two implementations: One for a memory buffer, another for a memory-mapped file.
+class istream::Impl
+{
+public:
+    virtual ~Impl() = default;
+
+    virtual const uint8_t* GetDataBuffer() const = 0;
+    virtual uint32_t GetDataSize() const = 0;
+};
+
+class istream::MemoryImpl : public istream::Impl
+{
+public:
+    MemoryImpl(uint32_t size) :
+        size_(size), data_(std::make_unique<uint8_t[]>(size))
+    {
+    }
+
+    MemoryImpl(const uint8_t* data, uint32_t size) : MemoryImpl(size)
+    {
+        std::memcpy(data_.get(), data, size);
+    }
+
+    virtual uint8_t* GetMutableDataBuffer()
+    {
+        return data_.get();
+    }
+
+    const uint8_t* GetDataBuffer() const override
+    {
+        return data_.get();
+    }
+
+    uint32_t GetDataSize() const override
+    {
+        return size_;
+    }
+
+private:
+    std::size_t size_;
+    std::unique_ptr<uint8_t[]> data_;
+};
+
+class istream::FileImpl : public istream::Impl
+{
+public:
+    static std::unique_ptr<Impl> FromFilename(const std::string& filename)
+    {
+
+        auto file_handle = ScopedHandle(CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
+            nullptr, OPEN_EXISTING, 0, nullptr));
+        if (!file_handle.IsValid())
+        {
+            return nullptr;
+        }
+
+        // If no length specifies, then until the end of the file.
+        DWORD dwSizeHigh;
+        DWORD dwSize = GetFileSize(file_handle.GetValue(), &dwSizeHigh);
+        if (dwSize == INVALID_FILE_SIZE)
+        {
+            return nullptr;
+        }
+        assert(dwSizeHigh == 0);
+        auto mapping_handle = ScopedHandle(CreateFileMapping(file_handle.GetValue(), nullptr, PAGE_READONLY, 0, 0,
+            nullptr));
+        if (!mapping_handle.IsValid())
+        {
+            return nullptr;
+        }
+        auto _dataMemoryMapped = ScopedMappedMemory(static_cast<const uint8_t*>(MapViewOfFile(
+            mapping_handle.GetValue(), FILE_MAP_READ, 0, 0, 0)));
+        if (!_dataMemoryMapped)
+        {
+            return nullptr;
+        }
+        
+        auto valid_size = dwSize;
+    }
+
+    const uint8_t* GetDataBuffer() const override
+    {
+        return mapped_memory_.GetValue();
+    }
+
+    uint32_t GetDataSize() const override
+    {
+        return size_;
+    }
+
+private:
+    FileImpl(ScopedHandle file_handle, ScopedHandle mapping_handle, ScopedMappedMemory mapped_memory, uint32_t size)
+        : file_handle_(std::move(file_handle)), mapping_handle_(std::move(mapping_handle)), mapped_memory_(std::move(mapped_memory)), size_(size)
+    {
+    }
+    ScopedHandle file_handle_;
+    ScopedHandle mapping_handle_;
+    ScopedMappedMemory mapped_memory_;
+    uint32_t size_;
+};
+istream istream::MapFile(const std::string& filename)
+{
+    return istream(FileImpl::FromFilename(filename));
+}
+
+istream istream::ReadFromFile(HANDLE hFile, DWORD lengthToInclude)
+{
+    // Start from the current position:
+    uint32_t dwSize = lengthToInclude;
+    if (dwSize == 0)
+    {
+        // If no length specifies, then until the end of the file.
+        DWORD dwCurrentPosition = SetFilePointer(
+            hFile, 0, nullptr, FILE_CURRENT);
+        DWORD dwSizeHigh = 0;
+        DWORD file_size = GetFileSize(hFile, &dwSizeHigh);
+
+        if (dwSize == INVALID_FILE_SIZE)
+        {
+            throw std::exception("Unable to get file size.");
+        }
+
+        // Limit ourselves a little (to 4GB).
+        if (dwSizeHigh != 0)
+        {
+            throw std::exception("File size too large.");
+        }
+
+        dwSize = file_size - dwCurrentPosition;
+    }
+    auto impl = std::make_shared<MemoryImpl>(dwSize);
+    // = std::make_unique<uint8_t[]>(dwSize);
+    // Don't use make_unique, because it will zero init the array (perf).
+    DWORD dwSizeRead;
+    if (!ReadFile(hFile, impl->GetMutableDataBuffer(), dwSize, &dwSizeRead, nullptr))
+    {
+        throw std::exception("Unable to read file data.");
+    }
+
+    if (dwSizeRead != dwSize)
+    {
+        throw std::exception("Unable to read beyond end of file.");
+    }
+
+    return istream(std::move(impl));
+
+}
+
+istream::istream(const uint8_t* pData, uint32_t cbSize) : 
+istream(std::make_shared<MemoryImpl>(pData, cbSize))
+{
+}
+
+
+istream::istream() : istream(std::shared_ptr<Impl>())
+{
+    _throwExceptions = false;
+    _iIndex = 0;
+    _state = std::ios_base::goodbit;
+}
+
+istream::istream(std::shared_ptr<Impl> impl) :
+    _impl(std::move(impl)), _iIndex(0), _throwExceptions(false)
+{
+}
+
+
+istream::istream(const istream& original,
                  uint32_t absoluteOffset) : istream(original)
 {
     _iIndex = absoluteOffset;
 }
 
-istream::istream()
+uint32_t istream::GetDataSize() const
 {
-    _throwExceptions = false;
-    _iIndex = 0;
-    _cbSizeValid = 0;
-    _pDataReadOnly = nullptr;
-    _state = std::ios_base::goodbit;
+    return _impl->GetDataSize();
 }
 
-istream::istream(const uint8_t* pData, uint32_t cbSize)
+const uint8_t* istream::GetInternalPointer() const
 {
-    _throwExceptions = false;
-    _iIndex = 0;
-    _cbSizeValid = cbSize;
-    _pDataReadOnly = pData;
-    _state = std::ios_base::goodbit;
+    return _impl->GetDataBuffer();
 }
 
 bool istream::_Read(uint8_t* pDataDest, uint32_t cCount)
 {
-    if ((_cbSizeValid > _iIndex) && ((_cbSizeValid - _iIndex) >= cCount))
+    auto buffer_size = _impl->GetDataSize();
+    if ((buffer_size > _iIndex) && ((buffer_size - _iIndex) >= cCount))
     {
         // we're good.
-        CopyMemory(pDataDest, _pDataReadOnly + _iIndex, cCount);
+        CopyMemory(pDataDest, _impl->GetDataBuffer() + _iIndex, cCount);
         _iIndex += cCount;
         return true;
     }
@@ -172,7 +407,7 @@ bool istream::_Read(uint8_t* pDataDest, uint32_t cCount)
 void istream::seekg(uint32_t dwIndex)
 {
     _iIndex = dwIndex;
-    if (_iIndex > _cbSizeValid)
+    if (_iIndex > _impl->GetDataSize())
     {
         _OnReadPastEnd();
     }
@@ -189,7 +424,7 @@ void istream::seekg(int32_t offset, std::ios_base::seekdir way)
         seekg(_iIndex + offset);
         break;
     case std::ios_base::end:
-        seekg(_cbSizeValid + offset);
+        seekg(_impl->GetDataSize() + offset);
         break;
     }
 }
@@ -229,13 +464,15 @@ istream& istream::operator>>(uint8_t& b)
 
 istream& istream::operator>>(std::string& str)
 {
+    auto buffer = _impl->GetDataBuffer();
+    auto buffer_size = _impl->GetDataSize();
     uint32_t dwSave = tellg();
     str.clear();
     // Read a null terminated string.
     bool fDone = false;
-    while (_iIndex < _cbSizeValid)
+    while (_iIndex < buffer_size)
     {
-        char x = (char)_pDataReadOnly[_iIndex];
+        char x = (char)buffer[_iIndex];
         ++_iIndex;
         if (x)
         {
@@ -247,7 +484,7 @@ istream& istream::operator>>(std::string& str)
             break;
         }
     }
-    if (!fDone && (_iIndex == _cbSizeValid))
+    if (!fDone && (_iIndex == buffer_size))
     {
         // Failure
         str.clear();
@@ -259,7 +496,7 @@ istream& istream::operator>>(std::string& str)
 
 void istream::skip(uint32_t cBytes)
 {
-    if ((_iIndex + cBytes) < _cbSizeValid)
+    if ((_iIndex + cBytes) < _impl->GetDataSize())
     {
         _iIndex += cBytes;
     }
@@ -271,9 +508,10 @@ void istream::skip(uint32_t cBytes)
 
 bool istream::peek(uint8_t& b)
 {
-    if (_iIndex < _cbSizeValid)
+    auto buffer = _impl->GetDataBuffer();
+    if (_iIndex < _impl->GetDataSize())
     {
-        b = _pDataReadOnly[_iIndex];
+        b = buffer[_iIndex];
         return true;
     }
     return false;
@@ -281,9 +519,10 @@ bool istream::peek(uint8_t& b)
 
 bool istream::peek(uint16_t& w)
 {
-    if ((_iIndex + 1) < _cbSizeValid)
+    auto buffer = _impl->GetDataBuffer();
+    if ((_iIndex + 1) < _impl->GetDataSize())
     {
-        w = *reinterpret_cast<const uint16_t*>(&_pDataReadOnly[_iIndex]);
+        w = *reinterpret_cast<const uint16_t*>(&buffer[_iIndex]);
         return true;
     }
     return false;
@@ -340,46 +579,13 @@ istream istream_from_ostream(ostream& src)
 }
 
 streamOwner::streamOwner(const uint8_t* data, uint32_t size) :
-    _dataMemoryMapped(nullptr), _hMap(nullptr), _hFile(INVALID_HANDLE_VALUE)
+    base_istream_(data, size)
 {
-    _pData = std::make_unique<uint8_t[]>(size);
-    _cbSizeValid = size;
-    memcpy(_pData.get(), data, size);
 }
 
 streamOwner::streamOwner(HANDLE hFile, DWORD lengthToInclude) :
-    _dataMemoryMapped(nullptr), _hMap(nullptr), _hFile(INVALID_HANDLE_VALUE)
+    base_istream_(istream::ReadFromFile(hFile, lengthToInclude))
 {
-    DWORD dwSizeHigh = 0;
-    // Start from the current position:
-    uint32_t dwSize = lengthToInclude;
-    if (dwSize == 0)
-    {
-        // If no length specifies, then until the end of the file.
-        DWORD dwCurrentPosition = SetFilePointer(
-            hFile, 0, nullptr, FILE_CURRENT);
-        dwSize = GetFileSize(hFile, &dwSizeHigh) - dwCurrentPosition;
-    }
-    if (dwSize != INVALID_FILE_SIZE)
-    {
-        // Limit ourselves a little (to 4GB).
-        if (dwSizeHigh == 0)
-        {
-            // = std::make_unique<uint8_t[]>(dwSize);
-            // Don't use make_unique, because it will zero init the array (perf).
-            _pData.reset(new uint8_t[dwSize]);
-            DWORD dwSizeRead;
-            if (ReadFile(hFile, _pData.get(), dwSize, &dwSizeRead, nullptr) && (
-                dwSizeRead == dwSize))
-            {
-                _cbSizeValid = dwSize;
-            }
-            else
-            {
-                throw std::exception("Unable to read file data.");
-            }
-        }
-    }
 }
 
 void transfer(istream& from, ostream& to, uint32_t count)
@@ -398,61 +604,18 @@ void transfer(istream& from, ostream& to, uint32_t count)
 
 
 streamOwner::streamOwner(const std::string& filename) :
-    _dataMemoryMapped(nullptr), _hMap(nullptr), _cbSizeValid(0), _pData(nullptr)
+base_istream_(istream::MapFile(filename))
 {
-    _hFile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
-                        nullptr, OPEN_EXISTING, 0, nullptr);
-    if (_hFile != INVALID_HANDLE_VALUE)
-    {
-        // If no length specifies, then until the end of the file.
-        DWORD dwSizeHigh;
-        DWORD dwSize = GetFileSize(_hFile, &dwSizeHigh);
-        if (dwSize != INVALID_FILE_SIZE)
-        {
-            assert(dwSizeHigh == 0);
-            _hMap = CreateFileMapping(_hFile, nullptr, PAGE_READONLY, 0, 0,
-                                      nullptr);
-            if (_hMap != nullptr)
-            {
-                _dataMemoryMapped = reinterpret_cast<uint8_t*>(MapViewOfFile(
-                    _hMap, FILE_MAP_READ, 0, 0, 0));
-                if (_dataMemoryMapped)
-                {
-                    _cbSizeValid = dwSize;
-                }
-            }
-        }
-    }
 }
 
 streamOwner::~streamOwner()
 {
-    if (_dataMemoryMapped)
-    {
-        BOOL result = UnmapViewOfFile(_dataMemoryMapped);
-        assert(result);
-    }
-    if (_hMap)
-    {
-        CloseHandle(_hMap);
-    }
-    if (_hFile != INVALID_HANDLE_VALUE)
-    {
-        CloseHandle(_hFile);
-    }
 }
 
-uint32_t streamOwner::GetDataSize() { return _cbSizeValid; }
+uint32_t streamOwner::GetDataSize() { return base_istream_.GetDataSize(); }
 
 istream streamOwner::getReader()
 {
-    if (_dataMemoryMapped)
-    {
-        return istream(_dataMemoryMapped, _cbSizeValid);
-    }
-    else
-    {
-        return istream(_pData.get(), _cbSizeValid);
-    }
+    return base_istream_;
 }
 }

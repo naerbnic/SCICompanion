@@ -74,11 +74,16 @@ private:
 class istream
 {
 public:
+    static istream MapFile(const std::string& filename);
+    static istream ReadFromFile(HANDLE hFile, DWORD lengthToInclude = 0);
     istream(const uint8_t* pData, uint32_t cbSize);
-    istream(const sci::istream& original, uint32_t absoluteOffset);
+    istream(const istream& original, uint32_t absoluteOffset);
     istream();
 
     uint32_t GetDataSize() const { return _cbSizeValid; }
+
+    // Use with caution!
+    const uint8_t* GetInternalPointer() const;
 
     // New api
     bool good()
@@ -119,7 +124,7 @@ public:
 
     uint32_t getBytesRemaining()
     {
-        return (_cbSizeValid > _iIndex) ? (_cbSizeValid - _iIndex) : 0;
+        return (GetDataSize() > _iIndex) ? (GetDataSize() - _iIndex) : 0;
     }
 
     void skip(uint32_t cBytes);
@@ -132,18 +137,20 @@ public:
         _throwExceptions = shouldThrow;
     }
 
-    // Use with caution!
-    const uint8_t* GetInternalPointer() const { return _pDataReadOnly; }
-
 private:
+    class Impl;
+    class MemoryImpl;
+    class FileImpl;
+
+    istream(std::shared_ptr<Impl> impl);
+
     bool _ReadWord(uint16_t* pw) { return _Read((uint8_t*)pw, 2); }
     bool _Read(uint8_t* pData, uint32_t cCount);
     bool _ReadByte(uint8_t* pb) { return _Read(pb, 1); }
     void _OnReadPastEnd();
 
+    std::shared_ptr<Impl> _impl;
     uint32_t _iIndex;
-    uint32_t _cbSizeValid;
-    const uint8_t* _pDataReadOnly;
     bool _throwExceptions;
     std::ios_base::iostate _state;
 };
@@ -161,12 +168,7 @@ public:
     uint32_t GetDataSize();
 
 private:
-    std::unique_ptr<uint8_t[]> _pData; // Our data
-    uint32_t _cbSizeValid;
-
-    const uint8_t* _dataMemoryMapped;
-    HANDLE _hFile;
-    HANDLE _hMap;
+    istream base_istream_;
 };
 
 void transfer(istream& from, ostream& to, uint32_t count);
