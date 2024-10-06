@@ -16,14 +16,14 @@
 #include "CompiledScript.h"
 #include "Disassembler.h"
 #include "DisassembleHelper.h"
+#include "FunctionRef.h"
 #include "PMachine.h"
 #include "scii.h"
 
 // Enumerates the VM instructions within a section of script resource, and calls the supplied
 // analyzeInstruction function. Used for inspecting script resources to determine version information.
 
-template<typename _TInspect>
-bool InspectCode(SCIVersion version, const uint8_t *pBegin, const uint8_t *pEnd, uint16_t wBaseOffset, _TInspect analyzeInstruction)
+inline bool InspectCode(SCIVersion version, const uint8_t *pBegin, const uint8_t *pEnd, uint16_t wBaseOffset, FunctionRef<bool(Opcode, uint16_t[3], uint16_t)> analyzeInstruction)
 {
     try
     {
@@ -60,17 +60,16 @@ bool InspectCode(SCIVersion version, const uint8_t *pBegin, const uint8_t *pEnd,
     return true;
 }
 
-template<typename _TInspect>
-bool InspectFunction(const CompiledScript &script, uint16_t wCodeOffsetTO, std::set<uint16_t> &sortedCodePointersTO, _TInspect analyzeInstruction)
+inline bool InspectFunction(const CompiledScript& script, uint16_t wCodeOffsetTO, std::set<uint16_t>& sortedCodePointersTO, FunctionRef<bool(Opcode, uint16_t[3], uint16_t)> analyzeInstruction)
 {
-    std::set<uint16_t>::const_iterator codeStartIt = sortedCodePointersTO.find(wCodeOffsetTO);
+    auto codeStartIt = sortedCodePointersTO.find(wCodeOffsetTO);
     if (codeStartIt != sortedCodePointersTO.end()) // Shouldn't happen, but this is a sensitive code path in version detection, needs to be robust.
     {
         CodeSection section;
         if (FindStartEndCode(codeStartIt, sortedCodePointersTO, script._codeSections, section))
         {
-            const BYTE *pBegin = &script.GetRawBytes()[section.begin];
-            const BYTE *pEnd = &script.GetRawBytes()[section.end];
+            const BYTE* pBegin = &script.GetRawBytes()[section.begin];
+            const BYTE* pEnd = &script.GetRawBytes()[section.end];
             if (!InspectCode(script.GetVersion(), pBegin, pEnd, wCodeOffsetTO, analyzeInstruction))
             {
                 return false;
@@ -80,8 +79,7 @@ bool InspectFunction(const CompiledScript &script, uint16_t wCodeOffsetTO, std::
     return true;
 }
 
-template<typename _TInspect>
-bool InspectScriptCode(const CompiledScript &script, ICompiledScriptLookups *pLookups, const std::string &objectFilter, const std::string &methodFilter, _TInspect analyzeInstruction)
+inline bool InspectScriptCode(const CompiledScript &script, ICompiledScriptLookups *pLookups, const std::string &objectFilter, const std::string &methodFilter, FunctionRef<bool(Opcode, uint16_t[3], uint16_t)> analyzeInstruction)
 {
     // Make an index of code pointers by looking at the object methods
     std::set<uint16_t> codePointersTO;
