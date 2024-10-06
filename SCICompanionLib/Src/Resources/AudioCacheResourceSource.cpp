@@ -153,14 +153,9 @@ AudioCacheResourceSource::AudioCacheResourceSource(
     _mapContext(mapContext),
     _access(access),
     _enumInitialized(false),
-    _gameFolder(helper->GetGameFolder()),
-    _cacheFolder(helper->GetGameFolder() + pszAudioCacheFolder),
     _helper(helper),
     _resourceMap(resourceMap)
 {
-    _cacheSubFolderForEnum = _cacheFolder + fmt::format(
-        "\\{0}",
-        (mapContext == -1) ? _version.AudioMapResourceNumber : mapContext);
     if (IsFlagSet(access, ResourceSourceAccessFlags::ReadWrite))
     {
         // This is important we do this, for the delete case
@@ -170,7 +165,7 @@ AudioCacheResourceSource::AudioCacheResourceSource(
 
 void AudioCacheResourceSource::Clear()
 {
-    DeleteDirectory(nullptr, _cacheFolder);
+    DeleteDirectory(nullptr, GetCacheFolder());
 }
 
 void AudioCacheResourceSource::_EnsureEnumInitialized()
@@ -185,7 +180,7 @@ void AudioCacheResourceSource::_EnsureEnumInitialized()
                             ? _version.AudioMapResourceNumber
                             : _mapContext;
         std::string mapName = fmt::format("{0}.map", mapNumber);
-        std::string mapFilename = _cacheFolder + "\\";
+        std::string mapFilename = _helper->GetGameFolder() + pszAudioCacheFolder + "\\";
         mapFilename += mapName;
         ResourceBlob blob;
         if (SUCCEEDED(
@@ -199,13 +194,13 @@ void AudioCacheResourceSource::_EnsureEnumInitialized()
             if (_mapContext == -1)
             {
                 // "global" audio resources
-                audioFileSpec = _cacheSubFolderForEnum + "\\*.aud";
+                audioFileSpec = GetCacheSubfolderForEnum() + "\\*.aud";
             }
             else
             {
                 // base36 audio and sync resources
                 // nnnNNVV.CCS
-                audioFileSpec = _cacheSubFolderForEnum + fmt::format(
+                audioFileSpec = GetCacheSubfolderForEnum() + fmt::format(
                     "\\?{0:0>3t}????.???", _mapContext);
             }
 
@@ -300,6 +295,18 @@ bool AudioCacheResourceSource::ReadNextEntry(ResourceTypeFlags typeFlags,
     return success;
 }
 
+std::string AudioCacheResourceSource::GetCacheFolder() const
+{
+    return _helper->GetGameFolder() + pszAudioCacheFolder;
+}
+
+std::string AudioCacheResourceSource::GetCacheSubfolderForEnum() const
+{
+    return GetCacheFolder() + fmt::format(
+        "\\{0}",
+        (_mapContext == -1) ? _version.AudioMapResourceNumber : _mapContext);
+}
+
 uint64_t _GetLookupKey(int number, uint32_t base36)
 {
     return number + ((uint64_t)base36 << 32);
@@ -319,7 +326,7 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
     std::string fileName = GetFileNameFor(mapEntry.Type, mapEntry.Number,
                                           mapEntry.Base36Number, _version);
     assert(!fileName.empty());
-    std::string fullPath = _cacheSubFolderForEnum + "\\" + fileName;
+    std::string fullPath = GetCacheSubfolderForEnum() + "\\" + fileName;
 
     // Now fill in the headerEntry
     headerEntry.Number = mapEntry.Number;
@@ -351,7 +358,7 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
         std::string fileNameSync = GetFileNameFor(
             ResourceType::Sync, mapEntry.Number, mapEntry.Base36Number,
             _version);
-        std::string fullPathSync = _cacheSubFolderForEnum + "\\" + fileNameSync;
+        std::string fullPathSync = GetCacheSubfolderForEnum() + "\\" + fileNameSync;
 
         // Audio36 plus maybe sync36. We want to combine these two into a single stream,
         // with the Sync36 data coming first, and the sync36 data indicated by BlobKey::LipSyncDataSize
@@ -462,8 +469,8 @@ AudioCacheResourceSource::_PrepareForAddOrRemove()
     std::unique_ptr<ResourceEntity> audioMap;
 
     // First, ensure our cache folder exists
-    EnsureFolderExists(_cacheFolder);
-    EnsureFolderExists(_cacheSubFolderForEnum);
+    EnsureFolderExists(GetCacheFolder());
+    EnsureFolderExists(GetCacheSubfolderForEnum());
 
     // Now, we need to write the existing audio map. This audio map *could* come from us, or it could come from the original.
     // If it came from the original, we need to extract all the files for the first time.
@@ -479,8 +486,8 @@ AudioCacheResourceSource::_PrepareForAddOrRemove()
         if (!IsFlagSet(audioMapBlobTest->GetSourceFlags(),
                        ResourceSourceFlags::AudioMapCache))
         {
-            FirstTimeAudioExtraction(*_helper, _cacheFolder,
-                                     _cacheSubFolderForEnum, _version,
+            FirstTimeAudioExtraction(*_helper, GetCacheFolder(),
+                                     GetCacheSubfolderForEnum(), _version,
                                      _mapContext);
             audioMapBlobTest = _helper->MostRecentResource(
                 _version, ResourceType::AudioMap, resourceNumber,
@@ -519,7 +526,7 @@ void AudioCacheResourceSource::SaveOrRemoveNegatives(
     {
         for (ResourceEntity* resource : negatives)
         {
-            std::string fullPath = _cacheSubFolderForEnum + "\\" +
+            std::string fullPath = GetCacheSubfolderForEnum() + "\\" +
                 GetFileNameFor(ResourceType::Audio, resource->ResourceNumber,
                                resource->Base36Number, _version) + ".wav";
             const AudioNegativeComponent* neg = resource->TryGetComponent<
@@ -544,7 +551,7 @@ void AudioCacheResourceSource::MaybeAddNegative(ResourceEntity& resource)
 {
     try
     {
-        std::string fullPath = _cacheSubFolderForEnum + "\\" + GetFileNameFor(
+        std::string fullPath = GetCacheSubfolderForEnum() + "\\" + GetFileNameFor(
             ResourceType::Audio, resource.ResourceNumber, resource.Base36Number,
             _version) + ".wav";
         if (PathFileExists(fullPath.c_str()))
@@ -592,12 +599,12 @@ void AudioCacheResourceSource::RemoveEntries(int number,
             }
 
             // Now we need to delete any files associated with it.
-            std::string fullPath = _cacheSubFolderForEnum + "\\" +
+            std::string fullPath = GetCacheSubfolderForEnum() + "\\" +
                 GetFileNameFor(ResourceType::Audio, number, tuple, _version);
             deletefile(fullPath);
             fullPath += ".wav";
             deletefile(fullPath); // The negative, if it exists.
-            fullPath = _cacheSubFolderForEnum + "\\" + GetFileNameFor(
+            fullPath = GetCacheSubfolderForEnum() + "\\" + GetFileNameFor(
                 ResourceType::Sync, number, tuple, _version);
             deletefile(fullPath);
         }
@@ -612,7 +619,7 @@ void AudioCacheResourceSource::RemoveEntries(int number,
             _resourceMap->AppendResource(*audioMap);
 
             // This is no longer up-to-date.
-            UpToDateResources upToDate(_cacheFolder);
+            UpToDateResources upToDate(GetCacheFolder());
             upToDate.MarkDirty(audioMap->ResourceNumber);
             upToDate.Save();
         }
@@ -656,7 +663,7 @@ AppendBehavior AudioCacheResourceSource::AppendResources(
             }
 
             // Meanwhile, save this blob to files
-            SaveAudioBlobToFiles(*blobToBeSaved, _cacheSubFolderForEnum);
+            SaveAudioBlobToFiles(*blobToBeSaved, GetCacheSubfolderForEnum());
         }
 
         // And finally, serialize the audiomap and save it. We *should* just be able to go through the resource map again,
@@ -667,7 +674,7 @@ AppendBehavior AudioCacheResourceSource::AppendResources(
         _resourceMap->AppendResource(*audioMap);
 
         // This is no longer up-to-date.
-        UpToDateResources upToDate(_cacheFolder);
+        UpToDateResources upToDate(GetCacheFolder());
         upToDate.MarkDirty(audioMap->ResourceNumber);
         upToDate.Save();
     }
@@ -818,7 +825,7 @@ void AudioCacheResourceSource::RebuildResources(
     bool force, ResourceSource& source,
     std::map<ResourceType, RebuildStats>& stats)
 {
-    UpToDateResources upToDate(_cacheFolder);
+    UpToDateResources upToDate(GetCacheFolder());
 
     // 1) Find all the audio maps. We'll use the message resources to do this. This is so we don't include audio that no longer
     // has a place (e.g. no matching message resource - suppose it was deleted)
@@ -876,7 +883,7 @@ void AudioCacheResourceSource::RebuildResources(
             if (itAudioMapPair != audioMaps.end())
             {
                 std::ostream& streamToUse = *_ChooseBakOutputStream(
-                    _version, _gameFolder, itAudioMapPair->first, audStream,
+                    _version, _helper->GetGameFolder(), itAudioMapPair->first, audStream,
                     sfxStream);
 
                 ResourceEntity* audioMapResource = itAudioMapPair->second.get();
@@ -895,7 +902,7 @@ void AudioCacheResourceSource::RebuildResources(
                 if (rebuildFromCacheFiles)
                 {
                     //  Copy all the cache files directly into this stream...
-                    std::string cacheSubfolder = _cacheFolder + fmt::format(
+                    std::string cacheSubfolder = GetCacheFolder() + fmt::format(
                         "\\{0}", audioMapResource->ResourceNumber);
                     RebuildFromAudioCacheFiles(_version, cacheSubfolder,
                                                audioMapResource->GetComponent<
@@ -906,7 +913,7 @@ void AudioCacheResourceSource::RebuildResources(
                 else
                 {
                     // Copy straight from the resources.
-                    RebuildFromResources(_version, _gameFolder,
+                    RebuildFromResources(_version, _helper->GetGameFolder(),
                                          audioMapResource->GetComponent<
                                              AudioMapComponent>(),
                                          audioMapResource->ResourceNumber,
@@ -919,12 +926,12 @@ void AudioCacheResourceSource::RebuildResources(
         if (audStream.is_open())
         {
             testopenforwrite(
-                GetAudioVolumePath(_gameFolder, false, AudioVolumeName::Aud));
+                GetAudioVolumePath(_helper->GetGameFolder(), false, AudioVolumeName::Aud));
         }
         if (sfxStream.is_open())
         {
             testopenforwrite(
-                GetAudioVolumePath(_gameFolder, false, AudioVolumeName::Sfx));
+                GetAudioVolumePath(_helper->GetGameFolder(), false, AudioVolumeName::Sfx));
         }
 
         // 5) If that's good, then save the audio maps *TO THE RESOURCE MAP*
@@ -943,20 +950,20 @@ void AudioCacheResourceSource::RebuildResources(
         {
             audStream.close();
             std::string finalPath = GetAudioVolumePath(
-                _gameFolder, false, AudioVolumeName::Aud);
+                _helper->GetGameFolder(), false, AudioVolumeName::Aud);
             deletefile(finalPath);
             movefile(
-                GetAudioVolumePath(_gameFolder, true, AudioVolumeName::Aud),
+                GetAudioVolumePath(_helper->GetGameFolder(), true, AudioVolumeName::Aud),
                 finalPath);
         }
         if (sfxStream.is_open())
         {
             sfxStream.close();
             std::string finalPath = GetAudioVolumePath(
-                _gameFolder, false, AudioVolumeName::Sfx);
+                _helper->GetGameFolder(), false, AudioVolumeName::Sfx);
             deletefile(finalPath);
             movefile(
-                GetAudioVolumePath(_gameFolder, true, AudioVolumeName::Sfx),
+                GetAudioVolumePath(_helper->GetGameFolder(), true, AudioVolumeName::Sfx),
                 finalPath);
         }
 

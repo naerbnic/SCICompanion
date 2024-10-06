@@ -82,6 +82,8 @@ public:
 private:
     std::unique_ptr<ResourceEntity> _PrepareForAddOrRemove();
     void _EnsureEnumInitialized();
+    std::string GetCacheFolder() const;
+    std::string GetCacheSubfolderForEnum() const;
 
     SCIVersion _version;
     int _mapContext;
@@ -99,9 +101,6 @@ private:
     std::unordered_map<uint64_t, std::unique_ptr<sci::ostream>> _streamHolders2;
 
     bool _enumInitialized;
-    std::string _gameFolder;
-    std::string _cacheFolder;
-    std::string _cacheSubFolderForEnum;
 
     // We go through this as much as possible. We create our own,
     // because we may be enumerated on the background thread.
