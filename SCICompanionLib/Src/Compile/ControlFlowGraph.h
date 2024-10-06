@@ -13,6 +13,9 @@
 ***************************************************************************/
 #pragma once
 
+#include <memory>
+#include <utility>
+
 #include "ControlFlowNode.h"
 #include "DecompilerResults.h"
 
@@ -29,7 +32,7 @@ struct NodeBlock
 class ControlFlowGraph
 {
 public:
-    ControlFlowGraph(const std::string &statusMessagePrefix, IDecompilerResults &decompilerResults, const std::string &contextName, bool allowContinues, bool debug, PCSTR pszDebugFilter) : _decompilerResults(decompilerResults), _contextName(contextName), _statusMessagePrefix(statusMessagePrefix), _debug(debug), _pszDebugFilter(pszDebugFilter), _allowContinues(allowContinues) {}
+    ControlFlowGraph(const std::string &statusMessagePrefix, IDecompilerResults &decompilerResults, const std::string &contextName, bool allowContinues, bool debug, PCSTR pszDebugFilter) : _contextName(contextName), _decompilerResults(decompilerResults), _statusMessagePrefix(statusMessagePrefix), _allowContinues(allowContinues), _debug(debug), _pszDebugFilter(pszDebugFilter) {}
     ControlFlowGraph(const ControlFlowGraph &src) = delete;
     ControlFlowGraph& operator=(const ControlFlowGraph &src) = delete;
 
@@ -39,22 +42,22 @@ public:
     MainNode *GetMain() const { return static_cast<MainNode*>(mainStructure); };
 
     template<typename _TNode, typename... Args>
-    _TNode *MakeStructuredNode(Args... args)
+    _TNode *MakeStructuredNode(Args&&... args)
     {
-        unique_ptr<_TNode> newNode = std::make_unique<_TNode>(args...);
+        std::unique_ptr<_TNode> newNode = std::make_unique<_TNode>(std::forward<Args>(args)...);
         _TNode *ret = newNode.get();
-        nodesOwner.push_back(move(newNode));
+        nodesOwner.push_back(std::move(newNode));
         ret->ArbitraryDebugIndex = debugIndex++;
         discoveredControlStructures.insert(ret);
         return ret;
     }
 
     template<typename _TNode, typename... Args>
-    _TNode *MakeNode(Args... args)
+    _TNode *MakeNode(Args&&... args)
     {
-        unique_ptr<_TNode> newNode = std::make_unique<_TNode>(args...);
+        std::unique_ptr<_TNode> newNode = std::make_unique<_TNode>(std::forward<Args>(args)...);
         _TNode *ret = newNode.get();
-        nodesOwner.push_back(move(newNode));
+        nodesOwner.push_back(std::move(newNode));
         ret->ArbitraryDebugIndex = debugIndex++;
         return ret;
     }
