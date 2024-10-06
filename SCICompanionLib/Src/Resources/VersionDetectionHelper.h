@@ -13,6 +13,8 @@ GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
 
+#include "Version.h"
+
 class GameFolderHelper;
 
-void SniffSCIVersion(GameFolderHelper &helper);
+SCIVersion SniffSCIVersion(const GameFolderHelper &helper);

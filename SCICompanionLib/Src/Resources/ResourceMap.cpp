@@ -658,7 +658,7 @@ void CResourceMap::_SniffSCIVersion()
         return;
     }
 
-    SniffSCIVersion(_gameFolderHelper);
+    _gameFolderHelper.Version = SniffSCIVersion(_gameFolderHelper);
 }
 
 void CResourceMap::NotifyToRegenerateImages()
