@@ -49,7 +49,7 @@ DecompileDialog::DecompileDialog(CWnd* pParent /*=NULL*/)
         // But if not, set the default language to Sierra syntax.
         appState->GetResourceMap().SetGameLanguage(LangSyntaxSCI);
     }
-    _helper.Language = appState->GetResourceMap().Helper().Language;
+    _helper.SetLanguage(appState->GetResourceMap().Helper().GetLanguage());
 }
 
 BOOL DecompileDialog::OnInitDialog()

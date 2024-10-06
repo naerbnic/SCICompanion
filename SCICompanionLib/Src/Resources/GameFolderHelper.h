@@ -93,11 +93,17 @@ public:
     ResourceEnumFlags GetDefaultEnumFlags() const;
     ResourceSourceFlags GetDefaultSaveSourceFlags() const;
 
-    // Members
-    std::string GameFolder;
-    LangSyntax Language;
+    const std::string& GetGameFolder() const { return GameFolder; }
+    void SetGameFolder(const std::string& gameFolder) { GameFolder = gameFolder; }
+
+    LangSyntax GetLanguage() const { return Language; }
+    void SetLanguage(LangSyntax language) { Language = language; }
 
 private:
     std::string _GetSubfolder(const char *key, const std::string *prefix = nullptr) const;
+
+    // Members
+    std::string GameFolder;
+    LangSyntax Language;
 };
 

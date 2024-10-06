@@ -27,7 +27,7 @@ class AudioResourceSource : public ResourceSource
 {
 public:
     AudioResourceSource(const SCIVersion& version, const GameFolderHelper &helper, int mapContext, ResourceSourceAccessFlags access) :
-        _gameFolder(helper.GameFolder),
+        _gameFolder(helper.GetGameFolder()),
         _version(version),
         _mapContext(mapContext),
         _access(access),

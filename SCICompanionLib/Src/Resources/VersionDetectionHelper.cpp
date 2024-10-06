@@ -80,7 +80,7 @@ ResourcePackageFormat _DetectPackageFormat(const GameFolderHelper &helper, Resou
         return ResourcePackageFormat::SCI11;
     }
 
-    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GameFolder);
+    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GetGameFolder());
     
     ResourcePackageFormat packageFormat = ResourcePackageFormat::SCI0;
     // Assume there is always a resource.000 or resource.001
@@ -351,7 +351,7 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
 {
     ResourceMapFormat mapFormat = ResourceMapFormat::SCI0;
 
-    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GameFolder);
+    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GetGameFolder());
     std::unique_ptr<sci::streamOwner> streamHolder = resourceMapFileDescriptor.OpenMap();
     sci::istream byteStream = streamHolder->getReader();
 
@@ -453,7 +453,7 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
             bool probablyNotSCI0 = false;
             for (int volume : volumesSCI0)
             {
-                FileDescriptorResourceMap resourceMapFileDescriptor(helper.GameFolder);
+                FileDescriptorResourceMap resourceMapFileDescriptor(helper.GetGameFolder());
                 if (!PathFileExists(resourceMapFileDescriptor._GetVolumeFilename(volume).c_str()))
                 {
                     probablyNotSCI0 = true;
@@ -466,7 +466,7 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
             {
                 for (int volume : volumesSCI1)
                 {
-                    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GameFolder);
+                    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GetGameFolder());
                     if (!PathFileExists(resourceMapFileDescriptor._GetVolumeFilename(volume).c_str()))
                     {
                         // Game is corrupt...
@@ -588,8 +588,8 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     result = sciVersion0;
 
     // Audio volume name is easy
-    std::string fullPathAud = helper.GameFolder + "\\" + "resource.aud";
-    std::string fullPathSFX = helper.GameFolder + "\\" + "resource.sfx";
+    std::string fullPathAud = helper.GetGameFolder() + "\\" + "resource.aud";
+    std::string fullPathSFX = helper.GetGameFolder() + "\\" + "resource.sfx";
     result.AudioVolumeName = AudioVolumeName::None;
     if (PathFileExists(fullPathAud.c_str()))
     {
@@ -611,7 +611,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     if (result.AudioVolumeName != AudioVolumeName::None)
     {
         AudioVolumeName volNameMain = GetVolumeToUse(result, NoBase36);
-        std::string mainAudioVolumePath = GetAudioVolumePath(helper.GameFolder, false, volNameMain);
+        std::string mainAudioVolumePath = GetAudioVolumePath(helper.GetGameFolder(), false, volNameMain);
         if (HasWaveHeader(mainAudioVolumePath))
         {
             result.AudioIsWav = true;
@@ -619,8 +619,8 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     }
 
     // Is there a message file?
-    std::string fullPathMessageMap = helper.GameFolder + "\\" + "message.map";
-    std::string fullPathAltMap = helper.GameFolder + "\\" + "altres.map";
+    std::string fullPathMessageMap = helper.GetGameFolder() + "\\" + "message.map";
+    std::string fullPathAltMap = helper.GetGameFolder() + "\\" + "altres.map";
     result.MessageMapSource = MessageMapSource::Included;
     if (PathFileExists(fullPathMessageMap.c_str()))
     {
@@ -642,7 +642,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
 	}
 
     // Use resource.000 as the default package file, or resource.001 if no resource.000 found.
-    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GameFolder);
+    FileDescriptorResourceMap resourceMapFileDescriptor(helper.GetGameFolder());
     result.DefaultVolumeFile = resourceMapFileDescriptor.DoesVolumeExist(0) ? 0 : 1;
 
     // See if this is a version that uses hep files

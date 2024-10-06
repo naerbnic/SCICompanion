@@ -394,7 +394,7 @@ std::unique_ptr<sci::Script> DecompileScript(const IDecompilerConfig *config, Gl
     decompileLookups.SubstituteTextTuples = substituteTextTuples;
     pScript.reset(Decompile(helper, appState->GetVersion(), compiledScript, decompileLookups, appState->GetResourceMap().GetVocab000()));
 
-    if (helper.Language == LangSyntaxSCI)
+    if (helper.GetLanguage() == LangSyntaxSCI)
     {
         ConvertToSCISyntaxHelper(*pScript, &scriptLookups);
     }

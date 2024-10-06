@@ -64,19 +64,19 @@ std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, 
 {
     if (source == ResourceSourceFlags::ResourceMap)
     {
-        return _CreateResourceSource<FileDescriptorResourceMap>(helper.GameFolder, version, source);
+        return _CreateResourceSource<FileDescriptorResourceMap>(helper.GetGameFolder(), version, source);
     }
     else if (source == ResourceSourceFlags::MessageMap)
     {
-        return _CreateResourceSource<FileDescriptorMessageMap>(helper.GameFolder, version, source);
+        return _CreateResourceSource<FileDescriptorMessageMap>(helper.GetGameFolder(), version, source);
     }
     else if (source == ResourceSourceFlags::AltMap)
     {
-        return _CreateResourceSource<FileDescriptorAltMap>(helper.GameFolder, version, source);
+        return _CreateResourceSource<FileDescriptorAltMap>(helper.GetGameFolder(), version, source);
     }
     else if (source == ResourceSourceFlags::PatchFile)
     {
-        return std::make_unique<PatchFilesResourceSource>(flagsHint, version, helper.GameFolder, ResourceSourceFlags::PatchFile);
+        return std::make_unique<PatchFilesResourceSource>(flagsHint, version, helper.GetGameFolder(), ResourceSourceFlags::PatchFile);
     }
     else if ((source == ResourceSourceFlags::Aud) || (source == ResourceSourceFlags::Sfx))
     {
@@ -89,7 +89,7 @@ std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, 
     }
     else if (source == ResourceSourceFlags::AudioMapCache)
     {
-        return std::make_unique<PatchFilesResourceSource>(ResourceTypeFlags::AudioMap, version, helper.GameFolder + pszAudioCacheFolder, ResourceSourceFlags::AudioMapCache);
+        return std::make_unique<PatchFilesResourceSource>(ResourceTypeFlags::AudioMap, version, helper.GetGameFolder() + pszAudioCacheFolder, ResourceSourceFlags::AudioMapCache);
     }
     else
     {

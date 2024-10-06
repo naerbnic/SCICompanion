@@ -99,7 +99,7 @@ public:
     std::string GetTopLevelSamplesFolder();
     std::string GetObjectsFolder();
     std::string GetDecompilerFolder();
-    bool IsGameLoaded() { return !_gameFolderHelper.GameFolder.empty(); }
+    bool IsGameLoaded() { return !_gameFolderHelper.GetGameFolder().empty(); }
     HRESULT GetGameIni(PTSTR pszBuf, size_t cchBuf);
     HRESULT GetScriptNumber(ScriptId script, WORD &wScript);
     const SCIVersion &GetSCIVersion() const;

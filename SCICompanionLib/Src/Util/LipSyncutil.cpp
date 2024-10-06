@@ -180,7 +180,7 @@ std::unique_ptr<SyncComponent> CreateLipSyncComponentFromAudioAndPhonemes(const 
     std::unique_ptr<SyncComponent> result;
 
     char szTempFilename[MAX_PATH];
-    if (GetTempFileName(appState->GetResourceMap().Helper().GameFolder.c_str(), "LIP", 0, szTempFilename))
+    if (GetTempFileName(appState->GetResourceMap().Helper().GetGameFolder().c_str(), "LIP", 0, szTempFilename))
     {
         std::string tempWaveFilename = szTempFilename;
         WriteWaveFile(tempWaveFilename, audio);

@@ -136,8 +136,8 @@ AudioCacheResourceSource::AudioCacheResourceSource(
     const GameFolderHelper &helper,
     int mapContext,
     ResourceSourceAccessFlags access) :
-    _gameFolder(helper.GameFolder),
-    _cacheFolder(helper.GameFolder + pszAudioCacheFolder),
+    _gameFolder(helper.GetGameFolder()),
+    _cacheFolder(helper.GetGameFolder() + pszAudioCacheFolder),
     _version(resourceMap->GetSCIVersion()),
     _mapContext(mapContext),
     _enumInitialized(false),
@@ -561,7 +561,7 @@ AppendBehavior AudioCacheResourceSource::AppendResources(const std::vector<const
 void RebuildFromResources(const SCIVersion& version, const std::string &gameFolder, AudioMapComponent &audioMap, int number, std::ostream &writeStream)
 {
     GameFolderHelper helper;
-    helper.GameFolder = gameFolder;
+    helper.SetGameFolder(gameFolder);
 
     // First, cache all the blobs
     std::unordered_map<uint64_t, std::unique_ptr<ResourceBlob>> blobs;

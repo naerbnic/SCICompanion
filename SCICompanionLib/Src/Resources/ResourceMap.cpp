@@ -212,7 +212,7 @@ CResourceMap::CResourceMap(ISCIAppServices *appServices, ResourceRecency *resour
     _skipVersionSniffOnce = false;
     _pVocab000 = nullptr;
     _cDeferAppend = 0;
-    _gameFolderHelper.Language = LangSyntaxUnknown;
+    _gameFolderHelper.SetLanguage(LangSyntaxUnknown);
     _deferredResources.reserve(300);            // So we don't need to resize much it when adding
     _emptyPalette = std::make_unique<PaletteComponent>();
     memset(_emptyPalette->Colors, 0, sizeof(_emptyPalette->Colors));
@@ -373,7 +373,7 @@ bool CResourceMap::IsResourceCompatible(const ResourceBlob &resource)
 void CResourceMap::StartPostBuildThread()
 {
     AbortPostBuildThread();
-    _postBuildThread = CreatePostBuildThread(Helper().GameFolder);
+    _postBuildThread = CreatePostBuildThread(Helper().GetGameFolder());
 }
 
 void CResourceMap::AbortPostBuildThread()
@@ -396,7 +396,7 @@ void CResourceMap::PokeResourceMapReloaded()
 void CResourceMap::StartDebuggerThread(int optionalResourceNumber)
 {
     AbortDebuggerThread();
-    _debuggerThread = CreateDebuggerThread(Helper().GameFolder, optionalResourceNumber);
+    _debuggerThread = CreateDebuggerThread(Helper().GetGameFolder(), optionalResourceNumber);
 }
  
 void CResourceMap::RepackageAudio(bool force)
@@ -762,27 +762,27 @@ std::string GetIniString(const std::string &iniFileName, PCTSTR pszSectionName, 
 
 std::string CResourceMap::GetGameFolder() const
 {
-    return _gameFolderHelper.GameFolder;
+    return _gameFolderHelper.GetGameFolder();
 }
 
 void CResourceMap::_SniffGameLanguage()
 {
-    if (_gameFolderHelper.Language == LangSyntaxUnknown)
+    if (_gameFolderHelper.GetLanguage() == LangSyntaxUnknown)
     {
         std::string languageValue = _gameFolderHelper.GetIniString(GameSection, LanguageKey);
         if (languageValue == "scp")
         {
             // We have left this turd in from old game.inis. We don't support cpp as a default game language,
             // so let's just convert it to Studio.
-            _gameFolderHelper.Language = LangSyntaxStudio;
+            _gameFolderHelper.SetLanguage(LangSyntaxStudio);
         }
         else if (languageValue == LanguageValueSCI)
         {
-            _gameFolderHelper.Language = LangSyntaxSCI;
+            _gameFolderHelper.SetLanguage(LangSyntaxSCI);
         }
         else if (languageValue == LanguageValueStudio)
         {
-            _gameFolderHelper.Language = LangSyntaxStudio;
+            _gameFolderHelper.SetLanguage(LangSyntaxStudio);
         }
         else
         {
@@ -917,9 +917,9 @@ std::string CResourceMap::GetIncludePath(const std::string &includeFileName)
 HRESULT CResourceMap::GetGameIni(PTSTR pszBuf, size_t cchBuf)
 {
     HRESULT hr = E_FAIL;
-    if (!_gameFolderHelper.GameFolder.empty())
+    if (!_gameFolderHelper.GetGameFolder().empty())
     {
-        hr = StringCchPrintf(pszBuf, cchBuf, TEXT("%s\\%s"), _gameFolderHelper.GameFolder.c_str(), TEXT("game.ini"));
+        hr = StringCchPrintf(pszBuf, cchBuf, TEXT("%s\\%s"), _gameFolderHelper.GetGameFolder().c_str(), TEXT("game.ini"));
     }
     return hr;
 }
@@ -1269,12 +1269,12 @@ RunLogic &CResourceMap::GetRunLogic()
 void CResourceMap::SetGameFolder(const string &gameFolder)
 {
     _runLogic->SetGameFolder(gameFolder);
-    _gameFolderHelper.GameFolder = gameFolder;
+    _gameFolderHelper.SetGameFolder(gameFolder);
     _talkerToView = TalkerToViewMap(Helper().GetLipSyncFolder());
     ClearVocab000();
     _pPalette999.reset(nullptr);                    // REVIEW: also do this if global palette is edited.
     _globalCompiledScriptLookups.reset(nullptr);
-    _gameFolderHelper.Language = LangSyntaxUnknown;
+    _gameFolderHelper.SetLanguage(LangSyntaxUnknown);
     _talkersHeaderFile.reset(nullptr);
     _verbsHeaderFile.reset(nullptr);
     if (!gameFolder.empty())
@@ -1294,7 +1294,7 @@ void CResourceMap::SetGameFolder(const string &gameFolder)
         catch (std::exception &e)
         {
             AfxMessageBox(fmt::format("Unable to open resource map: {0}", e.what()).c_str(), MB_OK | MB_ICONWARNING);
-            _gameFolderHelper.GameFolder = "";
+            _gameFolderHelper.SetGameFolder("");
             AfxThrowUserException();
         }
     }
@@ -1398,6 +1398,6 @@ std::unique_ptr<ResourceEntity> CreateResourceFromResourceData(const ResourceBlo
 void CResourceMap::SetGameLanguage(LangSyntax lang)
 {
     Helper().SetIniString(GameSection, LanguageKey, (lang == LangSyntaxSCI) ? LanguageValueSCI : LanguageValueStudio);
-    _gameFolderHelper.Language = lang;
+    _gameFolderHelper.SetLanguage(lang);
     _SniffGameLanguage();
 }
