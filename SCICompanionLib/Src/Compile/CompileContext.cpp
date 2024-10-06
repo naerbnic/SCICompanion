@@ -1380,11 +1380,6 @@ bool PrecompiledHeaders::LookupDefine(const std::string& str, WORD& wValue)
     return fRet;
 }
 
-void GenericOutputByteCode::operator()(const IOutputByteCode* proc)
-{
-    _results.push_back(proc->OutputByteCode(_context));
-}
-
 // This merges scriptToBeMerged into mainScript.
 // Note: The items merged from scriptToBeMerged are removed from it.
 void MergeScripts(sci::Script& mainScript, sci::Script& scriptToBeMerged)
