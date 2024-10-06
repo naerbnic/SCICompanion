@@ -15,6 +15,7 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "ControlFlowNode.h"
 #include "DecompilerResults.h"
