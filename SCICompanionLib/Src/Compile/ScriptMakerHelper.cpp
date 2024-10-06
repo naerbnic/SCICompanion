@@ -22,52 +22,53 @@ using namespace std;
 
 void _SetSendVariableTarget(SendCall &send, const std::string &target)
 {
-    unique_ptr<LValue> lValue = make_unique<LValue>();
+    auto lValue = make_unique<LValue>();
     lValue->SetName(target);
     send.SetLValue(move(lValue));
 }
 
 unique_ptr<SyntaxNode> _MakeNumberStatement(int16_t w)
 {
-    unique_ptr<ComplexPropertyValue> pValue = std::make_unique<ComplexPropertyValue>();
+    // TODO: Does this correctly handle all negative numbers?
+    auto pValue = std::make_unique<ComplexPropertyValue>();
     pValue->SetValue((uint16_t)w);
     if (w < 0)
     {
         pValue->Negate();
     }
-    return unique_ptr<SyntaxNode>(move(pValue));
+    return pValue;
 }
 
 unique_ptr<SyntaxNode> _MakeTokenStatement(const string &token)
 {
-    unique_ptr<ComplexPropertyValue> pValue = std::make_unique<ComplexPropertyValue>();
+    auto pValue = std::make_unique<ComplexPropertyValue>();
     pValue->SetValue(token, ValueType::Token);
-    return unique_ptr<SyntaxNode>(move(pValue));
+    return pValue;
 }
 
 void _AddAssignment(MethodDefinition &method, const string &lvalueName, const string &assigned)
 {
-    unique_ptr<Assignment> pEquals = std::make_unique<Assignment>();
+    auto pEquals = std::make_unique<Assignment>();
     pEquals->Operator = AssignmentOperator::Assign;
-    unique_ptr<LValue> lvalue = make_unique<LValue>();
+    auto lvalue = make_unique<LValue>();
     lvalue->SetName(lvalueName);
-    pEquals->SetVariable(move(lvalue));
+    pEquals->SetVariable(std::move(lvalue));
     pEquals->SetStatement1(_MakeTokenStatement(assigned));
     method.AddStatement(std::move(pEquals));
 }
 
 void _AddBasicSwitch(MethodDefinition &method, const string &switchValue, const string &case0Comments)
 {
-    unique_ptr<SwitchStatement> pSwitch = std::make_unique<SwitchStatement>();
+    auto pSwitch = std::make_unique<SwitchStatement>();
 
     // Make the switch value and add it to the swtich
-    pSwitch->SetStatement1(std::move(_MakeTokenStatement(switchValue)));
+    pSwitch->SetStatement1(_MakeTokenStatement(switchValue));
 
     // Make the case statement and add it to the switch
-    unique_ptr<CaseStatement> pCase = std::make_unique<CaseStatement>();
-    pCase->SetStatement1(move(_MakeNumberStatement(0)));
+    auto pCase = std::make_unique<CaseStatement>();
+    pCase->SetStatement1(_MakeNumberStatement(0));
     pCase->AddNewStatement<Comment>(case0Comments, CommentType::Indented);
-    pSwitch->AddCase(move(pCase));
+    pSwitch->AddCase(std::move(pCase));
 
     // Add the switch to the method
     method.AddStatement(std::move(pSwitch));
@@ -76,7 +77,7 @@ void _AddBasicSwitch(MethodDefinition &method, const string &switchValue, const 
 // parameter may be empty.
 void _AddSendCall(MethodDefinition &method, const string &objectName, const string &methodName, const string &parameter, bool isVariable)
 {
-    unique_ptr<SendCall> pSend = std::make_unique<SendCall>();
+    auto pSend = std::make_unique<SendCall>();
     if (isVariable)
     {
         _SetSendVariableTarget(*pSend, objectName);
@@ -87,19 +88,18 @@ void _AddSendCall(MethodDefinition &method, const string &objectName, const stri
     }
 
     // Create the send param to add to the send call
-    unique_ptr<SendParam> pParam = std::make_unique<SendParam>();
+    auto pParam = std::make_unique<SendParam>();
     pParam->SetName(methodName);
     pParam->SetIsMethod(true);
 
     if (!parameter.empty())
     {
         // Add the parameter to the sendparam.
-        unique_ptr<ComplexPropertyValue> pValue = std::make_unique<ComplexPropertyValue>();
+        auto pValue = std::make_unique<ComplexPropertyValue>();
         pValue->SetValue(parameter, ValueType::Token);
         method.AddStatement(std::move(pValue));
     }
 
-    pSend->AddSendParam(move(pParam));
-    pParam.release();
+    pSend->AddSendParam(std::move(pParam));
     method.AddStatement(std::move(pSend));
 }
