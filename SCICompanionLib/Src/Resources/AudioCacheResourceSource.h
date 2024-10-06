@@ -41,11 +41,12 @@ extern const char* pszAudioCacheFolder;
 class AudioCacheResourceSource : public ResourceSource
 {
 public:
-    AudioCacheResourceSource(CResourceMap* resourceMap,
-                             const std::shared_ptr<const GameFolderHelper>&
-                             helper, int mapContext,
-                             ResourceSourceAccessFlags access);
-    ~AudioCacheResourceSource();
+    AudioCacheResourceSource(
+        CResourceMap* resourceMap,
+        const std::shared_ptr<const GameFolderHelper>& helper,
+        int mapContext,
+        ResourceSourceAccessFlags access);
+    ~AudioCacheResourceSource() override = default;
 
     AudioCacheResourceSource& operator=(AudioCacheResourceSource& src) = delete;
 

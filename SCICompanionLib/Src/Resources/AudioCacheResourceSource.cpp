@@ -964,7 +964,3 @@ void AudioCacheResourceSource::RebuildResources(
     }
     // TODO: Check if there are audio maps that have no representation in a message resource?
 }
-
-AudioCacheResourceSource::~AudioCacheResourceSource()
-{
-}
