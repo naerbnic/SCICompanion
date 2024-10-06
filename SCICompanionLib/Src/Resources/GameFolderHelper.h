@@ -37,6 +37,18 @@ enum class ResourceSaveLocation : uint16_t
     Patch,
 };
 
+class GameConfigStore
+{
+public:
+    static std::unique_ptr<GameConfigStore> FromFilePath(std::string_view config_file);
+
+    virtual ~GameConfigStore() = default;
+    [[nodiscard]] virtual std::string GetIniString(const std::string& sectionName, const std::string& keyName, std::string_view pszDefault = "") const = 0;
+    [[nodiscard]] virtual bool GetIniBool(const std::string& sectionName, const std::string& keyName, bool value = false) const = 0;
+    virtual void SetIniString(const std::string& sectionName, const std::string& keyName, const std::string& value) const = 0;
+    virtual void SetIniBool(const std::string& sectionName, const std::string& keyName, bool value) const = 0;
+};
+
 class GameFolderHelper
 {
 public:
@@ -49,12 +61,12 @@ public:
     std::string GetScriptObjectFileName(const std::string &title) const;
     std::string GetScriptObjectFileName(uint16_t wScript) const;
     std::string GetScriptDebugFileName(uint16_t wScript) const;
-    std::string GameFolderHelper::GetSrcFolder(const std::string *prefix = nullptr) const;
-    std::string GameFolderHelper::GetMsgFolder(const std::string *prefix = nullptr) const;
-    std::string GameFolderHelper::GetPicClipsFolder() const;
-    std::string GameFolderHelper::GetSubFolder(const std::string &subFolder) const;
-    std::string GameFolderHelper::GetLipSyncFolder() const;
-    std::string GameFolderHelper::GetPolyFolder(const std::string *prefix = nullptr) const;
+    std::string GetSrcFolder(const std::string *prefix = nullptr) const;
+    std::string GetMsgFolder(const std::string *prefix = nullptr) const;
+    std::string GetPicClipsFolder() const;
+    std::string GetSubFolder(const std::string &subFolder) const;
+    std::string GetLipSyncFolder() const;
+    std::string GetPolyFolder(const std::string *prefix = nullptr) const;
     std::string GetGameIniFileName() const;
     std::string GetIniString(const std::string &sectionName, const std::string &keyName, PCSTR pszDefault = "") const;
     bool GetIniBool(const std::string &sectionName, const std::string &keyName, bool value = false) const;
@@ -66,7 +78,7 @@ public:
     ScriptId GetScriptId(const std::string &name) const;
     std::string FigureOutName(ResourceType type, int iResourceNum, uint32_t base36Number) const;
     std::unique_ptr<ResourceContainer> Resources(ResourceTypeFlags types, ResourceEnumFlags enumFlags, ResourceRecency *pRecency = nullptr, int mapContext = -1) const;
-    std::unique_ptr<ResourceBlob> GameFolderHelper::MostRecentResource(ResourceType type, int number, ResourceEnumFlags flags, uint32_t base36Number = NoBase36, int mapContext = -1) const;
+    std::unique_ptr<ResourceBlob> MostRecentResource(ResourceType type, int number, ResourceEnumFlags flags, uint32_t base36Number = NoBase36, int mapContext = -1) const;
     bool DoesResourceExist(ResourceType type, int number, std::string *retrieveName, ResourceSaveLocation location) const;
 
     bool GetUseSierraAspectRatio(bool defaultValue) const;

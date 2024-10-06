@@ -36,6 +36,51 @@ const std::string TrueValue = "true";
 const std::string FalseValue = "false";
 const std::string GenerateDebugInfoKey = "GenerateDebugInfo";
 
+namespace
+{
+    class FileGameConfig
+        : public GameConfigStore
+    {
+    public:
+        explicit FileGameConfig(std::string config_file_path) : config_file_path_(std::move(config_file_path))
+        {
+        }
+
+        [[nodiscard]] std::string GetIniString(const std::string& sectionName, const std::string& keyName, std::string_view pszDefault) const override
+        {
+
+            std::string strRet;
+            char sz[200];
+            if (GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), nullptr, sz, (DWORD)ARRAYSIZE(sz), config_file_path_.c_str()))
+            {
+                strRet = sz;
+            }
+            else
+            {
+                strRet = pszDefault;
+            }
+            return strRet;
+        }
+
+        [[nodiscard]] bool GetIniBool(const std::string& sectionName, const std::string& keyName, bool value) const override
+        {
+            return GetIniString(sectionName, keyName, value ? TrueValue : FalseValue) == TrueValue;
+        }
+
+        void SetIniString(const std::string& sectionName, const std::string& keyName, const std::string& value) const override
+        {
+            WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), value.empty() ? nullptr : value.c_str(), GetGameIniFileName().c_str());
+        }
+
+        void SetIniBool(const std::string& sectionName, const std::string& keyName, bool value) const override
+        {
+             SetIniString(sectionName, keyName, value ? TrueValue : FalseValue);
+        }
+    private:
+        std::string config_file_path_;
+    };
+}
+
 // Returns "n004" for input of 4
 std::string default_reskey(int iNumber, uint32_t base36Number)
 {
@@ -54,6 +99,11 @@ std::string default_reskey(int iNumber, uint32_t base36Number)
             ((base36Number >> 24) & 0xff) % 36      // If this number (sequence) is 36, we want it to wrap 0 zero. Seq 0 not allowed.
             );
     }
+}
+
+std::unique_ptr<GameConfigStore> GameConfigStore::FromFilePath(std::string_view config_file)
+{
+    return std::make_unique<FileGameConfig>(std::string(config_file));
 }
 
 std::string GameFolderHelper::GetScriptFileName(WORD wScript) const
