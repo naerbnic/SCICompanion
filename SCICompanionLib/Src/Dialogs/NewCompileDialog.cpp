@@ -133,7 +133,7 @@ BOOL CNewCompileDialog::OnInitDialog()
     ShowSizeGrip(FALSE);
     try
     {
-        _tables.Load(appState->GetResourceMap(), appState->GetVersion()); // REVIEW: clean up
+        _tables.Load(appState->GetResourceMap()); // REVIEW: clean up
 
         if (_scriptsToRecompile.empty())
         {

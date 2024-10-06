@@ -81,12 +81,12 @@ bool IsSpecialSelector(const string& str, WORD& wOffset, SpeciesIndex& type)
     return fRet;
 }
 
-bool CompileTables::Load(CResourceMap& resource_map, SCIVersion version)
+bool CompileTables::Load(CResourceMap& resource_map)
 {
     // REVIEW: this could be deleted while we're compiling.
     _pVocab = resource_map.GetVocab000();
     const GameFolderHelper& helper = resource_map.Helper();
-    return _kernels.Load(resource_map.GetSCIVersion(), helper) && _species.Load(resource_map.GetSCIVersion(), helper) && _selectors.Load(helper);
+    return _kernels.Load(resource_map.GetSCIVersion(), helper) && _species.Load(resource_map.GetSCIVersion(), helper) && _selectors.Load(resource_map.GetSCIVersion(), helper);
 }
 
 void CompileTables::Save()

@@ -516,7 +516,7 @@ void VocabPreviewer::SetResource(const ResourceBlob &blob)
         case 997: // selector table
         {
             SelectorTable selectors;
-            if (selectors.Load(appState->GetResourceMap().Helper()))
+            if (selectors.Load(appState->GetVersion(), appState->GetResourceMap().Helper()))
             {
                 _Populate(selectors.GetNamesForDisplay(), false);
                 fSuccess = true;

@@ -54,7 +54,10 @@ std::unique_ptr<ResourceSource> _CreateResourceSource(const std::string &gameFol
     {
         return std::make_unique<MapAndPackageSource<SCI1MapNavigator<RESOURCEMAPENTRY_SCI1>, _TFileDescriptor>>(version, MakeResourceHeaderReadWriter<RESOURCEHEADER_SCI2_1>(), gameFolder);
     }
-    return std::unique_ptr<ResourceSource>(nullptr);
+    else
+    {
+        throw std::runtime_error("Unknown ResourceMapFormat");
+    }
 }
 
 std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, ResourceTypeFlags flagsHint, const GameFolderHelper &helper, ResourceSourceFlags source, ResourceSourceAccessFlags access, int mapContext)
@@ -88,7 +91,10 @@ std::unique_ptr<ResourceSource> CreateResourceSource(const SCIVersion& version, 
     {
         return std::make_unique<PatchFilesResourceSource>(ResourceTypeFlags::AudioMap, version, helper.GameFolder + pszAudioCacheFolder, ResourceSourceFlags::AudioMapCache);
     }
-    return std::unique_ptr<ResourceSource>(nullptr);
+    else
+    {
+        throw std::runtime_error("Unknown source type");
+    }
 }
 
 void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data)

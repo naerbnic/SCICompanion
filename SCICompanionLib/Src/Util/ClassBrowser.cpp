@@ -336,7 +336,7 @@ bool SCIClassBrowser::ReLoadFromSources(ITaskStatus &task)
     {
         // Load the kernel and selector names
         _kernelNamesResource.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper());
-        _selectorNames.Load(appState->GetResourceMap().Helper());
+        _selectorNames.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
 
         // Add headers first, since they have defines that are needed by the other scripts.
         _AddHeaders();
@@ -451,7 +451,7 @@ void SCIClassBrowser::ReLoadFromCompiled(ITaskStatus &task)
 
     // Load the kernel and selector names
     _kernelNamesResource.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper());
-    _selectorNames.Load(appState->GetResourceMap().Helper());
+    _selectorNames.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
 
     GlobalClassTable classTable;
     if (!classTable.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper()))

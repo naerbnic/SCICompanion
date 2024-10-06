@@ -675,10 +675,11 @@ bool SelectorTable::ReverseLookup(std::string name, uint16_t &wIndex) const
     return false;
 }
 
-bool SelectorTable::Load(const GameFolderHelper &helper)
+bool SelectorTable::Load(const SCIVersion& version, const GameFolderHelper &helper)
 {
     bool fRet = false;
-    unique_ptr<ResourceBlob> blob(_GetVocabData(_version, helper, VocabSelectorNames));
+    _version = version;
+    unique_ptr<ResourceBlob> blob(_GetVocabData(version, helper, VocabSelectorNames));
     if (blob)
     {
         fRet = _Create(blob->GetReadStream());

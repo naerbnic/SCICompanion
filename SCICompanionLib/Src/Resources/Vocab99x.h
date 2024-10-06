@@ -66,7 +66,7 @@ class SelectorTable : public ILookupNames {
   bool IsSelectorName(const std::string &name) const;
   const std::vector<std::string> &GetNames() const { return _names; }
 
-  bool Load(const GameFolderHelper &helpern);
+  bool Load(const SCIVersion& version, const GameFolderHelper &helpern);
   uint16_t Add(const std::string &str);
   void Save();
   bool IsDefaultSelector(uint16_t value);

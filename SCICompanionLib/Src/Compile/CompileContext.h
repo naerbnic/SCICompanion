@@ -451,7 +451,7 @@ ArrayCodeResult OutputByteCodeForRange(CompileContext &context, C&& container)
 class CompileTables
 {
 public:
-    bool Load(CResourceMap& resource_map, SCIVersion version);
+    bool Load(CResourceMap& resource_map);
     void Save();
     const Vocab000 *Vocab() { return _pVocab; }
     const KernelTable &Kernels() { return _kernels; }

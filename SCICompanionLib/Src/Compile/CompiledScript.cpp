@@ -1315,7 +1315,7 @@ bool CompiledScript::LookupSpeciesPropertyListAndValues(uint16_t wIndex, std::ve
 //
 bool GlobalCompiledScriptLookups::Load(const SCIVersion& version, const GameFolderHelper &helper)
 {
-    bool selOk = _selectors.Load(helper);
+    bool selOk = _selectors.Load(version, helper);
     bool kernelOk = _kernels.Load(version, helper);
     bool classesOk = _classes.Load(version, helper);
     return selOk && kernelOk && classesOk;

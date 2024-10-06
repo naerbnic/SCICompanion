@@ -59,7 +59,7 @@ namespace UnitTests
             CompileLog log;
             // TODO: Clear errors?
             CompileTables tables;
-            tables.Load(appState->GetResourceMap(), appState->GetVersion());
+            tables.Load(appState->GetResourceMap());
             PrecompiledHeaders headers(appState->GetResourceMap());
             for (auto &script : scripts)
             {

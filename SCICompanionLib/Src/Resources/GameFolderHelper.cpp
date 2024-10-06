@@ -378,7 +378,7 @@ std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(const SCIVersion&
             // Our audio cache files take precedence
             if (IsFlagSet(types, ResourceTypeFlags::Audio))
             {
-                mapAndVolumes->push_back(move(make_unique<AudioCacheResourceSource>(&appState->GetResourceMap(), *this, mapContext, ResourceSourceAccessFlags::Read)));
+                mapAndVolumes->push_back(make_unique<AudioCacheResourceSource>(&appState->GetResourceMap(), *this, mapContext, ResourceSourceAccessFlags::Read));
             }
 
             // Audiomaps can come from the cache files folder too... but we can re-use PatchFilesResourceSource for this
@@ -422,7 +422,7 @@ std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(const SCIVersion&
         // Now the standard resource maps
         if (!IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles) && (mapContext == -1))
         {
-            mapAndVolumes->push_back(move(CreateResourceSource(version, types, *this, ResourceSourceFlags::ResourceMap)));
+            mapAndVolumes->push_back(CreateResourceSource(version, types, *this, ResourceSourceFlags::ResourceMap));
         }
     }
 

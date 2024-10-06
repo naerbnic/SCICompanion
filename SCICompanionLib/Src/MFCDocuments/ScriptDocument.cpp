@@ -141,7 +141,7 @@ void CScriptDocument::OnCompile()
         CompileLog log;
         _ClearErrorCount();
         CompileTables tables;
-        tables.Load(appState->GetResourceMap(), appState->GetVersion());
+        tables.Load(appState->GetResourceMap());
         PrecompiledHeaders headers(appState->GetResourceMap());
         CompileResults results(appState->GetVersion(), log);
         bool fSuccess = NewCompileScript(results, log, tables, headers, _scriptId);
@@ -416,7 +416,7 @@ void CScriptDocument::OnViewObjectFile()
                 sci::streamOwner streamOwner(hFile);
                 CSCOFile scoFile;
                 SelectorTable selectorTable;
-                selectorTable.Load(appState->GetResourceMap().Helper());
+                selectorTable.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
                 if (scoFile.Load(streamOwner.getReader(), selectorTable))
                 {
                     stringstream out;
