@@ -397,6 +397,51 @@ private:
     std::vector<SpeciesIndex> _allowedReturnValues; // Current allowed return values
 };
 
+class ArrayCodeResult
+{
+public:
+    explicit ArrayCodeResult(
+        uint16_t num_bytes,
+        std::vector<SpeciesIndex> types) : num_bytes_(num_bytes), types_(std::move(types))
+    {
+    }
+
+    uint16_t GetByteCount() const
+    {
+        return num_bytes_;
+    }
+    const std::vector<SpeciesIndex>& GetTypes() const
+    {
+        return types_;
+    }
+    SpeciesIndex GetLastType() const
+    {
+        SpeciesIndex type = DataTypeVoid;
+        if (types_.empty()) {
+            return DataTypeVoid;
+        }
+        return types_.back();
+    }
+
+private:
+    uint16_t num_bytes_;
+    std::vector<SpeciesIndex> types_;
+};
+
+template <class C>
+ArrayCodeResult OutputByteCodeForRange(CompileContext &context, C&& container)
+{
+    WORD wBytes = 0;
+    std::vector<SpeciesIndex> types;
+    for (const auto& item : container)
+    {
+        auto result = item->OutputByteCode(context);
+        wBytes += result.GetBytes();
+        types.push_back(result.GetType());
+    }
+    return ArrayCodeResult(wBytes, std::move(types));
+}
+
 template<typename T>
 class GenericOutputByteCode2
 {

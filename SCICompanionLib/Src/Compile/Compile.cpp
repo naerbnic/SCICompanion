@@ -1710,6 +1710,10 @@ CodeResult ProcedureCall::OutputByteCode(CompileContext &context) const
     {
         COutputContext stackContext(context, OC_Stack);
         // Collect parameter type information here, in addition to the number of bytes pushed.
+        for (auto const& segment : _segments)
+        {
+            segment->OutputByteCode(context);
+        }
         GenericOutputByteCode2<SyntaxNode> gobc = for_each(_segments.begin(), _segments.end(), GenericOutputByteCode2<SyntaxNode>(context));
         wCallBytes = gobc.GetByteCount();
         parameterTypes = gobc.GetTypes();
