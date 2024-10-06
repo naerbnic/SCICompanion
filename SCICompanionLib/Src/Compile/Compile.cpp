@@ -1475,9 +1475,9 @@ CodeResult SendCall::OutputByteCode(CompileContext &context) const
         SendTargetSpeciesIndex objectSpecies(context, (bOpSend == Opcode::SELF) ? DataTypeAny : wObjectSpecies, GetTargetName());
         COutputContext stackContext(context, OC_Stack); // Ensure parameters are pushed on the stack.
 
-        GenericOutputByteCode2<SendParam> gobcResult = for_each(_params.begin(), _params.end(), GenericOutputByteCode2<SendParam>(context));
-        wSendPushes = gobcResult.GetByteCount();
-        returnType = gobcResult.GetLastType();
+        auto result = OutputByteCodeForRange(context, _params);
+        wSendPushes = result.GetByteCount();
+        returnType = result.GetLastType();
 
         // Also the rest statement.  This is a hack for the SCIStudio syntax, which allows the following:
         // (send gEgo:init() rest params)
@@ -1581,9 +1581,10 @@ CodeResult SendParam::OutputByteCode(CompileContext &context) const
 
     // Note: the parameters will indicate to themselves how many (since it could vary - one parameter could end up pushing two things)
     COutputContext stackContext(context, OC_Stack);
-    GenericOutputByteCode2<SyntaxNode> gobc = for_each(_segments.begin(), _segments.end(), GenericOutputByteCode2<SyntaxNode>(context));
-    WORD wBytesOfParams = gobc.GetByteCount();
-    std::vector<SpeciesIndex> parameterTypes = gobc.GetTypes();
+
+    auto result = OutputByteCodeForRange(context, _segments);
+     WORD wBytesOfParams = result.GetByteCount();
+    std::vector<SpeciesIndex> parameterTypes = result.GetTypes();
    
     // Go back to our fake instruction and fill in how many parameters were passed.
     // The number of params is the number of bytes divided by 2.
@@ -1706,17 +1707,11 @@ CodeResult ProcedureCall::OutputByteCode(CompileContext &context) const
 
     // Create a send frame and stack context, and party on.
     WORD wCallBytes = 0;
-    std::vector<SpeciesIndex> parameterTypes;
     {
         COutputContext stackContext(context, OC_Stack);
         // Collect parameter type information here, in addition to the number of bytes pushed.
-        for (auto const& segment : _segments)
-        {
-            segment->OutputByteCode(context);
-        }
-        GenericOutputByteCode2<SyntaxNode> gobc = for_each(_segments.begin(), _segments.end(), GenericOutputByteCode2<SyntaxNode>(context));
-        wCallBytes = gobc.GetByteCount();
-        parameterTypes = gobc.GetTypes();
+        auto result = OutputByteCodeForRange(context, _segments);
+        wCallBytes = result.GetByteCount();
     }
 
     // Now go back and put in our parameter count (note: we don't include the parameter count in the number of parameters used)
@@ -3398,8 +3393,8 @@ CodeResult ClassDefinition::OutputByteCode(CompileContext &context) const
 
     // Output the code of the methods, in order.
     ClassContext classContext(context, this);
-    for_each(_methods.begin(), _methods.end(), GenericOutputByteCode2<MethodDefinition>(context));
-    return 0;
+    OutputByteCodeForRange(context, _methods);
+    return CodeResult(0);
 }
 
 ResolvedToken ClassDefinition::LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const

@@ -543,16 +543,14 @@ void _Section10_LocalVariables(Script &script, CompileContext &context, vector<B
     results.Stats.Locals += (int)(output.size() - beginning);
 }
 
-void _Section2_Code(Script &script, CompileContext &context, vector<BYTE> &output, WORD &wStartOfCode, bool separateHeapResources, CompileResults &results)
+void _Section2_Code(const Script &script, CompileContext &context, vector<BYTE> &output, WORD &wStartOfCode, bool separateHeapResources, CompileResults &results)
 {
     size_t beginning = output.size();
 
     context.PushVariableLookupContext(&script); // Don't really need to pop this, ever.
-    const ProcedureVector &procs = script.GetProcedures();
-    for_each(procs.begin(), procs.end(), GenericOutputByteCode2<ProcedureDefinition>(context));
+    OutputByteCodeForRange(context, script.GetProcedures());
     // b) classes, methods
-    const ClassVector &classes = script.GetClasses();
-    for_each(classes.begin(), classes.end(), GenericOutputByteCode2<ClassDefinition>(context));
+    OutputByteCodeForRange(context, script.GetClasses());
     // Now some dirty work...
     context.FixupLocalCalls();
     context.FixupAsmLabelBranches();
@@ -569,7 +567,7 @@ void _Section2_Code(Script &script, CompileContext &context, vector<BYTE> &outpu
         push_word(output, wCodeSize);
     }
 
-    wStartOfCode = (uint16_t)output.size(); // Store where the code begins
+    wStartOfCode = static_cast<uint16_t>(output.size()); // Store where the code begins
 
     if (context.GenerateDebugInfo)
     {
@@ -578,13 +576,13 @@ void _Section2_Code(Script &script, CompileContext &context, vector<BYTE> &outpu
     context.code().write_code(context, output, context.GenerateDebugInfo ? &results.GetDebugInfo() : nullptr);
     zero_pad(output, fRoundUp);
 
-    uint16_t after = (uint16_t)output.size();
+    uint16_t after = static_cast<uint16_t>(output.size());
     if ((after - wStartOfCode) != codeSizeBase)
     {
         context.ReportError(&script, "There was an error generating the script resource. Calculated code size didn't match output code size.");
     }
 
-    results.Stats.Code += (int)(output.size() - beginning);
+    results.Stats.Code += static_cast<int>(output.size() - beginning);
 }
 
 void _Section3_Synonyms(Script &script, CompileContext &context, vector<BYTE> &output, CompileResults &results)
