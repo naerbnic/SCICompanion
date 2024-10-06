@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <utility>
+
 #include "StudioSyntaxParser.h"
 
 namespace sci
@@ -25,7 +27,7 @@ void FunctionStatementA(MatchResult &match, const _TParser *pParser, SyntaxConte
 {
     if (match.Result())
     {
-        pContext->FunctionPtr->AddStatement(move(pContext->StatementPtrReturn));
+        pContext->FunctionPtr->AddStatement(std::move(pContext->StatementPtrReturn));
     }
 }
 
@@ -163,7 +165,7 @@ void FinishDefineA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
     {
         if (pContext->ifDefDefineState != IfDefDefineState::False)
         {
-            pContext->Script().AddDefine(move(pContext->DefinePtr));
+            pContext->Script().AddDefine(std::move(pContext->DefinePtr));
         }
     }
 }
@@ -188,7 +190,7 @@ void ScriptVarInitA(MatchResult &match, const _TParser *pParser, SyntaxContext *
     if (match.Result())
     {
         // Add a value to the script variable.
-        pContext->VariableDeclPtr->AddStatement(move(pContext->StatementPtrReturn));
+        pContext->VariableDeclPtr->AddStatement(std::move(pContext->StatementPtrReturn));
     }
     else
     {
@@ -202,7 +204,7 @@ void ScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser, Synta
     if (match.Result())
     {
         // Add a value to the script variable.
-        pContext->VariableDeclPtr->AddStatement(move(pContext->StatementPtrReturn));
+        pContext->VariableDeclPtr->AddStatement(std::move(pContext->StatementPtrReturn));
         if (pContext->VariableDeclPtr->IsUnspecifiedSize())
         {
             pContext->VariableDeclPtr->SetSize(static_cast<uint16_t>(pContext->VariableDeclPtr->GetInitializers().size()));
@@ -221,7 +223,7 @@ void FinishScriptVarA(MatchResult &match, const _TParser *pParser, SyntaxContext
     if (match.Result())
     {
         pContext->VariableDeclPtr->SetScript(&pContext->Script());
-        pContext->Script().AddVariable(move(pContext->VariableDeclPtr));
+        pContext->Script().AddVariable(std::move(pContext->VariableDeclPtr));
     }
 }
 
@@ -293,11 +295,11 @@ void FinishFunctionTempVarA(MatchResult &match, const _TParser *pParser, SyntaxC
         // Use the current PropertyValue for initialization (it not used, it was zero'd out in StartFunctionTempVarA)
         if (pContext->PropertyValueWasSet)
         {
-            pContext->FunctionPtr->AddVariable(move(pContext->VariableDecl), pContext->PropertyValue);
+            pContext->FunctionPtr->AddVariable(std::move(pContext->VariableDecl), pContext->PropertyValue);
         }
         else
         {
-            pContext->FunctionPtr->AddVariable(move(pContext->VariableDecl));
+            pContext->FunctionPtr->AddVariable(std::move(pContext->VariableDecl));
         }
     }
 }
@@ -374,7 +376,7 @@ void FinishProcedureA(MatchResult &match, const _TParser *pParser, SyntaxContext
 {
     if (match.Result())
     {
-        pContext->Script().AddProcedure(move(pContext->GetFunctionAsProcedure()));
+        pContext->Script().AddProcedure(std::move(pContext->GetFunctionAsProcedure()));
     }
 }
 
@@ -398,7 +400,7 @@ void AddStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 {
     if (match.Result())
     {
-        pContext->GetSyntaxNode<_T>()->AddStatement(move(pContext->StatementPtrReturn));
+        pContext->GetSyntaxNode<_T>()->AddStatement(std::move(pContext->StatementPtrReturn));
     }
 }
 
@@ -441,7 +443,7 @@ void StatementBindTo1stA(MatchResult &match, const _TParser *pParser, SyntaxCont
 {
     if (match.Result())
     {
-        pContext->GetSyntaxNode<_T>()->SetStatement1(move(pContext->StatementPtrReturn));
+        pContext->GetSyntaxNode<_T>()->SetStatement1(std::move(pContext->StatementPtrReturn));
     }
     else if (error)
     {
@@ -454,7 +456,7 @@ void StatementBindTo2ndA(MatchResult &match, const _TParser *pParser, SyntaxCont
 {
     if (match.Result())
     {
-        pContext->GetSyntaxNode<_T>()->SetStatement2(move(pContext->StatementPtrReturn));
+        pContext->GetSyntaxNode<_T>()->SetStatement2(std::move(pContext->StatementPtrReturn));
     }
     else
     {
@@ -541,7 +543,7 @@ void ComplexValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxCon
 {
     if (match.Result())
     {
-        pContext->GetSyntaxNode<ComplexPropertyValue>()->SetIndexer(move(pContext->StatementPtrReturn));
+        pContext->GetSyntaxNode<ComplexPropertyValue>()->SetIndexer(std::move(pContext->StatementPtrReturn));
     }
     else
     {
@@ -573,7 +575,7 @@ void LValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxContext *
 {
     if (match.Result())
     {
-        pContext->GetSyntaxNode<LValue>()->SetIndexer(move(pContext->StatementPtrReturn));
+        pContext->GetSyntaxNode<LValue>()->SetIndexer(std::move(pContext->StatementPtrReturn));
     }
     else
     {
@@ -588,7 +590,7 @@ void AssignmentVariableA(MatchResult &match, const _TParser *pParser, SyntaxCont
     if (match.Result())
     {
         // This is the variable description we need to add to the assignment thing:
-        pContext->GetPrevSyntaxNode<Assignment>()->SetVariable(move(pContext->StealSyntaxNode<LValue>()));
+        pContext->GetPrevSyntaxNode<Assignment>()->SetVariable(std::move(pContext->StealSyntaxNode<LValue>()));
     }
     else
     {
@@ -665,7 +667,7 @@ void AddExportA(MatchResult &match, const _TParser *pParser, SyntaxContext *pCon
         entry->SetPosition(stream.GetPosition());
         entry->Slot = pContext->Integer;
         entry->Name = pContext->ScratchString();
-        pContext->Script().GetExports().push_back(move(entry));
+        pContext->Script().GetExports().push_back(std::move(entry));
     }
 }
 
@@ -687,7 +689,7 @@ void FinishClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pC
 {
     if (match.Result())
     {
-        pContext->Script().AddClass(move(pContext->ClassPtr));
+        pContext->Script().AddClass(std::move(pContext->ClassPtr));
     }
 }
 
@@ -724,7 +726,7 @@ void FinishClassMethodA(MatchResult &match, const _TParser *pParser, SyntaxConte
 {
     if (match.Result())
     {
-        pContext->ClassPtr->AddMethod(move(pContext->GetFunctionAsMethod()));
+        pContext->ClassPtr->AddMethod(std::move(pContext->GetFunctionAsMethod()));
     }
     else
     {
@@ -750,7 +752,7 @@ void FinishClassPropertyA(MatchResult &match, const _TParser *pParser, SyntaxCon
     if (match.Result())
     {
         pContext->ClassProp->SetValue(pContext->PropertyValue);
-        pContext->ClassPtr->AddProperty(move(pContext->ClassProp));
+        pContext->ClassPtr->AddProperty(std::move(pContext->ClassProp));
     }
 }
 
@@ -759,8 +761,8 @@ void FinishClassPropertyStatementA(MatchResult &match, const _TParser *pParser, 
 {
     if (match.Result())
     {
-        pContext->ClassProp->SetStatement1(move(pContext->StatementPtrReturn));
-        pContext->ClassPtr->AddProperty(move(pContext->ClassProp));
+        pContext->ClassProp->SetStatement1(std::move(pContext->StatementPtrReturn));
+        pContext->ClassPtr->AddProperty(std::move(pContext->ClassProp));
     }
     else
     {
