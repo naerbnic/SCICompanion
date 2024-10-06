@@ -140,18 +140,6 @@ struct MatchSelector
     }
 };
 
-class WordToByteThingy
-{
-public:
-    WordToByteThingy(vector<BYTE> &output) : _output(output) {}
-    void operator()(WORD w) const
-    {
-        push_word(_output, w);
-    }
-private:
-    vector<BYTE> &_output;
-};
-
 // Procedure/class (true/false), index
 enum class ExportType
 {
@@ -768,7 +756,10 @@ void _Section8_RelocationTable(CompileContext &context, vector<BYTE> &output)
         // The "upper" 16 bits, 0:
         push_word(output, 0);
     }
-    for_each(relocations.begin(), relocations.end(), WordToByteThingy(output));
+    for (auto relocation : relocations)
+    {
+        push_word(output, relocation);
+    }
 }
 
 class FixCaseStatements : public IExploreNode

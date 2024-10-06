@@ -56,23 +56,6 @@ using namespace sci;
 // null terminated string
 
 
-//
-// Handy functors
-//
-template<typename _T>
-struct FwdSave
-{
-public:
-    FwdSave(vector<BYTE> &output) : _output(output) {}
-    void operator()(const _T &thing)
-    {
-        thing.Save(_output);
-    }
-private:
-    vector<BYTE> &_output;
-};
-
-
 bool CSCOFile::Load(sci::istream &stream, const SelectorTable &selectors)
 {
     stream.seekg(stream.tellg() + 3);
@@ -206,8 +189,11 @@ void CSCOFile::Save(vector<BYTE> &output) const
     // If a particular set of items is empty, then leave the temp offset we wrote at zero...
     if (!_publics.empty())
     {
-        write_word(output, wOffsetPublics, (WORD)output.size());
-        for_each(_publics.begin(), _publics.end(), FwdSave<CSCOPublicExport>(output));
+        write_word(output, wOffsetPublics, static_cast<WORD>(output.size()));
+        for (auto const& theExport : _publics)
+        {
+            theExport.Save(output);
+        }
     }
 
     if (!_classes.empty())
@@ -222,7 +208,10 @@ void CSCOFile::Save(vector<BYTE> &output) const
     if (!_vars.empty())
     {
         write_word(output, wOffsetVars, (WORD)output.size());
-        for_each(_vars.begin(), _vars.end(), FwdSave<CSCOLocalVariable>(output));
+        for (auto const& local : _vars)
+        {
+            local.Save(output);
+        }
     }
 }
 
@@ -624,10 +613,16 @@ void CSCOObjectClass::Save(std::vector<BYTE> &output, SCOVersion version) const
     // Skip the 4 default properties in _properties, and write the rest.
     if (numNonDefaultProps != 0xffff)
     {
-        for_each(_properties.begin() + numDefaultProps, _properties.end(), FwdSave<CSCOObjectProperty>(output));
+        for (size_t i = numDefaultProps; i < _properties.size(); i++)
+        {
+            _properties[i].Save(output);
+        }
     }
     // Write the method selectors.
-    for_each(_methods.begin(), _methods.end(), [&output](uint16_t w) { push_word(output, w); });
+    for (auto method : _methods)
+    {
+        push_word(output, method);
+    }
 }
 
 void SaveSCOFile(const GameFolderHelper &helper, const CSCOFile &sco)

@@ -516,7 +516,10 @@ uint16_t scicode::calc_size()
         }
         if (fNeedToRedo)
         {
-            std::for_each(_code.begin(), _code.end(), [](scii &instruction) { instruction.reset_size(); });
+            for (auto& code_entry : _code)
+            {
+                code_entry.reset_size();
+            }
         }
     } while (fNeedToRedo);
 
