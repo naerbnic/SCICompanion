@@ -25,6 +25,9 @@ enum class ResourceSourceFlags : int;
 class ResourceRecency;
 class ResourceBlob;
 
+// fwd decl for defs in this file
+class GameFolderHelper;
+
 extern const std::string GameSection;
 extern const std::string LanguageKey;
 extern const std::string LanguageValueStudio;
@@ -49,10 +52,23 @@ public:
     virtual void SetIniBool(const std::string& sectionName, const std::string& keyName, bool value) const = 0;
 };
 
+class ResourceLoader
+{
+public:
+    explicit ResourceLoader(const GameFolderHelper* parent) : parent_(parent) {}
+
+    std::unique_ptr<ResourceContainer> Resources(const SCIVersion& version, ResourceTypeFlags types, ResourceEnumFlags enumFlags, ResourceRecency* pRecency = nullptr, int mapContext = -1) const;
+    std::unique_ptr<ResourceBlob> MostRecentResource(const SCIVersion& version, ResourceType type, int number, ResourceEnumFlags flags, uint32_t base36Number = NoBase36, int mapContext = -1) const;
+    bool DoesResourceExist(const SCIVersion& version, ResourceType type, int number, std::string* retrieveName, ResourceSaveLocation location) const;
+private:
+    // The owning object
+    const GameFolderHelper* parent_;
+};
+
 class GameFolderHelper : public std::enable_shared_from_this<GameFolderHelper>
 {
 public:
-    GameFolderHelper() = default;
+    GameFolderHelper();
     GameFolderHelper(const GameFolderHelper &orig) = delete;
     GameFolderHelper(GameFolderHelper&& orig) = delete;
     GameFolderHelper &operator=(const GameFolderHelper &other) = delete;
@@ -107,5 +123,6 @@ private:
     // Members
     std::string GameFolder;
     LangSyntax Language;
+    std::unique_ptr<ResourceLoader> resource_loader_;
 };
 

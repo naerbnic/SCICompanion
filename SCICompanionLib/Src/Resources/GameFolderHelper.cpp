@@ -106,6 +106,139 @@ std::unique_ptr<GameConfigStore> GameConfigStore::FromFilePath(std::string_view 
     return std::make_unique<FileGameConfig>(std::string(config_file));
 }
 
+// ResourceLoader
+
+std::unique_ptr<ResourceContainer> ResourceLoader::Resources(const SCIVersion& version, ResourceTypeFlags types, ResourceEnumFlags enumFlags, ResourceRecency* pRecency, int mapContext) const
+{
+    if (IsFlagSet(enumFlags, ResourceEnumFlags::AddInDefaultEnumFlags))
+    {
+        enumFlags |= parent_->GetDefaultEnumFlags();
+    }
+
+    // If audio or sync resources are requested, we can't also have maps.
+    if (IsFlagSet(types, ResourceTypeFlags::Audio))
+    {
+        ClearFlag(types, ResourceTypeFlags::AudioMap);
+    }
+
+    // Resources can come from various sources.
+    std::unique_ptr<ResourceSourceArray> mapAndVolumes = std::make_unique<ResourceSourceArray>();
+
+    if (!parent_->GetGameFolder().empty())
+    {
+        if (IsFlagSet(enumFlags, ResourceEnumFlags::IncludeCacheFiles))
+        {
+            // Our audio cache files take precedence
+            if (IsFlagSet(types, ResourceTypeFlags::Audio))
+            {
+                mapAndVolumes->push_back(make_unique<AudioCacheResourceSource>(&appState->GetResourceMap(), parent_->shared_from_this(), mapContext, ResourceSourceAccessFlags::Read));
+            }
+
+            // Audiomaps can come from the cache files folder too... but we can re-use PatchFilesResourceSource for this
+            if (IsFlagSet(types, ResourceTypeFlags::AudioMap))
+            {
+                mapAndVolumes->push_back(std::make_unique<PatchFilesResourceSource>(ResourceTypeFlags::AudioMap, version, parent_->GetGameFolder() + pszAudioCacheFolder, ResourceSourceFlags::AudioMapCache));
+            }
+        }
+
+        // First, any stray files...
+        if (!IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePatchFiles) && (mapContext == -1))
+        {
+            mapAndVolumes->push_back(std::make_unique<PatchFilesResourceSource>(types, version, parent_->GetGameFolder(), ResourceSourceFlags::PatchFile));
+        }
+
+        // Add readers for message map files, if requested
+        if (IsFlagSet(types, ResourceTypeFlags::Message) && !IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles) && (mapContext == -1))
+        {
+            FileDescriptorBase* fd = nullptr;
+            FileDescriptorMessageMap messageMap(parent_->GetGameFolder());
+            FileDescriptorAltMap altMap(parent_->GetGameFolder());
+            if (version.MessageMapSource == MessageMapSource::MessageMap)
+            {
+                fd = &messageMap;
+            }
+            else if (version.MessageMapSource == MessageMapSource::AltResMap)
+            {
+                fd = &altMap;
+            }
+            if (fd && fd->DoesMapExist())
+            {
+                mapAndVolumes->push_back(CreateResourceSource(version, ResourceTypeFlags::Message, parent_->shared_from_this(), fd->SourceFlags));
+            }
+        }
+
+        if (IsFlagSet(types, ResourceTypeFlags::Audio) && !IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles))
+        {
+            mapAndVolumes->push_back(make_unique<AudioResourceSource>(version, parent_->shared_from_this(), mapContext, ResourceSourceAccessFlags::Read));
+        }
+
+        // Now the standard resource maps
+        if (!IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles) && (mapContext == -1))
+        {
+            mapAndVolumes->push_back(CreateResourceSource(version, types, parent_->shared_from_this(), ResourceSourceFlags::ResourceMap));
+        }
+    }
+
+    std::unique_ptr<ResourceContainer> resourceContainer(
+        new ResourceContainer(
+            parent_->GetGameFolder(),
+            move(mapAndVolumes),
+            types,
+            enumFlags,
+            pRecency)
+    );
+
+    return resourceContainer;
+}
+
+std::unique_ptr<ResourceBlob> ResourceLoader::MostRecentResource(const SCIVersion& version, ResourceType type, int number, ResourceEnumFlags flags, uint32_t base36Number, int mapContext) const
+{
+    std::unique_ptr<ResourceBlob> returnBlob;
+    ResourceEnumFlags enumFlags = flags | ResourceEnumFlags::MostRecentOnly;
+    auto resourceContainer = Resources(version, ResourceTypeToFlag(type), enumFlags, nullptr, mapContext);
+    for (auto blobIt = resourceContainer->begin(); blobIt != resourceContainer->end(); ++blobIt)
+    {
+        if ((blobIt.GetResourceNumber() == number) && (blobIt.GetResourceHeader().Base36Number == base36Number))
+        {
+            returnBlob = move(*blobIt);
+            break;
+        }
+    }
+    return returnBlob;
+}
+
+bool ResourceLoader::DoesResourceExist(const SCIVersion& version, ResourceType type, int number, std::string* retrieveName, ResourceSaveLocation location) const
+{
+    ResourceEnumFlags enumFlags = (parent_->GetResourceSaveLocation(location) == ResourceSaveLocation::Package) ?
+        ResourceEnumFlags::ExcludePatchFiles :
+        ResourceEnumFlags::ExcludePackagedFiles;
+
+    if (retrieveName)
+    {
+        enumFlags |= ResourceEnumFlags::NameLookups;
+    }
+    auto resourceContainer = Resources(version, ResourceTypeToFlag(type), enumFlags);
+    for (auto blobIt = resourceContainer->begin(); blobIt != resourceContainer->end(); ++blobIt)
+    {
+        if (blobIt.GetResourceNumber() == number)
+        {
+            if (retrieveName)
+            {
+                *retrieveName = (*blobIt)->GetName();
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+// GameFolderHelper
+
+GameFolderHelper::GameFolderHelper()
+    : Language(LangSyntaxUnknown), resource_loader_(std::make_unique<ResourceLoader>(this))
+{
+}
+
 std::string GameFolderHelper::GetScriptFileName(WORD wScript) const
 {
     std::string filename;
@@ -357,124 +490,15 @@ std::string GameFolderHelper::FigureOutName(ResourceType type, int iNumber, uint
 
 std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(const SCIVersion& version, ResourceTypeFlags types, ResourceEnumFlags enumFlags, ResourceRecency *pRecency, int mapContext) const
 {
-    if (IsFlagSet(enumFlags, ResourceEnumFlags::AddInDefaultEnumFlags))
-    {
-        enumFlags |= GetDefaultEnumFlags();
-    }
-
-    // If audio or sync resources are requested, we can't also have maps.
-    if (IsFlagSet(types, ResourceTypeFlags::Audio))
-    {
-        ClearFlag(types, ResourceTypeFlags::AudioMap);
-    }
-
-    // Resources can come from various sources.
-    std::unique_ptr<ResourceSourceArray> mapAndVolumes = std::make_unique<ResourceSourceArray>();
-
-    if (!GameFolder.empty())
-    {
-        if (IsFlagSet(enumFlags, ResourceEnumFlags::IncludeCacheFiles))
-        {
-            // Our audio cache files take precedence
-            if (IsFlagSet(types, ResourceTypeFlags::Audio))
-            {
-                mapAndVolumes->push_back(make_unique<AudioCacheResourceSource>(&appState->GetResourceMap(), this->shared_from_this(), mapContext, ResourceSourceAccessFlags::Read));
-            }
-
-            // Audiomaps can come from the cache files folder too... but we can re-use PatchFilesResourceSource for this
-            if (IsFlagSet(types, ResourceTypeFlags::AudioMap))
-            {
-                mapAndVolumes->push_back(std::make_unique<PatchFilesResourceSource>(ResourceTypeFlags::AudioMap, version, GameFolder + pszAudioCacheFolder, ResourceSourceFlags::AudioMapCache));
-            }
-        }
-
-        // First, any stray files...
-        if (!IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePatchFiles) && (mapContext == -1))
-        {
-            mapAndVolumes->push_back(std::make_unique<PatchFilesResourceSource>(types, version, GameFolder, ResourceSourceFlags::PatchFile));
-        }
-
-        // Add readers for message map files, if requested
-        if (IsFlagSet(types, ResourceTypeFlags::Message) && !IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles) && (mapContext == -1))
-        {
-            FileDescriptorBase *fd = nullptr;
-            FileDescriptorMessageMap messageMap(GameFolder);
-            FileDescriptorAltMap altMap(GameFolder);
-            if (version.MessageMapSource == MessageMapSource::MessageMap)
-            {
-                fd = &messageMap;
-            }
-            else if (version.MessageMapSource == MessageMapSource::AltResMap)
-            {
-                fd = &altMap;
-            }
-            if (fd && fd->DoesMapExist())
-            {
-                mapAndVolumes->push_back(CreateResourceSource(version, ResourceTypeFlags::Message, this->shared_from_this(), fd->SourceFlags));
-            }
-        }
-        
-        if (IsFlagSet(types, ResourceTypeFlags::Audio) && !IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles))
-        {
-            mapAndVolumes->push_back(make_unique<AudioResourceSource>(version, this->shared_from_this(), mapContext, ResourceSourceAccessFlags::Read));
-        }
-
-        // Now the standard resource maps
-        if (!IsFlagSet(enumFlags, ResourceEnumFlags::ExcludePackagedFiles) && (mapContext == -1))
-        {
-            mapAndVolumes->push_back(CreateResourceSource(version, types, this->shared_from_this(), ResourceSourceFlags::ResourceMap));
-        }
-    }
-
-    std::unique_ptr<ResourceContainer> resourceContainer(
-        new ResourceContainer(
-        GameFolder,
-        move(mapAndVolumes),
-        types,
-        enumFlags,
-        pRecency)
-        );
-
-    return resourceContainer;
+    return resource_loader_->Resources(version, types, enumFlags, pRecency, mapContext);
 }
 
 std::unique_ptr<ResourceBlob> GameFolderHelper::MostRecentResource(const SCIVersion& version, ResourceType type, int number, ResourceEnumFlags flags, uint32_t base36Number, int mapContext) const
 {
-    std::unique_ptr<ResourceBlob> returnBlob;
-    ResourceEnumFlags enumFlags = flags | ResourceEnumFlags::MostRecentOnly;
-    auto &resourceContainer = Resources(version, ResourceTypeToFlag(type), enumFlags, nullptr, mapContext);
-    for (auto &blobIt = resourceContainer->begin(); blobIt != resourceContainer->end(); ++blobIt)
-    {
-        if ((blobIt.GetResourceNumber() == number) && (blobIt.GetResourceHeader().Base36Number == base36Number))
-        {
-            returnBlob = move(*blobIt);
-            break;
-        }
-    }
-    return returnBlob;
+    return resource_loader_->MostRecentResource(version, type, number, flags, base36Number, mapContext);
 }
 
 bool GameFolderHelper::DoesResourceExist(const SCIVersion& version, ResourceType type, int number, std::string *retrieveName, ResourceSaveLocation location) const
 {
-    ResourceEnumFlags enumFlags = (GetResourceSaveLocation(location) == ResourceSaveLocation::Package) ?
-        ResourceEnumFlags::ExcludePatchFiles :
-        ResourceEnumFlags::ExcludePackagedFiles;
-
-    if (retrieveName)
-    {
-        enumFlags |= ResourceEnumFlags::NameLookups;
-    }
-    auto &resourceContainer = Resources(version, ResourceTypeToFlag(type), enumFlags);
-    for (auto &blobIt = resourceContainer->begin(); blobIt != resourceContainer->end(); ++blobIt)
-    {
-        if (blobIt.GetResourceNumber() == number)
-        {
-            if (retrieveName)
-            {
-                *retrieveName = (*blobIt)->GetName();
-            }
-            return true;
-        }
-    }
-    return false;
+    return resource_loader_->DoesResourceExist(version, type, number, retrieveName, location);
 }
