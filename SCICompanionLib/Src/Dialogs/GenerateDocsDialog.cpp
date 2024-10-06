@@ -35,8 +35,8 @@ std::string docBuildFolder = "build/html";
 using namespace sci;
 
 IMPLEMENT_DYNAMIC(GenerateDocsDialog, CDialog)
-GenerateDocsDialog::GenerateDocsDialog(GameFolderHelper helper, CWnd* pParent /*=NULL*/)
-: CDialog(GenerateDocsDialog::IDD, pParent), _fInitialized(false), _helper(helper)
+GenerateDocsDialog::GenerateDocsDialog(const SCIVersion& version, GameFolderHelper helper, CWnd* pParent /*=NULL*/)
+: CDialog(GenerateDocsDialog::IDD, pParent), _fInitialized(false), _version(version), _helper(helper)
 {
 }
 
@@ -47,7 +47,7 @@ GenerateDocsDialog::~GenerateDocsDialog()
 void GenerateDocsDialog::_PopulateScripts()
 {
     m_wndScripts.SetRedraw(FALSE);
-    auto scriptResources = _helper.Resources(ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups | ResourceEnumFlags::AddInDefaultEnumFlags);
+    auto scriptResources = _helper.Resources(_version, ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups | ResourceEnumFlags::AddInDefaultEnumFlags);
     int itemNumber = 0;
     for (auto &blob : *scriptResources)
     {

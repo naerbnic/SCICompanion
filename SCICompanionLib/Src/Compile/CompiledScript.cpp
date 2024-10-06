@@ -59,7 +59,7 @@ bool CompiledScript::Load(const GameFolderHelper &helper, SCIVersion version, in
     _version = version;
     _wScript = (uint16_t)iScriptNumber;
 
-    std::unique_ptr<ResourceBlob> scriptResource = helper.MostRecentResource(ResourceType::Script, iScriptNumber, ResourceEnumFlags::None);
+    std::unique_ptr<ResourceBlob> scriptResource = helper.MostRecentResource(version, ResourceType::Script, iScriptNumber, ResourceEnumFlags::None);
     if (scriptResource)
     {
         Load(helper, version, iScriptNumber, scriptResource->GetReadStream());
@@ -236,7 +236,7 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
         unique_ptr<sci::istream> heapStreamScope;
         if (heapStream == nullptr)
         {
-            heapBlob = helper.MostRecentResource(ResourceType::Heap, iScriptNumber, ResourceEnumFlags::None);
+            heapBlob = helper.MostRecentResource(_version, ResourceType::Heap, iScriptNumber, ResourceEnumFlags::None);
             if (heapBlob)
             {
                 heapStreamScope = make_unique<sci::istream>(heapBlob->GetReadStream());
@@ -1313,11 +1313,11 @@ bool CompiledScript::LookupSpeciesPropertyListAndValues(uint16_t wIndex, std::ve
 //
 // GlobalCompiledScriptLookups
 //
-bool GlobalCompiledScriptLookups::Load(const GameFolderHelper &helper)
+bool GlobalCompiledScriptLookups::Load(const SCIVersion& version, const GameFolderHelper &helper)
 {
     bool selOk = _selectors.Load(helper);
-    bool kernelOk = _kernels.Load(helper);
-    bool classesOk = _classes.Load(helper);
+    bool kernelOk = _kernels.Load(version, helper);
+    bool classesOk = _classes.Load(version, helper);
     return selOk && kernelOk && classesOk;
 }
 

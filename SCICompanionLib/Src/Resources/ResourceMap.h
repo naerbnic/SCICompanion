@@ -181,6 +181,7 @@ private:
     std::shared_ptr<PostBuildThread> _postBuildThread;
 
     std::unique_ptr<RunLogic> _runLogic;
+    SCIVersion _version;
 };
 
 //

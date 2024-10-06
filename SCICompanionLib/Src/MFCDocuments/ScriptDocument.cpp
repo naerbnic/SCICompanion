@@ -270,12 +270,12 @@ bool NewCompileScript(CompileResults &results, CompileLog &log, CompileTables &t
                 // Save the script resource
                 std::vector<BYTE> &output = results.GetScriptResource();
                 const GameFolderHelper &helper = appState->GetResourceMap().Helper();
-                appState->GetResourceMap().AppendResource(ResourceBlob(helper, nullptr, ResourceType::Script, output, helper.Version.DefaultVolumeFile, wNum, NoBase36, helper.Version, helper.GetDefaultSaveSourceFlags()));
+                appState->GetResourceMap().AppendResource(ResourceBlob(helper, nullptr, ResourceType::Script, output, appState->GetVersion().DefaultVolumeFile, wNum, NoBase36, appState->GetVersion(), helper.GetDefaultSaveSourceFlags()));
 
                 std::vector<BYTE> &outputHep = results.GetHeapResource();
                 if (!outputHep.empty())
                 {
-                    appState->GetResourceMap().AppendResource(ResourceBlob(helper, nullptr, ResourceType::Heap, outputHep, helper.Version.DefaultVolumeFile, wNum, NoBase36, helper.Version, helper.GetDefaultSaveSourceFlags()));
+                    appState->GetResourceMap().AppendResource(ResourceBlob(helper, nullptr, ResourceType::Heap, outputHep, appState->GetVersion().DefaultVolumeFile, wNum, NoBase36, appState->GetVersion(), helper.GetDefaultSaveSourceFlags()));
                 }
 
                 appState->GetDependencyTracker().ClearScript(pScript->GetScriptId());
@@ -312,7 +312,7 @@ void DisassembleScript(WORD wScript)
         // Write some crap.
         GlobalCompiledScriptLookups scriptLookups;
         ObjectFileScriptLookups objectFileLookups(appState->GetResourceMap().Helper(), appState->GetResourceMap().GetCompiledScriptLookups()->GetSelectorTable());
-        if (scriptLookups.Load(appState->GetResourceMap().Helper()))
+        if (scriptLookups.Load(appState->GetVersion(), appState->GetResourceMap().Helper()))
         {
             std::stringstream out;
             ::DisassembleScript(compiledScript, out, &scriptLookups, &objectFileLookups, appState->GetResourceMap().GetVocab000());
@@ -487,7 +487,7 @@ void CScriptDocument::OnViewSyntaxTree()
     if (fCompile)
     {
         GlobalCompiledScriptLookups lookupsOwned;
-        lookupsOwned.Load(appState->GetResourceMap().Helper());
+        lookupsOwned.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
         PrepForLanguage(appState->GetResourceMap().Helper().GetDefaultGameLanguage(), script, &lookupsOwned);
 
         std::stringstream out;

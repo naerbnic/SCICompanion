@@ -33,7 +33,7 @@ class DummyLog : public ICompileLog
     void ReportResult(const CompileResult &result) override {} 
 };
 
-unique_ptr<Script> GetDefinesScript(const GameFolderHelper &helper, const std::string &name)
+static unique_ptr<Script> GetDefinesScript(const SCIVersion& version, const GameFolderHelper &helper, const std::string &name)
 {
     DummyLog log;
     ScriptId scriptId(helper.GetIncludeFolder() + "\\" + name);
@@ -44,7 +44,7 @@ unique_ptr<Script> GetDefinesScript(const GameFolderHelper &helper, const std::s
     {
         CScriptStreamLimiter limiter(&buffer);
         CCrystalScriptStream stream(&limiter);
-        if (!SyntaxParser_Parse(*script, stream, PreProcessorDefinesFromSCIVersion(helper.Version), &log))
+        if (!SyntaxParser_Parse(*script, stream, PreProcessorDefinesFromSCIVersion(version), &log))
         {
             assert(false);
         }
@@ -56,10 +56,10 @@ unique_ptr<Script> GetDefinesScript(const GameFolderHelper &helper, const std::s
 class DecompilerConfig : public IDecompilerConfig
 {
 public:
-    DecompilerConfig(const GameFolderHelper &helper, const SelectorTable &selectorTable) : _selectorTable(selectorTable)
+    DecompilerConfig(const SCIVersion& version, const GameFolderHelper &helper, const SelectorTable &selectorTable) : _version(version), _selectorTable(selectorTable)
     {
-        unique_ptr<Script> definesScript = GetDefinesScript(helper, "sci.sh");
-        unique_ptr<Script> keysScript = GetDefinesScript(helper, "keys.sh");
+        unique_ptr<Script> definesScript = GetDefinesScript(version, helper, "sci.sh");
+        unique_ptr<Script> keysScript = GetDefinesScript(version, helper, "keys.sh");
 
         string decompilerIniPath = helper.GetSrcFolder() + "\\Decompiler.ini";
         try
@@ -82,6 +82,7 @@ public:
         }
     }
 
+    const SCIVersion& GetVersion() const override { return _version; }
     const SelectorTable &GetSelectorTable() const { return _selectorTable; }
 
     std::vector<std::string> GetParameterNamesFor(sci::ClassDefinition *classDef, const std::string &methodName) const
@@ -365,6 +366,8 @@ private:
     }
 
     typedef std::unordered_map<uint16_t, string> enumList_t;
+
+    SCIVersion _version;
     std::unordered_map<string, enumList_t> _enumLists;
     std::unordered_map<string, vector<string>> _methodCallParamTypes;
     std::unordered_map<string, vector<string>> _kernelCallParamTypes;
@@ -380,7 +383,7 @@ private:
     const SelectorTable &_selectorTable;
 };
 
-std::unique_ptr<IDecompilerConfig> CreateDecompilerConfig(const GameFolderHelper &helper, const SelectorTable &selectorTable)
+std::unique_ptr<IDecompilerConfig> CreateDecompilerConfig(const SCIVersion& version, const GameFolderHelper &helper, const SelectorTable &selectorTable)
 {
-    return make_unique<DecompilerConfig>(helper, selectorTable);
+    return make_unique<DecompilerConfig>(version, helper, selectorTable);
 }

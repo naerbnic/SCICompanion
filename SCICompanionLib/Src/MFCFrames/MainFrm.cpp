@@ -1903,7 +1903,7 @@ void PurgeUnnecessaryResources()
 {
     std::map<ResourceType, RebuildStats> stats;
     const GameFolderHelper &helper = appState->GetResourceMap().Helper();
-    HRESULT hr = RebuildResources(helper, helper.Version, TRUE, helper.GetResourceSaveLocation(ResourceSaveLocation::Default), stats);
+    HRESULT hr = RebuildResources(helper, appState->GetResourceMap().GetSCIVersion(), TRUE, helper.GetResourceSaveLocation(ResourceSaveLocation::Default), stats);
     if (SUCCEEDED(hr))
     {
         size_t totalSize = 0;
@@ -1946,9 +1946,9 @@ void CMainFrame::OnRebuildClassTable()
     if (IDYES == AfxMessageBox("Rebuilding the class table will purge old deleted classes from the class table.\nAfterwards, you will need to compile all. Go ahead?", MB_APPLMODAL | MB_ICONQUESTION | MB_YESNO))
     {
         SpeciesTable speciesTable;
-        if (speciesTable.Load(appState->GetResourceMap().Helper()))
+        if (speciesTable.Load(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper()))
         {
-            speciesTable.PurgeOldClasses(appState->GetResourceMap().Helper());
+            speciesTable.PurgeOldClasses(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper());
         }
     }
 }
@@ -2729,7 +2729,7 @@ void CMainFrame::OnClassBrowser()
 #ifdef DOCSUPPORT
 void CMainFrame::OnGenerateDocs()
 {
-    _docsDialog = std::make_unique<GenerateDocsDialog>(appState->GetResourceMap().Helper());
+    _docsDialog = std::make_unique<GenerateDocsDialog>(appState->GetResourceMap().GetSCIVersion(), appState->GetResourceMap().Helper());
     _docsDialog->Create(GenerateDocsDialog::IDD);
     _docsDialog->ShowWindow(SW_SHOW);
 }

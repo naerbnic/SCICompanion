@@ -1499,7 +1499,7 @@ const ILookupPropertyName *DecompileLookups::GetPossiblePropertiesForProc(uint16
 
 const SCIVersion &DecompileLookups::GetVersion()
 {
-    return Helper.Version;
+    return _config->GetVersion();
 }
 
 void DecompileLookups::EndowWithFunction(sci::FunctionBase *pFunc)

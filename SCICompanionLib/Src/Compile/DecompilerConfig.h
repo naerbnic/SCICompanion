@@ -30,6 +30,7 @@ class SelectorTable;
 class IDecompilerConfig
 {
 public:
+    virtual const SCIVersion& GetVersion() const = 0;
     virtual std::vector<std::string> GetParameterNamesFor(sci::ClassDefinition *classDef, const std::string &methodName) const = 0;
     virtual void ResolveMethodCallParameterTypes(sci::SendParam &sendParam) const = 0;
     virtual void ResolveProcedureCallParameterTypes(sci::ProcedureCall &procCall) const = 0;
@@ -43,4 +44,4 @@ public:
     std::string error;
 };
 
-std::unique_ptr<IDecompilerConfig> CreateDecompilerConfig(const GameFolderHelper &helper, const SelectorTable &selectorTable);
+std::unique_ptr<IDecompilerConfig> CreateDecompilerConfig(const SCIVersion& version, const GameFolderHelper &helper, const SelectorTable &selectorTable);

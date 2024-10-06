@@ -1688,7 +1688,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
             // In SCI0 is this a relative offset from the post operation program counter.
             // In SCI1 it appears to be an absolute offset.
             ICompiledScriptSpecificLookups::ObjectType type;
-            SCIVersion version = lookups.Helper.Version;
+            SCIVersion version = lookups.GetVersion();
             uint16_t wName = version.lofsaOpcodeIsAbsolute ?
                 inst.get_first_operand() :
                 (inst.get_first_operand() + inst.get_final_postop_offset());

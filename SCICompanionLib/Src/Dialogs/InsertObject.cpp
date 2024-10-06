@@ -65,7 +65,7 @@ class DummyLog : public ICompileLog
     void ReportResult(const CompileResult &result) override {}
 };
 
-AvailableMethods::AvailableMethods(const GameFolderHelper* game_folder_helper, LangSyntax language) : _targetLanguage(language), _gameFolderHelper(game_folder_helper)
+AvailableMethods::AvailableMethods(const SCIVersion& version, const GameFolderHelper* game_folder_helper, LangSyntax language) : _version(version), _gameFolderHelper(game_folder_helper), _targetLanguage(language)
 {
     string fullPath = appState->GetResourceMap().GetObjectsFolder() + "\\Methods.sc";
     DummyLog log;
@@ -92,7 +92,7 @@ AvailableMethods::AvailableMethods(const GameFolderHelper* game_folder_helper, L
 void AvailableMethods::PrepareBuffer(const sci::MethodDefinition *methodDef, CString &buffer)
 {
     GlobalCompiledScriptLookups lookupsOwned;
-    lookupsOwned.Load(*_gameFolderHelper);
+    lookupsOwned.Load(_version, *_gameFolderHelper);
     PrepForLanguage(_targetLanguage, *_script, &lookupsOwned);
     std::stringstream ss;
     //sci::SourceCodeWriter out(ss, _targetLanguage, _objectToScript[theClass]);
@@ -107,7 +107,7 @@ void AvailableMethods::PrepareBuffer(const sci::MethodDefinition *methodDef, CSt
     buffer = ss.str().c_str();
 }
 
-AvailableObjects::AvailableObjects(const GameFolderHelper* game_folder_helper, LangSyntax language) : _gameFolderHelper(game_folder_helper), _targetLanguage(language)
+AvailableObjects::AvailableObjects(const SCIVersion& version, const GameFolderHelper* game_folder_helper, LangSyntax language) : _version(version), _gameFolderHelper(game_folder_helper), _targetLanguage(language)
 {
     vector<string> filenames;
 
@@ -163,7 +163,7 @@ AvailableObjects::AvailableObjects(const GameFolderHelper* game_folder_helper, L
 void AvailableObjects::PrepareBuffer(sci::ClassDefinition *theClass, CString &buffer, CListBox *pListProps, CListBox *pListMethods)
 {
     GlobalCompiledScriptLookups lookupsOwned;
-    lookupsOwned.Load(*_gameFolderHelper);
+    lookupsOwned.Load(_version, *_gameFolderHelper);
     for (auto &script : _scripts)
     {
         PrepForLanguage(_targetLanguage, *script, &lookupsOwned);
@@ -269,7 +269,7 @@ void AvailableObjects::PrepareBuffer(sci::ClassDefinition *theClass, CString &bu
 
 // CInsertObject dialog
 CInsertObject::CInsertObject(LangSyntax lang, CWnd* pParent /*=NULL*/)
-    : CExtResizableDialog(CInsertObject::IDD, pParent), _availableObjects(&appState->GetResourceMap().Helper(), lang)
+    : CExtResizableDialog(CInsertObject::IDD, pParent), _availableObjects(appState->GetResourceMap().GetSCIVersion(), & appState->GetResourceMap().Helper(), lang)
 {
 }
 

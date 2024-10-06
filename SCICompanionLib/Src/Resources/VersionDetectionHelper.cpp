@@ -29,14 +29,14 @@
 
 using namespace std;
 
-ViewFormat _DetectViewVGAVersion(const GameFolderHelper &helper, ViewFormat currentViewFormat)
+static ViewFormat _DetectViewVGAVersion(const GameFolderHelper &helper, const SCIVersion& version)
 {
-    ViewFormat viewFormat = currentViewFormat;
+    ViewFormat viewFormat = version.ViewFormat;
     // Enclose this in a try/catch block, as we need to be robust here.
     try
     {
         int remainingToCheck = 5;
-        auto viewContainer = helper.Resources(ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+        auto viewContainer = helper.Resources(version, ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
         for (auto &blob : *viewContainer)
         {
             sci::istream stream = blob->GetReadStream();
@@ -163,11 +163,11 @@ ResourcePackageFormat _DetectPackageFormat(const GameFolderHelper &helper, Resou
     return packageFormat;
 }
 
-bool _HasEarlySCI0Scripts(const GameFolderHelper &helper)
+static bool _HasEarlySCI0Scripts(const GameFolderHelper &helper, const SCIVersion& currentVersion)
 {
     bool hasEarly = false;
     // Look at script 0
-    std::unique_ptr<ResourceBlob> data = helper.MostRecentResource(ResourceType::Script, 0, ResourceEnumFlags::AddInDefaultEnumFlags);
+    std::unique_ptr<ResourceBlob> data = helper.MostRecentResource(currentVersion, ResourceType::Script, 0, ResourceEnumFlags::AddInDefaultEnumFlags);
     if (data)
     {
         sci::istream byteStream = data->GetReadStream();
@@ -204,7 +204,7 @@ bool _HasEarlySCI0Scripts(const GameFolderHelper &helper)
     return hasEarly;
 }
 
-std::optional<SoundFormat> _DetectSoundType(const GameFolderHelper &helper)
+std::optional<SoundFormat> _DetectSoundType(const GameFolderHelper &helper, const SCIVersion& currentVersion)
 {
     // We'll mirror (a slightly simplified version of) what ScummVM does here, which
     // is to look for certain kernel calls in sound::play
@@ -212,7 +212,7 @@ std::optional<SoundFormat> _DetectSoundType(const GameFolderHelper &helper)
     try
     {
         GlobalCompiledScriptLookups scriptLookups;
-        if (scriptLookups.Load(helper))
+        if (scriptLookups.Load(currentVersion, helper))
         {
             uint16_t species;
             if (scriptLookups.GetGlobalClassTable().LookupSpeciesCompiledName("Sound", species))
@@ -270,10 +270,10 @@ std::optional<SoundFormat> _DetectSoundType(const GameFolderHelper &helper)
     return std::nullopt;
 }
 
-KernelSet _DetectKernelSet(const GameFolderHelper &helper, ResourcePackageFormat currentPackageFormat)
+KernelSet _DetectKernelSet(const GameFolderHelper &helper, const SCIVersion& currentVersion)
 {
     KernelSet kernelSet = KernelSet::Provided;
-    if (currentPackageFormat >= ResourcePackageFormat::SCI2)
+    if (currentVersion.PackageFormat >= ResourcePackageFormat::SCI2)
     {
         // Set it to something reasonable in case something goes wrong.
         kernelSet = KernelSet::SCI2;
@@ -284,7 +284,7 @@ KernelSet _DetectKernelSet(const GameFolderHelper &helper, ResourcePackageFormat
         try
         {
             GlobalCompiledScriptLookups scriptLookups;
-            if (scriptLookups.Load(helper))
+            if (scriptLookups.Load(currentVersion, helper))
             {
                 uint16_t species;
                 if (scriptLookups.GetGlobalClassTable().LookupSpeciesCompiledName("Sound", species))
@@ -332,7 +332,7 @@ KernelSet _DetectKernelSet(const GameFolderHelper &helper, ResourcePackageFormat
     }
     else
     {
-        if (helper.DoesResourceExist(ResourceType::Vocab, VocabKernelNames, nullptr, ResourceSaveLocation::Package))
+        if (helper.DoesResourceExist(currentVersion, ResourceType::Vocab, VocabKernelNames, nullptr, ResourceSaveLocation::Package))
         {
             // The kernels are listed in a vocab resource (typical for SCI0).
             kernelSet = KernelSet::Provided;
@@ -499,7 +499,7 @@ bool _DetectLofsaFormat(const GameFolderHelper &helper, const SCIVersion& curren
     // Don't load exports, because loading the export table depends on lofsaAbsolute being correct (IsExportWide).
     GlobalCompiledScriptLookups scriptLookups;
 
-    auto scriptContainer = helper.Resources(ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+    auto scriptContainer = helper.Resources(currentVersion, ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
     bool continueSearch = true;
     for (auto &blobIt = scriptContainer->begin(); continueSearch && (blobIt != scriptContainer->end()); ++blobIt)
     {
@@ -572,7 +572,7 @@ bool _DetectIsExportWide(const GameFolderHelper &helper, const SCIVersion& curre
     }
     // Now we're left with the middle ones, which sometimes were 32-bit.
     bool isWide = false;
-    auto blob = helper.MostRecentResource(ResourceType::Script, 0, ResourceEnumFlags::AddInDefaultEnumFlags);
+    auto blob = helper.MostRecentResource(currentVersion, ResourceType::Script, 0, ResourceEnumFlags::AddInDefaultEnumFlags);
     if (blob)
     {
         sci::istream byteStream = blob->GetReadStream();
@@ -650,8 +650,8 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     // Nope! PQ1-VGA is ResourceMapFormat::SCI1, but has separate heap resources.
     if (result.MapFormat >= ResourceMapFormat::SCI1)
     {
-        auto hepContainer = helper.Resources(ResourceTypeFlags::Heap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
-        for (auto &blobIt = hepContainer->begin(); blobIt != hepContainer->end(); ++blobIt)
+        auto hepContainer = helper.Resources(result, ResourceTypeFlags::Heap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+        for (auto blobIt = hepContainer->begin(); blobIt != hepContainer->end(); ++blobIt)
         {
             result.SeparateHeapResources = true;
             break;
@@ -665,7 +665,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
         // Still might support messages... PQ1VGA... well actually, that has a separate message.map file. But... still possible.
         if (result.MapFormat >= ResourceMapFormat::SCI1)
         {
-            auto msgContainer = helper.Resources(ResourceTypeFlags::Message, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+            auto msgContainer = helper.Resources(result, ResourceTypeFlags::Message, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
             for (auto &blobIt = msgContainer->begin(); blobIt != msgContainer->end(); ++blobIt)
             {
                 result.SupportsMessages = true;
@@ -678,11 +678,11 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
 
     // Now that we've determined a resource map format, we can iterate through them.
     // Now see if we can load a palette. If so, then we'll assume we have VGA pics and views
-    auto paletteContainer = helper.Resources(ResourceTypeFlags::Palette, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+    auto paletteContainer = helper.Resources(result, ResourceTypeFlags::Palette, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
     // I use a for loop (instead of ranged for), because I don't want to dereference the iterator until needed
     // Dereferencing the iterator will decompress the resource, which we don't want yet (since we're not sure
     // of our decompression)
-    for (auto &blobIt = paletteContainer->begin(); blobIt != paletteContainer->end(); ++blobIt)
+    for (auto blobIt = paletteContainer->begin(); blobIt != paletteContainer->end(); ++blobIt)
     {
         result.HasPalette = true;
         break;
@@ -692,8 +692,8 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     // we know this is not SCI0 compression formats.
     // If any of them are huffman, this is probably an "early SCI1" EGA game but which uses the newer compression formats.
     int remainingToCheck = 10;
-    auto viewContainer = helper.Resources(ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
-    for (auto &blobIt = viewContainer->begin(); remainingToCheck && (blobIt != viewContainer->end()); ++blobIt)
+    auto viewContainer = helper.Resources(result, ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+    for (auto blobIt = viewContainer->begin(); remainingToCheck && (blobIt != viewContainer->end()); ++blobIt)
     {
         if (blobIt.GetResourceHeader().CompressionMethod >= 2)
         {
@@ -713,7 +713,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
         bool mustBeVGA = (result.MapFormat >= ResourceMapFormat::SCI11) || result.SeparateHeapResources;
         if (!mustBeVGA)
         {
-            auto viewContainer = helper.Resources(ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+            auto viewContainer = helper.Resources(result, ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
             for (auto &view : *viewContainer)
             {
                 if (view->GetDecompressedLength() >= 2)
@@ -751,7 +751,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
         }
         else
         {
-            result.ViewFormat = _DetectViewVGAVersion(helper, result.ViewFormat);
+            result.ViewFormat = _DetectViewVGAVersion(helper, result);
         }
 
         // ASSUMPTION: All VGA games uses SCI1 sound.
@@ -776,7 +776,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     // As long as not EGA, detect picture format. Look at the first picture and see if it starts with 0x0026 (header size)
     if (result.PicFormat != PicFormat::EGA)
     {
-        auto picContainer = helper.Resources(ResourceTypeFlags::Pic, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+        auto picContainer = helper.Resources(result, ResourceTypeFlags::Pic, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
         for (auto &pic : *picContainer)
         {
             sci::istream stream = pic->GetReadStream();
@@ -815,12 +815,12 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     result.IsExportWide = _DetectIsExportWide(helper, result);
 
     // Which is the parser vocab? If resource 0 is present it's 0. Otherwise it's 900 (or none).
-    result.MainVocabResource = (helper.MostRecentResource(ResourceType::Vocab, 0, ResourceEnumFlags::AddInDefaultEnumFlags)) ? 0 : 900;
-    result.HasSaidVocab = helper.DoesResourceExist(ResourceType::Vocab, result.MainVocabResource, nullptr, ResourceSaveLocation::Package);
+    result.MainVocabResource = (helper.MostRecentResource(result, ResourceType::Vocab, 0, ResourceEnumFlags::AddInDefaultEnumFlags)) ? 0 : 900;
+    result.HasSaidVocab = helper.DoesResourceExist(result, ResourceType::Vocab, result.MainVocabResource, nullptr, ResourceSaveLocation::Package);
 
     if (result.MapFormat == ResourceMapFormat::SCI0)
     {
-        result.HasOldSCI0ScriptHeader = _HasEarlySCI0Scripts(helper);
+        result.HasOldSCI0ScriptHeader = _HasEarlySCI0Scripts(helper, result);
     }
 
     // Not sure about this, but it seems reasonable. Another clue, I think, is if there is more than just one global palette.
@@ -839,7 +839,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
         // Usually the audio is map 65535. Sometimes (LB2, non-CD version) it is 0.
         bool found65535 = false;
         bool found0 = false;
-		auto audContainer = helper.Resources(ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly);
+		auto audContainer = helper.Resources(result, ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly);
         for (auto &blobIt = audContainer->begin(); blobIt != audContainer->end(); ++blobIt)
         {
             if (blobIt.GetResourceNumber() == 65535)
@@ -900,7 +900,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
         // For SCI2 and above package formats.
         try
         {
-            auto viewContainer = helper.Resources(ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
+            auto viewContainer = helper.Resources(result, ResourceTypeFlags::View, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::ExcludePatchFiles);
             for (auto &viewBlob : *viewContainer)
             {
                 // REVIEW: Could test a few instead of just one. The 2nd one from KQ7 would show 320x200, so if the first one were deleted
@@ -919,7 +919,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
 
     if (needSoundAutoDetect)
     {
-        if (auto sound_type = _DetectSoundType(helper))
+        if (auto sound_type = _DetectSoundType(helper, result))
         {
             result.SoundFormat = *sound_type;
         }
@@ -928,6 +928,6 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     result.UsesPolygons = (result.PicFormat != PicFormat::EGA);
     result.UsesPolygons = helper.GetIniBool("Version", "UsesPolygons", result.UsesPolygons);
 
-    result.Kernels = _DetectKernelSet(helper, result.PackageFormat);
+    result.Kernels = _DetectKernelSet(helper, result);
     return result;
 }

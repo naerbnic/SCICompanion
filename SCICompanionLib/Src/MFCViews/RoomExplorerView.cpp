@@ -1277,7 +1277,7 @@ void CRoomExplorerView::_RecalcHeight()
     {
         _grid.LoadResources();
         GlobalCompiledScriptLookups globalLookups;
-        globalLookups.Load(appState->GetResourceMap().Helper());
+        globalLookups.Load(appState->GetVersion(), appState->GetResourceMap().Helper());
         SelectorTable &selectorTable = globalLookups.GetSelectorTable();
         GlobalClassTable &globalClassTable = globalLookups.GetGlobalClassTable();
         uint16_t viewSpeciesIndex, roomSpeciesIndex;

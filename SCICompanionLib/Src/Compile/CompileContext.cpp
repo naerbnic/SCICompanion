@@ -86,7 +86,7 @@ bool CompileTables::Load(CResourceMap& resource_map, SCIVersion version)
     // REVIEW: this could be deleted while we're compiling.
     _pVocab = resource_map.GetVocab000();
     const GameFolderHelper& helper = resource_map.Helper();
-    return _kernels.Load(helper) && _species.Load(helper) && _selectors.Load(helper);
+    return _kernels.Load(resource_map.GetSCIVersion(), helper) && _species.Load(resource_map.GetSCIVersion(), helper) && _selectors.Load(helper);
 }
 
 void CompileTables::Save()
@@ -1222,7 +1222,7 @@ vector<uint16_t> CompileContext::GetRelocations()
 }
 
 PrecompiledHeaders::PrecompiledHeaders(CResourceMap& resourceMap) : _fValid(false), _resourceMap(resourceMap),
-                                                                    _versionCompiled(resourceMap.Helper().Version)
+                                                                    _versionCompiled(resourceMap.GetSCIVersion())
 {
 }
 

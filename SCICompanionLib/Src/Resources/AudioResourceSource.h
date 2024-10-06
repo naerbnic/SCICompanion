@@ -15,6 +15,7 @@
 
 #include "ResourceSources.h"
 #include "GameFolderHelper.h"
+#include "Version.h"
 
 struct AudioMapComponent;
 class ResourceBlob;
@@ -25,9 +26,9 @@ class ResourceBlob;
 class AudioResourceSource : public ResourceSource
 {
 public:
-    AudioResourceSource(const GameFolderHelper &helper, int mapContext, ResourceSourceAccessFlags access) :
+    AudioResourceSource(const SCIVersion& version, const GameFolderHelper &helper, int mapContext, ResourceSourceAccessFlags access) :
         _gameFolder(helper.GameFolder),
-        _version(helper.Version),
+        _version(version),
         _mapContext(mapContext),
         _access(access),
         _helper(helper)

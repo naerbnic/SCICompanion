@@ -138,7 +138,7 @@ AudioCacheResourceSource::AudioCacheResourceSource(
     ResourceSourceAccessFlags access) :
     _gameFolder(helper.GameFolder),
     _cacheFolder(helper.GameFolder + pszAudioCacheFolder),
-    _version(helper.Version),
+    _version(resourceMap->GetSCIVersion()),
     _mapContext(mapContext),
     _enumInitialized(false),
     _access(access),
@@ -369,10 +369,10 @@ void SaveAudioBlobToFiles(const ResourceBlob &blob, const std::string &cacheSubF
     syncFile.Write(blob.GetData() + lipSyncDataSize, blob.GetDecompressedLength() - lipSyncDataSize);
 }
 
-void FirstTimeAudioExtraction(const GameFolderHelper &helper, const std::string &cacheFolder, const std::string &cacheSubFolder, SCIVersion version, int mapContext)
+void FirstTimeAudioExtraction(const GameFolderHelper &helper, const std::string &cacheFolder, const std::string &cacheSubFolder, const SCIVersion& version, int mapContext)
 {
     int resourceNumber = (mapContext == -1) ? version.AudioMapResourceNumber : mapContext;
-    std::unique_ptr<ResourceBlob> audioMapBlob = helper.MostRecentResource(ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::None);
+    std::unique_ptr<ResourceBlob> audioMapBlob = helper.MostRecentResource(version, ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::None);
     if (audioMapBlob)
     {
         // First the audio map.
@@ -381,7 +381,7 @@ void FirstTimeAudioExtraction(const GameFolderHelper &helper, const std::string 
         audioMapBlob->SaveToHandle(file.hFile, true);
 
         // Now all audio and sync resources.
-        auto resourceContainer = helper.Resources(ResourceTypeFlags::Audio, ResourceEnumFlags::None, nullptr, mapContext);
+        auto resourceContainer = helper.Resources(version, ResourceTypeFlags::Audio, ResourceEnumFlags::None, nullptr, mapContext);
         for (auto &blob : *resourceContainer)
         {
             SaveAudioBlobToFiles(*blob, cacheSubFolder);
@@ -401,13 +401,13 @@ std::unique_ptr<ResourceEntity> AudioCacheResourceSource::_PrepareForAddOrRemove
     // Now, we need to write the existing audio map. This audio map *could* come from us, or it could come from the original.
     // If it came from the original, we need to extract all the files for the first time.
     int resourceNumber = (_mapContext == -1) ? _version.AudioMapResourceNumber : _mapContext;
-    std::unique_ptr<ResourceBlob> audioMapBlobTest = _helper.MostRecentResource(ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
+    std::unique_ptr<ResourceBlob> audioMapBlobTest = _helper.MostRecentResource(_version, ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
     if (audioMapBlobTest)
     {
         if (!IsFlagSet(audioMapBlobTest->GetSourceFlags(), ResourceSourceFlags::AudioMapCache))
         {
             FirstTimeAudioExtraction(_helper, _cacheFolder, _cacheSubFolderForEnum, _version, _mapContext);
-            audioMapBlobTest = _helper.MostRecentResource(ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
+            audioMapBlobTest = _helper.MostRecentResource(_version, ResourceType::AudioMap, resourceNumber, ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::MostRecentOnly);
         }
 
         // Verify we're reading the one from the audio cache.
@@ -558,16 +558,15 @@ AppendBehavior AudioCacheResourceSource::AppendResources(const std::vector<const
     return AppendBehavior::Replace;
 }
 
-void RebuildFromResources(SCIVersion version, const std::string &gameFolder, AudioMapComponent &audioMap, int number, std::ostream &writeStream)
+void RebuildFromResources(const SCIVersion& version, const std::string &gameFolder, AudioMapComponent &audioMap, int number, std::ostream &writeStream)
 {
     GameFolderHelper helper;
     helper.GameFolder = gameFolder;
-    helper.Version = version;
 
     // First, cache all the blobs
     std::unordered_map<uint64_t, std::unique_ptr<ResourceBlob>> blobs;
     int mapContext = (number == version.AudioMapResourceNumber) ? -1 : number;
-    auto resourceContainer = helper.Resources(ResourceTypeFlags::Audio, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::AddInDefaultEnumFlags, nullptr, mapContext);
+    auto resourceContainer = helper.Resources(version, ResourceTypeFlags::Audio, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::AddInDefaultEnumFlags, nullptr, mapContext);
     for (auto &blob : *resourceContainer)
     {
         uint64_t key = _GetLookupKey(blob->GetNumber(), blob->GetBase36());
@@ -682,7 +681,7 @@ void AudioCacheResourceSource::RebuildResources(bool force, ResourceSource &sour
     std::set<int> audioMapNumbers;
     audioMapNumbers.insert(_version.AudioMapResourceNumber); // The default audio map.
     {
-        auto resourceContainer = _helper.Resources(ResourceTypeFlags::Message, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::AddInDefaultEnumFlags);
+        auto resourceContainer = _helper.Resources(_resourceMap->GetSCIVersion(), ResourceTypeFlags::Message, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::AddInDefaultEnumFlags);
         // Use iterator directly so we don't instantiate the blobs
         for (auto it = resourceContainer->begin(); it != resourceContainer->end(); ++it)
         {
@@ -697,7 +696,7 @@ void AudioCacheResourceSource::RebuildResources(bool force, ResourceSource &sour
     bool allCacheFilesUpToDate = true;
     std::map<int, std::unique_ptr<ResourceEntity>> audioMaps;
     {   
-        auto resourceContainer = _helper.Resources(ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::AddInDefaultEnumFlags);
+        auto resourceContainer = _helper.Resources(_resourceMap->GetSCIVersion(), ResourceTypeFlags::AudioMap, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::IncludeCacheFiles | ResourceEnumFlags::AddInDefaultEnumFlags);
         for (auto &blob : *resourceContainer)
         {
             // If this audio map is sourced from the cache, then if it's out of date we definitely need to rebuild.

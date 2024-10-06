@@ -39,7 +39,7 @@ using namespace std;
 #define SELECTION_TIMER 4567     
 
 DecompileDialog::DecompileDialog(CWnd* pParent /*=NULL*/)
-    : CExtResizableDialog(DecompileDialog::IDD, pParent), previousSelection(-1), _inScriptListLabelEdit(false), _inSCOLabelEdit(false), initialized(false), _helper(appState->GetResourceMap().Helper()), _syncSelection(false)
+    : CExtResizableDialog(DecompileDialog::IDD, pParent), previousSelection(-1), _inScriptListLabelEdit(false), _inSCOLabelEdit(false), initialized(false), _version(appState->GetResourceMap().GetSCIVersion()), _helper(appState->GetResourceMap().Helper()), _syncSelection(false)
 {
     // If we already have a game.ini, great, we'll honor that.
     string gameIniFile = appState->GetResourceMap().Helper().GetGameIniFileName();
@@ -207,7 +207,7 @@ void DecompileDialog::_PopulateScripts()
     SetRedraw(FALSE);
     m_wndListScripts.DeleteAllItems();
 
-    auto scriptResources = _helper.Resources(ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups);
+    auto scriptResources = _helper.Resources(_version, ResourceTypeFlags::Script, ResourceEnumFlags::MostRecentOnly | ResourceEnumFlags::NameLookups);
     int itemNumber = 0;
     for (auto &blob : *scriptResources)
     {
@@ -353,7 +353,7 @@ void DecompileDialog::_SyncSelection(bool force)
                 // Detect which exports are not procedures by seeing if its name
                 // matches a public instance in the compiled script (which should be sync'd with the SCO)
                 CompiledScript compiledScript((uint16_t)param);
-                compiledScript.Load(_helper, _helper.Version, param);
+                compiledScript.Load(_helper, _version, param);
                 int exportIndex = 0;
                 for (auto &publicExport : _sco->GetExports())
                 {
@@ -775,7 +775,7 @@ void DecompileDialog::s_DecompileThreadWorker(DecompileDialog *pThis)
         {
             pThis->_decompileResults->AddResult(DecompilerResultType::Update, "Creating script lookups...");
             pThis->_lookups = make_unique<GlobalCompiledScriptLookups>();
-            pThis->_lookups->Load(helper);
+            pThis->_lookups->Load(pThis->_version, helper);
             pThis->_decompileResults->AddResult(DecompilerResultType::Update, "Loading decompiler.ini...");
         }
 
@@ -784,7 +784,7 @@ void DecompileDialog::s_DecompileThreadWorker(DecompileDialog *pThis)
         pThis->_lookups->GetSelectorTable().ReverseLookup("", wDummy);
 
         // Redo this one each time
-        pThis->_decompilerConfig = CreateDecompilerConfig(helper, pThis->_lookups->GetSelectorTable());
+        pThis->_decompilerConfig = CreateDecompilerConfig(pThis->_version, helper, pThis->_lookups->GetSelectorTable());
         if (!pThis->_decompilerConfig->error.empty())
         {
             string errorMessage = "Decompiler.ini: ";
@@ -800,7 +800,7 @@ void DecompileDialog::s_DecompileThreadWorker(DecompileDialog *pThis)
                 {
                     pThis->_decompileResults->AddResult(DecompilerResultType::Important, fmt::format("Decompiling script {0}", scriptNum));
                     CompiledScript compiledScript(0, CompiledScriptFlags::RemoveBadExports);
-                    if (compiledScript.Load(helper, helper.Version, scriptNum))
+                    if (compiledScript.Load(helper, pThis->_version, scriptNum))
                     {
                         unique_ptr<sci::Script> pScript = DecompileScript(pThis->_decompilerConfig.get(), *pThis->_lookups, helper, scriptNum, compiledScript, *pThis->_decompileResults, pThis->_debugControlFlow, pThis->_debugInstConsumption, (PCSTR)pThis->_debugFunctionMatch, pThis->_debugAsm, pThis->_substituteTextTuples);
                         // Dump it to the .sc file

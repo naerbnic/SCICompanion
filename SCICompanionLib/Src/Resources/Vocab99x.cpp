@@ -27,9 +27,9 @@ const int VocabKernelNames = 999;
 
 using namespace std;
 
-ResourceBlob *_GetVocabData(const GameFolderHelper &helper, int iVocab)
+static ResourceBlob *_GetVocabData(const SCIVersion& version, const GameFolderHelper &helper, int iVocab)
 {
-    return helper.MostRecentResource(ResourceType::Vocab, iVocab, ResourceEnumFlags::None).release();
+    return helper.MostRecentResource(version, ResourceType::Vocab, iVocab, ResourceEnumFlags::None).release();
 }
 
 // Default kernal name table, taken from ScummVM source.
@@ -677,9 +677,8 @@ bool SelectorTable::ReverseLookup(std::string name, uint16_t &wIndex) const
 
 bool SelectorTable::Load(const GameFolderHelper &helper)
 {
-    _version = helper.Version;
     bool fRet = false;
-    unique_ptr<ResourceBlob> blob(_GetVocabData(helper, VocabSelectorNames));
+    unique_ptr<ResourceBlob> blob(_GetVocabData(_version, helper, VocabSelectorNames));
     if (blob)
     {
         fRet = _Create(blob->GetReadStream());
@@ -822,10 +821,10 @@ string SelectorTable::Lookup(uint16_t wName) const
     return strRet;
 }
 
-bool KernelTable::Load(const GameFolderHelper &helper)
+bool KernelTable::Load(const SCIVersion& version, const GameFolderHelper &helper)
 {
     bool fRet = false;
-    unique_ptr<ResourceBlob> blob(_GetVocabData(helper, VocabKernelNames));
+    unique_ptr<ResourceBlob> blob(_GetVocabData(version, helper, VocabKernelNames));
     if (blob)
     {
         fRet = _Create(blob->GetReadStream(), true);
@@ -853,7 +852,7 @@ bool KernelTable::Load(const GameFolderHelper &helper)
         _names.clear();
         size_t kernelCount;
         const char * const * kernelNames;
-        switch (helper.Version.Kernels)
+        switch (version.Kernels)
         {
             case KernelSet::SCI0SCI1:
                 kernelCount = ARRAYSIZE(s_defaultKernelNames);
@@ -885,10 +884,10 @@ bool KernelTable::Load(const GameFolderHelper &helper)
     return fRet;
 }
 
-bool GlobalClassTable::Load(const GameFolderHelper &helper)
+bool GlobalClassTable::Load(const SCIVersion& version, const GameFolderHelper &helper)
 {
     SpeciesTable speciesTable;
-    bool fRet = speciesTable.Load(helper);
+    bool fRet = speciesTable.Load(version, helper);
     if (fRet)
     {
         fRet = _Create(speciesTable);
@@ -1058,10 +1057,10 @@ std::vector<uint16_t> GlobalClassTable::GetSubclassesOf(uint16_t baseClass)
     return subclasses;
 }
 
-bool SpeciesTable::Load(const GameFolderHelper &helper)
+bool SpeciesTable::Load(const SCIVersion& version, const GameFolderHelper &helper)
 {
     bool fRet = false;
-    unique_ptr<ResourceBlob> blob(_GetVocabData(helper, VocabClassTable));
+    unique_ptr<ResourceBlob> blob(_GetVocabData(version, helper, VocabClassTable));
     if (blob)
     {
         fRet = _Create(blob->GetReadStream());
@@ -1090,11 +1089,11 @@ void SpeciesTable::Save()
     }
 }
 
-void SpeciesTable::PurgeOldClasses(const GameFolderHelper &helper)
+void SpeciesTable::PurgeOldClasses(const SCIVersion& version, const GameFolderHelper &helper)
 {
     vector<uint16_t> newTable;
     GlobalClassTable globalClassTable;
-    if (globalClassTable.Load(helper))
+    if (globalClassTable.Load(version, helper))
     {
         unordered_map<int, CompiledScript*> scriptMap;
         std::vector<CompiledScript*> allScripts = globalClassTable.GetAllScripts();
@@ -1135,7 +1134,7 @@ void SpeciesTable::PurgeOldClasses(const GameFolderHelper &helper)
         _direct.clear();
         _wNewSpeciesIndex = 0;
         _fDirty = false;
-        this->Load(helper);
+        this->Load(version, helper);
     }
 }
 

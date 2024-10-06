@@ -77,9 +77,9 @@ public:
     LangSyntax GetDefaultGameLanguage() const { return Language; }
     ScriptId GetScriptId(const std::string &name) const;
     std::string FigureOutName(ResourceType type, int iResourceNum, uint32_t base36Number) const;
-    std::unique_ptr<ResourceContainer> Resources(ResourceTypeFlags types, ResourceEnumFlags enumFlags, ResourceRecency *pRecency = nullptr, int mapContext = -1) const;
-    std::unique_ptr<ResourceBlob> MostRecentResource(ResourceType type, int number, ResourceEnumFlags flags, uint32_t base36Number = NoBase36, int mapContext = -1) const;
-    bool DoesResourceExist(ResourceType type, int number, std::string *retrieveName, ResourceSaveLocation location) const;
+    std::unique_ptr<ResourceContainer> Resources(const SCIVersion& version, ResourceTypeFlags types, ResourceEnumFlags enumFlags, ResourceRecency *pRecency = nullptr, int mapContext = -1) const;
+    std::unique_ptr<ResourceBlob> MostRecentResource(const SCIVersion& version, ResourceType type, int number, ResourceEnumFlags flags, uint32_t base36Number = NoBase36, int mapContext = -1) const;
+    bool DoesResourceExist(const SCIVersion& version, ResourceType type, int number, std::string *retrieveName, ResourceSaveLocation location) const;
 
     bool GetUseSierraAspectRatio(bool defaultValue) const;
     void SetUseSierraAspectRatio(bool useSierra) const;
@@ -93,10 +93,7 @@ public:
     ResourceEnumFlags GetDefaultEnumFlags() const;
     ResourceSourceFlags GetDefaultSaveSourceFlags() const;
 
-    bool IsResourceCompatible(const ResourceBlob &resource) const;
-
     // Members
-    SCIVersion Version;
     std::string GameFolder;
     LangSyntax Language;
 

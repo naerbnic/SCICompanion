@@ -47,7 +47,7 @@ void ExtractAllResources(CResourceMap& resource_map, SCIVersion version, const s
     GlobalCompiledScriptLookups scriptLookups;
     if (disassembleScripts)
     {
-      if (!scriptLookups.Load(resource_map.Helper()))
+      if (!scriptLookups.Load(resource_map.GetSCIVersion(), resource_map.Helper()))
         {
             disassembleScripts = false;
         }
@@ -186,6 +186,7 @@ void ExtractAllResources(CResourceMap& resource_map, SCIVersion version, const s
                     std::unique_ptr<sci::istream> heapStream;
                     std::unique_ptr<ResourceBlob> heapBlob =
                         resource_map.Helper().MostRecentResource(
+                            version,
                             ResourceType::Heap, blob->GetNumber(),
                             ResourceEnumFlags::ExcludePatchFiles);
                     if (heapBlob)

@@ -87,6 +87,7 @@ private:
     CExtGroupBox m_wndGroupDebug;
 
     // Our own copy of this
+    SCIVersion _version;
     GameFolderHelper _helper;
 
     CTreeCtrl m_wndTreeSCO;

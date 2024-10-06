@@ -11,7 +11,7 @@ class GenerateDocsDialog : public CDialog
     DECLARE_DYNAMIC(GenerateDocsDialog)
 
 public:
-    GenerateDocsDialog(GameFolderHelper helper, CWnd* pParent = NULL);   // standard constructor
+    GenerateDocsDialog(const SCIVersion& version, GameFolderHelper helper, CWnd* pParent = NULL);   // standard constructor
     virtual ~GenerateDocsDialog();
 
     // Dialog Data
@@ -39,6 +39,7 @@ protected:
     CEdit m_wndCommand;
 
     CWnd m_wndBrowser;
+    SCIVersion _version;
     GameFolderHelper _helper;
     bool _fInitialized;
 public:

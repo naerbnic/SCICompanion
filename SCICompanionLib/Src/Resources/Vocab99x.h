@@ -90,7 +90,7 @@ class SelectorTable : public ILookupNames {
 //
 class KernelTable : public CVocabWithNames {
  public:
-  bool Load(const GameFolderHelper &helper);
+  bool Load(const SCIVersion& version, const GameFolderHelper &helper);
   bool ReverseLookup(std::string name, uint16_t &wIndex) const override;
 
  protected:
@@ -106,7 +106,7 @@ class KernelTable : public CVocabWithNames {
 //
 class GlobalClassTable : public ILookupNames {
  public:
-  bool Load(const GameFolderHelper &helper);
+  bool Load(const SCIVersion& version, const GameFolderHelper &helper);
   const std::vector<uint16_t> &GetScriptNums() {
     return _scriptNums;
   }  // REVIEW: remove this
@@ -145,7 +145,7 @@ class SpeciesTable {
     _wNewSpeciesIndex = 0;
     _fDirty = false;
   }
-  bool Load(const GameFolderHelper &helper);
+  bool Load(const SCIVersion& version, const GameFolderHelper &helper);
   void Save();
   bool GetSpeciesIndex(uint16_t wScript, uint16_t wClassIndexInScript,
                        SpeciesIndex &wSpeciesIndex) const;
@@ -155,7 +155,7 @@ class SpeciesTable {
                                     uint16_t wClassIndexInScript);
   std::vector<std::string> GetNames() const;
 
-  void PurgeOldClasses(const GameFolderHelper &helper);
+  void PurgeOldClasses(const SCIVersion& version, const GameFolderHelper &helper);
 
  private:
   bool _Create(sci::istream &byteStream);
