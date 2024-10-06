@@ -61,6 +61,11 @@ public:
     CResourceMap(ISCIAppServices *appServices, ResourceRecency *resourceRecency);
     ~CResourceMap();
 
+    CResourceMap(const CResourceMap& orig) = delete;
+    CResourceMap(CResourceMap&& orig) = delete;
+    CResourceMap& operator=(const CResourceMap& other) = delete;
+    CResourceMap& operator=(CResourceMap&& other) = delete;
+
     RunLogic &GetRunLogic();
 
     // ResourceBlob: the raw resource bits already in a ready-to-save format.
