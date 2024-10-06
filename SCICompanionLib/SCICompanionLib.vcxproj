@@ -311,6 +311,7 @@
     <ClInclude Include="Src\Compile\DecompilerFallback.h" />
     <ClInclude Include="Src\Compile\DecompilerNew.h" />
     <ClInclude Include="Src\Compile\DecompilerResults.h" />
+    <ClInclude Include="Src\Compile\FunctionRef.h" />
     <ClInclude Include="Src\Compile\NodeTypes.h" />
     <ClInclude Include="Src\Compile\Operators.h" />
     <ClInclude Include="Src\Compile\OperatorTables.h" />

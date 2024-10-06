@@ -11,6 +11,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
+#pragma once
 
 template <class C>
 class FunctionRef
@@ -28,7 +29,7 @@ private:
         virtual RetVal Call(void* callee, Args... args) = 0;
     };
     template <class T>
-    class CallerImpl : public Caller {
+    class CallerImpl final : public Caller {
     public:
         static CallerImpl* GetInstance() {
             static CallerImpl instance;
@@ -36,7 +37,7 @@ private:
         }
         constexpr CallerImpl() = default;
         RetVal Call(void* callee, Args... args) override {
-            return (*reinterpret_cast<T*>(callee))(std::move(args)...);
+            return (*static_cast<T*>(callee))(std::move(args)...);
         }
     };
 
@@ -44,8 +45,15 @@ public:
     FunctionRef() : callee_(nullptr), caller_(nullptr) {}
 
     FunctionRef(const FunctionRef& other) = default;
+    FunctionRef(FunctionRef&& other) = default;
+
+    ~FunctionRef() = default;
+
+    FunctionRef& operator=(const FunctionRef& other) = default;
+    FunctionRef& operator=(FunctionRef&& other) = default;
 
     template <class T>
+    // ReSharper disable once CppNonExplicitConvertingConstructor
     FunctionRef(T& callee) : callee_(&callee), caller_(CallerImpl<T>::GetInstance()) {}
 
     RetVal operator()(Args... args) {
