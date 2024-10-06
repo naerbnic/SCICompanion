@@ -12,11 +12,10 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
-#include "GameFolderHelper.h"
 
 class CompileLog;
 class CResourceMap;
 class GlobalCompiledScriptLookups;
 
-bool ConvertScript(const GameFolderHelper& game_folder_helper, SCIVersion version, LangSyntax targetLanguage, ScriptId &scriptId, CompileLog &log, bool makeBak, GlobalCompiledScriptLookups *lookups = nullptr);
+bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId &scriptId, CompileLog &log, bool makeBak, GlobalCompiledScriptLookups *lookups = nullptr);
 void ConvertGame(CResourceMap &resMap, LangSyntax targetLanguage, CompileLog &log);

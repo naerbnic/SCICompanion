@@ -18,11 +18,11 @@
 using namespace sci;
 using namespace std;
 
-void PrepForLanguage(const GameFolderHelper& game_folder_helper, LangSyntax langSyntax, sci::Script &script, GlobalCompiledScriptLookups *lookups)
+void PrepForLanguage(LangSyntax langSyntax, sci::Script &script, GlobalCompiledScriptLookups *lookups)
 {
     if (langSyntax == LangSyntaxSCI)
     {
-        ConvertToSCISyntaxHelper(game_folder_helper, script, lookups);
+        ConvertToSCISyntaxHelper(script, lookups);
     }
 }
 

@@ -32,7 +32,7 @@ using namespace std::filesystem;
 
 
 
-bool ConvertScript(const GameFolderHelper& game_folder_helper, SCIVersion version, LangSyntax targetLanguage, ScriptId &scriptId, CompileLog &log, bool makeBak, GlobalCompiledScriptLookups *lookups)
+bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId &scriptId, CompileLog &log, bool makeBak, GlobalCompiledScriptLookups *lookups)
 {
     bool success = false;
     if (targetLanguage != scriptId.Language())
@@ -52,7 +52,7 @@ bool ConvertScript(const GameFolderHelper& game_folder_helper, SCIVersion versio
             if (success)
             {
                 EnsurePublicsInExports(script);
-                PrepForLanguage(game_folder_helper, targetLanguage, script, lookups);
+                PrepForLanguage(targetLanguage, script, lookups);
 
                 std::stringstream out;
                 sci::SourceCodeWriter theCode(out, targetLanguage, &script);
@@ -153,7 +153,7 @@ void ConvertGame(CResourceMap &map, LangSyntax targetLanguage, CompileLog &log)
     {
         for (auto &scriptId : scripts)
         {
-            ConvertScript(map.Helper(), map.GetSCIVersion(), targetLanguage, scriptId, log, false, &lookups);
+            ConvertScript(map.GetSCIVersion(), targetLanguage, scriptId, log, false, &lookups);
         }
     }
 }

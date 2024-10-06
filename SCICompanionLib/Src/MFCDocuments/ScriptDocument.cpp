@@ -396,7 +396,7 @@ std::unique_ptr<sci::Script> DecompileScript(const IDecompilerConfig *config, Gl
 
     if (helper.Language == LangSyntaxSCI)
     {
-        ConvertToSCISyntaxHelper(helper, *pScript, &scriptLookups);
+        ConvertToSCISyntaxHelper(*pScript, &scriptLookups);
     }
 
     return pScript;
@@ -486,7 +486,9 @@ void CScriptDocument::OnViewSyntaxTree()
     bool fCompile = SyntaxParser_Parse(script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log);;
     if (fCompile)
     {
-        PrepForLanguage(appState->GetResourceMap().Helper(), appState->GetResourceMap().Helper().GetDefaultGameLanguage(), script);
+        GlobalCompiledScriptLookups lookupsOwned;
+        lookupsOwned.Load(appState->GetResourceMap().Helper());
+        PrepForLanguage(appState->GetResourceMap().Helper().GetDefaultGameLanguage(), script, &lookupsOwned);
 
         std::stringstream out;
         sci::SourceCodeWriter theCode(out, appState->GetResourceMap().Helper().GetDefaultGameLanguage(), &script);
@@ -541,7 +543,7 @@ void CScriptDocument::OnConvertScript()
 {
     CompileLog log;
 
-    if (ConvertScript(appState->GetResourceMap().Helper(), appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultGameLanguage(), _scriptId, log, true))
+    if (ConvertScript(appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultGameLanguage(), _scriptId, log, true))
     {
         _buffer.FreeAll();
         _buffer.LoadFromFile(_scriptId.GetFullPath().c_str());

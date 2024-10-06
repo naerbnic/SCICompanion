@@ -241,6 +241,6 @@ std::string _DeduceReturnType(sci::FunctionBase &function);
 
 void EndStatement(sci::SourceCodeWriter &out);
 
-void ConvertToSCISyntaxHelper(const GameFolderHelper& game_folder_helper, sci::Script &script, GlobalCompiledScriptLookups *lookups = nullptr);
+void ConvertToSCISyntaxHelper(sci::Script &script, GlobalCompiledScriptLookups *lookups);
 
-void PrepForLanguage(const GameFolderHelper& game_folder_helper, LangSyntax langSyntax, sci::Script &script, GlobalCompiledScriptLookups *lookups = nullptr);
+void PrepForLanguage(LangSyntax langSyntax, sci::Script &script, GlobalCompiledScriptLookups *lookups);

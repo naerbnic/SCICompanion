@@ -413,32 +413,25 @@ std::set<BinaryOperator> coalesceBinaryOps =
 class TransformDeterminePropSelectors : public IExploreNode
 {
 public:
-    TransformDeterminePropSelectors(const GameFolderHelper& game_folder_helper, sci::Script &script, GlobalCompiledScriptLookups *lookups) : _lookups(lookups)
+    TransformDeterminePropSelectors(sci::Script &script, GlobalCompiledScriptLookups *lookups) : _lookups(lookups)
     {
-        // We need to determine what is a property and what is a method
-        if (!_lookups && _lookupsOwned.Load(game_folder_helper))
+        assert(lookups);
+        for (auto &script : _lookups->GetGlobalClassTable().GetAllScripts())
         {
-            _lookups = &_lookupsOwned;
-        }
-        if (_lookups)
-        {
-            for (auto &script : _lookups->GetGlobalClassTable().GetAllScripts())
+            for (auto &object : script->GetObjects())
             {
-                for (auto &object : script->GetObjects())
+                for (uint16_t propSelector : object->GetProperties())
                 {
-                    for (uint16_t propSelector : object->GetProperties())
-                    {
-                        _propSelectors.insert(propSelector);
-                    }
-                    for (uint16_t methodSelector : object->GetMethods())
-                    {
-                        _methodSelectors.insert(methodSelector);
-                    }
+                    _propSelectors.insert(propSelector);
+                }
+                for (uint16_t methodSelector : object->GetMethods())
+                {
+                    _methodSelectors.insert(methodSelector);
                 }
             }
-
-            script.Traverse(*this);
         }
+
+        script.Traverse(*this);
     }
 
     void ExploreNode(SyntaxNode &node, ExploreNodeState state) override
@@ -461,7 +454,6 @@ private:
     std::set<uint16_t> _propSelectors;
     std::set<uint16_t> _methodSelectors;
     GlobalCompiledScriptLookups *_lookups;
-    GlobalCompiledScriptLookups _lookupsOwned;
 };
 
 std::string _GetCommentText(const Comment &comment)
@@ -502,9 +494,9 @@ std::string _GetCommentText(const Comment &comment)
     return newComment;
 }
 
-void ConvertToSCISyntaxHelper(const GameFolderHelper& game_folder_helper, Script &script, GlobalCompiledScriptLookups *lookups)
+void ConvertToSCISyntaxHelper(Script &script, GlobalCompiledScriptLookups *lookups)
 {
-    TransformDeterminePropSelectors txPropSelectors(game_folder_helper, script, lookups);
+    TransformDeterminePropSelectors txPropSelectors(script, lookups);
 
     // Transform comments
     for (auto &comment : script.GetComments())

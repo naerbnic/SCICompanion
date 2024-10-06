@@ -19,6 +19,7 @@
 #include "AppState.h"
 #include "InsertObject.h"
 #include "ScriptOMAll.h"
+#include "CompiledScript.h"
 #include "ScriptMakerHelper.h"
 #include "SyntaxParser.h"
 #include "CrystalScriptStream.h"
@@ -90,7 +91,9 @@ AvailableMethods::AvailableMethods(const GameFolderHelper* game_folder_helper, L
 
 void AvailableMethods::PrepareBuffer(const sci::MethodDefinition *methodDef, CString &buffer)
 {
-    PrepForLanguage(*_gameFolderHelper, _targetLanguage, *_script);
+    GlobalCompiledScriptLookups lookupsOwned;
+    lookupsOwned.Load(*_gameFolderHelper);
+    PrepForLanguage(_targetLanguage, *_script, &lookupsOwned);
     std::stringstream ss;
     //sci::SourceCodeWriter out(ss, _targetLanguage, _objectToScript[theClass]);
     // Providing the script lets us sync comments, but it is not working properly. They merge with newlines, and comments in
@@ -159,9 +162,11 @@ AvailableObjects::AvailableObjects(const GameFolderHelper* game_folder_helper, L
 
 void AvailableObjects::PrepareBuffer(sci::ClassDefinition *theClass, CString &buffer, CListBox *pListProps, CListBox *pListMethods)
 {
+    GlobalCompiledScriptLookups lookupsOwned;
+    lookupsOwned.Load(*_gameFolderHelper);
     for (auto &script : _scripts)
     {
-        PrepForLanguage(*_gameFolderHelper, _targetLanguage, *script);
+        PrepForLanguage(_targetLanguage, *script, &lookupsOwned);
     }
 
     // Grab any properties from the "fake ego"
