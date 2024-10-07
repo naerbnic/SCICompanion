@@ -198,12 +198,14 @@ void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data)
             {
                 // Remove it from the ini
                 std::string iniKey = default_reskey(data.GetNumber(), data.GetHeader().Base36Number);
-                std::string scriptTitle = helper.GetIniString("Script", iniKey);
-                ScriptId scriptId = resourceMap.Helper().GetScriptId(scriptTitle);
+                auto const& config_store = helper.GetConfigStore();
+                std::string scriptTitle = config_store.GetIniString("Script", iniKey);
+                ScriptId scriptId = helper.GetScriptId(scriptTitle);
+
                 // First, remove from the [Script] section
-                WritePrivateProfileString("Script", iniKey.c_str(), nullptr, helper.GetGameIniFileName().c_str());
+                config_store.SetIniString("Script", iniKey, "");
                 // Second, remove from the [Language] section
-                WritePrivateProfileString("Language", scriptTitle.c_str(), nullptr, helper.GetGameIniFileName().c_str());
+                config_store.SetIniString("Language", scriptTitle, "");
 
                 if (dialog.AlsoDelete())
                 {

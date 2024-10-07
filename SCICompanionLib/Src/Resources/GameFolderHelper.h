@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <optional>
+
 class ResourceContainer;
 enum class ResourceEnumFlags : uint16_t;
 enum class ResourceSaveLocation : uint16_t;
@@ -107,7 +109,6 @@ public:
     std::string GetSubFolder(const std::string& subFolder) const;
     std::string GetLipSyncFolder() const;
     std::string GetPolyFolder(const std::string* prefix = nullptr) const;
-    std::string GetGameIniFileName() const;
     std::string GetIniString(const std::string& sectionName,
                              const std::string& keyName,
                              PCSTR pszDefault = "") const;
@@ -150,12 +151,11 @@ public:
 
     const std::string& GetGameFolder() const { return GameFolder; }
 
-    void SetGameFolder(const std::string& gameFolder)
-    {
-        GameFolder = gameFolder;
-        // Need to recreate the config store if the game folder changes.
-        config_store_ = GameConfigStore::FromFilePath(GetGameIniFileName());
-    }
+    void SetGameFolder(const std::string& gameFolder);
+
+    // Returns the language that is defined in our configuration, or std::nullopt if
+    // it is not defined.
+    std::optional<LangSyntax> GetConfiguredLanguage() const;
 
     LangSyntax GetLanguage() const { return Language; }
     void SetLanguage(LangSyntax language) { Language = language; }

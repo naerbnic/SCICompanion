@@ -42,9 +42,9 @@ DecompileDialog::DecompileDialog(CWnd* pParent /*=NULL*/)
     : CExtResizableDialog(DecompileDialog::IDD, pParent), previousSelection(-1), _inScriptListLabelEdit(false), _inSCOLabelEdit(false), initialized(false), _version(appState->GetResourceMap().GetSCIVersion()), _helper(appState->GetResourceMap().HelperPtr()), _syncSelection(false)
 {
     // If we already have a game.ini, great, we'll honor that.
-    string gameIniFile = appState->GetResourceMap().Helper().GetGameIniFileName();
+    auto config_lang = appState->GetResourceMap().Helper().GetConfiguredLanguage();
 
-    if (!PathFileExists(gameIniFile.c_str()))
+    if (!config_lang)
     {
         // But if not, set the default language to Sierra syntax.
         appState->GetResourceMap().SetGameLanguage(LangSyntaxSCI);

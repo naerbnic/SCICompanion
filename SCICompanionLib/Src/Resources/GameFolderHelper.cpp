@@ -493,14 +493,6 @@ void GameFolderHelper::SetIniString(const std::string& sectionName,
     config_store_->SetIniString(sectionName, keyName, value);
 }
 
-
-std::string GameFolderHelper::GetGameIniFileName() const
-{
-    string filename = this->GameFolder;
-    filename += "\\game.ini";
-    return filename;
-}
-
 std::string GameFolderHelper::GetSubFolder(const std::string& subFolder) const
 {
     return _GetSubfolder(subFolder.c_str());
@@ -633,6 +625,33 @@ ResourceSourceFlags GameFolderHelper::GetDefaultSaveSourceFlags() const
     return (saveLocation == ResourceSaveLocation::Patch)
                ? ResourceSourceFlags::PatchFile
                : ResourceSourceFlags::ResourceMap;
+}
+
+void GameFolderHelper::SetGameFolder(const std::string& gameFolder)
+{
+    GameFolder = gameFolder;
+    // Need to recreate the config store if the game folder changes.
+    config_store_ = GameConfigStore::FromFilePath(gameFolder + "\\game.ini");
+}
+
+std::optional<LangSyntax> GameFolderHelper::GetConfiguredLanguage() const
+{
+    std::string languageValue = config_store_->GetIniString(GameSection, LanguageKey);
+    if (languageValue == "scp")
+    {
+        // We have left this turd in from old game.inis. We don't support cpp as a default game language,
+        // so let's just convert it to Studio.
+        return LangSyntaxStudio;
+    }
+    else if (languageValue == LanguageValueSCI)
+    {
+        return LangSyntaxSCI;
+    }
+    else if (languageValue == LanguageValueStudio)
+    {
+        return LangSyntaxStudio;
+    }
+    return std::nullopt;
 }
 
 //
