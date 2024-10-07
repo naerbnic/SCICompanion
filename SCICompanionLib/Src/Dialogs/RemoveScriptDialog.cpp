@@ -48,7 +48,7 @@ BOOL CRemoveScriptDialog::OnInitDialog()
     
     // Ask the question
     CResourceMap &rm = appState->GetResourceMap();
-    std::string scriptTitle = rm.Helper().GetIniString("Script", default_reskey(_wScript, NoBase36));
+    std::string scriptTitle = rm.Helper().GetConfig().GetScriptTitleForNumber(_wScript);
     ScriptId script = rm.Helper().GetScriptId(scriptTitle);
     std::stringstream ss;
     ss << "Do you want to remove " << script.GetTitle() << " from the game completely?";

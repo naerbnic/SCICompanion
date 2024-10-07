@@ -71,8 +71,10 @@ public:
                                   const std::string& keyName,
                                   bool value) const override
     {
-        return GetIniString(sectionName, keyName,
-                            value ? TrueValue : FalseValue) == TrueValue;
+        std::string strValue = GetIniString(sectionName, keyName,
+                            value ? TrueValue : FalseValue);
+        std::transform(strValue.begin(), strValue.end(), strValue.begin(), ::tolower);
+        return strValue == TrueValue;
     }
 
     void SetIniString(const std::string& sectionName,
@@ -224,6 +226,53 @@ void GameConfig::SetResourceSaveLocation(
 {
     store_->SetIniBool(GameSection, PatchFileKey,
         location == ResourceSaveLocation::Patch);
+}
+
+std::string GameConfig::GetScriptTitleForNumber(uint16_t script_number) const
+{
+
+    std::string keyName = default_reskey(script_number, NoBase36);
+    return store_->GetIniString("Script", keyName, keyName);
+}
+
+bool GameConfig::GetUseSierraAspectRatio(bool default_value) const
+{
+    return store_->GetIniBool(GameSection, AspectRatioKey, default_value);
+}
+
+bool GameConfig::GetUndither() const
+{
+    return store_->GetIniBool(GameSection, UnditherKey, false);
+}
+
+ResourceSaveLocation GameConfig::ResolveSaveLocationOption(ResourceSaveLocation location) const
+{
+    if (location == ResourceSaveLocation::Default)
+    {
+        auto value = store_->GetIniBool(GameSection, PatchFileKey);
+        return value
+            ? ResourceSaveLocation::Patch
+            : ResourceSaveLocation::Package;
+    }
+    return location;
+}
+
+std::string GameConfig::FigureOutName(ResourceType type, int iNumber,
+    uint32_t base36_number) const
+{
+    std::string name;
+    if ((size_t)type < ARRAYSIZE(g_resourceInfo))
+    {
+        std::string keyName = default_reskey(iNumber, base36_number);
+        name = store_->GetIniString(GetResourceInfo(type).pszTitleDefault, keyName,
+            keyName);
+    }
+    return name;
+}
+
+bool GameConfig::GetGenerateDebugInfo() const    
+{
+    return store_->GetIniBool(GameSection, GenerateDebugInfoKey);
 }
 
 // ResourceLoader
@@ -414,10 +463,7 @@ GameFolderHelper::GameFolderHelper()
 std::string GameFolderHelper::GetScriptFileName(WORD wScript) const
 {
     std::string filename;
-    std::string scriptTitle = GetIniString("Script",
-                                           default_reskey(wScript, NoBase36),
-                                           default_reskey(wScript, NoBase36).
-                                           c_str());
+    std::string scriptTitle = config_->GetScriptTitleForNumber(wScript);
     if (!scriptTitle.empty())
     {
         filename = GetScriptFileName(scriptTitle);
@@ -461,10 +507,7 @@ std::string GameFolderHelper::GetScriptDebugFileName(uint16_t wScript) const
 std::string GameFolderHelper::GetScriptObjectFileName(WORD wScript) const
 {
     std::string filename;
-    std::string scriptTitle = GetIniString("Script",
-                                           default_reskey(wScript, NoBase36),
-                                           default_reskey(wScript, NoBase36).
-                                           c_str());
+    std::string scriptTitle = config_->GetScriptTitleForNumber(wScript);
     if (!scriptTitle.empty())
     {
         filename = GetScriptObjectFileName(scriptTitle);
@@ -499,17 +542,6 @@ std::string GameFolderHelper::GetHelpFolder()
     }
     helpFolder += "Help";
     return helpFolder;
-}
-
-
-//
-// Returns an empty string (or pszDefault) if there is no key
-//
-std::string GameFolderHelper::GetIniString(const std::string& sectionName,
-                                           const std::string& keyName,
-                                           PCSTR pszDefault) const
-{
-    return config_store_->GetIniString(sectionName, keyName, pszDefault);
 }
 
 bool GameFolderHelper::GetIniBool(const std::string& sectionName,
@@ -581,12 +613,7 @@ ScriptId GameFolderHelper::GetScriptId(const std::string& name) const
 
 bool GameFolderHelper::GetUseSierraAspectRatio(bool defaultValue) const
 {
-    std::string value = GetIniString(GameSection, AspectRatioKey,
-                                     defaultValue
-                                         ? TrueValue.c_str()
-                                         : FalseValue.c_str());
-    std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-    return value == TrueValue;
+    return config_->GetUseSierraAspectRatio(defaultValue);
 }
 
 void GameFolderHelper::SetUseSierraAspectRatio(bool useSierra) const
@@ -596,10 +623,7 @@ void GameFolderHelper::SetUseSierraAspectRatio(bool useSierra) const
 
 bool GameFolderHelper::GetUndither() const
 {
-    std::string value = GetIniString(GameSection, UnditherKey,
-                                     FalseValue.c_str()); // False by default
-    std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-    return value == TrueValue;
+    return config_->GetUndither();
 }
 
 void GameFolderHelper::SetUndither(bool undither) const
@@ -609,25 +633,13 @@ void GameFolderHelper::SetUndither(bool undither) const
 
 bool GameFolderHelper::GetGenerateDebugInfo() const
 {
-    std::string value = GetIniString(GameSection, GenerateDebugInfoKey,
-                                     FalseValue.c_str());
-    std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-    return (value == TrueValue);
+    return config_->GetGenerateDebugInfo();
 }
 
 ResourceSaveLocation GameFolderHelper::GetResourceSaveLocation(
     ResourceSaveLocation location) const
 {
-    if (location == ResourceSaveLocation::Default)
-    {
-        std::string value = GetIniString(GameSection, PatchFileKey,
-                                         FalseValue.c_str());
-        std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-        return (value == TrueValue)
-                   ? ResourceSaveLocation::Patch
-                   : ResourceSaveLocation::Package;
-    }
-    return location;
+    return config_->ResolveSaveLocationOption(location);
 }
 
 void GameFolderHelper::SetResourceSaveLocation(
@@ -690,14 +702,7 @@ std::optional<LangSyntax> GameFolderHelper::GetConfiguredLanguage() const
 std::string GameFolderHelper::FigureOutName(ResourceType type, int iNumber,
                                             uint32_t base36Number) const
 {
-    std::string name;
-    if ((size_t)type < ARRAYSIZE(g_resourceInfo))
-    {
-        std::string keyName = default_reskey(iNumber, base36Number);
-        name = GetIniString(GetResourceInfo(type).pszTitleDefault, keyName,
-                            keyName.c_str());
-    }
-    return name;
+    return config_->FigureOutName(type, iNumber, base36Number);
 }
 
 std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(

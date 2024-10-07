@@ -78,6 +78,12 @@ public:
     void SetUseSierraAspectRatio(bool use_sierra) const;
     void SetUndither(bool undither) const;
     void SetResourceSaveLocation(ResourceSaveLocation location) const;
+    std::string GetScriptTitleForNumber(uint16_t script_number) const;
+    bool GetUseSierraAspectRatio(bool default_value) const;
+    bool GetUndither() const;
+    ResourceSaveLocation ResolveSaveLocationOption(ResourceSaveLocation location) const;
+    std::string FigureOutName(ResourceType type, int iNumber, uint32_t base36_number) const;
+    bool GetGenerateDebugInfo() const;
 
 private:
     GameConfigStore const* store_;
@@ -128,9 +134,6 @@ public:
     std::string GetSubFolder(const std::string& subFolder) const;
     std::string GetLipSyncFolder() const;
     std::string GetPolyFolder(const std::string* prefix = nullptr) const;
-    std::string GetIniString(const std::string& sectionName,
-                             const std::string& keyName,
-                             PCSTR pszDefault = "") const;
     bool GetIniBool(const std::string& sectionName, const std::string& keyName,
                     bool value = false) const;
     bool DoesSectionExistWithEntries(const std::string& sectionName) const;
@@ -200,7 +203,7 @@ private:
     // Members
     std::string GameFolder;
     LangSyntax Language;
-    std::unique_ptr<GameConfigStore> config_store_;
-    std::unique_ptr<GameConfig> config_;
-    std::unique_ptr<ResourceLoader> resource_loader_;
+    std::unique_ptr<const GameConfigStore> config_store_;
+    std::unique_ptr<const GameConfig> config_;
+    std::unique_ptr<const ResourceLoader> resource_loader_;
 };
