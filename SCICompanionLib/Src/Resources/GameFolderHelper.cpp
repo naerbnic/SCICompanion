@@ -90,6 +90,15 @@ public:
         SetIniString(sectionName, keyName, value ? TrueValue : FalseValue);
     }
 
+    bool DoesSectionExistWithEntries(const std::string& sectionName) const override
+    {
+        char sz[200];
+        return (GetPrivateProfileSection(sectionName.c_str(), sz,
+            (DWORD)ARRAYSIZE(sz),
+            config_file_path_.c_str()) > 0);
+        
+    }
+
 private:
     std::string config_file_path_;
 };
@@ -405,45 +414,26 @@ std::string GameFolderHelper::GetIniString(const std::string& sectionName,
                                            const std::string& keyName,
                                            PCSTR pszDefault) const
 {
-    std::string strRet;
-    char sz[200];
-    if (GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), nullptr,
-                                sz, (DWORD)ARRAYSIZE(sz),
-                                GetGameIniFileName().c_str()))
-    {
-        strRet = sz;
-    }
-    else
-    {
-        strRet = pszDefault;
-    }
-    return strRet;
+    return config_store_->GetIniString(sectionName, keyName, pszDefault);
 }
 
 bool GameFolderHelper::GetIniBool(const std::string& sectionName,
                                   const std::string& keyName, bool value) const
 {
-    return GetIniString(sectionName, keyName,
-                        value ? TrueValue.c_str() : FalseValue.c_str()) ==
-        TrueValue;
+    return config_store_->GetIniBool(sectionName, keyName, value);
 }
 
 bool GameFolderHelper::DoesSectionExistWithEntries(
-    const std::string& sectionName)
+    const std::string& sectionName) const
 {
-    char sz[200];
-    return (GetPrivateProfileSection(sectionName.c_str(), sz,
-                                     (DWORD)ARRAYSIZE(sz),
-                                     GetGameIniFileName().c_str()) > 0);
+    return config_store_->DoesSectionExistWithEntries(sectionName);
 }
 
 void GameFolderHelper::SetIniString(const std::string& sectionName,
                                     const std::string& keyName,
                                     const std::string& value) const
 {
-    WritePrivateProfileString(sectionName.c_str(), keyName.c_str(),
-                              value.empty() ? nullptr : value.c_str(),
-                              GetGameIniFileName().c_str());
+    config_store_->SetIniString(sectionName, keyName, value);
 }
 
 
