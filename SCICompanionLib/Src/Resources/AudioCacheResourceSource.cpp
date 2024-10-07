@@ -342,9 +342,7 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
         // Regular audio files, or audio36 files with no companion sync36
         ScopedFile cacheFile(fullPath, GENERIC_READ, FILE_SHARE_READ,
                              OPEN_EXISTING);
-        auto streamHolder = std::make_unique<sci::streamOwner>(cacheFile.hFile);
-        sci::istream readStream = streamHolder->getReader();
-        _streamHolders[_GetLookupKey(mapEntry)] = std::move(streamHolder);
+        sci::istream readStream = sci::istream::ReadFromFile(cacheFile.hFile);
         // Keep alive during enumeration
 
         readStream.seekg(mapEntry.Offset);
@@ -364,24 +362,22 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
         // with the Sync36 data coming first, and the sync36 data indicated by BlobKey::LipSyncDataSize
         // We'll use our support for memory mapped files, since a regular streamOwner reads everything in,
         // and we'll need to combine both streams, and we don't want to copy twice.
-        auto streamHolderSync36 = std::make_unique<sci::streamOwner>(
-            fullPathSync);
-        auto streamHolderAudio36 = std::make_unique<sci::streamOwner>(fullPath);
+        auto streamSync36 = sci::istream::MapFile(fullPathSync);
+        auto streamAudio36 = sci::istream::MapFile(fullPath);
 
         std::unique_ptr<sci::ostream> combinedStream = std::make_unique<
             sci::ostream>();
         combinedStream->EnsureCapacity(
-            streamHolderAudio36->GetDataSize() + streamHolderSync36->
-            GetDataSize());
+            streamAudio36.GetDataSize() + streamSync36.GetDataSize());
 
         // First comes the sync data
-        sci::transfer(streamHolderSync36->getReader(), *combinedStream,
-                      streamHolderSync36->GetDataSize());
+        sci::transfer(streamSync36, *combinedStream,
+                      streamSync36.GetDataSize());
         headerEntry.PropertyBag[BlobKey::LipSyncDataSize] = combinedStream->
             tellp();
         // Then the audio
-        sci::transfer(streamHolderAudio36->getReader(), *combinedStream,
-                      streamHolderAudio36->GetDataSize());
+        sci::transfer(streamAudio36, *combinedStream,
+            streamAudio36.GetDataSize());
 
         headerEntry.cbDecompressed = combinedStream->GetDataSize();
         headerEntry.cbCompressed = headerEntry.cbDecompressed;
@@ -558,10 +554,9 @@ void AudioCacheResourceSource::MaybeAddNegative(ResourceEntity& resource)
         {
             ScopedFile scopedFile(fullPath, GENERIC_READ, FILE_SHARE_READ,
                                   OPEN_EXISTING);
-            sci::streamOwner owner(scopedFile.hFile);
             std::unique_ptr<AudioNegativeComponent> negative = std::make_unique<
                 AudioNegativeComponent>();
-            AudioComponentFromWaveFile(owner.getReader(), negative->Audio,
+            AudioComponentFromWaveFile(sci::istream::ReadFromFile(scopedFile.hFile), negative->Audio,
                                        &negative->Settings);
             resource.AddComponent(std::move(negative));
         }

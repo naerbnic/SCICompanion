@@ -339,7 +339,7 @@ void ResourceBlob::_EnsureDecompressed()
     }
 }
 
-void ResourceBlob::_DecompressFromBits(sci::istream &byteStream, bool delay)
+void ResourceBlob::_DecompressFromBits(sci::istream byteStream, bool delay)
 {
     uint32_t cbCompressedRemaining = header.cbCompressed; // Because cbCompressed includes 4 bytes of the header.
     assert(_pData.empty());
@@ -506,8 +506,7 @@ HRESULT ResourceBlob::CreateFromHandle(PCTSTR pszName, HANDLE hFile, int iPackag
     {
         // Now it is time to read in the bits.
         // We're already at the end of the header, so just start reading.
-        sci::streamOwner streamOwner(hFile, header.cbCompressed);
-        _DecompressFromBits(streamOwner.getReader(), false);
+        _DecompressFromBits(sci::istream::ReadFromFile(hFile, header.cbCompressed), false);
         _AssignDefaultResourceSourceFlags(*this, saveLocation);
     }    
     return hr;

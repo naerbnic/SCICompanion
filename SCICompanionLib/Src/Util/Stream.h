@@ -106,7 +106,7 @@ public:
     }
 
     template <class _T>
-    istream& operator>>(typename _T& t)
+    istream& operator>>(_T& t)
     {
         uint32_t dwSave = tellg();
         if (!_Read(reinterpret_cast<uint8_t*>(&t), sizeof(t)))
@@ -157,19 +157,6 @@ private:
 
 istream istream_from_ostream(ostream& src);
 
-class streamOwner
-{
-public:
-    streamOwner(const uint8_t* data, uint32_t size);
-    streamOwner(HANDLE hFile, DWORD lengthToInclude = 0);
-    streamOwner(const std::string& filename); // Memory mapped
-    ~streamOwner();
-    istream getReader();
-    uint32_t GetDataSize();
-
-private:
-    istream base_istream_;
-};
-
 void transfer(istream& from, ostream& to, uint32_t count);
+
 }

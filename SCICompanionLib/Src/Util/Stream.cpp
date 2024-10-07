@@ -575,16 +575,6 @@ istream istream_from_ostream(ostream& src)
     return istream(src.GetInternalPointer(), src.tellp());
 }
 
-streamOwner::streamOwner(const uint8_t* data, uint32_t size) :
-    base_istream_(data, size)
-{
-}
-
-streamOwner::streamOwner(HANDLE hFile, DWORD lengthToInclude) :
-    base_istream_(istream::ReadFromFile(hFile, lengthToInclude))
-{
-}
-
 void transfer(istream& from, ostream& to, uint32_t count)
 {
     to.EnsureCapacity(to.GetDataSize() + count);
@@ -597,22 +587,5 @@ void transfer(istream& from, ostream& to, uint32_t count)
         to.WriteBytes(buffer, amountToTransfer);
         count -= amountToTransfer;
     }
-}
-
-
-streamOwner::streamOwner(const std::string& filename) :
-base_istream_(istream::MapFile(filename))
-{
-}
-
-streamOwner::~streamOwner()
-{
-}
-
-uint32_t streamOwner::GetDataSize() { return base_istream_.GetDataSize(); }
-
-istream streamOwner::getReader()
-{
-    return base_istream_;
 }
 }

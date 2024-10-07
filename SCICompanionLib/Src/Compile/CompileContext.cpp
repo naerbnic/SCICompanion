@@ -117,9 +117,8 @@ void CompileContext::_LoadSCO(const std::string& name, bool fErrorIfNotFound)
     }
     if (hFile != INVALID_HANDLE_VALUE)
     {
-        sci::streamOwner streamOwner(hFile);
         CSCOFile scoFile;
-        if (scoFile.Load(streamOwner.getReader(), _tables.Selectors()))
+        if (scoFile.Load(sci::istream::ReadFromFile(hFile), _tables.Selectors()))
         {
             _scos[scoFile.GetScriptNumber()] = scoFile;
         }

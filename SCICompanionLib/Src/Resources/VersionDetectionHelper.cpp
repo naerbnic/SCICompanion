@@ -94,8 +94,7 @@ ResourcePackageFormat _DetectPackageFormat(const GameFolderHelper &helper, Resou
     {
         ScopedHandle holder;
         holder.hFile = hFile;
-        sci::streamOwner streamHolder(holder.hFile);
-        sci::istream byteStream = streamHolder.getReader();
+        sci::istream byteStream = sci::istream::ReadFromFile(holder.hFile);
         bool sci1Aligned = false;
 
         while ((byteStream.getBytesRemaining() >= 9) && (byteStream.tellg() < dataReadLimit))
@@ -352,8 +351,8 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
     ResourceMapFormat mapFormat = ResourceMapFormat::SCI0;
 
     FileDescriptorResourceMap resourceMapFileDescriptor(helper.GetGameFolder());
-    std::unique_ptr<sci::streamOwner> streamHolder = resourceMapFileDescriptor.OpenMap();
-    sci::istream byteStream = streamHolder->getReader();
+    sci::istream streamAtStart = resourceMapFileDescriptor.OpenMap();
+    sci::istream byteStream = streamAtStart;
 
     bool mustBeSCI0 = false;
     // Detect SCI0 by checking to see if the last 6 bytes are 0xff
@@ -430,8 +429,8 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
         {
             // It's SCI0, in that it doesn't have a list of "pre-entries". But the format of the entries themselves could be "SCI1".
             // Check by interpreting them as SCI0 and seeing if we can open all the volume files we encounter.
-            sci::istream byteStreamSCI0 = streamHolder->getReader();
-            sci::istream byteStreamSCI1 = streamHolder->getReader();
+            sci::istream byteStreamSCI0 = streamAtStart;
+            sci::istream byteStreamSCI1 = streamAtStart;
             std::set<int> volumesSCI0;
             std::set<int> volumesSCI1;
             static_assert(sizeof(RESOURCEMAPENTRY_SCI0) == sizeof(RESOURCEMAPENTRY_SCI0_SCI1LAYOUT), "Mismatched resource map entry size.");

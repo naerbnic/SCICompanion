@@ -112,42 +112,41 @@ AudioVolumeName AudioResourceSource::_GetVolumeToUse(uint32_t base36Number)
     return GetVolumeToUse(_version, base36Number);
 }
 
-std::unique_ptr<sci::streamOwner> AudioResourceSource::_GetAudioVolume(uint32_t base36Number)
+sci::istream AudioResourceSource::_GetAudioVolume(uint32_t base36Number)
 {
     if (IsFlagSet(_access, ResourceSourceAccessFlags::ReadWrite))
     {
         // If we want to eventually write using this same ResourceSource, then use the version of streamOwner that copies the file.
         ScopedFile scoped(_GetAudioVolumePath(false, _GetVolumeToUse(base36Number), &_sourceFlags), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        return std::make_unique<sci::streamOwner>(scoped.hFile);
+        return sci::istream::ReadFromFile(scoped.hFile);
     }
     else
     {
         // We can use a memory mapped file for optimum performance.
-        return std::make_unique<sci::streamOwner>(_GetAudioVolumePath(false, _GetVolumeToUse(base36Number), &_sourceFlags));
+        return sci::istream::MapFile(_GetAudioVolumePath(false, _GetVolumeToUse(base36Number), &_sourceFlags));
     }
 }
 
-sci::streamOwner *AudioResourceSource::_EnsureReadOnlyAudioVolume(uint32_t base36Number)
+std::optional<sci::istream> AudioResourceSource::_EnsureReadOnlyAudioVolume(uint32_t base36Number)
 {
     AudioVolumeName volumeToUse = _GetVolumeToUse(base36Number);
 
-    if ((volumeToUse == AudioVolumeName::Sfx) && !_volumeStreamOwnerSfx)
+    if ((volumeToUse == AudioVolumeName::Sfx) && !_volumeStreamSfx)
     {
-        _volumeStreamOwnerSfx = _GetAudioVolume(base36Number);
+        _volumeStreamSfx = _GetAudioVolume(base36Number);
     }
-    if ((volumeToUse == AudioVolumeName::Aud) && !_volumeStreamOwnerAud)
+    if ((volumeToUse == AudioVolumeName::Aud) && !_volumeStreamAud)
     {
-        _volumeStreamOwnerAud = _GetAudioVolume(base36Number);
+        _volumeStreamAud = _GetAudioVolume(base36Number);
     }
-    return (volumeToUse == AudioVolumeName::Sfx) ? _volumeStreamOwnerSfx.get() : _volumeStreamOwnerAud.get();
+    return (volumeToUse == AudioVolumeName::Sfx) ? _volumeStreamSfx : _volumeStreamAud;
 }
 
 sci::istream AudioResourceSource::GetHeaderAndPositionedStream(const ResourceMapEntryAgnostic &mapEntry, ResourceHeaderAgnostic &headerEntry)
 {
-    sci::streamOwner *streamOwner = _EnsureReadOnlyAudioVolume(mapEntry.Base36Number);
-    if (streamOwner)
+    if (auto optReader= _EnsureReadOnlyAudioVolume(mapEntry.Base36Number))
     {
-        sci::istream reader = streamOwner->getReader();
+        sci::istream reader = std::move(optReader).value();
         reader.seekg(mapEntry.Offset);
         headerEntry.Number = mapEntry.Number;
         headerEntry.Base36Number = mapEntry.Base36Number;

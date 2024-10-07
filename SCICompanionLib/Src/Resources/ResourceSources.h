@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <optional>
+
 #include "ResourceBlob.h"
 
 // This file describes various resource sources and the base classes needed for:
@@ -146,10 +148,10 @@ struct FileDescriptorBase
     std::string _GetMapFilenameBak() const;
     std::string _GetVolumeFilenameBak(int volume) const;
 
-    std::unique_ptr<sci::streamOwner> OpenMap() const
+    sci::istream OpenMap() const
     {
         ScopedFile scoped(_GetMapFilename(), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        return std::make_unique<sci::streamOwner>(scoped.hFile);
+        return sci::istream::ReadFromFile(scoped.hFile);
     }
 
     bool DoesMapExist() const
@@ -157,10 +159,10 @@ struct FileDescriptorBase
         return !!PathFileExists(_GetMapFilename().c_str());
     }
 
-    std::unique_ptr<sci::streamOwner> OpenVolume(int volumeNumber) const
+    sci::istream OpenVolume(int volumeNumber) const
     {
         ScopedFile scoped(_GetVolumeFilename(volumeNumber), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        return std::make_unique<sci::streamOwner>(scoped.hFile);
+        return sci::istream::ReadFromFile(scoped.hFile);
     }
 
     bool DoesVolumeExist(int volumeNumber) const
@@ -270,8 +272,7 @@ public:
     {
         // The stream might be in a failbit state (because someone enumerated and read off the end), so reset them before continuing.
         // Otherwise, the enumeration will fail, and the resource map will get cleaned out.
-        _map = nullptr;
-        _mapStream = nullptr;
+        _mapStream = std::nullopt;
         _volumeStreams.clear();
 
         std::unordered_map<int, sci::ostream> volumeStreamWrites;
@@ -497,19 +498,18 @@ protected:
         auto result = _volumeStreams.find(volumeNumber);
         if (result != _volumeStreams.end())
         {
-            return result->second->getReader();
+            return result->second;
         }
 
         _volumeStreams[volumeNumber] = _FileDescriptor::OpenVolume(volumeNumber);
-        return _volumeStreams.find(volumeNumber)->second->getReader();
+        return _volumeStreams.find(volumeNumber)->second;
     }
 
     sci::istream &GetMapStream()
     {
-        if (!_map)
+        if (!_mapStream)
         {
-            _map = move(_FileDescriptor::OpenMap());
-            _mapStream = std::make_unique<sci::istream>(_map->getReader());
+            _mapStream = _FileDescriptor::OpenMap();
         }
         return *_mapStream;
     }
@@ -518,7 +518,6 @@ private:
     ResourceHeaderReadWrite _headerReadWrite;
     SCIVersion _version;
 
-    std::unique_ptr<sci::streamOwner> _map;
-    std::unique_ptr<sci::istream> _mapStream;
-    std::unordered_map<int, std::unique_ptr<sci::streamOwner>> _volumeStreams;
+    std::optional<sci::istream> _mapStream;
+    std::unordered_map<int, sci::istream> _volumeStreams;
 };

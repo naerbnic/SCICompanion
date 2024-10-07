@@ -236,8 +236,7 @@ void _OnViewResourceMap(const _TResourceSource &fileDescriptor, SCIVersion versi
 {
     try
     {
-        std::unique_ptr<sci::streamOwner> streamOwner = fileDescriptor.OpenMap();   // Keep in scope
-        sci::istream reader = streamOwner->getReader();
+        sci::istream reader = fileDescriptor.OpenMap();
 
         fmt::MemoryWriter writer;
 
@@ -319,8 +318,7 @@ void _OnViewResourceMap(const _TResourceSource &fileDescriptor, SCIVersion versi
 
             // I want the agnostic header, and then also the raw header data and the raw other data.
             // For now we'll just show the raw data
-            std::unique_ptr<sci::streamOwner> streamOwner = fileDescriptor.OpenVolume(volumeAndOffsets.first);
-            sci::istream reader = streamOwner->getReader();
+            sci::istream reader = fileDescriptor.OpenVolume(volumeAndOffsets.first);
 
             for (uint32_t offset : volumeAndOffsets.second)
             {

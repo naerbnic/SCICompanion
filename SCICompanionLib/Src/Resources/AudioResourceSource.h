@@ -56,8 +56,8 @@ private:
     void _EnsureAudioMaps();
     AudioVolumeName _GetVolumeToUse(uint32_t base36Number);
     std::string _GetAudioVolumePath(bool bak, AudioVolumeName volumeName, ResourceSourceFlags *sourceFlags = nullptr);
-    sci::streamOwner *_EnsureReadOnlyAudioVolume(uint32_t base36Number);
-    std::unique_ptr<sci::streamOwner> _GetAudioVolume(uint32_t base36Number);
+    std::optional<sci::istream> _EnsureReadOnlyAudioVolume(uint32_t base36Number);
+    sci::istream _GetAudioVolume(uint32_t base36Number);
 
     std::string _gameFolder;
     SCIVersion _version;
@@ -68,8 +68,8 @@ private:
     std::vector<std::unique_ptr<ResourceEntity>> _audioMaps;
 
     // Use memory mapped files, because these volumes tend to be large (several hundred MB)
-    std::unique_ptr<sci::streamOwner> _volumeStreamOwnerSfx;
-    std::unique_ptr<sci::streamOwner> _volumeStreamOwnerAud;
+    std::optional<sci::istream> _volumeStreamSfx;
+    std::optional<sci::istream> _volumeStreamAud;
 
     std::shared_ptr<const GameFolderHelper> _helper;
 };

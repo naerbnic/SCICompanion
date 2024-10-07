@@ -57,8 +57,7 @@ bool HasWaveHeader(const std::string &filename)
     try
     { 
         ScopedFile scoped(filename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        sci::streamOwner streamOwner(scoped.hFile);
-        sci::istream stream = streamOwner.getReader();
+        sci::istream stream = sci::istream::ReadFromFile(scoped.hFile);
         uint32_t riff;
         stream >> riff;
         return riff == (*(uint32_t*)riffMarker);
@@ -78,7 +77,7 @@ uint32_t GetWaveFileSizeIncludingHeader(sci::istream &stream)
     return fileSize + sizeof(uint32_t) * 2;
 }
 
-void AudioComponentFromWaveFile(sci::istream &stream, AudioComponent &audio, AudioProcessingSettings *audioProcessingSettings, int maxSampleRate, bool limitTo8Bit)
+void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, AudioProcessingSettings *audioProcessingSettings, int maxSampleRate, bool limitTo8Bit)
 {
     uint32_t riff, wave, fileSize, fmt, chunkSize, data, dataSize;
     stream >> riff;
@@ -383,8 +382,7 @@ std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string &file
 {
     std::unique_ptr<ResourceEntity> resource(CreateDefaultAudioResource(appState->GetVersion()));
     ScopedFile scopedFile(filename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-    sci::streamOwner owner(scopedFile.hFile);
-    AudioComponentFromWaveFile(owner.getReader(), resource->GetComponent<AudioComponent>());
+    AudioComponentFromWaveFile(sci::istream::ReadFromFile(scopedFile.hFile), resource->GetComponent<AudioComponent>());
     resource->SourceFlags = ResourceSourceFlags::AudioCache;
     return resource;
 }

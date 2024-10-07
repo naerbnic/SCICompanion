@@ -23,7 +23,7 @@ enum class AudioVolumeName : uint8_t;
 
 extern const int MaxSierraSampleRate;
 
-void AudioComponentFromWaveFile(sci::istream &stream, AudioComponent &audio, AudioProcessingSettings *audioProcessingSettings = nullptr, int maxSampleRate = MaxSierraSampleRate, bool limitTo8Bit = false);
+void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, AudioProcessingSettings *audioProcessingSettings = nullptr, int maxSampleRate = MaxSierraSampleRate, bool limitTo8Bit = false);
 std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string &filename);
 std::string _NameFromFilename(PCSTR pszFilename);
 void AddWaveFileToGame(const std::string &filename);

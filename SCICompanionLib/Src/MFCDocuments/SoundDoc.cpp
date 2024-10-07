@@ -151,9 +151,8 @@ void CSoundDoc::_OnImportWav()
             try
             {
                 ScopedFile scopedFile(filename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-                sci::streamOwner owner(scopedFile.hFile);
                 std::unique_ptr<AudioComponent> audioComponent = std::make_unique<AudioComponent>();
-                AudioComponentFromWaveFile(owner.getReader(), *audioComponent, nullptr, MaxSCI1SampleRate, true);
+                AudioComponentFromWaveFile(sci::istream::ReadFromFile(scopedFile.hFile), *audioComponent, nullptr, MaxSCI1SampleRate, true);
                 ApplyChanges<SoundComponent>(
                     [](SoundComponent &sound)
                 {

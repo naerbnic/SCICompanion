@@ -413,11 +413,10 @@ void CScriptDocument::OnViewObjectFile()
             HANDLE hFile = CreateFile(objectFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
             if (hFile)
             {
-                sci::streamOwner streamOwner(hFile);
                 CSCOFile scoFile;
                 SelectorTable selectorTable;
                 selectorTable.Load(appState->GetVersion(), appState->GetResourceMap().Helper().GetResourceLoader());
-                if (scoFile.Load(streamOwner.getReader(), selectorTable))
+                if (scoFile.Load(sci::istream::ReadFromFile(hFile), selectorTable))
                 {
                     stringstream out;
                     scoFile.DebugOut(out);

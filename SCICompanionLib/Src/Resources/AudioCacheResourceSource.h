@@ -96,8 +96,6 @@ private:
     std::unique_ptr<ResourceEntity> _audioMap;
     std::vector<int> _audioFilesPresent; // regular
 
-    std::unordered_map<uint64_t, std::unique_ptr<sci::streamOwner>>
-    _streamHolders;
     std::unordered_map<uint64_t, std::unique_ptr<sci::ostream>> _streamHolders2;
 
     bool _enumInitialized;

@@ -113,10 +113,7 @@ sci::istream PatchFilesResourceSource::GetHeaderAndPositionedStream(const Resour
     patchFile.hFile = CreateFile(fullPath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (patchFile.hFile != INVALID_HANDLE_VALUE)
     {
-        auto streamHolder = std::make_unique<sci::streamOwner>(patchFile.hFile);
-        sci::istream readStream = streamHolder->getReader();
-        // We need to be owners of this stream data.
-        _streamHolder[mapEntry.ExtraData] = move(streamHolder);
+        sci::istream readStream = sci::istream::ReadFromFile(patchFile.hFile);
 
         // Now fill in the headerEntry
         headerEntry.Number = mapEntry.Number;

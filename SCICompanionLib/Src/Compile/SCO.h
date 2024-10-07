@@ -162,7 +162,7 @@ public:
     void DebugOut(std::ostream &out) const;
     void Save(std::vector<BYTE> &output) const;
 
-    bool Load(sci::istream &stream, const SelectorTable &selectors);
+    bool Load(sci::istream stream, const SelectorTable &selectors);
     void SetVersion(SCOVersion version) { _bSCIVersion = version; }
     std::string GetVariableName(WORD wIndex)  const;
     std::string GetExportName(WORD wIndex)  const;

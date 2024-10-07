@@ -45,5 +45,4 @@ private:
     // Muck
     int _nextIndex;
     std::unordered_map<int, std::string> _indexToFilename;
-    std::unordered_map<int, std::unique_ptr<sci::streamOwner>> _streamHolder;
 };

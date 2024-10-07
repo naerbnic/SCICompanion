@@ -56,7 +56,7 @@ using namespace sci;
 // null terminated string
 
 
-bool CSCOFile::Load(sci::istream &stream, const SelectorTable &selectors)
+bool CSCOFile::Load(sci::istream stream, const SelectorTable &selectors)
 {
     stream.seekg(stream.tellg() + 3);
     stream >> _bMajorVersion;
@@ -767,9 +767,8 @@ unique_ptr<CSCOFile> GetExistingSCOFromScriptNumber(const GameFolderHelper &help
     if (!objectFilename.empty() && PathFileExists(objectFilename.c_str()))
     {
         ScopedFile scoped(objectFilename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        sci::streamOwner streamOwner(scoped.hFile);
         sco = make_unique<CSCOFile>();
-        sco->Load(streamOwner.getReader(), selectors);
+        sco->Load(sci::istream::ReadFromFile(scoped.hFile), selectors);
     }
     return sco;
 }

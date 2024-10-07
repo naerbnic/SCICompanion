@@ -393,7 +393,7 @@ private:
         header.Number = iResourceNumber;
         _hasNumber = (iResourceNumber != -1);
     }
-    void _DecompressFromBits(sci::istream &byteStream, bool delay);
+    void _DecompressFromBits(sci::istream byteStream, bool delay);
     void _SetName(PCTSTR pszName);
     void _EnsureDecompressed();
 
