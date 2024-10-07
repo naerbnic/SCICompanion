@@ -78,11 +78,6 @@ public:
     istream(const sci::istream& original, uint32_t absoluteOffset);
     istream();
 
-    istream(const sci::istream& original) = delete;
-    istream(istream&& original) noexcept = default;
-    istream& operator=(const sci::istream& original) = delete;
-    istream& operator=(istream&& original) noexcept = default;
-
     uint32_t GetDataSize() const { return _cbSizeValid; }
 
     // New api
