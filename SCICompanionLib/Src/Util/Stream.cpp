@@ -222,7 +222,7 @@ class istream::MemoryImpl : public istream::Impl
 {
 public:
     MemoryImpl(uint32_t size) :
-        size_(size), data_(std::make_unique<uint8_t[]>(size))
+        size_(size), data_(std::unique_ptr<uint8_t[]>(new uint8_t[size]))
     {
     }
 
@@ -325,7 +325,7 @@ istream istream::ReadFromFile(HANDLE hFile, DWORD lengthToInclude)
         DWORD dwSizeHigh = 0;
         DWORD file_size = GetFileSize(hFile, &dwSizeHigh);
 
-        if (dwSize == INVALID_FILE_SIZE)
+        if (file_size == INVALID_FILE_SIZE)
         {
             throw std::exception("Unable to get file size.");
         }
