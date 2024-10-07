@@ -681,13 +681,13 @@ void RebuildFromResources(const SCIVersion& version,
                           AudioMapComponent& audioMap, int number,
                           std::ostream& writeStream)
 {
-    GameFolderHelper helper;
-    helper.SetGameFolder(gameFolder);
+    auto helper = GameFolderHelper::Create();
+    helper->SetGameFolder(gameFolder);
 
     // First, cache all the blobs
     std::unordered_map<uint64_t, std::unique_ptr<ResourceBlob>> blobs;
     int mapContext = (number == version.AudioMapResourceNumber) ? -1 : number;
-    auto resourceContainer = helper.Resources(version, ResourceTypeFlags::Audio,
+    auto resourceContainer = helper->Resources(version, ResourceTypeFlags::Audio,
                                               ResourceEnumFlags::MostRecentOnly
                                               | ResourceEnumFlags::AddInDefaultEnumFlags,
                                               nullptr, mapContext);

@@ -63,9 +63,7 @@ public:
 class ResourceLoader
 {
 public:
-    explicit ResourceLoader(const GameFolderHelper* parent) : parent_(parent)
-    {
-    }
+    explicit ResourceLoader(const GameFolderHelper* parent);
 
     std::unique_ptr<ResourceContainer> Resources(
         const SCIVersion& version, ResourceTypeFlags types,
@@ -87,7 +85,8 @@ private:
 class GameFolderHelper : public std::enable_shared_from_this<GameFolderHelper>
 {
 public:
-    GameFolderHelper();
+    static std::shared_ptr<GameFolderHelper> Create();
+
     GameFolderHelper(const GameFolderHelper& orig) = delete;
     GameFolderHelper(GameFolderHelper&& orig) = delete;
     GameFolderHelper& operator=(const GameFolderHelper& other) = delete;
@@ -150,6 +149,8 @@ public:
     void SetGameFolder(const std::string& gameFolder)
     {
         GameFolder = gameFolder;
+        // Need to recreate the config store if the game folder changes.
+        config_store_ = GameConfigStore::FromFilePath(GetGameIniFileName());
     }
 
     LangSyntax GetLanguage() const { return Language; }
@@ -161,11 +162,14 @@ public:
     }
 
 private:
+    GameFolderHelper();
+
     std::string _GetSubfolder(const char* key,
                               const std::string* prefix = nullptr) const;
 
     // Members
     std::string GameFolder;
     LangSyntax Language;
+    std::unique_ptr<GameConfigStore> config_store_;
     std::unique_ptr<ResourceLoader> resource_loader_;
 };

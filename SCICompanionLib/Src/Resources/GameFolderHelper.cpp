@@ -124,6 +124,10 @@ std::unique_ptr<GameConfigStore> GameConfigStore::FromFilePath(
 
 // ResourceLoader
 
+ResourceLoader::ResourceLoader(const GameFolderHelper* parent) : parent_(parent)
+{
+}
+
 std::unique_ptr<ResourceContainer> ResourceLoader::Resources(
     const SCIVersion& version, ResourceTypeFlags types,
     ResourceEnumFlags enumFlags, ResourceRecency* pRecency,
@@ -283,6 +287,11 @@ bool ResourceLoader::DoesResourceExist(const SCIVersion& version,
 }
 
 // GameFolderHelper
+
+std::shared_ptr<GameFolderHelper> GameFolderHelper::Create()
+{
+    return std::shared_ptr<GameFolderHelper>(new GameFolderHelper());
+}
 
 GameFolderHelper::GameFolderHelper()
     : Language(LangSyntaxUnknown),

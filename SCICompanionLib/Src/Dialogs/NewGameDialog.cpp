@@ -221,9 +221,9 @@ void NewGameDialog::OnBnClickedOk()
         if (fContinue)
         {
             // Set the game language.
-            GameFolderHelper helper;
-            helper.SetGameFolder(szPath);
-            helper.SetIniString(GameSection, LanguageKey, (lang == LangSyntaxSCI) ? LanguageValueSCI : LanguageValueStudio);
+            auto helper = GameFolderHelper::Create();
+            helper->SetGameFolder(szPath);
+            helper->SetIniString(GameSection, LanguageKey, (lang == LangSyntaxSCI) ? LanguageValueSCI : LanguageValueStudio);
         }
         if (!fContinue)
         {
