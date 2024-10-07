@@ -364,13 +364,10 @@ istream(std::make_shared<MemoryImpl>(pData, cbSize))
 
 istream::istream() : istream(std::shared_ptr<Impl>())
 {
-    _throwExceptions = false;
-    _iIndex = 0;
-    _state = std::ios_base::goodbit;
 }
 
 istream::istream(std::shared_ptr<Impl> impl) :
-    _impl(std::move(impl)), _iIndex(0), _throwExceptions(false)
+    _impl(std::move(impl)), _iIndex(0), _throwExceptions(false), _state(std::ios_base::goodbit)
 {
 }
 

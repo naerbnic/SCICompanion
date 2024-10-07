@@ -80,7 +80,7 @@ public:
     istream(const istream& original, uint32_t absoluteOffset);
     istream();
 
-    uint32_t GetDataSize() const { return _cbSizeValid; }
+    uint32_t GetDataSize() const;
 
     // Use with caution!
     const uint8_t* GetInternalPointer() const;
