@@ -229,28 +229,12 @@ CResourceMap::~CResourceMap()
 //
 void CResourceMap::AssignName(const ResourceBlob &resource)
 {
-    // Assign the name of the item.
-    std::string keyName = default_reskey(resource.GetNumber(), resource.GetHeader().Base36Number);
-    std::string name = resource.GetName();
-    if (!name.empty() && (0 != lstrcmpi(keyName.c_str(), name.c_str())))
-    {
-        Helper().SetIniString(g_resourceInfo[(int)resource.GetType()].pszTitleDefault, keyName, name);
-    }
+    Helper().GetConfig().SetResourceEntry(resource.GetType(), resource.GetNumber(), resource.GetHeader().Base36Number, resource.GetName());
 }
 
 void CResourceMap::AssignName(ResourceType type, int iResourceNumber, uint32_t base36Number, PCTSTR pszName)
 {
-    // Assign the name of the item.
-    std::string keyName = default_reskey(iResourceNumber, base36Number);
-    std::string newValue;
-    if (pszName)
-    {
-        newValue = pszName;
-    }
-    if (0 != lstrcmpi(keyName.c_str(), newValue.c_str()))
-    {
-        Helper().SetIniString(g_resourceInfo[(int)type].pszTitleDefault, keyName, newValue);
-    }
+    Helper().GetConfig().SetResourceEntry(type, iResourceNumber, base36Number, pszName);
 }
 
 void CResourceMap::BeginDeferAppend()

@@ -60,9 +60,27 @@ public:
                               const std::string& value) const = 0;
     virtual void SetIniBool(const std::string& sectionName,
                             const std::string& keyName, bool value) const = 0;
-    virtual bool DoesSectionExistWithEntries(const std::string& sectionName) const = 0;
+    virtual bool DoesSectionExistWithEntries(
+        const std::string& sectionName) const = 0;
     virtual std::map<std::string, std::string> GetSectionEntries(
         const std::string& sectionName) const = 0;
+};
+
+class GameConfig
+{
+public:
+    explicit GameConfig(const GameConfigStore* store);
+
+    void SetResourceEntry(ResourceType resource_type, int resource_number,
+                          uint32_t base36_number,
+                          const std::string& resource_name) const;
+    void SetLanguage(LangSyntax language) const;
+    void SetUseSierraAspectRatio(bool use_sierra) const;
+    void SetUndither(bool undither) const;
+    void SetResourceSaveLocation(ResourceSaveLocation location) const;
+
+private:
+    GameConfigStore const* store_;
 };
 
 class ResourceLoader
@@ -91,7 +109,8 @@ class GameFolderHelper : public std::enable_shared_from_this<GameFolderHelper>
 {
 public:
     static std::shared_ptr<GameFolderHelper> Create();
-    static std::shared_ptr<GameFolderHelper> Create(const std::string& game_folder);
+    static std::shared_ptr<GameFolderHelper> Create(
+        const std::string& game_folder);
 
     GameFolderHelper(const GameFolderHelper& orig) = delete;
     GameFolderHelper(GameFolderHelper&& orig) = delete;
@@ -117,9 +136,6 @@ public:
     bool DoesSectionExistWithEntries(const std::string& sectionName) const;
     static std::string GetIncludeFolder();
     static std::string GetHelpFolder();
-    void SetIniString(const std::string& sectionName,
-                      const std::string& keyName,
-                      const std::string& value) const;
     LangSyntax GetDefaultGameLanguage() const { return Language; }
     ScriptId GetScriptId(const std::string& name) const;
     std::string FigureOutName(ResourceType type, int iResourceNum,
@@ -165,6 +181,11 @@ public:
         return *config_store_;
     }
 
+    const GameConfig& GetConfig() const
+    {
+        return *config_;
+    }
+
     const ResourceLoader& GetResourceLoader() const
     {
         return *resource_loader_;
@@ -180,5 +201,6 @@ private:
     std::string GameFolder;
     LangSyntax Language;
     std::unique_ptr<GameConfigStore> config_store_;
+    std::unique_ptr<GameConfig> config_;
     std::unique_ptr<ResourceLoader> resource_loader_;
 };

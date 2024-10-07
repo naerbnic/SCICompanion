@@ -38,11 +38,11 @@ const std::string GenerateDebugInfoKey = "GenerateDebugInfo";
 
 namespace
 {
-class FileGameConfig : public GameConfigStore
+class FileGameConfigStore : public GameConfigStore
 {
 public:
     explicit
-    FileGameConfig(std::string config_file_path) : config_file_path_(
+    FileGameConfigStore(std::string config_file_path) : config_file_path_(
         std::move(config_file_path))
     {
     }
@@ -185,7 +185,45 @@ std::string default_reskey(int iNumber, uint32_t base36Number)
 std::unique_ptr<GameConfigStore> GameConfigStore::FromFilePath(
     std::string_view config_file)
 {
-    return std::make_unique<FileGameConfig>(std::string(config_file));
+    return std::make_unique<FileGameConfigStore>(std::string(config_file));
+}
+
+// GameConfig
+
+GameConfig::GameConfig(const GameConfigStore* store) : store_(store)
+{
+}
+
+void GameConfig::SetResourceEntry(ResourceType resource_type, int resource_number, uint32_t base36_number, const std::string& resource_name) const
+{
+    // Assign the name of the item.
+    std::string keyName = default_reskey(resource_number, base36_number);
+    if (!resource_name.empty() && (0 != lstrcmpi(keyName.c_str(), resource_name.c_str())))
+    {
+        store_->SetIniString(g_resourceInfo[(int)resource_type].pszTitleDefault, keyName, resource_name);
+    }
+}
+
+void GameConfig::SetLanguage(LangSyntax lang) const
+{
+    store_->SetIniString(GameSection, LanguageKey, (lang == LangSyntaxSCI) ? LanguageValueSCI : LanguageValueStudio);
+}
+
+void GameConfig::SetUseSierraAspectRatio(bool use_sierra) const
+{
+    store_->SetIniBool(GameSection, AspectRatioKey, use_sierra);
+}
+
+void GameConfig::SetUndither(bool undither) const
+{
+    store_->SetIniBool(GameSection, UnditherKey, undither);
+}
+
+void GameConfig::SetResourceSaveLocation(
+    ResourceSaveLocation location) const
+{
+    store_->SetIniBool(GameSection, PatchFileKey,
+        location == ResourceSaveLocation::Patch);
 }
 
 // ResourceLoader
@@ -486,13 +524,6 @@ bool GameFolderHelper::DoesSectionExistWithEntries(
     return config_store_->DoesSectionExistWithEntries(sectionName);
 }
 
-void GameFolderHelper::SetIniString(const std::string& sectionName,
-                                    const std::string& keyName,
-                                    const std::string& value) const
-{
-    config_store_->SetIniString(sectionName, keyName, value);
-}
-
 std::string GameFolderHelper::GetSubFolder(const std::string& subFolder) const
 {
     return _GetSubfolder(subFolder.c_str());
@@ -560,8 +591,7 @@ bool GameFolderHelper::GetUseSierraAspectRatio(bool defaultValue) const
 
 void GameFolderHelper::SetUseSierraAspectRatio(bool useSierra) const
 {
-    SetIniString(GameSection, AspectRatioKey,
-                 useSierra ? TrueValue : FalseValue);
+    config_->SetUseSierraAspectRatio(useSierra);
 }
 
 bool GameFolderHelper::GetUndither() const
@@ -574,7 +604,7 @@ bool GameFolderHelper::GetUndither() const
 
 void GameFolderHelper::SetUndither(bool undither) const
 {
-    SetIniString(GameSection, UnditherKey, undither ? TrueValue : FalseValue);
+    config_->SetUndither(undither);
 }
 
 bool GameFolderHelper::GetGenerateDebugInfo() const
@@ -603,10 +633,7 @@ ResourceSaveLocation GameFolderHelper::GetResourceSaveLocation(
 void GameFolderHelper::SetResourceSaveLocation(
     ResourceSaveLocation location) const
 {
-    SetIniString(GameSection, PatchFileKey,
-                 (location == ResourceSaveLocation::Patch)
-                     ? TrueValue
-                     : FalseValue);
+    config_->SetResourceSaveLocation(location);
 }
 
 ResourceEnumFlags GameFolderHelper::GetDefaultEnumFlags() const
@@ -630,8 +657,11 @@ ResourceSourceFlags GameFolderHelper::GetDefaultSaveSourceFlags() const
 void GameFolderHelper::SetGameFolder(const std::string& gameFolder)
 {
     GameFolder = gameFolder;
+    // To be safe, reset the game config before dropping the config store.
+    config_.reset();
     // Need to recreate the config store if the game folder changes.
     config_store_ = GameConfigStore::FromFilePath(gameFolder + "\\game.ini");
+    config_ = std::make_unique<GameConfig>(config_store_.get());
 }
 
 std::optional<LangSyntax> GameFolderHelper::GetConfiguredLanguage() const
