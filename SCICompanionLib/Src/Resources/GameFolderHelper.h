@@ -84,6 +84,7 @@ public:
     ResourceSaveLocation ResolveSaveLocationOption(ResourceSaveLocation location) const;
     std::string FigureOutName(ResourceType type, int iNumber, uint32_t base36_number) const;
     bool GetGenerateDebugInfo() const;
+    bool GetUsesPolygons(bool defaultValue) const;
 
 private:
     GameConfigStore const* store_;
@@ -134,8 +135,6 @@ public:
     std::string GetSubFolder(const std::string& subFolder) const;
     std::string GetLipSyncFolder() const;
     std::string GetPolyFolder(const std::string* prefix = nullptr) const;
-    bool GetIniBool(const std::string& sectionName, const std::string& keyName,
-                    bool value = false) const;
     bool DoesSectionExistWithEntries(const std::string& sectionName) const;
     static std::string GetIncludeFolder();
     static std::string GetHelpFolder();

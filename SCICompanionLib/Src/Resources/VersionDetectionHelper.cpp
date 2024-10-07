@@ -925,7 +925,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     }
 
     result.UsesPolygons = (result.PicFormat != PicFormat::EGA);
-    result.UsesPolygons = helper.GetIniBool("Version", "UsesPolygons", result.UsesPolygons);
+    result.UsesPolygons = helper.GetConfig().GetUsesPolygons(result.UsesPolygons);
 
     result.Kernels = _DetectKernelSet(helper.GetResourceLoader(), result);
     return result;

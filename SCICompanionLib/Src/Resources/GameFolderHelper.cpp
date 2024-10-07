@@ -275,6 +275,11 @@ bool GameConfig::GetGenerateDebugInfo() const
     return store_->GetIniBool(GameSection, GenerateDebugInfoKey);
 }
 
+bool GameConfig::GetUsesPolygons(bool defaultValue) const
+{
+    return store_->GetIniBool("Version", "UsesPolygons", defaultValue);
+}
+
 // ResourceLoader
 
 ResourceLoader::ResourceLoader(const GameFolderHelper* parent) : parent_(parent)
@@ -542,12 +547,6 @@ std::string GameFolderHelper::GetHelpFolder()
     }
     helpFolder += "Help";
     return helpFolder;
-}
-
-bool GameFolderHelper::GetIniBool(const std::string& sectionName,
-                                  const std::string& keyName, bool value) const
-{
-    return config_store_->GetIniBool(sectionName, keyName, value);
 }
 
 bool GameFolderHelper::DoesSectionExistWithEntries(
