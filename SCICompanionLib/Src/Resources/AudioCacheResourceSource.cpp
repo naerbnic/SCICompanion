@@ -340,9 +340,7 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
     if ((_mapContext == -1) || (mapEntry.ExtraData == NoSync36Present))
     {
         // Regular audio files, or audio36 files with no companion sync36
-        ScopedFile cacheFile(fullPath, GENERIC_READ, FILE_SHARE_READ,
-                             OPEN_EXISTING);
-        sci::istream readStream = sci::istream::ReadFromFile(cacheFile.hFile);
+        sci::istream readStream = sci::istream::ReadFromFile(fullPath);
         // Keep alive during enumeration
 
         readStream.seekg(mapEntry.Offset);
@@ -552,11 +550,9 @@ void AudioCacheResourceSource::MaybeAddNegative(ResourceEntity& resource)
             _version) + ".wav";
         if (PathFileExists(fullPath.c_str()))
         {
-            ScopedFile scopedFile(fullPath, GENERIC_READ, FILE_SHARE_READ,
-                                  OPEN_EXISTING);
             std::unique_ptr<AudioNegativeComponent> negative = std::make_unique<
                 AudioNegativeComponent>();
-            AudioComponentFromWaveFile(sci::istream::ReadFromFile(scopedFile.hFile), negative->Audio,
+            AudioComponentFromWaveFile(sci::istream::ReadFromFile(fullPath), negative->Audio,
                                        &negative->Settings);
             resource.AddComponent(std::move(negative));
         }

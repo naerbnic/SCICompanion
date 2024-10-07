@@ -56,8 +56,7 @@ bool HasWaveHeader(const std::string &filename)
 {
     try
     { 
-        ScopedFile scoped(filename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        sci::istream stream = sci::istream::ReadFromFile(scoped.hFile);
+        sci::istream stream = sci::istream::ReadFromFile(filename);
         uint32_t riff;
         stream >> riff;
         return riff == (*(uint32_t*)riffMarker);
@@ -381,8 +380,7 @@ AudioVolumeName GetVolumeToUse(SCIVersion version, uint32_t base36Number)
 std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string &filename)
 {
     std::unique_ptr<ResourceEntity> resource(CreateDefaultAudioResource(appState->GetVersion()));
-    ScopedFile scopedFile(filename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-    AudioComponentFromWaveFile(sci::istream::ReadFromFile(scopedFile.hFile), resource->GetComponent<AudioComponent>());
+    AudioComponentFromWaveFile(sci::istream::ReadFromFile(filename), resource->GetComponent<AudioComponent>());
     resource->SourceFlags = ResourceSourceFlags::AudioCache;
     return resource;
 }

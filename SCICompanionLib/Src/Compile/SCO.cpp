@@ -766,9 +766,8 @@ unique_ptr<CSCOFile> GetExistingSCOFromScriptNumber(const GameFolderHelper &help
     string objectFilename = helper.GetScriptObjectFileName(number);
     if (!objectFilename.empty() && PathFileExists(objectFilename.c_str()))
     {
-        ScopedFile scoped(objectFilename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
         sco = make_unique<CSCOFile>();
-        sco->Load(sci::istream::ReadFromFile(scoped.hFile), selectors);
+        sco->Load(sci::istream::ReadFromFile(objectFilename), selectors);
     }
     return sco;
 }

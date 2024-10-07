@@ -66,8 +66,7 @@ void SavePALFile(const std::string &filename, PaletteComponent &palette, int sta
 
 void LoadPALFile(const std::string &filename, PaletteComponent &palette, int startIndex)
 {
-    ScopedFile file(filename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-    sci::istream byteStream = sci::istream::ReadFromFile(file.hFile);
+    sci::istream byteStream = sci::istream::ReadFromFile(filename);
     uint32_t riff, pal, dataSize, chunk, chunkSize;
     byteStream >> riff;
     byteStream >> dataSize;

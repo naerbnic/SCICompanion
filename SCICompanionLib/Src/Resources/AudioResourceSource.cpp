@@ -114,16 +114,16 @@ AudioVolumeName AudioResourceSource::_GetVolumeToUse(uint32_t base36Number)
 
 sci::istream AudioResourceSource::_GetAudioVolume(uint32_t base36Number)
 {
+    auto volume_path = _GetAudioVolumePath(false, _GetVolumeToUse(base36Number), &_sourceFlags);
     if (IsFlagSet(_access, ResourceSourceAccessFlags::ReadWrite))
     {
-        // If we want to eventually write using this same ResourceSource, then use the version of streamOwner that copies the file.
-        ScopedFile scoped(_GetAudioVolumePath(false, _GetVolumeToUse(base36Number), &_sourceFlags), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        return sci::istream::ReadFromFile(scoped.hFile);
+        // If we want to eventually write using this same ResourceSource, then read the file to memory
+        return sci::istream::ReadFromFile(volume_path);
     }
     else
     {
         // We can use a memory mapped file for optimum performance.
-        return sci::istream::MapFile(_GetAudioVolumePath(false, _GetVolumeToUse(base36Number), &_sourceFlags));
+        return sci::istream::MapFile(volume_path);
     }
 }
 

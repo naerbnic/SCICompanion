@@ -76,6 +76,7 @@ class istream
 public:
     static istream MapFile(const std::string& filename);
     static istream ReadFromFile(HANDLE hFile, DWORD lengthToInclude = 0);
+    static istream ReadFromFile(const std::string& filename, DWORD lengthToInclude = 0);
     istream(const uint8_t* pData, uint32_t cbSize);
     istream(const istream& original, uint32_t absoluteOffset);
     istream();

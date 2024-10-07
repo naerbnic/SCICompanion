@@ -353,7 +353,16 @@ istream istream::ReadFromFile(HANDLE hFile, DWORD lengthToInclude)
     }
 
     return istream(std::move(impl));
-
+}
+istream istream::ReadFromFile(const std::string& filename, DWORD lengthToInclude)
+{
+    auto file_handle = ScopedHandle(CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
+        nullptr, OPEN_EXISTING, 0, nullptr));
+    if (!file_handle.IsValid())
+    {
+        throw std::exception("Unable to open file.");
+    }
+    return ReadFromFile(file_handle.GetValue(), lengthToInclude);
 }
 
 istream::istream(const uint8_t* pData, uint32_t cbSize) : 

@@ -150,8 +150,7 @@ struct FileDescriptorBase
 
     sci::istream OpenMap() const
     {
-        ScopedFile scoped(_GetMapFilename(), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        return sci::istream::ReadFromFile(scoped.hFile);
+        return sci::istream::ReadFromFile(_GetMapFilename());
     }
 
     bool DoesMapExist() const
@@ -161,8 +160,7 @@ struct FileDescriptorBase
 
     sci::istream OpenVolume(int volumeNumber) const
     {
-        ScopedFile scoped(_GetVolumeFilename(volumeNumber), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-        return sci::istream::ReadFromFile(scoped.hFile);
+        return sci::istream::ReadFromFile(_GetVolumeFilename(volumeNumber));
     }
 
     bool DoesVolumeExist(int volumeNumber) const

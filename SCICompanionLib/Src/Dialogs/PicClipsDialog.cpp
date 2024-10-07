@@ -333,8 +333,7 @@ void PicClipsDialog::OnCbnSelchangeFiles()
         {
             // Load clips from file.
             std::string filename = _fileNames[curSel];
-            ScopedFile scoped(filename, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING);
-            sci::istream reader = sci::istream::ReadFromFile(scoped.hFile);
+            sci::istream reader = sci::istream::ReadFromFile(filename);
 
             std::vector<std::unique_ptr<PicClip>> newClips;
             int count;
