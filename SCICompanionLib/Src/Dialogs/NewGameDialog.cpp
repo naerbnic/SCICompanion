@@ -221,8 +221,7 @@ void NewGameDialog::OnBnClickedOk()
         if (fContinue)
         {
             // Set the game language.
-            auto helper = GameFolderHelper::Create();
-            helper->SetGameFolder(szPath);
+            auto helper = GameFolderHelper::Create(szPath);
             helper->SetIniString(GameSection, LanguageKey, (lang == LangSyntaxSCI) ? LanguageValueSCI : LanguageValueStudio);
         }
         if (!fContinue)

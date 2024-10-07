@@ -293,6 +293,14 @@ std::shared_ptr<GameFolderHelper> GameFolderHelper::Create()
     return std::shared_ptr<GameFolderHelper>(new GameFolderHelper());
 }
 
+std::shared_ptr<GameFolderHelper> GameFolderHelper::Create(const std::string& game_folder)
+{
+    auto helper = std::shared_ptr<GameFolderHelper>(new GameFolderHelper());
+    helper->SetGameFolder(game_folder);
+    return helper;
+
+}
+
 GameFolderHelper::GameFolderHelper()
     : Language(LangSyntaxUnknown),
       resource_loader_(std::make_unique<ResourceLoader>(this))

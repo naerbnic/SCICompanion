@@ -681,8 +681,7 @@ void RebuildFromResources(const SCIVersion& version,
                           AudioMapComponent& audioMap, int number,
                           std::ostream& writeStream)
 {
-    auto helper = GameFolderHelper::Create();
-    helper->SetGameFolder(gameFolder);
+    auto helper = GameFolderHelper::Create(gameFolder);
 
     // First, cache all the blobs
     std::unordered_map<uint64_t, std::unique_ptr<ResourceBlob>> blobs;

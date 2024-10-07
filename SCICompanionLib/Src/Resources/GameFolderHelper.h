@@ -86,6 +86,7 @@ class GameFolderHelper : public std::enable_shared_from_this<GameFolderHelper>
 {
 public:
     static std::shared_ptr<GameFolderHelper> Create();
+    static std::shared_ptr<GameFolderHelper> Create(const std::string& game_folder);
 
     GameFolderHelper(const GameFolderHelper& orig) = delete;
     GameFolderHelper(GameFolderHelper&& orig) = delete;
