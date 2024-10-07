@@ -59,55 +59,36 @@ int CNewScriptDialog::_GetSuggestedScriptNumber()
 
 void CNewScriptDialog::_PrepareDialog()
 {
-    int iSuggestedRoom = 0;
-
     // Look through game.ini for a vacant room number.
     DWORD nSize = 5000;
-    TCHAR *pszNameValues = new TCHAR[nSize];
-    if (pszNameValues)
+    auto pszNameValues = std::make_unique<TCHAR[]>(nSize);
+    auto const& config_store = appState->GetResourceMap().Helper().GetConfigStore();
+    auto section_entries = config_store.GetSectionEntries("Script");
+    _usedScriptNumbers.clear();
+
+    for (auto const& [key, value] : section_entries)
     {
-        std::string iniFileName = appState->GetResourceMap().Helper().GetGameIniFileName();
-        if (!iniFileName.empty())
+        std::string_view key_view(key);
+        std::string_view value_view(value);
+        // The format is
+        // n000, ScriptName
+        std::string number_text(key_view.substr(1));
+        _DiscoveredScriptName(number_text.c_str());
+
+        int iScript = StrToInt(number_text.c_str());
+
+        // Take note of the script number.
+        if (iScript >= 0)
         {
-            DWORD nLength =  GetPrivateProfileSection(TEXT("Script"), pszNameValues, nSize, iniFileName.c_str());
-            if (nLength > 0 && ((nSize - 2) != nLength)) // returns (nSize - 2) in case of insufficient buffer 
+            // We can end up with turd entries lying around in game.ini, so check that the file actually exists:
+            std::string filename = appState->GetResourceMap().Helper().GetScriptFileName(static_cast<uint16_t>(iScript));
+            if (PathFileExists(filename.c_str()))
             {
-                // Keep track of which script numbers have been used.
-                _usedScriptNumbers.clear();
-
-                TCHAR *psz = pszNameValues;
-                while(*psz)
-                {
-                    // The format is
-                    // n000=ScriptName
-                    size_t cch = strlen(psz);
-                    TCHAR *pszEq = StrChr(psz, TEXT('='));
-                    if (pszEq)
-                    {
-                        _DiscoveredScriptName(pszEq + 1);
-                    }
-
-                    // Take note of the script number.
-                    int iScript = StrToInt(psz + 1);
-                    if (iScript >= 0)
-                    {
-                        // We can end up with turd entries lying around in game.ini, so check that the file actually exists:
-                        std::string filename = appState->GetResourceMap().Helper().GetScriptFileName((uint16_t)iScript);
-                        if (PathFileExists(filename.c_str()))
-                        {
-                            _usedScriptNumbers.insert(iScript);
-                        }
-                    }
-
-                    // Advance to next string.
-                    psz += (cch + 1);
-                }
-
-                iSuggestedRoom = _GetSuggestedScriptNumber();
+                _usedScriptNumbers.insert(iScript);
             }
         }
-        delete [] pszNameValues;
     }
+    int iSuggestedRoom = _GetSuggestedScriptNumber();
 
     // Suggest a room:
     TCHAR szNumber[5];

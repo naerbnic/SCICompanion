@@ -90,13 +90,70 @@ public:
         SetIniString(sectionName, keyName, value ? TrueValue : FalseValue);
     }
 
-    bool DoesSectionExistWithEntries(const std::string& sectionName) const override
+    bool DoesSectionExistWithEntries(
+        const std::string& sectionName) const override
     {
         char sz[200];
         return (GetPrivateProfileSection(sectionName.c_str(), sz,
-            (DWORD)ARRAYSIZE(sz),
-            config_file_path_.c_str()) > 0);
-        
+                                         (DWORD)ARRAYSIZE(sz),
+                                         config_file_path_.c_str()) > 0);
+    }
+
+    std::map<std::string, std::string> GetSectionEntries(
+        const std::string& sectionName) const override
+    {
+        constexpr std::size_t INITIAL_SIZE = 32 * 1024;
+        constexpr std::size_t MAX_SIZE = 1 * 1024 * 1024;
+
+        auto curr_size = INITIAL_SIZE;
+
+        std::unique_ptr<TCHAR[]> buffer;
+        while (true)
+        {
+            if (curr_size > MAX_SIZE)
+            {
+                throw std::runtime_error("Section too large");
+            }
+            buffer = std::make_unique<char[]>(INITIAL_SIZE);
+            auto read_size = GetPrivateProfileSection(
+                sectionName.c_str(), buffer.get(), curr_size,
+                config_file_path_.c_str());
+            if (read_size < curr_size - 2)
+            {
+                break;
+            }
+            curr_size *= 2;
+        }
+
+        std::map<std::string, std::string> entries;
+
+        const TCHAR* curr_ptr = buffer.get();
+        const TCHAR* end_ptr = curr_ptr + curr_size;
+        while (curr_ptr < end_ptr && *curr_ptr)
+        {
+            const auto* entry_end = static_cast<const TCHAR*>(std::memchr(curr_ptr, '\0', end_ptr - curr_ptr));
+            if (!entry_end)
+            {
+                throw std::runtime_error("Invalid section buffer");
+            }
+            std::size_t entry_length = entry_end - curr_ptr;
+            const auto* key_end = static_cast<const TCHAR*>(std::memchr(curr_ptr, '=', entry_end - curr_ptr));
+            if (!key_end)
+            {
+                throw std::runtime_error("Could not find key in entry");
+            }
+            std::string_view key(curr_ptr, key_end - curr_ptr);
+            std::string_view value(key_end + 1, entry_end - key_end - 1);
+            entries.emplace(std::string(key), std::string(value));
+            curr_ptr = entry_end + 1;
+        }
+
+        if (curr_ptr >= end_ptr)
+        {
+            throw std::runtime_error("Invalid section buffer");
+        }
+
+        return entries;
     }
 
 private:
@@ -302,12 +359,12 @@ std::shared_ptr<GameFolderHelper> GameFolderHelper::Create()
     return std::shared_ptr<GameFolderHelper>(new GameFolderHelper());
 }
 
-std::shared_ptr<GameFolderHelper> GameFolderHelper::Create(const std::string& game_folder)
+std::shared_ptr<GameFolderHelper> GameFolderHelper::Create(
+    const std::string& game_folder)
 {
     auto helper = std::shared_ptr<GameFolderHelper>(new GameFolderHelper());
     helper->SetGameFolder(game_folder);
     return helper;
-
 }
 
 GameFolderHelper::GameFolderHelper()

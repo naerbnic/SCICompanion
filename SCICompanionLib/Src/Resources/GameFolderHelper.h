@@ -59,6 +59,8 @@ public:
     virtual void SetIniBool(const std::string& sectionName,
                             const std::string& keyName, bool value) const = 0;
     virtual bool DoesSectionExistWithEntries(const std::string& sectionName) const = 0;
+    virtual std::map<std::string, std::string> GetSectionEntries(
+        const std::string& sectionName) const = 0;
 };
 
 class ResourceLoader
@@ -157,6 +159,11 @@ public:
 
     LangSyntax GetLanguage() const { return Language; }
     void SetLanguage(LangSyntax language) { Language = language; }
+
+    const GameConfigStore& GetConfigStore() const
+    {
+        return *config_store_;
+    }
 
     const ResourceLoader& GetResourceLoader() const
     {
