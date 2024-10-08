@@ -53,10 +53,12 @@
 #include "ResourceSources.h"
 #include "ResourceMapOperations.h"
 #include "AudioProcessingSettings.h"
+#include "DebuggerThread.h"
 #include "ResourceBlob.h"
 #include "SyntaxParser.h"
 #include "ImageUtil.h"
 #include "DependencyTracker.h"
+#include "PostBuildThread.h"
 
 // The one and only
 extern AppState *appState;
@@ -652,7 +654,7 @@ void AppState::TerminateDebuggedProcess()
             AfxMessageBox("Unable to terminate process.", MB_OK | MB_ICONERROR);
         }
         _hProcessDebugged.Close();
-        GetResourceMap().AbortDebuggerThread();
+        AbortDebuggerThread();
     }
 }
 
@@ -666,7 +668,7 @@ bool AppState::IsProcessBeingDebugged()
         if (!stillRunning)
         {
             _hProcessDebugged.Close();
-            GetResourceMap().AbortDebuggerThread();
+            AbortDebuggerThread();
         }
     }
     return stillRunning;
@@ -706,6 +708,7 @@ void AppState::SetGameFolder(PCSTR pszGameFolder)
     // Set this folder as our new game folder
     _dependencyTracker->Clear();
     _runLogic.SetGameFolder(pszGameFolder);
+    AbortDebuggerThread();
     _resourceMap.SetGameFolder(pszGameFolder);
     _fUseOriginalAspectRatioCached = _resourceMap.Helper().GetUseSierraAspectRatio(!!appState->_fUseOriginalAspectRatioDefault);
     LogInfo(TEXT("Open game: %s"), (PCTSTR)pszGameFolder);
@@ -734,6 +737,31 @@ RunLogic& AppState::GetRunLogic()
     return _runLogic;
 }
 
+void AppState::StartPostBuildThread()
+{
+    if (_postBuildThread)
+    {
+        _postBuildThread->Abort();
+        _postBuildThread.reset();
+    }
+    _postBuildThread = CreatePostBuildThread(_resourceMap.Helper().GetGameFolder());
+}
+
+void AppState::StartDebuggerThread(int optionalResourceNumber)
+{
+    AbortDebuggerThread();
+    _debuggerThread = CreateDebuggerThread(_resourceMap.Helper().GetGameFolder(), optionalResourceNumber);
+}
+
+void AppState::AbortDebuggerThread()
+{
+    if (_debuggerThread)
+    {
+        _debuggerThread->Abort();
+        _debuggerThread.reset();
+    }
+}
+
 void AppState::RunGame(bool debug, int optionalResourceNumber)
 {
     if (GetResourceMap().IsGameLoaded())
@@ -754,7 +782,7 @@ void AppState::RunGame(bool debug, int optionalResourceNumber)
         {
             if (debug)
             {
-                GetResourceMap().StartDebuggerThread(optionalResourceNumber);
+                StartDebuggerThread(optionalResourceNumber);
             }
 
             std::string errors;
@@ -762,7 +790,7 @@ void AppState::RunGame(bool debug, int optionalResourceNumber)
             if (!GetRunLogic().RunGame(errors, hProcess))
             {
                 AfxMessageBox(errors.c_str(), MB_OK | MB_APPLMODAL | MB_ICONEXCLAMATION);
-                GetResourceMap().AbortDebuggerThread();
+                AbortDebuggerThread();
             }
             else
             {

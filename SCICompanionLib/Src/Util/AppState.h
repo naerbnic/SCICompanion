@@ -147,6 +147,8 @@ public:
 
     RunLogic& GetRunLogic();
 
+    void StartPostBuildThread();
+
     void RunGame(bool debug, int optionalResourceNumber);
 
     // ISCIAppServices
@@ -264,6 +266,13 @@ public: // TODO for now
 
     std::unique_ptr<DependencyTracker> _dependencyTracker;
     std::unique_ptr<SCIClassBrowser> _classBrowser;
+
+private:
+    void StartDebuggerThread(int optionalResourceNumber);
+    void AbortDebuggerThread();
+
+    std::shared_ptr<DebuggerThread> _debuggerThread;
+    std::shared_ptr<PostBuildThread> _postBuildThread;
 };
 
 extern AppState *appState;

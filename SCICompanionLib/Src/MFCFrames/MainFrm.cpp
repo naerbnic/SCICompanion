@@ -1925,8 +1925,7 @@ void PurgeUnnecessaryResources()
             statResults.emplace_back(result, CompileResult::CompileResultType::CRT_Message);
         }
         appState->OutputResults(OutputPaneType::Compile, statResults);
-
-        appState->GetResourceMap().StartPostBuildThread();
+        appState->StartPostBuildThread();
         appState->GetResourceMap().PokeResourceMapReloaded();
     }
 }

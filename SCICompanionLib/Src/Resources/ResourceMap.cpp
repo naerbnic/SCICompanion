@@ -362,33 +362,12 @@ bool CResourceMap::IsResourceCompatible(const ResourceBlob &resource)
     return ::IsResourceCompatible(_version, resource);
 }
 
-void CResourceMap::StartPostBuildThread()
-{
-    AbortPostBuildThread();
-    _postBuildThread = CreatePostBuildThread(Helper().GetGameFolder());
-}
-
-void CResourceMap::AbortPostBuildThread()
-{
-    if (_postBuildThread)
-    {
-        _postBuildThread->Abort();
-        _postBuildThread.reset();
-    }
-}
-
 void CResourceMap::PokeResourceMapReloaded()
 {
     // Refresh everything.
     for_each(_syncs.begin(), _syncs.end(), [&](IResourceMapEvents *events) {
       events->OnResourceMapReloaded(false);
     });
-}
-
-void CResourceMap::StartDebuggerThread(int optionalResourceNumber)
-{
-    AbortDebuggerThread();
-    _debuggerThread = CreateDebuggerThread(Helper().GetGameFolder(), optionalResourceNumber);
 }
  
 void CResourceMap::RepackageAudio(bool force)
@@ -400,15 +379,6 @@ void CResourceMap::RepackageAudio(bool force)
         std::map<ResourceType, RebuildStats> stats;
         std::unique_ptr<ResourceSource> resourceSource = CreateResourceSource(_version, ResourceTypeFlags::All, _gameFolderHelper, ResourceSourceFlags::AudioCache);
         resourceSource->RebuildResources(force, *resourceSource, stats);
-    }
-}
-
-void CResourceMap::AbortDebuggerThread()
-{
-    if (_debuggerThread)
-    {
-        _debuggerThread->Abort();
-        _debuggerThread.reset();
     }
 }
 
@@ -1284,8 +1254,6 @@ void CResourceMap::SetGameFolder(const string &gameFolder)
             AfxThrowUserException();
         }
     }
-
-    AbortDebuggerThread();
 
     if (_appServices)
     {

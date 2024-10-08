@@ -132,11 +132,6 @@ public:
 
     bool IsResourceCompatible(const ResourceBlob &resource);
 
-    void StartDebuggerThread(int optionalResourceNumber);
-    void AbortDebuggerThread();
-
-    void StartPostBuildThread();
-    void AbortPostBuildThread();
     void PokeResourceMapReloaded();
 
     void RepackageAudio(bool force = false);
@@ -181,9 +176,6 @@ private:
     bool _skipVersionSniffOnce;                     // Skip version sniffing when loading a game the next time.
 
     std::string _includeFolderOverride;             // For unit-testing
-
-    std::shared_ptr<DebuggerThread> _debuggerThread;
-    std::shared_ptr<PostBuildThread> _postBuildThread;
 
     SCIVersion _version;
 };
