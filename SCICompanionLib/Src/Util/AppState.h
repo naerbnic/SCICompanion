@@ -149,6 +149,9 @@ public:
 
     void StartPostBuildThread();
 
+    void AppendResourceAskForNumber(ResourceEntity& resource, const std::string& name, bool warnOnOverwrite = false);
+    HRESULT AppendResourceAskForNumber(ResourceBlob& resource, bool warnOnOverwrite);
+
     void RunGame(bool debug, int optionalResourceNumber);
 
     // ISCIAppServices

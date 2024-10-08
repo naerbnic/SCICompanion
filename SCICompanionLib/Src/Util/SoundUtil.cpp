@@ -384,10 +384,3 @@ std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string &file
     resource->SourceFlags = ResourceSourceFlags::AudioCache;
     return resource;
 }
-
-void AddWaveFileToGame(const std::string &filename)
-{
-    std::unique_ptr<ResourceEntity> resource = WaveResourceFromFilename(filename);
-    appState->GetResourceMap().AppendResourceAskForNumber(*resource, _NameFromFilename(filename.c_str()));
-}
-

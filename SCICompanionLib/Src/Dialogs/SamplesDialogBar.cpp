@@ -239,7 +239,7 @@ void CSamplesDialogBar::_ResetUI()
 void CSamplesDialogBar::OnGotoView(UINT nID)
 {
     ResourceBlob &blob = *_samples[nID - ID_GOTOVIEW1];
-    appState->GetResourceMap().AppendResourceAskForNumber(blob, true);
+    appState->AppendResourceAskForNumber(blob, true);
 }
 
 

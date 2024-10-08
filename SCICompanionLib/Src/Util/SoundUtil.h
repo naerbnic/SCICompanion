@@ -26,7 +26,6 @@ extern const int MaxSierraSampleRate;
 void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, AudioProcessingSettings *audioProcessingSettings = nullptr, int maxSampleRate = MaxSierraSampleRate, bool limitTo8Bit = false);
 std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string &filename);
 std::string _NameFromFilename(PCSTR pszFilename);
-void AddWaveFileToGame(const std::string &filename);
 AudioVolumeName GetVolumeToUse(SCIVersion version, uint32_t base36Number);
 std::string GetAudioVolumePath(const std::string &gameFolder, bool bak, AudioVolumeName volumeToUse, ResourceSourceFlags *sourceFlags = nullptr);
 bool IsWaveFile(PCSTR pszFileName);

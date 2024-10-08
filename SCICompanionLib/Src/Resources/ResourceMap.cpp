@@ -16,7 +16,6 @@
 #include "ResourceContainer.h"
 #include "ResourceMap.h"
 #include "ResourceRecency.h"
-#include "SaveResourceDialog.h"
 #include "View.h"
 #include "Cursor.h"
 #include "Font.h"
@@ -35,8 +34,6 @@
 #include "MessageHeaderFile.h"
 #include "format.h"
 #include "ResourceMapEvents.h"
-#include "DebuggerThread.h"
-#include "PostBuildThread.h"
 #include "ResourceBlob.h"
 #include "VersionDetectionHelper.h"
 
@@ -379,61 +376,6 @@ void CResourceMap::RepackageAudio(bool force)
         std::map<ResourceType, RebuildStats> stats;
         std::unique_ptr<ResourceSource> resourceSource = CreateResourceSource(_version, ResourceTypeFlags::All, _gameFolderHelper, ResourceSourceFlags::AudioCache);
         resourceSource->RebuildResources(force, *resourceSource, stats);
-    }
-}
-
-void CResourceMap::AppendResourceAskForNumber(ResourceEntity &resource)
-{
-    AppendResourceAskForNumber(resource, "", false);
-}
-
-void CResourceMap::AppendResourceAskForNumber(ResourceEntity &resource, const std::string &name, bool warnOnOverwrite)
-{
-    // Invoke dialog to suggest/ask for a resource number
-    SaveResourceDialog srd(warnOnOverwrite, resource.GetType());
-    srd.Init(-1, SuggestResourceNumber(resource.GetType()), name);
-    if (IDOK == srd.DoModal())
-    {
-        // Assign it.
-        resource.ResourceNumber = srd.GetResourceNumber();
-        resource.PackageNumber = srd.GetPackageNumber();
-        AssignName(resource.GetType(), resource.ResourceNumber, NoBase36, srd.GetName().c_str());
-        AppendResource(resource);
-    }
-}
-
-//
-// Ask the user where to save the resource... and then save it.
-//
-HRESULT CResourceMap::AppendResourceAskForNumber(ResourceBlob &resource, bool warnOnOverwrite)
-{
-    if (!IsVersionCompatible(resource.GetType(), resource.GetVersion(), GetSCIVersion()))
-    {
-        if (IDNO == AfxMessageBox("The version of the resource being added does not match the version of the game.\nAdding it might cause the game to be corrupted.\nDo you want to go ahead anyway?", MB_YESNO))
-        {
-            return E_FAIL;
-        }
-    }
-    // Invoke dialog to suggest/ask for a resource number
-    SaveResourceDialog srd(warnOnOverwrite, resource.GetType());
-    srd.Init(-1, SuggestResourceNumber(resource.GetType()), resource.GetName());
-    if (IDOK == srd.DoModal())
-    {
-        // Assign it.
-        resource.SetNumber(srd.GetResourceNumber());
-        resource.SetPackage(srd.GetPackageNumber());
-        resource.SetName(nullptr);
-        if (!srd.GetName().empty())
-        {
-            resource.SetName(srd.GetName().c_str());
-        }
-
-        // Save it.
-        return AppendResource(resource);
-    }
-    else
-    {
-        return E_FAIL; // User cancelled.
     }
 }
 

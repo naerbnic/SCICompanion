@@ -48,6 +48,12 @@
 #define new DEBUG_NEW
 #endif
 
+static void AddWaveFileToGame(const std::string& filename)
+{
+    std::unique_ptr<ResourceEntity> resource = WaveResourceFromFilename(filename);
+    appState->AppendResourceAskForNumber(*resource, _NameFromFilename(filename.c_str()));
+}
+
 typedef CDocument*(* PFNRESOURCEOPEN )(const ResourceBlob *pData);
 CDocument* g_OpenScript(const ResourceBlob *pData)
 {
@@ -637,7 +643,7 @@ void DropResourceFiles(CArray<CString, CString&> *pDropFiles)
                 StringCchCopy(szName, ARRAYSIZE(szName), PathFindFileName(pDropFiles->GetAt(i)));
                 *PathFindExtension(szName) = 0; // cut off extension.
                 data->SetName(szName);
-                appState->GetResourceMap().AppendResourceAskForNumber(*data, false);
+                appState->AppendResourceAskForNumber(*data, false);
             }
             else
             {
@@ -686,7 +692,7 @@ void DropResourceFiles(CArray<CString, CString&> *pDropFiles)
 
                 if (askForNumber)
                 {
-                    appState->GetResourceMap().AppendResourceAskForNumber(data, true);
+                    appState->AppendResourceAskForNumber(data, true);
                 }
                 else
                 {

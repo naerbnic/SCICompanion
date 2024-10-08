@@ -59,6 +59,7 @@
 #include "ImageUtil.h"
 #include "DependencyTracker.h"
 #include "PostBuildThread.h"
+#include "SaveResourceDialog.h"
 
 // The one and only
 extern AppState *appState;
@@ -745,6 +746,54 @@ void AppState::StartPostBuildThread()
         _postBuildThread.reset();
     }
     _postBuildThread = CreatePostBuildThread(_resourceMap.Helper().GetGameFolder());
+}
+
+void AppState::AppendResourceAskForNumber(ResourceEntity& resource, const std::string& name, bool warnOnOverwrite)
+{
+    // Invoke dialog to suggest/ask for a resource number
+    SaveResourceDialog srd(warnOnOverwrite, resource.GetType());
+    srd.Init(-1, _resourceMap.SuggestResourceNumber(resource.GetType()), name);
+    if (IDOK == srd.DoModal())
+    {
+        // Assign it.
+        resource.ResourceNumber = srd.GetResourceNumber();
+        resource.PackageNumber = srd.GetPackageNumber();
+        _resourceMap.AssignName(resource.GetType(), resource.ResourceNumber, NoBase36, srd.GetName().c_str());
+        _resourceMap.AppendResource(resource);
+    }
+}
+
+HRESULT AppState::AppendResourceAskForNumber(ResourceBlob& resource,
+    bool warnOnOverwrite)
+{
+    if (!IsVersionCompatible(resource.GetType(), resource.GetVersion(), _resourceMap.GetSCIVersion()))
+    {
+        if (IDNO == AfxMessageBox("The version of the resource being added does not match the version of the game.\nAdding it might cause the game to be corrupted.\nDo you want to go ahead anyway?", MB_YESNO))
+        {
+            return E_FAIL;
+        }
+    }
+    // Invoke dialog to suggest/ask for a resource number
+    SaveResourceDialog srd(warnOnOverwrite, resource.GetType());
+    srd.Init(-1, _resourceMap.SuggestResourceNumber(resource.GetType()), resource.GetName());
+    if (IDOK == srd.DoModal())
+    {
+        // Assign it.
+        resource.SetNumber(srd.GetResourceNumber());
+        resource.SetPackage(srd.GetPackageNumber());
+        resource.SetName(nullptr);
+        if (!srd.GetName().empty())
+        {
+            resource.SetName(srd.GetName().c_str());
+        }
+
+        // Save it.
+        return _resourceMap.AppendResource(resource);
+    }
+    else
+    {
+        return E_FAIL; // User cancelled.
+    }
 }
 
 void AppState::StartDebuggerThread(int optionalResourceNumber)
