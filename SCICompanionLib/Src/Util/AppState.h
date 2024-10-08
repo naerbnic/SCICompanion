@@ -20,6 +20,7 @@
 #include "ColoredToolTip.h"
 #include "CompileInterfaces.h"
 #include "RunLogic.h"
+#include "GamePropertiesDialog.h"
 
 class AutoCompleteThread2;
 class CScriptView;
@@ -143,6 +144,8 @@ public:
     // Add listeners to the root resource map.
     void AddResourceSync(IResourceMapEvents* pSync);
     void RemoveResourceSync(IResourceMapEvents* pSync);
+
+    RunLogic& GetRunLogic();
 
     void RunGame(bool debug, int optionalResourceNumber);
 

@@ -26,7 +26,7 @@
 // CGamePropertiesDialog dialog
 
 CGamePropertiesDialog::CGamePropertiesDialog(RunLogic &runLogic, CWnd* pParent /*=NULL*/)
-    : CExtNCW<CExtResizableDialog>(CGamePropertiesDialog::IDD, pParent), _runLogic(runLogic), _initialized(false), _wasAspectRatioChanged(false), _gameNeedsReload(false)
+    : CExtNCW<CExtResizableDialog>(IDD_GAMEPROPERTIESDIALOG, pParent), _runLogic(runLogic), _initialized(false), _wasAspectRatioChanged(false), _gameNeedsReload(false)
 {
     _fAspectRatioStart = appState->GetResourceMap().Helper().GetUseSierraAspectRatio(!!appState->_fUseOriginalAspectRatioDefault);
     _fPatchFileStart = appState->GetResourceMap().Helper().GetResourceSaveLocation(ResourceSaveLocation::Default) == ResourceSaveLocation::Patch;

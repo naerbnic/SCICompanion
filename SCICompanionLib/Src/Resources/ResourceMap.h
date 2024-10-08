@@ -20,7 +20,6 @@
 #include "ResourceEntity.h"
 #include "TalkerToViewMap.h"
 
-class RunLogic;
 class DebuggerThread;
 class PostBuildThread;
 struct Vocab000;
@@ -65,8 +64,6 @@ public:
     CResourceMap(CResourceMap&& orig) = delete;
     CResourceMap& operator=(const CResourceMap& other) = delete;
     CResourceMap& operator=(CResourceMap&& other) = delete;
-
-    RunLogic &GetRunLogic();
 
     // ResourceBlob: the raw resource bits already in a ready-to-save format.
     // ResourceEntity: a runtime version of a resource that we can edit.
@@ -189,7 +186,6 @@ private:
     std::shared_ptr<DebuggerThread> _debuggerThread;
     std::shared_ptr<PostBuildThread> _postBuildThread;
 
-    std::unique_ptr<RunLogic> _runLogic;
     SCIVersion _version;
 };
 

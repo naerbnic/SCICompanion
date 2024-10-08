@@ -12,6 +12,7 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #include "stdafx.h"
+
 #include "CppUnitTest.h"
 #include "Helper.h"
 #include "AppState.h"

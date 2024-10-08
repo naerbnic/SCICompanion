@@ -44,7 +44,6 @@
 #include "ResourceMapEvents.h"
 #include "DebuggerThread.h"
 #include "PostBuildThread.h"
-#include "RunLogic.h"
 #include "ResourceBlob.h"
 #include "DependencyTracker.h"
 #include "VersionDetectionHelper.h"
@@ -209,7 +208,6 @@ HRESULT RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, 
 CResourceMap::CResourceMap(ISCIAppServices *appServices, ResourceRecency *resourceRecency) :
     _resourceRecency(resourceRecency), _appServices(appServices), _gameFolderHelper(std::make_shared<GameFolderHelper>()), _version(sciVersion0)
 {
-    _runLogic = std::make_unique<RunLogic>();
     _paletteListNeedsUpdate = true;
     _skipVersionSniffOnce = false;
     _pVocab000 = nullptr;
@@ -1260,17 +1258,11 @@ MessageSource *CResourceMap::GetTalkersMessageSource(bool reload)
     return _talkersHeaderFile->GetMessageSource();
 }
 
-RunLogic &CResourceMap::GetRunLogic()
-{
-    return *_runLogic;
-}
-
 //
 // Called when we open a new game.
 //
 void CResourceMap::SetGameFolder(const string &gameFolder)
 {
-    _runLogic->SetGameFolder(gameFolder);
     _gameFolderHelper->SetGameFolder(gameFolder);
     _talkerToView = TalkerToViewMap(Helper().GetLipSyncFolder());
     ClearVocab000();

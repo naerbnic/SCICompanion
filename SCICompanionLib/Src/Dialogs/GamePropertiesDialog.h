@@ -24,7 +24,6 @@ public:
 	virtual ~CGamePropertiesDialog();
 
 // Dialog Data
-	enum { IDD = IDD_GAMEPROPERTIESDIALOG };
 
     CString _strGameName;
 

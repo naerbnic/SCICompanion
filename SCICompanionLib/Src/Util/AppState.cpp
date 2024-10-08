@@ -705,6 +705,7 @@ void AppState::SetGameFolder(PCSTR pszGameFolder)
 {
     // Set this folder as our new game folder
     _dependencyTracker->Clear();
+    _runLogic.SetGameFolder(pszGameFolder);
     _resourceMap.SetGameFolder(pszGameFolder);
     _fUseOriginalAspectRatioCached = _resourceMap.Helper().GetUseSierraAspectRatio(!!appState->_fUseOriginalAspectRatioDefault);
     LogInfo(TEXT("Open game: %s"), (PCTSTR)pszGameFolder);
@@ -726,6 +727,11 @@ void AppState::AddResourceSync(IResourceMapEvents* pSync)
 void AppState::RemoveResourceSync(IResourceMapEvents* pSync)
 {
     _resourceMap.RemoveSync(pSync);
+}
+
+RunLogic& AppState::GetRunLogic()
+{
+    return _runLogic;
 }
 
 void AppState::RunGame(bool debug, int optionalResourceNumber)
@@ -751,10 +757,9 @@ void AppState::RunGame(bool debug, int optionalResourceNumber)
                 GetResourceMap().StartDebuggerThread(optionalResourceNumber);
             }
 
-            BOOL fShellEx = FALSE;
             std::string errors;
             HANDLE hProcess;
-            if (!GetResourceMap().GetRunLogic().RunGame(errors, hProcess))
+            if (!GetRunLogic().RunGame(errors, hProcess))
             {
                 AfxMessageBox(errors.c_str(), MB_OK | MB_APPLMODAL | MB_ICONEXCLAMATION);
                 GetResourceMap().AbortDebuggerThread();
