@@ -143,8 +143,8 @@ void VerifyFilesInFolder(bool saveAndReload, SCIVersion version, const std::stri
             // Load it back
             sci::istream loadStream(savedStream.GetInternalPointer(), savedStream.GetDataSize());
             ResourceBlob blob;
-            GameFolderHelper dummyHelper;
-            blob.CreateFromBits(dummyHelper, "whatever", resource->GetType(), &loadStream, resource->PackageNumber, resource->ResourceNumber, resource->Base36Number, version, ResourceSourceFlags::PatchFile);
+            auto dummyHelper = GameFolderHelper::Create();
+            blob.CreateFromBits(*dummyHelper, "whatever", resource->GetType(), &loadStream, resource->PackageNumber, resource->ResourceNumber, resource->Base36Number, version, ResourceSourceFlags::PatchFile);
             std::unique_ptr<ResourceEntity> resourceReloaded = CreateResourceFromResourceData(blob, false);
             // Veirfy
             VerifyFileWorker(*resourceReloaded, filenameRaw);

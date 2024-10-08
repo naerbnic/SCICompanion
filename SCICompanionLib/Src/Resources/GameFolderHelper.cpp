@@ -284,6 +284,11 @@ bool ResourceLoader::DoesResourceExist(const SCIVersion& version,
 
 // GameFolderHelper
 
+std::shared_ptr<GameFolderHelper> GameFolderHelper::Create()
+{
+    return std::shared_ptr<GameFolderHelper>(new GameFolderHelper());
+}
+
 GameFolderHelper::GameFolderHelper()
     : Language(LangSyntaxUnknown),
       resource_loader_(std::make_unique<ResourceLoader>(this))

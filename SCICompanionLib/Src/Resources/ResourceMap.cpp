@@ -195,7 +195,7 @@ HRESULT RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, 
 // Helper class for managing resources.
 //
 CResourceMap::CResourceMap(ISCIAppServices *appServices, ResourceRecency *resourceRecency) :
-    _resourceRecency(resourceRecency), _appServices(appServices), _gameFolderHelper(std::make_shared<GameFolderHelper>()), _version(sciVersion0)
+    _resourceRecency(resourceRecency), _appServices(appServices), _gameFolderHelper(GameFolderHelper::Create()), _version(sciVersion0)
 {
     _paletteListNeedsUpdate = true;
     _skipVersionSniffOnce = false;

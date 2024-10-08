@@ -87,7 +87,8 @@ private:
 class GameFolderHelper : public std::enable_shared_from_this<GameFolderHelper>
 {
 public:
-    GameFolderHelper();
+    static std::shared_ptr<GameFolderHelper> Create();
+
     GameFolderHelper(const GameFolderHelper& orig) = delete;
     GameFolderHelper(GameFolderHelper&& orig) = delete;
     GameFolderHelper& operator=(const GameFolderHelper& other) = delete;
@@ -161,6 +162,8 @@ public:
     }
 
 private:
+    GameFolderHelper();
+
     std::string _GetSubfolder(const char* key,
                               const std::string* prefix = nullptr) const;
 
