@@ -256,7 +256,6 @@ class istream::FileImpl : public istream::Impl
 public:
     static std::unique_ptr<Impl> FromFilename(const std::string& filename)
     {
-
         auto file_handle = ScopedHandle(CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
             nullptr, OPEN_EXISTING, 0, nullptr));
         if (!file_handle.IsValid())
@@ -278,14 +277,15 @@ public:
         {
             return nullptr;
         }
-        auto _dataMemoryMapped = ScopedMappedMemory(static_cast<const uint8_t*>(MapViewOfFile(
+        auto dataMemoryMapped = ScopedMappedMemory(static_cast<const uint8_t*>(MapViewOfFile(
             mapping_handle.GetValue(), FILE_MAP_READ, 0, 0, 0)));
-        if (!_dataMemoryMapped)
+        if (!dataMemoryMapped)
         {
             return nullptr;
         }
         
         auto valid_size = dwSize;
+        return std::unique_ptr<Impl>(new FileImpl(std::move(file_handle), std::move(mapping_handle), std::move(dataMemoryMapped), valid_size));
     }
 
     const uint8_t* GetDataBuffer() const override
