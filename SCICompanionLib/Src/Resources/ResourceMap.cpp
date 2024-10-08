@@ -15,8 +15,6 @@
 #include "stdafx.h"
 #include "ResourceContainer.h"
 #include "ResourceMap.h"
-
-#include "AppState.h"
 #include "ResourceRecency.h"
 #include "SaveResourceDialog.h"
 #include "RemoveScriptDialog.h"

@@ -29,6 +29,7 @@
 #include "SoundToolboxSidePane.h"
 #include "MessageSidePane.h"
 
+class AppState;
 class CNewScriptDialog;
 class GenerateDocsDialog;
 class DependencyTracker;

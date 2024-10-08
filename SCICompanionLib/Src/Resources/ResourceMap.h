@@ -27,7 +27,6 @@ struct AudioMapComponent;
 struct PaletteComponent;
 class MessageSource;
 class MessageHeaderFile;
-class AppState;
 
 // FWD declaration
 class ResourceContainer;
