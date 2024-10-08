@@ -137,6 +137,13 @@ public:
     std::string GetGameName();
     void SetGameName(PCTSTR pszName);
 
+    void SetGameFolder(PCSTR pszGameFolder);
+    void CloseGameFolder();
+
+    // Add listeners to the root resource map.
+    void AddResourceSync(IResourceMapEvents* pSync);
+    void RemoveResourceSync(IResourceMapEvents* pSync);
+
     void RunGame(bool debug, int optionalResourceNumber);
 
     // ISCIAppServices

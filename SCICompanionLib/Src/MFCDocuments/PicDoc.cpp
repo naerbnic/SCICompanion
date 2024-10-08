@@ -53,8 +53,7 @@ END_MESSAGE_MAP()
 CPicDoc::CPicDoc() : _previewPalette(nullptr), _showPolygons(false), _currentPolyIndex(-1), _fakeEgoResourceNumber(-1), _dependencyTracker(nullptr), _isUndithered(false)
 {
     // Add ourselves as a sync
-    CResourceMap &map = appState->GetResourceMap();
-    map.AddSync(this);
+    appState->AddResourceSync(this);
 }
 
 CPicDoc::~CPicDoc()

@@ -40,7 +40,7 @@ std::string SetUpGame(const std::string &name)
     CopyFilesOver(nullptr, srcGameFolder, gameFolder);
 
     appState = new AppState(nullptr);
-    appState->GetResourceMap().SetGameFolder(gameFolder);
+    appState->SetGameFolder(gameFolder.c_str());
 
     // Normally ResourceMap uses the module filename for this. But unit tests are run from another exe.
     std::string exeFolder = szPath;

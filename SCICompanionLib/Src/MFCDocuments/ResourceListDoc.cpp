@@ -30,8 +30,7 @@ IMPLEMENT_DYNCREATE(CResourceListDoc, CDocument)
 CResourceListDoc::CResourceListDoc() : _shownResourceType(ResourceType::None)
 {
     // Add ourselves as a sync
-    CResourceMap &map = appState->GetResourceMap();
-    map.AddSync(this);
+    appState->AddResourceSync(this);
 }
 
 BOOL CResourceListDoc::OnOpenDocument(LPCTSTR lpszPathName)
@@ -53,17 +52,11 @@ BOOL CResourceListDoc::OnNewDocument()
 
 void CResourceListDoc::OnCloseDocument()
 {
-    std::string strEmpty;
-    appState->GetDependencyTracker().Clear();
-    appState->GetResourceMap().SetGameFolder(strEmpty);
+    appState->CloseGameFolder();
 
     // Remove ourselves as a sync
     CResourceMap &map = appState->GetResourceMap();
     map.RemoveSync((IResourceMapEvents*)this);
-
-    appState->ResetClassBrowser();
-
-    appState->ClearResourceManagerDoc();
 
     __super::OnCloseDocument();
 }
@@ -185,12 +178,7 @@ void CResourceListDoc::Serialize(CArchive& ar)
             path.SetAt(iFileOffset, 0); // Null terminate it
 
             // Set this folder as our new game folder
-            CResourceMap &map = appState->GetResourceMap();
-            appState->GetDependencyTracker().Clear();
-            map.SetGameFolder((PCSTR)path);
-            appState->_fUseOriginalAspectRatioCached = map.Helper().GetUseSierraAspectRatio(!!appState->_fUseOriginalAspectRatioDefault);
-
-            appState->LogInfo(TEXT("Open game: %s"), (PCTSTR)path);
+            appState->SetGameFolder((PCSTR)path);
 
             UpdateAllViews(nullptr, 0, &WrapHint(ResourceMapChangeHint::Change));
         }

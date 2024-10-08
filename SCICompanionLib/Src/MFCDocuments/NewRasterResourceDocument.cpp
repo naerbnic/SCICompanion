@@ -101,8 +101,7 @@ void CNewRasterResourceDocument::OnSetResolution(UINT nID)
 CNewRasterResourceDocument::CNewRasterResourceDocument()
 {
     // Add ourselves as a sync
-    CResourceMap &map = appState->GetResourceMap();
-    map.AddSync(this);
+    appState->AddResourceSync(this);
 
     _currentPaletteIndex = 0;
     _fLocked = false;

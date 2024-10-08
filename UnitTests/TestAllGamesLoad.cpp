@@ -107,7 +107,7 @@ namespace UnitTests
             Logger::WriteMessage(message.c_str());
 
             appState = new AppState(nullptr);
-            appState->GetResourceMap().SetGameFolder(gameFolder);
+            appState->SetGameFolder(gameFolder.c_str());
             Assert::IsTrue(appState->GetResourceMap().IsGameLoaded());
 
             // Normally ResourceMap uses the module filename for this. But unit tests are run from another exe.

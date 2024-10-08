@@ -701,6 +701,33 @@ void AppState::SetGameName(PCTSTR pszName)
     _SetGameStringProperty(TEXT("Name"), pszName);
 }
 
+void AppState::SetGameFolder(PCSTR pszGameFolder)
+{
+    // Set this folder as our new game folder
+    _dependencyTracker->Clear();
+    _resourceMap.SetGameFolder(pszGameFolder);
+    _fUseOriginalAspectRatioCached = _resourceMap.Helper().GetUseSierraAspectRatio(!!appState->_fUseOriginalAspectRatioDefault);
+    LogInfo(TEXT("Open game: %s"), (PCTSTR)pszGameFolder);
+}
+
+void AppState::CloseGameFolder()
+{
+    _dependencyTracker->Clear();
+    _resourceMap.SetGameFolder("");
+    ResetClassBrowser();
+    ClearResourceManagerDoc();
+}
+
+void AppState::AddResourceSync(IResourceMapEvents* pSync)
+{
+    _resourceMap.AddSync(pSync);
+}
+
+void AppState::RemoveResourceSync(IResourceMapEvents* pSync)
+{
+    _resourceMap.RemoveSync(pSync);
+}
+
 void AppState::RunGame(bool debug, int optionalResourceNumber)
 {
     if (GetResourceMap().IsGameLoaded())
