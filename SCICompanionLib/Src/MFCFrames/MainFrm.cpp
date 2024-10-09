@@ -16,6 +16,9 @@
 //
 
 #include "stdafx.h"
+
+#include <absl/status/status.h>
+
 #include "AppState.h"
 #include "Pic.h"
 #include "PicDoc.h"
@@ -1897,37 +1900,39 @@ void CMainFrame::OnShowAudioPreferences()
     }
 }
 
-HRESULT RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, SCIVersion version, BOOL fShowUI, ResourceSaveLocation saveLocation, std::map<ResourceType, RebuildStats> &stats);
+absl::Status RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, SCIVersion version, BOOL fShowUI, ResourceSaveLocation saveLocation, std::map<ResourceType, RebuildStats> &stats);
 
 void PurgeUnnecessaryResources()
 {
     std::map<ResourceType, RebuildStats> stats;
     const GameFolderHelper &helper = appState->GetResourceMap().Helper();
-    HRESULT hr = RebuildResources(appState->GetResourceMap().HelperPtr(), appState->GetResourceMap().GetSCIVersion(), TRUE, helper.GetResourceSaveLocation(ResourceSaveLocation::Default), stats);
-    if (SUCCEEDED(hr))
+    auto status = RebuildResources(appState->GetResourceMap().HelperPtr(), appState->GetResourceMap().GetSCIVersion(), TRUE, helper.GetResourceSaveLocation(ResourceSaveLocation::Default), stats);
+    if (!status.ok())
     {
-        size_t totalSize = 0;
-        for (const auto &stat : stats)
-        {
-            totalSize += stat.second.TotalSize;
-        }
-        vector<CompileResult> statResults;
-        statResults.emplace_back(fmt::format("Total package size: {0:5}KB", totalSize / 1024), CompileResult::CompileResultType::CRT_Message);
-
-        for (const auto &stat : stats)
-        {
-            std::string result = fmt::format("{0:3} {1:>10}: Total size: {2:4}KB ({3:4.2f}% of total)",
-                stat.second.ItemCount,
-                ResourceDisplayNameFromType(stat.first),
-                stat.second.TotalSize / 1024,
-                ((float)stat.second.TotalSize / (float)totalSize) * 100.0f
-            );
-            statResults.emplace_back(result, CompileResult::CompileResultType::CRT_Message);
-        }
-        appState->OutputResults(OutputPaneType::Compile, statResults);
-        appState->StartPostBuildThread();
-        appState->GetResourceMap().PokeResourceMapReloaded();
+        AfxMessageBox(status.ToString().c_str(), MB_OK | MB_ICONWARNING);
     }
+    size_t totalSize = 0;
+    for (const auto &stat : stats)
+    {
+        totalSize += stat.second.TotalSize;
+    }
+    vector<CompileResult> statResults;
+    statResults.emplace_back(fmt::format("Total package size: {0:5}KB", totalSize / 1024), CompileResult::CompileResultType::CRT_Message);
+
+    for (const auto &stat : stats)
+    {
+        std::string result = fmt::format("{0:3} {1:>10}: Total size: {2:4}KB ({3:4.2f}% of total)",
+            stat.second.ItemCount,
+            ResourceDisplayNameFromType(stat.first),
+            stat.second.TotalSize / 1024,
+            ((float)stat.second.TotalSize / (float)totalSize) * 100.0f
+        );
+        statResults.emplace_back(result, CompileResult::CompileResultType::CRT_Message);
+    }
+    appState->OutputResults(OutputPaneType::Compile, statResults);
+    appState->StartPostBuildThread();
+    appState->GetResourceMap().PokeResourceMapReloaded();
+    
 }
 
 void CMainFrame::OnRebuildResources()

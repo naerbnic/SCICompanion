@@ -13,6 +13,9 @@
 ***************************************************************************/
 
 #include "stdafx.h"
+
+#include <absl/status/status.h>
+
 #include "ResourceContainer.h"
 #include "ResourceMap.h"
 #include "ResourceRecency.h"
@@ -152,7 +155,7 @@ ResourceType ResourceFlagToType(ResourceTypeFlags dwFlags)
     return (ResourceType)iShifts;
 }
 
-HRESULT RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, SCIVersion version, BOOL fShowUI, ResourceSaveLocation saveLocation, std::map<ResourceType, RebuildStats> &stats)
+absl::Status RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, SCIVersion version, BOOL fShowUI, ResourceSaveLocation saveLocation, std::map<ResourceType, RebuildStats> &stats)
 {
     try
     {
@@ -185,9 +188,9 @@ HRESULT RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, 
     }
     catch (std::exception &e)
     {
-        AfxMessageBox(e.what(), MB_OK | MB_ICONWARNING);
+        return absl::InternalError(e.what());
     }
-    return S_OK;
+    return absl::OkStatus();
 }
 
 //
