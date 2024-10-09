@@ -443,6 +443,9 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Static MBCS Release RDE|Win32'">ProfUIS292sm-RDE</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Static MBCS Release RDE|Win32'">.lib</TargetExt>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Static Unicode Debug RDE with MFC DLL|Win32'">
     <ClCompile>
       <AdditionalOptions>/Zm512 %(AdditionalOptions)</AdditionalOptions>
