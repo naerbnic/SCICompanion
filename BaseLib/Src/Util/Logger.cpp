@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Logger.h"
 
 static thread_local Logger::Handler* curr_thread_handler = nullptr;
