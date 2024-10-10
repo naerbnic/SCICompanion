@@ -306,7 +306,7 @@ HRESULT CResourceMap::EndDeferAppend()
                     }
                     catch (std::exception &e)
                     {
-                        AfxMessageBox(e.what(), MB_OK | MB_ICONWARNING);
+                        Logger::UserWarning("While saving resources: %s", e.what());
                     }
                 }
 
@@ -420,7 +420,7 @@ HRESULT CResourceMap::AppendResource(const ResourceBlob &resource)
         }
         catch (std::exception &e)
         {
-            AfxMessageBox(e.what(), MB_OK | MB_ICONWARNING);
+            Logger::UserWarning("While saving resources: %s", e.what());
         }
 
         AssignName(resource);
@@ -463,7 +463,7 @@ HRESULT CResourceMap::AppendResource(const ResourceBlob &resource)
 
             TCHAR szMessage[MAX_PATH];
             StringCchPrintf(szMessage, ARRAYSIZE(szMessage), TEXT("There was an error writing the resource: 0x%x\n%s"), hr, szError);
-            AfxMessageBox(szMessage, MB_OK | MB_ICONEXCLAMATION | MB_APPLMODAL, 0);
+            Logger::UserError("There was an error writing the resource: 0x%x\n%s", hr, szError);
         }
 #endif
     }
@@ -485,9 +485,8 @@ bool ValidateResourceSize(const SCIVersion &version, DWORD cb, ResourceType type
     bool fRet = IsValidResourceSize(version, cb, type);
     if (!fRet)
     {
-        TCHAR szBuffer[MAX_PATH];
-        StringCchPrintf(szBuffer, ARRAYSIZE(szBuffer), TEXT("Resources can't be bigger than %d bytes.  This resource is %d bytes."), MaxResourceSize, cb);
-        AfxMessageBox(szBuffer, MB_ERRORFLAGS);
+        // uses MB_ERRORFLAGS
+        Logger::UserError("Resources can't be bigger than %d bytes.  This resource is %d bytes.", MaxResourceSize, cb);
         fRet = false;
     }
     return fRet;
@@ -622,7 +621,7 @@ void CResourceMap::DeleteResource(const ResourceBlob *pData)
     // (and also... we won't have a global palette)
     if ((pData->GetType() == ResourceType::Palette) && (pData->GetNumber() == 999))
     {
-        AfxMessageBox("Palette 999 is the global palette and cannot be deleted.", MB_OK | MB_ICONERROR);
+        Logger::UserError("Palette 999 is the global palette and cannot be deleted.");
         return;
     }
 
@@ -632,7 +631,7 @@ void CResourceMap::DeleteResource(const ResourceBlob *pData)
     }
     catch (std::exception &e)
     {
-        AfxMessageBox(e.what(), MB_OK | MB_ICONWARNING);
+        Logger::UserWarning("While deleting resource: %s", e.what());
     }
 
     // Call our syncs, so they update.
@@ -1196,9 +1195,9 @@ void CResourceMap::SetGameFolder(const string &gameFolder)
         }
         catch (std::exception &e)
         {
-            AfxMessageBox(fmt::format("Unable to open resource map: {0}", e.what()).c_str(), MB_OK | MB_ICONWARNING);
+            Logger::UserWarning("Unable to open resource map: %s", e.what());
             _gameFolderHelper->SetGameFolder("");
-            AfxThrowUserException();
+            throw e;
         }
     }
 
