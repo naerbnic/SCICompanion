@@ -19,7 +19,7 @@ class GameFolderHelper;
 class CResourceMap;
 class ResourceBlob;
 class ResourceSource;
-class SCIVersion;
+struct SCIVersion;
 enum class ResourceSourceAccessFlags;
 enum class ResourceTypeFlags;
 void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data);
