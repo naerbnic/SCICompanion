@@ -566,7 +566,6 @@
     <ClCompile Include="Src\Util\Task.cpp" />
     <ClCompile Include="Src\Util\TokenDatabase.cpp" />
     <ClCompile Include="Src\Util\util.cpp" />
-    <ClCompile Include="Src\Util\Version.cpp" />
     <ClCompile Include="Src\Util\VGADither.cpp" />
     <ClCompile Include="Src\Util\WordEnumString.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -776,7 +775,6 @@
     <ClInclude Include="Src\Util\Task.h" />
     <ClInclude Include="Src\Util\TokenDatabase.h" />
     <ClInclude Include="Src\Util\ToolTipResult.h" />
-    <ClInclude Include="Src\Util\Version.h" />
     <ClInclude Include="Src\Util\VGADither.h" />
     <ClInclude Include="Src\Util\WindowsUtil.h" />
     <ClInclude Include="Src\Util\WordEnumString.h" />

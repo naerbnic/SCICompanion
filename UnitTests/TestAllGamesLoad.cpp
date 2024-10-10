@@ -12,6 +12,9 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #include "stdafx.h"
+
+#include <absl/strings/str_format.h>
+
 #include "CppUnitTest.h"
 #include "View.h"
 #include "ResourceEntity.h"
@@ -87,7 +90,7 @@ namespace UnitTests
 
             if (folders.empty())
             {
-                Logger::WriteMessage(L"Found no games.");
+                Logger::WriteMessage(absl::StrFormat("Found no games. Directory: %s", findString).c_str());
             }
 
             for (auto folder : folders)

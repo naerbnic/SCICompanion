@@ -13,6 +13,10 @@
 ***************************************************************************/
 #pragma once
 
+#include <stdint.h>
+#include "ResourceTypes.h"
+#include "Geometry.h"
+
 // Don't change the numbers here without updating CGameVersionDialog
 // They correspond to radio button groups.
 enum class ResourceMapFormat : uint8_t
@@ -75,7 +79,20 @@ enum class MessageMapSource : uint8_t
     AltResMap = 2,
 };
 
-enum class AudioMapVersion;
+enum class AudioMapVersion : uint8_t
+{
+    None = 0,
+    // Main audio maps
+    FiveBytes = 1,
+    SixBytes = 2,
+    EightBytes = 3,
+
+    // ^V don't change the order.
+
+    // Sync maps
+    SyncMapEarly = 4,
+    SyncMapLate = 5,
+};
 
 enum class NativeResolution : uint8_t
 {

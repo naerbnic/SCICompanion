@@ -12,6 +12,7 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #include "stdafx.h"
+#include "Version.h"
 #include "AudioMap.h"
 #include "ResourceEntity.h"
 #include "format.h"

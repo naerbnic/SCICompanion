@@ -141,13 +141,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Util\Geometry.h" />
     <ClInclude Include="Src\Util\Logger.h" />
+    <ClInclude Include="Src\Util\ResourceTypes.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
+    <ClInclude Include="Src\Util\Version.h" />
     <ClInclude Include="Src\Util\WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Util\Logger.cpp" />
     <ClCompile Include="Src\Util\RunLogic.cpp" />
+    <ClCompile Include="Src\Util\Version.cpp" />
     <ClCompile Include="Src\Util\WindowsUtils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -11,9 +11,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
 #include "Version.h"
-#include "AudioMap.h"
+
+#include <memory>
+
+#include "Geometry.h"
 
 // The actual version structure is determined by inspecting the resource map and other game files.
 // The following "default" versions are just examples. They are currently used to associate with sample
