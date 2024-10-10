@@ -1031,24 +1031,6 @@ void ToUpper(std::string &aString)
     std::for_each(aString.begin(), aString.end(), convert());
 }
 
-std::string GetExeSubFolder(const char *subFolder)
-{
-    std::string templateFolder;
-    HRESULT hr = E_FAIL;
-    TCHAR szPath[MAX_PATH];
-    if (GetModuleFileName(nullptr, szPath, ARRAYSIZE(szPath)))
-    {
-        PSTR pszFileName = PathFindFileName(szPath);
-        *pszFileName = 0; // null it
-        hr = StringCchCat(szPath, ARRAYSIZE(szPath), subFolder);
-        if (SUCCEEDED(hr))
-        {
-            templateFolder = szPath;
-        }
-    }
-    return templateFolder;
-}
-
 bool CopyFilesOver(HWND hwnd, const std::string &from, const std::string &to)
 {
     char sz[MAX_PATH];

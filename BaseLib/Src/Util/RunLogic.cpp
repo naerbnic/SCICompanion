@@ -11,9 +11,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
 #include "RunLogic.h"
-#include "format.h"
+#include "WindowsUtils.h"
+
+#include <shlwapi.h>
+#include <absl/strings/str_format.h>
 
 static const char c_szExeProfileKey[] = "ExeProfile";    // Defaults to Other
 
@@ -68,7 +70,7 @@ _profileToParamsKey({ { c_szDOSBox, c_szDOSBoxExeParametersString }, { c_szScumm
 void RunLogic::SetGameFolder(const std::string &folder)
 {
     _gameFolder = folder;
-    _gameIni = fmt::format("{0}\\game.ini", _gameFolder);
+    _gameIni = absl::StrFormat("%s\\game.ini", _gameFolder);
     _defaultProfile = c_szDOSBox;
 
     // What should our default profile be if non is specifed? DOSBox, unless we find an Executable key in [game], then we'll
@@ -107,17 +109,17 @@ void RunLogic::SetGameFolder(const std::string &folder)
             // The location of our default dosbox.conf
             std::string toolsFolder = GetExeSubFolder("Tools");
             // Put it in quotes in case of spaces.
-            configFile = fmt::format("\"{0}\\{1}\"", toolsFolder, c_szDOSBoxConfig);
+            configFile = absl::StrFormat("\"%s\\%s\"", toolsFolder, c_szDOSBoxConfig);
         }
 
-        _profileToDefaultParams[c_szDOSBox] = fmt::format("{0} -exit -conf {1} -noconsole", foundExe, configFile);
+        _profileToDefaultParams[c_szDOSBox] = absl::StrFormat("%s -exit -conf %s -noconsole", foundExe, configFile);
     }
 
     std::string scummId = _ReadProfileString(c_szScummIdKey, "");
-    _profileToDefaultParams[c_szScummVM] = fmt::format("--no-aspect-ratio --path=\"{0}\" {1}", _gameFolder, scummId);
+    _profileToDefaultParams[c_szScummVM] = absl::StrFormat("--no-aspect-ratio --path=\"%s\" %s", _gameFolder, scummId);
 }
 
-bool RunLogic::RunGame(std::string &error, HANDLE &hProcess)
+bool RunLogic::RunGame(std::string &error, HANDLE &hProcess, HWND mainWindow)
 {
     std::string option = GetExecutableProfile();
     std::string exe = GetExe(option);
@@ -132,10 +134,11 @@ bool RunLogic::RunGame(std::string &error, HANDLE &hProcess)
     }
     else
     {
+        // AfxGetMainWnd()->GetSafeHwnd();
         SHELLEXECUTEINFO ei = {};
         ei.fMask = SEE_MASK_DEFAULT | SEE_MASK_NOCLOSEPROCESS;
         ei.cbSize = sizeof(ei);
-        ei.hwnd = AfxGetMainWnd()->GetSafeHwnd();
+        ei.hwnd = mainWindow;
         ei.lpFile = exe.c_str();
         ei.lpVerb = "Open";
         ei.lpParameters = params.c_str();
@@ -152,8 +155,7 @@ bool RunLogic::RunGame(std::string &error, HANDLE &hProcess)
             FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)iResult, 0, szReason, ARRAYSIZE(szReason), NULL);
 
             TCHAR szError[MAX_PATH];
-            StringCchPrintf(szError, ARRAYSIZE(szError), TEXT("Failed to start %s: %s"), exe.c_str(), szReason);
-            error = szError;
+            error = absl::StrFormat("Failed to start %s: %s", exe, szReason);
         }
         else
         {

@@ -836,7 +836,8 @@ void AppState::RunGame(bool debug, int optionalResourceNumber)
 
             std::string errors;
             HANDLE hProcess;
-            if (!GetRunLogic().RunGame(errors, hProcess))
+            if (!GetRunLogic().RunGame(errors, hProcess,
+                 AfxGetMainWnd()->GetSafeHwnd()))
             {
                 AfxMessageBox(errors.c_str(), MB_OK | MB_APPLMODAL | MB_ICONEXCLAMATION);
                 AbortDebuggerThread();

@@ -13,6 +13,11 @@
 ***************************************************************************/
 #pragma once
 
+#include <string>
+#include <vector>
+#include <Windows.h>
+#include <unordered_map>
+
 // Manages our different profiles for running the game from within SCI Companion.
 // (e.g. DOSBox, ScummVM, custom).
 
@@ -22,7 +27,7 @@ public:
     RunLogic();
     void SetGameFolder(const std::string &folder);
 
-    bool RunGame(std::string &error, HANDLE &hProcess);
+    bool RunGame(std::string &error, HANDLE &hProcess, HWND mainWindow);
 
     std::vector<std::string> GetExecutableProfiles();
     void SetExecutableProfile(const std::string &option);
