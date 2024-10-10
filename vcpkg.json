@@ -1,5 +1,8 @@
 {
     "dependencies": [
-        "abseil"
+        {
+            "name": "abseil",
+            "features": ["cxx17"]
+        }
     ]
 }
