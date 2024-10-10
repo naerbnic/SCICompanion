@@ -15,6 +15,7 @@
 #include "Stream.h"
 
 #include <optional>
+#include <absl/status/statusor.h>
 
 #include "PerfTimer.h"
 
@@ -254,13 +255,13 @@ private:
 class istream::FileImpl : public istream::Impl
 {
 public:
-    static std::unique_ptr<Impl> FromFilename(const std::string& filename)
+    static absl::StatusOr<std::unique_ptr<Impl>> FromFilename(const std::string& filename)
     {
         auto file_handle = ScopedHandle(CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
             nullptr, OPEN_EXISTING, 0, nullptr));
         if (!file_handle.IsValid())
         {
-            return nullptr;
+            return absl::NotFoundError("Could not open file for reading");
         }
 
         // If no length specifies, then until the end of the file.
@@ -268,20 +269,20 @@ public:
         DWORD dwSize = GetFileSize(file_handle.GetValue(), &dwSizeHigh);
         if (dwSize == INVALID_FILE_SIZE)
         {
-            return nullptr;
+            return absl::FailedPreconditionError("Unable to get file size.");
         }
         assert(dwSizeHigh == 0);
         auto mapping_handle = ScopedHandle(CreateFileMapping(file_handle.GetValue(), nullptr, PAGE_READONLY, 0, 0,
             nullptr));
         if (!mapping_handle.IsValid())
         {
-            return nullptr;
+            return absl::FailedPreconditionError("Could not open file mapping.");
         }
         auto dataMemoryMapped = ScopedMappedMemory(static_cast<const uint8_t*>(MapViewOfFile(
             mapping_handle.GetValue(), FILE_MAP_READ, 0, 0, 0)));
         if (!dataMemoryMapped)
         {
-            return nullptr;
+            return absl::FailedPreconditionError("Could not get mapped file view.");
         }
         
         auto valid_size = dwSize;
@@ -310,7 +311,7 @@ private:
 };
 istream istream::MapFile(const std::string& filename)
 {
-    return istream(FileImpl::FromFilename(filename));
+    return istream(FileImpl::FromFilename(filename).value());
 }
 
 istream istream::ReadFromFile(HANDLE hFile, DWORD lengthToInclude)
@@ -371,13 +372,15 @@ istream(std::make_shared<MemoryImpl>(pData, cbSize))
 }
 
 
-istream::istream() : istream(std::shared_ptr<Impl>())
+istream::istream() :
+    _impl(nullptr), _iIndex(0), _throwExceptions(false), _state(std::ios_base::goodbit)
 {
 }
 
 istream::istream(std::shared_ptr<Impl> impl) :
     _impl(std::move(impl)), _iIndex(0), _throwExceptions(false), _state(std::ios_base::goodbit)
 {
+    assert(_impl);
 }
 
 

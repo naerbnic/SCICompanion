@@ -50,16 +50,19 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="GlobalSupressions.props" />
     <Import Project="CodeAnalysis.props" />
+    <Import Project="..\VcpkgTriplet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DeadCodeAnalysis|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="GlobalSupressions.props" />
     <Import Project="CodeAnalysis.props" />
+    <Import Project="..\VcpkgTriplet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="GlobalSupressions.props" />
     <Import Project="CodeAnalysis.props" />
+    <Import Project="..\VcpkgTriplet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -201,6 +204,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Util\Logger.cpp" />
     <ClCompile Include="Src\Compile\AutoDetectVariableNames.cpp" />
     <ClCompile Include="Src\Compile\ControlFlowNode.cpp" />
     <ClCompile Include="Src\Compile\ControlFlowGraphViz.cpp" />
@@ -303,6 +307,7 @@
     <ClCompile Include="Src\Resources\VersionDetectionHelper.cpp" />
     <ClCompile Include="Src\Resources\View.cpp" />
     <ClCompile Include="Src\Util\AudioPlayback.cpp" />
+    <ClInclude Include="Src\Util\Logger.h" />
     <ClInclude Include="Src\Compile\AutoCompleteSourceTypes.h" />
     <ClInclude Include="Src\Compile\AutoDetectVariableNames.h" />
     <ClInclude Include="Src\Compile\CodeInspector.h" />

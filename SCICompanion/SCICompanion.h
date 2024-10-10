@@ -26,6 +26,8 @@
 #include "ColoredToolTip.h"
 #include "CompileInterfaces.h"
 
+#include "Logger.h"
+
 class AutoCompleteThread;
 class CScriptView;
 
@@ -78,7 +80,11 @@ public:
     DECLARE_MESSAGE_MAP()
 
 private:
+    // The logger to use within the entire application.
+    std::unique_ptr<Logger::Handler> _userLoggerHandler;
 
+    // A scope that sets the logger to use within the main thread.
+    std::unique_ptr<Logger::HandlerScope> _mainThreadLoggerScope;
 };
 
 

@@ -94,6 +94,8 @@
 
 #include "PicClipsDialog.h"
 
+#include "Logger.h"
+
 // REVIEW temp
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -244,9 +246,45 @@ CDocument* SCICompanionApp::OpenDocumentFile(PCTSTR lpszFileName)
 // The one and only SCICompanionApp object
 SCICompanionApp theApp;
 
+class UserLoggerHandler : public Logger::Handler
+{
+public:
+    void Log(const Logger::LogMessage& message) override
+    {
+        // REVIEW: This is a bit of a hack.
+        if (message.GetAudience() == Logger::Audience::User)
+        {
+            uint32_t message_type = MB_OK;
+            switch (message.GetLevel())
+            {
+            case Logger::Level::Verbose:
+            case Logger::Level::Debug:
+                // Ignore the message. It's not important enough.
+                return;
+            case Logger::Level::Info:
+                message_type |= MB_ICONINFORMATION;
+                break;
+            case Logger::Level::Warning:
+                message_type |= MB_ICONWARNING;
+                break;
+            case Logger::Level::Error:
+                message_type |= MB_ICONERROR;
+                break;
+            }
+            AfxMessageBox(message.GetMessage().c_str(), message_type);
+        }
+        else
+        {
+            TRACE(message.GetMessage().c_str());
+        }
+    }
+};
+
 // SCICompanionApp initialization
 BOOL SCICompanionApp::InitInstance()
 {
+    _userLoggerHandler = std::make_unique<UserLoggerHandler>();
+    _mainThreadLoggerScope = std::make_unique<Logger::HandlerScope>(_userLoggerHandler.get());
     bool resetSettings = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
 
     appState = new AppState(this);

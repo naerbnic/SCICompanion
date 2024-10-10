@@ -36,6 +36,7 @@
 #include "ResourceMapOperations.h"
 #include "MessageHeaderFile.h"
 #include "format.h"
+#include "Logger.h"
 #include "ResourceMapEvents.h"
 #include "ResourceBlob.h"
 #include "VersionDetectionHelper.h"
@@ -185,6 +186,7 @@ absl::Status RebuildResources(const std::shared_ptr<const GameFolderHelper> &hel
             std::unique_ptr<ResourceSource> messageSource = CreateResourceSource(version, ResourceTypeFlags::All, helper, ResourceSourceFlags::MessageMap);
             messageSource->RebuildResources(true, *messageSource, stats);
         }
+
     }
     catch (std::exception &e)
     {
