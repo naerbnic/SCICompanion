@@ -1,6 +1,10 @@
 
 #pragma once
 
+#include <Windows.h>
+#include <cstdint>
+#include <exception>
+
 enum class DecompressionAlgorithm
 {
     None = 0,
@@ -17,9 +21,9 @@ enum class DecompressionAlgorithm
 int decompressHuffman(BYTE* dest, BYTE* src, int length, int complength);
 int decompressLZW_1(BYTE *dest, BYTE *src, int length, int complength);
 int decompressLZW(BYTE *dest, BYTE *src, int length, int complength);
-bool decompressDCL(byte *dest, byte *src, uint32_t unpackedSize, uint32_t packedSize);
-bool decompressLZS(byte *dest, byte *src, uint32_t unpackedSize, uint32_t packedSize);
-int decrypt4(byte* dest, byte* src, int length, int complength);
+bool decompressDCL(uint8_t *dest, uint8_t*src, uint32_t unpackedSize, uint32_t packedSize);
+bool decompressLZS(uint8_t*dest, uint8_t*src, uint32_t unpackedSize, uint32_t packedSize);
+int decrypt4(uint8_t* dest, uint8_t* src, int length, int complength);
 
 /*** INITIALIZATION RESULT TYPES ***/
 #define SCI_ERROR_IO_ERROR 1

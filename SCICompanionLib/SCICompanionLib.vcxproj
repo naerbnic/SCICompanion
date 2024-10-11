@@ -556,7 +556,6 @@
     <ClCompile Include="Src\Util\ClassBrowser.cpp" />
     <ClCompile Include="Src\Util\ClassBrowserInfo.cpp" />
     <ClCompile Include="Src\Util\CodeAutoComplete.cpp" />
-    <ClCompile Include="Src\Util\Codec.cpp" />
     <ClCompile Include="Src\Util\CrystalScriptStream.cpp" />
     <ClCompile Include="Src\Util\DrawHelper.cpp" />
     <ClCompile Include="Src\Util\TalkerToViewMap.cpp" />
@@ -755,7 +754,6 @@
     <ClInclude Include="Src\Util\ClassBrowser.h" />
     <ClInclude Include="Src\Util\ClassBrowserInfo.h" />
     <ClInclude Include="Src\Util\CodeAutoComplete.h" />
-    <ClInclude Include="Src\Util\Codec.h" />
     <ClInclude Include="Src\Util\CrystalScriptStream.h" />
     <ClInclude Include="Src\Util\Delegates.h" />
     <ClInclude Include="Src\Util\DialogFactory.h" />

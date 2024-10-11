@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Src\Resources\ResourceLoader.h" />
+    <ClInclude Include="Src\Util\Codec.h" />
     <ClInclude Include="Src\Util\EnumFlags.h" />
     <ClInclude Include="Src\Util\Geometry.h" />
     <ClInclude Include="Src\Util\Iterators.h" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Resources\ResourceLoader.cpp" />
+    <ClCompile Include="Src\Util\Codec.cpp" />
     <ClCompile Include="Src\Util\Logger.cpp" />
     <ClCompile Include="Src\Util\PerfTimer.cpp" />
     <ClCompile Include="Src\Util\RunLogic.cpp" />

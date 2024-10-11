@@ -1,6 +1,9 @@
-#include "stdafx.h"
 #include "Codec.h"
-#include "AppState.h"
+
+#include <Windows.h>
+#include <memory>
+
+#include "Logger.h"
 
 //
 // The following decryption algorithms are from the freesci source code.
@@ -389,7 +392,7 @@ int decompressHuffman(BYTE* dest, BYTE* src, int length, int complength)
     }
     catch (std::exception &e)
     {
-        appState->LogInfo("Overflow while decompressing: %s", e.what());
+        Logger::DevInfo("Overflow while decompressing: %s", e.what());
         c = -1; // To indicate error.
     }
 

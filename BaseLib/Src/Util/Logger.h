@@ -86,6 +86,9 @@ public:
     template <typename... Args>
     static void UserError(const absl::FormatSpec<Args...>& format, Args&&... args);
 
+    template <typename... Args>
+    static void DevInfo(const absl::FormatSpec<Args...>& format, Args&&... args);
+
 private:
     static void LogImpl(const LogMessage& message);
 };
@@ -115,5 +118,11 @@ template <typename... Args>
 void Logger::UserError(const absl::FormatSpec<Args...>& format, Args&&... args)
 {
     Log(Level::Error, Audience::User, format, std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+void Logger::DevInfo(const absl::FormatSpec<Args...>& format, Args&&... args)
+{
+    Log(Level::Error, Audience::Developer, format, std::forward<Args>(args)...);
 }
 
