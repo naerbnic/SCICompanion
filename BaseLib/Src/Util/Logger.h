@@ -20,7 +20,7 @@
 class Logger
 {
 public:
-    enum class Level
+    enum class Level : uint8_t
     {
         Verbose,
         Debug,
@@ -31,7 +31,7 @@ public:
 
     // The audience of the message. This can be used to filter messages based on the intended
     // audience, to be presented to the user, or stored for the developer.
-    enum class Audience
+    enum class Audience : uint8_t
     {
         User,
         Developer,
