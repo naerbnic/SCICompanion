@@ -400,7 +400,6 @@
     <ClInclude Include="Src\Resources\GameFolderHelper.h" />
     <ClInclude Include="Src\Resources\Pic.h" />
     <ClInclude Include="Src\Resources\ResourceMapEvents.h" />
-    <ClInclude Include="Src\Resources\ResourceSourceFlags.h" />
     <ClInclude Include="Src\Resources\Sync.h" />
     <ClInclude Include="Src\Resources\VersionDetectionHelper.h" />
     <ClInclude Include="Src\Resources\View.h" />

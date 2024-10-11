@@ -27,7 +27,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include "PicDrawManager.h"
 #include "Pic.h"
 #include "ResourceEntity.h"
-#include "ResourceSourceFlags.h"
+#include "ResourceTypes.h"
 #include "format.h"
 #include "Helper.h"
 #include "GameFolderHelper.h"

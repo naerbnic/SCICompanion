@@ -15,7 +15,7 @@
 
 #include "ResourceUtil.h"
 #include "Version.h"
-#include "ResourceSourceFlags.h"
+#include "ResourceTypes.h"
 #include <limits>
 
 class GameFolderHelper;
