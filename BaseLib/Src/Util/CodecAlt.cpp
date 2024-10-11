@@ -1,5 +1,7 @@
-#include "stdafx.h"
 #include "CodecAlt.h"
+
+#include <shtypes.h>
+
 #include "Logger.h"
 #include "PicCommandsCommon.h"
 

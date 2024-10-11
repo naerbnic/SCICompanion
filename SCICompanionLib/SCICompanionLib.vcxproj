@@ -413,7 +413,6 @@
     <ClCompile Include="Src\Util\AudioProcessing.cpp" />
     <ClCompile Include="Src\Util\AudioRecording.cpp" />
     <ClCompile Include="Src\Util\ClipboardUtil.cpp" />
-    <ClCompile Include="Src\Util\CodecAlt.cpp" />
     <ClCompile Include="Src\Resources\Sound.cpp" />
     <ClCompile Include="SCICompanionLib.cpp" />
     <ClCompile Include="Src\Resources\PicOperations.cpp" />
@@ -599,7 +598,6 @@
     <ClInclude Include="Src\Resources\SoundOperations.h" />
     <ClInclude Include="Src\Util\AudioPlayback.h" />
     <ClInclude Include="Src\Util\ClipboardUtil.h" />
-    <ClInclude Include="Src\Util\CodecAlt.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Src\Resources\Sound.h" />
     <ClInclude Include="Src\MFCDocuments\ResourceEntityDocument.h" />
