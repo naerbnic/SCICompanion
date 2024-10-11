@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="Src\Resources\ResourceLoader.h" />
     <ClInclude Include="Src\Util\Geometry.h" />
+    <ClInclude Include="Src\Util\Iterators.h" />
     <ClInclude Include="Src\Util\Logger.h" />
     <ClInclude Include="Src\Resources\ResourceTypes.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
