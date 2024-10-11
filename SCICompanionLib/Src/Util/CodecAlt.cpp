@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CodecAlt.h"
-#include "AppState.h"
-#include "PicCommands.h"
+#include "Logger.h"
+#include "PicCommandsCommon.h"
 
 #define VIEW_HEADER_COLORS_8BIT 0x80
 
@@ -214,7 +214,7 @@ void reorderView(byte *src, BoundsCheckedArray<BYTE> dest) {
     for (l = 0; l < loopheaders; l++) {
         if (lh_mask & lb) { /* The loop is _not_ present */
             if (lh_last == -1) {
-                appState->LogInfo("Error: While reordering view: Loop not present, but can't re-use last loop");
+                Logger::DevInfo("Error: While reordering view: Loop not present, but can't re-use last loop");
                 lh_last = 0;
             }
             WRITE_LE_UINT16(lh_ptr, lh_last);
@@ -249,7 +249,7 @@ void reorderView(byte *src, BoundsCheckedArray<BYTE> dest) {
     }
 
     if (celindex < cel_total) {
-        appState->LogInfo("View decompression generated too few (%d / %d) headers", celindex, cel_total);
+        Logger::DevInfo("View decompression generated too few (%d / %d) headers", celindex, cel_total);
         free(cc_lengths);
         return;
     }

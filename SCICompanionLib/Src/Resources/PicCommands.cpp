@@ -15,7 +15,6 @@
 #include "stdafx.h"
 #include <math.h>
 #include "ResourceEntity.h"
-#include "Components.h"
 #include "RasterOperations.h"
 #include "View.h"
 #include <limits>

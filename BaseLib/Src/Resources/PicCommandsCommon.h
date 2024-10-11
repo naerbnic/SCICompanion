@@ -18,6 +18,31 @@
 
 #include <cstdint>
 
+// Pic opcodes
+const uint8_t PIC_OP_SET_COLOR = 0xf0;
+const uint8_t  PIC_OP_DISABLE_VISUAL = 0xf1;
+const uint8_t  PIC_OP_SET_PRIORITY = 0xf2;
+const uint8_t  PIC_OP_DISABLE_PRIORITY = 0xf3;
+const uint8_t  PIC_OP_RELATIVE_PATTERNS = 0xf4;
+const uint8_t  PIC_OP_RELATIVE_MEDIUM_LINES = 0xf5;
+const uint8_t  PIC_OP_RELATIVE_LONG_LINES = 0xf6;
+const uint8_t  PIC_OP_RELATIVE_SHORT_LINES = 0xf7;
+const uint8_t  PIC_OP_FILL = 0xf8;
+const uint8_t  PIC_OP_SET_PATTERN = 0xf9;
+const uint8_t  PIC_OP_ABSOLUTE_PATTERNS = 0xfa;
+const uint8_t  PIC_OP_SET_CONTROL = 0xfb;
+const uint8_t  PIC_OP_DISABLE_CONTROL = 0xfc;
+const uint8_t  PIC_OP_RELATIVE_MEDIUM_PATTERNS = 0xfd;
+const uint8_t  PIC_OP_OPX = 0xfe;
+const uint8_t  PIC_END = 0xff;
+
+const uint8_t  PIC_OPX_SET_PALETTE_ENTRY = 0x00;
+const uint8_t  PIC_OPX_SET_PALETTE = 0x01;
+
+const uint8_t  PIC_OPXSC1_DRAW_BITMAP = 0x01;
+const uint8_t  PIC_OPXSC1_SET_PALETTE = 0x02;
+const uint8_t  PIC_OPXSC1_SET_PRIORITY_BARS = 0x04;
+
 struct PenStyle
 {
     PenStyle() : bPatternSize(0), bPatternNR(0), fRandomNR(true), fRectangle(false), fPattern(false) {}
