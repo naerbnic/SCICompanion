@@ -815,9 +815,6 @@
     <ClInclude Include="Src\Resources\PicCommands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Resources\PicCommandsCommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Resources\PicDrawManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>

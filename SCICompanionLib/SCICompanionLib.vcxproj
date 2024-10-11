@@ -739,7 +739,6 @@
     <ClInclude Include="Src\Resources\Cursor.h" />
     <ClInclude Include="Src\Resources\FontOperations.h" />
     <ClInclude Include="Src\Resources\PicCommands.h" />
-    <ClInclude Include="Src\Resources\PicCommandsCommon.h" />
     <ClInclude Include="Src\Resources\PicDrawManager.h" />
     <ClInclude Include="Src\Resources\RasterOperations.h" />
     <ClInclude Include="Src\Resources\ResourceUtil.h" />
