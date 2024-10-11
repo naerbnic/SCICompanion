@@ -72,10 +72,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -141,14 +143,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Resources\ResourceLoader.h" />
     <ClInclude Include="Src\Util\Geometry.h" />
     <ClInclude Include="Src\Util\Logger.h" />
-    <ClInclude Include="Src\Util\ResourceTypes.h" />
+    <ClInclude Include="Src\Resources\ResourceTypes.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
     <ClInclude Include="Src\Util\Version.h" />
     <ClInclude Include="Src\Util\WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Resources\ResourceLoader.cpp" />
     <ClCompile Include="Src\Util\Logger.cpp" />
     <ClCompile Include="Src\Util\RunLogic.cpp" />
     <ClCompile Include="Src\Util\Version.cpp" />
