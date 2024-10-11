@@ -78,9 +78,6 @@
     <ClCompile Include="Src\Util\DrawHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Util\Stream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Util\util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -657,9 +654,6 @@
     <ClCompile Include="Src\Util\TokenDatabase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Util\PerfTimer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Util\AudioRecording.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -891,9 +885,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Util\StlUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Util\Stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Util\ToolTipResult.h">
@@ -1542,9 +1533,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\FrameComponents\AudioPlaybackUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Util\PerfTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Util\AudioRecording.h">

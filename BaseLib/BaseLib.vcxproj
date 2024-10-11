@@ -148,14 +148,18 @@
     <ClInclude Include="Src\Util\Iterators.h" />
     <ClInclude Include="Src\Util\Logger.h" />
     <ClInclude Include="Src\Resources\ResourceTypes.h" />
+    <ClInclude Include="Src\Util\PerfTimer.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
+    <ClInclude Include="Src\Util\Stream.h" />
     <ClInclude Include="Src\Util\Version.h" />
     <ClInclude Include="Src\Util\WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Resources\ResourceLoader.cpp" />
     <ClCompile Include="Src\Util\Logger.cpp" />
+    <ClCompile Include="Src\Util\PerfTimer.cpp" />
     <ClCompile Include="Src\Util\RunLogic.cpp" />
+    <ClCompile Include="Src\Util\Stream.cpp" />
     <ClCompile Include="Src\Util\Version.cpp" />
     <ClCompile Include="Src\Util\WindowsUtils.cpp" />
   </ItemGroup>

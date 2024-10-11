@@ -13,6 +13,10 @@
 ***************************************************************************/
 #pragma once
 
+#include <Windows.h>
+#include <cstdint>
+#include <ios>
+
 namespace sci
 {
 // STL doesn't have a memory stream (other than stringstream), so we'll implement our own
