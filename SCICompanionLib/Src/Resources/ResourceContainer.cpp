@@ -13,7 +13,6 @@
 ***************************************************************************/
 #include "stdafx.h"
 #include "ResourceContainer.h"
-#include "ResourceMap.h"
 #include "ResourceBlob.h"
 
 using namespace std;
