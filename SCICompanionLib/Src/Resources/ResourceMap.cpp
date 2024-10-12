@@ -509,7 +509,8 @@ bool CResourceMap::AppendResource(const ResourceEntity &resource, int packageNum
                 sourceFlags = (GetDefaultResourceSaveLocation() == ResourceSaveLocation::Patch) ? ResourceSourceFlags::PatchFile : ResourceSourceFlags::ResourceMap;
             }
 
-            data.CreateFromBits(Helper(), nullptr, resource.GetType(), &readStream, packageNumber, resourceNumber, base36Number, _version, sourceFlags);
+            auto resourceName = Helper().FigureOutName(resource.GetType(), resourceNumber, base36Number);
+            data.CreateFromBits(resourceName.c_str(), resource.GetType(), &readStream, packageNumber, resourceNumber, base36Number, _version, sourceFlags);
             if (!name.empty())
             {
                 data.SetName(name.c_str());

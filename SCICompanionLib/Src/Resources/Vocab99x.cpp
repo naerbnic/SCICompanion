@@ -797,7 +797,8 @@ void SelectorTable::Save()
         }
 
         // Now create a resource data for it and save it.
-        appState->GetResourceMap().AppendResource(ResourceBlob(appState->GetResourceMap().Helper(), nullptr, ResourceType::Vocab, output, _version.DefaultVolumeFile, VocabSelectorNames, NoBase36, appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultSaveSourceFlags()));
+        auto vocabName = appState->GetResourceMap().Helper().FigureOutName(ResourceType::Script, VocabSelectorNames, NoBase36);
+        appState->GetResourceMap().AppendResource(ResourceBlob(vocabName.c_str(), ResourceType::Vocab, output, _version.DefaultVolumeFile, VocabSelectorNames, NoBase36, appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultSaveSourceFlags()));
     }
 }
 
@@ -1086,7 +1087,8 @@ void SpeciesTable::Save()
             push_word(output, *speciesIt);
         }
         // Now create a resource data for it
-        appState->GetResourceMap().AppendResource(ResourceBlob(appState->GetResourceMap().Helper(), nullptr, ResourceType::Vocab, output, appState->GetVersion().DefaultVolumeFile, VocabClassTable, NoBase36, appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultSaveSourceFlags()));
+        auto vocabName = appState->GetResourceMap().Helper().FigureOutName(ResourceType::Vocab, VocabClassTable, NoBase36);
+        appState->GetResourceMap().AppendResource(ResourceBlob(vocabName.c_str(), ResourceType::Vocab, output, appState->GetVersion().DefaultVolumeFile, VocabClassTable, NoBase36, appState->GetVersion(), appState->GetResourceMap().Helper().GetDefaultSaveSourceFlags()));
     }
 }
 

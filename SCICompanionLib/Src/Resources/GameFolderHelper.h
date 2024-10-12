@@ -33,13 +33,6 @@ extern const std::string LanguageKey;
 extern const std::string LanguageValueStudio;
 extern const std::string LanguageValueSCI;
 
-enum class ResourceSaveLocation : uint16_t
-{
-    Default,
-    Package,
-    Patch,
-};
-
 class GameConfigStore
 {
 public:

@@ -18,7 +18,6 @@
 #include <errno.h>
 #include "crc.h"
 #include "ResourceBlob.h"
-#include "GameFolderHelper.h"
 #include <atomic>
 #include "format.h"
 
@@ -94,7 +93,7 @@ ResourceBlob::ResourceBlob()
     _hasNumber = false;
 }
 
-ResourceBlob::ResourceBlob(const GameFolderHelper &helper, PCTSTR pszName, ResourceType iType, const std::vector<BYTE> &data, int iPackageHint, int iNumber, uint32_t base36Number, SCIVersion version, ResourceSourceFlags sourceFlags)
+ResourceBlob::ResourceBlob(PCTSTR pszName, ResourceType iType, const std::vector<BYTE> &data, int iPackageHint, int iNumber, uint32_t base36Number, SCIVersion version, ResourceSourceFlags sourceFlags)
 {
     _resourceLoadStatus = ResourceLoadStatusFlags::None;
 
@@ -117,14 +116,7 @@ ResourceBlob::ResourceBlob(const GameFolderHelper &helper, PCTSTR pszName, Resou
     _fComputedChecksum = false;
 
     header.PackageHint = iPackageHint;
-    if (!pszName || (*pszName == 0))
-    {
-        _strName = helper.FigureOutName(iType, iNumber, base36Number);
-    }
-    else
-    {
-        _strName = pszName;
-    }
+    _strName = pszName;
 }
 
 int ResourceBlob::GetLengthOnDisk() const
@@ -136,7 +128,7 @@ int ResourceBlob::GetLengthOnDisk() const
     return headerSize + header.cbCompressed;
 }
 
-HRESULT ResourceBlob::CreateFromBits(const GameFolderHelper &helper, PCTSTR pszName, ResourceType iType, sci::istream *pStream, int iPackageHint, int iNumber, uint32_t base36Number, SCIVersion version, ResourceSourceFlags sourceFlags)
+HRESULT ResourceBlob::CreateFromBits(PCTSTR pszName, ResourceType iType, sci::istream *pStream, int iPackageHint, int iNumber, uint32_t base36Number, SCIVersion version, ResourceSourceFlags sourceFlags)
 {
     HRESULT hr = E_FAIL;
     if (pStream)
@@ -159,14 +151,7 @@ HRESULT ResourceBlob::CreateFromBits(const GameFolderHelper &helper, PCTSTR pszN
         header.Version = version;
         header.SourceFlags = sourceFlags;
 
-        if (!pszName || (*pszName == 0))
-        {
-            _strName = helper.FigureOutName(iType, iNumber, base36Number);
-        }
-        else
-        {
-            _strName = pszName;
-        }
+        _strName = pszName;
     }
     return hr; // TODO Do data validation
 }

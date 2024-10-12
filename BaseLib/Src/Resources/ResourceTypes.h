@@ -61,3 +61,10 @@ enum class BlobKey
 };
 
 DEFINE_ENUM_FLAGS(ResourceLoadStatusFlags, uint8_t)
+
+enum class ResourceSaveLocation : uint16_t
+{
+    Default,
+    Package,
+    Patch,
+};

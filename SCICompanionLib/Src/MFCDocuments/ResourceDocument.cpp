@@ -274,7 +274,9 @@ void ExportResourceAsBitmap(const ResourceEntity &resourceEntity)
     }
 
     sci::istream readStream = istream_from_ostream(serial);
-    data.CreateFromBits(appState->GetResourceMap().Helper(), nullptr, resourceEntity.Traits.Type, &readStream, resourceEntity.PackageNumber, iNumber, resourceEntity.Base36Number, appState->GetVersion(), ResourceSourceFlags::PatchFile);
+
+    auto resourceName = appState->GetResourceMap().Helper().FigureOutName(resourceEntity.Traits.Type, iNumber, resourceEntity.Base36Number);
+    data.CreateFromBits(resourceName.c_str(), resourceEntity.Traits.Type, &readStream, resourceEntity.PackageNumber, iNumber, resourceEntity.Base36Number, appState->GetVersion(), ResourceSourceFlags::PatchFile);
     CBitmap bitmap;
     SCIBitmapInfo bmi;
     BYTE *pBitsDest;
@@ -334,8 +336,9 @@ void CResourceDocument::OnExportAsResource()
                 CString strFileName = fileDialog.GetPathName();
                 ResourceBlob data;
 
+                auto resourceName = appState->GetResourceMap().Helper().FigureOutName(_GetType(), iNumber, NoBase36);
                 sci::istream readStream = istream_from_ostream(serial);
-                if (SUCCEEDED(data.CreateFromBits(appState->GetResourceMap().Helper(), nullptr, _GetType(), &readStream, pResource->PackageNumber, iNumber, NoBase36, appState->GetVersion(), ResourceSourceFlags::PatchFile)))
+                if (SUCCEEDED(data.CreateFromBits(resourceName.c_str(), _GetType(), &readStream, pResource->PackageNumber, iNumber, NoBase36, appState->GetVersion(), ResourceSourceFlags::PatchFile)))
                 {
                     HRESULT hr = data.SaveToFile((PCSTR)strFileName);
                     if (FAILED(hr))
