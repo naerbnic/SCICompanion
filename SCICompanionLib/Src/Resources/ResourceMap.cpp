@@ -1166,30 +1166,45 @@ std::unique_ptr<ResourceEntity> CResourceMap::CreateResourceFromNumber(ResourceT
     return pResource;
 }
 
-template<typename TCreateFunc, typename TFallbackFunc>
-std::unique_ptr<ResourceEntity> CreateResourceHelper(const ResourceBlob &data, TCreateFunc createFunction, TFallbackFunc fallbackFunc, bool fallbackOnException)
-{
-    std::unique_ptr<ResourceEntity> pResourceReturn(createFunction(data.GetVersion()));
-    try 
-    { 
-        pResourceReturn->InitFromResource(&data); 
-    } 
-    catch (std::exception)
-    {
-        if (!fallbackOnException)
-        {
-            throw;
-        }
-
-        data.AddStatusFlags(ResourceLoadStatusFlags::ResourceCreationFailed);
-        pResourceReturn.reset(fallbackFunc(data.GetVersion()));
-        pResourceReturn->ResourceNumber = data.GetNumber();
-        pResourceReturn->PackageNumber = data.GetPackageHint();
-    }
-    return pResourceReturn;
-}
-
 void DoNothing(ResourceEntity &resource) {}
+
+std::unique_ptr<ResourceEntityFactory> CreateResourceEntityFactory(ResourceType res_type, const SCIVersion& version, const ResourceNum& resource_num)
+{
+    switch (res_type)
+    {
+    case ResourceType::View:
+        return CreateViewResourceFactory();
+    case ResourceType::Font:
+        return CreateFontResourceFactory();
+    case ResourceType::Cursor:
+        return CreateCursorResourceFactory();
+    case ResourceType::Text:
+        return CreateTextResourceFactory();
+    case ResourceType::Sound:
+        return CreateSoundResourceFactory();
+    case ResourceType::Vocab:
+        return CreateVocabResourceFactory();
+    case ResourceType::Pic:
+        return CreatePicResourceFactory();
+    case ResourceType::Palette:
+        return CreatePaletteResourceFactory();
+    case ResourceType::Message:
+        return CreateMessageResourceFactory();
+    case ResourceType::Audio:
+        if (version.AudioIsWav && (!resource_num.GetBase36().has_value()))
+        {
+            return CreateWaveAudioResourceFactory();
+        }
+        else
+        {
+            return CreateAudioResourceFactory();
+        }
+    case ResourceType::AudioMap:
+        return CreateAudioMapResourceFactory();
+    default:
+        throw std::runtime_error("Unknown resource type");
+    }
+}
 
 //
 // Given a ResourceBlob, this creates the SCI resource represented by the data, and hands back
@@ -1198,42 +1213,25 @@ void DoNothing(ResourceEntity &resource) {}
 //
 std::unique_ptr<ResourceEntity> CreateResourceFromResourceData(const ResourceBlob &data, bool fallbackOnException)
 {
-    switch (data.GetType())
+    auto factory = CreateResourceEntityFactory(data.GetType(), data.GetVersion(), data.GetResourceNum());
+    std::unique_ptr<ResourceEntity> pResourceReturn(factory->CreateResource(data.GetVersion()));
+    try
     {
-        case ResourceType::View:
-            return CreateResourceHelper(data, CreateViewResource, CreateDefaultViewResource, fallbackOnException);
-        case ResourceType::Font:
-            return CreateResourceHelper(data, CreateFontResource, CreateDefaultFontResource, fallbackOnException);
-        case ResourceType::Cursor:
-            return CreateResourceHelper(data, CreateCursorResource, CreateDefaultCursorResource, fallbackOnException);
-        case ResourceType::Text:
-            return CreateResourceHelper(data, CreateTextResource, CreateDefaultTextResource, fallbackOnException);
-        case ResourceType::Sound:
-            return CreateResourceHelper(data, CreateSoundResource, CreateDefaultSoundResource, fallbackOnException);
-        case ResourceType::Vocab:
-            return CreateResourceHelper(data, CreateVocabResource, CreateVocabResource, fallbackOnException);
-        case ResourceType::Pic:
-            return CreateResourceHelper(data, CreatePicResource, CreateDefaultPicResource, fallbackOnException);
-        case ResourceType::Palette:
-            return CreateResourceHelper(data, CreatePaletteResource, CreatePaletteResource, fallbackOnException);
-        case ResourceType::Message:
-            return CreateResourceHelper(data, CreateMessageResource, CreateDefaultMessageResource, fallbackOnException);
-        case ResourceType::Audio:
-            if (data.GetVersion().AudioIsWav && (data.GetBase36() == NoBase36))
-            {
-                return CreateResourceHelper(data, CreateWaveAudioResource, CreateDefaultAudioResource, fallbackOnException);
-            }
-            else
-            {
-                return CreateResourceHelper(data, CreateAudioResource, CreateDefaultAudioResource, fallbackOnException);
-            }
-        case ResourceType::AudioMap:
-            return CreateResourceHelper(data, CreateMapResource, CreateMapResource, fallbackOnException);
-        default:
-        assert(false);
-        break;
+        pResourceReturn->InitFromResource(&data);
     }
-    return nullptr;
+    catch (std::exception)
+    {
+        if (!fallbackOnException)
+        {
+            throw;
+        }
+
+        data.AddStatusFlags(ResourceLoadStatusFlags::ResourceCreationFailed);
+        pResourceReturn = factory->CreateDefaultResource(data.GetVersion());
+        pResourceReturn->ResourceNumber = data.GetNumber();
+        pResourceReturn->PackageNumber = data.GetPackageHint();
+    }
+    return pResourceReturn;
 }
 
 void CResourceMap::SetGameLanguage(LangSyntax lang)

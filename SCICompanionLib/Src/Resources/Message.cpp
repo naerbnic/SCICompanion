@@ -349,12 +349,16 @@ ResourceTraits messageTraits =
     &MessageWriteNounsAndCases,
 };
 
-ResourceEntity *CreateMessageResource(SCIVersion version)
+class MessageResourceFactory : public ResourceEntityFactory
 {
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(messageTraits);
-    pResource->AddComponent(move(make_unique<TextComponent>()));
-    switch (version.MessageMapSource)
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
     {
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(messageTraits);
+        pResource->AddComponent(move(make_unique<TextComponent>()));
+        switch (version.MessageMapSource)
+        {
         case MessageMapSource::Included:
             pResource->SourceFlags = ResourceSourceFlags::ResourceMap;
             break;
@@ -367,19 +371,19 @@ ResourceEntity *CreateMessageResource(SCIVersion version)
         default:
             assert(false);
             break;
+        }
+        return pResource;
     }
-    return pResource.release();
+};
+
+std::unique_ptr<ResourceEntityFactory> CreateMessageResourceFactory()
+{
+    return std::make_unique<MessageResourceFactory>();
 }
 
-ResourceEntity *CreateDefaultMessageResource(SCIVersion version)
+std::unique_ptr<ResourceEntity> CreateNewMessageResource(const SCIVersion& version, uint16_t msgVersion)
 {
-    // Nothing different.
-    return CreateMessageResource(version);
-}
-
-ResourceEntity *CreateNewMessageResource(SCIVersion version, uint16_t msgVersion)
-{
-    ResourceEntity *resource = CreateMessageResource(version);
+    auto resource = CreateMessageResourceFactory()->CreateResource(version);
     TextComponent &text = resource->GetComponent<TextComponent>();
     text.msgVersion = msgVersion;
     text.Flags = MessagePropertyFlags::Noun | MessagePropertyFlags::Verb;

@@ -60,7 +60,7 @@ namespace UnitTests
             {
                 try
                 {
-                    ResourceEntity *pTest = CreateViewResource(sciVersion0);
+                    auto pTest = CreateViewResourceFactory()->CreateResource(sciVersion0);
                 }
                 catch (std::exception)
                 {

@@ -15,6 +15,7 @@
 
 #include "Components.h"
 #include "interfaces.h"
+#include "ResourceEntity.h"
 // FWD declarations
 class ResourceBlob;
 
@@ -127,5 +128,5 @@ WordClass GetWordClass(DWORD dwInfo);
 Vocab000::WordGroup GetWordGroup(DWORD dwInfo);
 DWORD InfoFromClassAndGroup(WordClass dwClass, Vocab000::WordGroup dwGroup);
 
-ResourceEntity *CreateVocabResource(SCIVersion version);
+std::unique_ptr<ResourceEntityFactory> CreateVocabResourceFactory();
 

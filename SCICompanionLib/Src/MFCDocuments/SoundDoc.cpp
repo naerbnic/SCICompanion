@@ -287,7 +287,7 @@ bool ImportMidi(std::vector<DeviceType> devices, ResourceEntity *resourceEntity)
 
 std::unique_ptr<ResourceEntity> ImportMidi(std::vector<DeviceType> devices)
 {
-    std::unique_ptr<ResourceEntity> pResource(CreateSoundResource(appState->GetVersion()));
+    std::unique_ptr<ResourceEntity> pResource(CreateSoundResourceFactory()->CreateResource(appState->GetVersion()));
 
     if (!ImportMidi(devices, pResource.get()))
     {

@@ -13,6 +13,7 @@
 ***************************************************************************/
 #pragma once
 #include "Components.h"
+#include "ResourceEntity.h"
 
 const int SCI0LetterCount = 128;
 const int CharTableOffset = 6;
@@ -42,5 +43,4 @@ struct FontComponent : ResourceComponent
     const FontTraits &Traits;
 };
 
-ResourceEntity *CreateFontResource(SCIVersion version);
-ResourceEntity *CreateDefaultFontResource(SCIVersion version);
+std::unique_ptr<ResourceEntityFactory> CreateFontResourceFactory();

@@ -1246,54 +1246,65 @@ ResourceTraits viewTraitsVGA2 =
     nullptr
 };
 
-ResourceEntity *CreateViewResource(SCIVersion version)
+class ViewResourceFactory : public ResourceEntityFactory
 {
-    ResourceTraits *ptraits = &viewTraitsEGA;
-    if (version.ViewFormat == ViewFormat::VGA1)
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
     {
-        ptraits = &viewTraitsVGA;
-    }
-    else if (version.ViewFormat == ViewFormat::VGA1_1)
-    {
-        ptraits = &viewTraitsVGA11;
-    }
-    else if (version.ViewFormat == ViewFormat::VGA2)
-    {
-        ptraits = &viewTraitsVGA2;
+        ResourceTraits* ptraits = &viewTraitsEGA;
+        if (version.ViewFormat == ViewFormat::VGA1)
+        {
+            ptraits = &viewTraitsVGA;
+        }
+        else if (version.ViewFormat == ViewFormat::VGA1_1)
+        {
+            ptraits = &viewTraitsVGA11;
+        }
+        else if (version.ViewFormat == ViewFormat::VGA2)
+        {
+            ptraits = &viewTraitsVGA2;
+        }
+
+        RasterTraits* prasterTraits = &viewRasterTraits;
+        if (version.ViewFormat == ViewFormat::VGA1)
+        {
+            prasterTraits = &viewRasterTraitsVGA1;
+        }
+        else if (version.ViewFormat == ViewFormat::VGA1_1)
+        {
+            prasterTraits = &viewRasterTraitsVGA1_1;
+        }
+        else if (version.ViewFormat == ViewFormat::VGA2)
+        {
+            prasterTraits = &viewRasterTraitsVGA1_1;
+        }
+
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(*ptraits);
+        pResource->AddComponent(move(make_unique<RasterComponent>(*prasterTraits, viewRasterSettings)));
+        return pResource;
     }
 
-    RasterTraits *prasterTraits = &viewRasterTraits;
-    if (version.ViewFormat == ViewFormat::VGA1)
+    std::unique_ptr<ResourceEntity> CreateDefaultResource(
+        const SCIVersion& version) const override
     {
-        prasterTraits = &viewRasterTraitsVGA1;
+        std::unique_ptr<ResourceEntity> pResource(CreateResource(version));
+        // Make a view with one loop that has one cel.
+        RasterComponent& raster = pResource->GetComponent<RasterComponent>();
+        raster.Resolution = version.DefaultResolution;
+        Loop loop;
+        Cel cel;
+        cel.TransparentColor = 0x3;
+        loop.Cels.push_back(cel);
+        raster.Loops.push_back(loop);
+        ::FillEmpty(raster, CelIndex(0, 0), size16(16, 16));
+        return pResource;
     }
-    else if (version.ViewFormat == ViewFormat::VGA1_1)
-    {
-        prasterTraits = &viewRasterTraitsVGA1_1;
-    }
-    else if (version.ViewFormat == ViewFormat::VGA2)
-    {
-        prasterTraits = &viewRasterTraitsVGA1_1;
-    }
+};
 
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(*ptraits);
-    pResource->AddComponent(move(make_unique<RasterComponent>(*prasterTraits, viewRasterSettings)));
-    return pResource.release();
-}
-
-ResourceEntity *CreateDefaultViewResource(SCIVersion version)
+std::unique_ptr<ResourceEntityFactory> CreateViewResourceFactory()
 {
-    std::unique_ptr<ResourceEntity> pResource(CreateViewResource(version));
-    // Make a view with one loop that has one cel.
-    RasterComponent &raster = pResource->GetComponent<RasterComponent>();
-    raster.Resolution = version.DefaultResolution;
-    Loop loop;
-    Cel cel;
-    cel.TransparentColor = 0x3;
-    loop.Cels.push_back(cel);
-    raster.Loops.push_back(loop);
-    ::FillEmpty(raster, CelIndex(0, 0), size16(16, 16));
-    return pResource.release();
+    return std::make_unique<ViewResourceFactory>();
 }
 
 

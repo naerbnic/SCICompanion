@@ -92,3 +92,10 @@ std::unique_ptr<ResourceEntity> ResourceEntity::Clone() const
     }
     return pClone;
 }
+
+// ResourceEntityFactory
+
+std::unique_ptr<ResourceEntity> ResourceEntityFactory::CreateDefaultResource(const SCIVersion& version) const
+{
+    return CreateResource(version);
+}

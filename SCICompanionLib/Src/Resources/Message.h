@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Components.h"
+#include "ResourceEntity.h"
 
 struct TextComponent;
 
@@ -52,9 +53,8 @@ enum class MessageChangeHint
 
 DEFINE_ENUM_FLAGS(MessageChangeHint, uint32_t)
 
-ResourceEntity *CreateMessageResource(SCIVersion version);
-ResourceEntity *CreateDefaultMessageResource(SCIVersion version);
-ResourceEntity *CreateNewMessageResource(SCIVersion version, uint16_t msgVersion);
+std::unique_ptr<ResourceEntityFactory> CreateMessageResourceFactory();
+std::unique_ptr<ResourceEntity> CreateNewMessageResource(const SCIVersion& version, uint16_t msgVersion);
 uint16_t CheckMessageVersion(sci::istream &byteStream);
 void ExportMessageToFile(const TextComponent &message, const std::string &filename);
 void ImportMessageFromFile(TextComponent &message, const std::string &filename);

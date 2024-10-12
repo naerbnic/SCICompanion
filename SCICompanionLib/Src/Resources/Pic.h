@@ -15,6 +15,7 @@
 
 #include "Components.h"
 #include "PicCommands.h"
+#include "ResourceEntity.h"
 
 struct PicTraits
 {
@@ -86,5 +87,4 @@ TPoint ScreenResolutionToGameResolution(TPoint point, NativeResolution resolutio
 }
 
 
-ResourceEntity *CreatePicResource(SCIVersion version);
-ResourceEntity *CreateDefaultPicResource(SCIVersion version);
+std::unique_ptr<ResourceEntityFactory> CreatePicResourceFactory();

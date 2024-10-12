@@ -96,7 +96,7 @@ void CompileTables::Save()
 }
 
 CompileResults::CompileResults(SCIVersion version, ICompileLog& log)
-    : _log(log), _text(CreateDefaultTextResource(version)) {
+    : _log(log), _text(CreateTextResourceFactory()->CreateDefaultResource(version)) {
 }
 
 TextComponent& CompileResults::GetTextComponent()

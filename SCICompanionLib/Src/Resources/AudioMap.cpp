@@ -360,30 +360,40 @@ AudioMapTraits audioMapTraits65535 =
 AudioMapComponent::AudioMapComponent() : AudioMapComponent(audioMapTraits65535) {}
 AudioMapComponent::AudioMapComponent(const AudioMapTraits &traits) : Traits(traits) {}
 
-ResourceEntity *CreateMapResource(SCIVersion version)
+class AudioMapResourceFactory : public ResourceEntityFactory
 {
-    AudioMapTraits *mapTraits = &audioMapTraits0;
-    if (version.AudioMapResourceNumber == 65535)
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
     {
-        mapTraits = &audioMapTraits65535;
-    }
-    else if (version.AudioMapResourceNumber == 0)
-    {
-        mapTraits = &audioMapTraits0;
-    }
-    else
-    {
-        throw std::exception("Unknown audio map resource number.");
-    }
+        AudioMapTraits* mapTraits = &audioMapTraits0;
+        if (version.AudioMapResourceNumber == 65535)
+        {
+            mapTraits = &audioMapTraits65535;
+        }
+        else if (version.AudioMapResourceNumber == 0)
+        {
+            mapTraits = &audioMapTraits0;
+        }
+        else
+        {
+            throw std::exception("Unknown audio map resource number.");
+        }
 
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(audioMapTraits);
-    pResource->AddComponent(move(make_unique<AudioMapComponent>(*mapTraits)));
-    return pResource.release();
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(audioMapTraits);
+        pResource->AddComponent(move(make_unique<AudioMapComponent>(*mapTraits)));
+        return pResource;
+    }
+};
+
+std::unique_ptr<ResourceEntityFactory> CreateAudioMapResourceFactory()
+{
+    return std::make_unique<AudioMapResourceFactory>();
 }
 
-ResourceEntity *CreateDefaultMapResource(SCIVersion version, int number)
+std::unique_ptr<ResourceEntity> CreateDefaultMapResource(const SCIVersion& version, int number)
 {
-    ResourceEntity *resource = CreateMapResource(version);
+    auto resource = CreateAudioMapResourceFactory()->CreateResource(version);
     resource->GetComponent<AudioMapComponent>().Version = (number == version.AudioMapResourceNumber) ? version.MainAudioMapVersion : version.Base36AudioMapVersion;
     resource->Base36Number = NoBase36;
     resource->PackageNumber = version.DefaultVolumeFile;

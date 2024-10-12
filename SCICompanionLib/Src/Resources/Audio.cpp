@@ -313,22 +313,36 @@ ResourceTraits waveAudioTraits =
     nullptr
 };
 
-ResourceEntity *CreateAudioResource(SCIVersion version)
+class AudioResourceFactory : public ResourceEntityFactory
 {
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(audioTraits);
-    pResource->AddComponent(move(make_unique<AudioComponent>()));
-    return pResource.release();
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
+    {
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(audioTraits);
+        pResource->AddComponent(move(make_unique<AudioComponent>()));
+        return pResource;
+    }
+};
+
+std::unique_ptr<ResourceEntityFactory> CreateAudioResourceFactory()
+{
+    return std::make_unique<AudioResourceFactory>();
 }
 
-ResourceEntity *CreateWaveAudioResource(SCIVersion version)
+class WaveAudioResourceFactory : public ResourceEntityFactory
 {
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(waveAudioTraits);
-    pResource->AddComponent(move(make_unique<AudioComponent>()));
-    return pResource.release();
-}
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
+    {
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(waveAudioTraits);
+        pResource->AddComponent(move(make_unique<AudioComponent>()));
+        return pResource;
+    }
+};
 
-ResourceEntity *CreateDefaultAudioResource(SCIVersion version)
+std::unique_ptr<ResourceEntityFactory> CreateWaveAudioResourceFactory()
 {
-    // Nothing different.
-    return CreateAudioResource(version);
+    return std::make_unique<WaveAudioResourceFactory>();
 }

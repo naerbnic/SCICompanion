@@ -286,7 +286,7 @@ CRoomExplorerWorkResult *CRoomExplorerWorkResult::CreateFromWorkItem(CRoomExplor
 
         for (auto &pRoomView : pWorkItem->_views)
         {
-            std::unique_ptr<ResourceEntity> view(CreateViewResource(appState->GetVersion()));
+            std::unique_ptr<ResourceEntity> view(CreateViewResourceFactory()->CreateResource(appState->GetVersion()));
             if (SUCCEEDED(view->InitFromResource(&pRoomView->blob)))
             {
                 DrawViewWithPriority(pic.Size, dataDisplay.get(), pdm.GetPicBits(PicScreen::Priority, PicPosition::Final, pic.Size), PriorityFromY(pRoomView->wy, *pdm.GetViewPort(PicPosition::Final)),

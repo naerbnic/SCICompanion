@@ -467,9 +467,19 @@ ResourceTraits paletteTraits_SCI11 =
     nullptr
 };
 
-ResourceEntity *CreatePaletteResource(SCIVersion version)
+class PaletteResourceFactory : public ResourceEntityFactory
 {
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(version.sci11Palettes ? paletteTraits_SCI11 : paletteTraits_SCI10);
-    pResource->AddComponent(move(make_unique<PaletteComponent>()));
-    return pResource.release();
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
+    {
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(version.sci11Palettes ? paletteTraits_SCI11 : paletteTraits_SCI10);
+        pResource->AddComponent(move(make_unique<PaletteComponent>()));
+        return pResource;
+    }
+};
+
+std::unique_ptr<ResourceEntityFactory> CreatePaletteResourceFactory()
+{
+    return std::make_unique<PaletteResourceFactory>();
 }

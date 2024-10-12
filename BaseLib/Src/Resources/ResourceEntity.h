@@ -162,3 +162,13 @@ public:
 private:
     std::unordered_map<std::type_index, std::unique_ptr<ResourceComponent>> components;
 };
+
+class ResourceEntityFactory
+{
+public:
+    ResourceEntityFactory() = default;
+    virtual ~ResourceEntityFactory() = default;
+
+    virtual std::unique_ptr<ResourceEntity> CreateResource(const SCIVersion& version) const = 0;
+    virtual std::unique_ptr<ResourceEntity> CreateDefaultResource(const SCIVersion& version) const;
+};

@@ -192,24 +192,29 @@ ResourceTraits cursorTraitsVGA =
     &NoValidationFunc
 };
 
-ResourceEntity *CreateCursorResource(SCIVersion version)
+class CursorResourceFactory : public ResourceEntityFactory
 {
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(version.GrayScaleCursors ? cursorTraitsVGA : cursorTraitsEGA);
-    pResource->AddComponent(move(make_unique<RasterComponent>((version.GrayScaleCursors) ? cursorRasterTraitsSCI1 : cursorRasterTraitsSCI0, cursorRasterSettings)));
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
+    {
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(version.GrayScaleCursors ? cursorTraitsVGA : cursorTraitsEGA);
+        pResource->AddComponent(move(make_unique<RasterComponent>((version.GrayScaleCursors) ? cursorRasterTraitsSCI1 : cursorRasterTraitsSCI0, cursorRasterSettings)));
 
-    // Always just make a single 16x16 thing.
-    RasterComponent &raster = pResource->GetComponent<RasterComponent>();
-    Loop loop;
-    Cel cel;
-    cel.TransparentColor = CursorTransparent;
-    loop.Cels.push_back(cel);
-    raster.Loops.push_back(loop);
-    ::FillEmpty(raster, CelIndex(0, 0), size16(16, 16));
+        // Always just make a single 16x16 thing.
+        RasterComponent& raster = pResource->GetComponent<RasterComponent>();
+        Loop loop;
+        Cel cel;
+        cel.TransparentColor = CursorTransparent;
+        loop.Cels.push_back(cel);
+        raster.Loops.push_back(loop);
+        ::FillEmpty(raster, CelIndex(0, 0), size16(16, 16));
 
-    return pResource.release();
-}
+        return pResource;
+    }
+};
 
-ResourceEntity *CreateDefaultCursorResource(SCIVersion version)
+std::unique_ptr<ResourceEntityFactory> CreateCursorResourceFactory()
 {
-    return CreateCursorResource(version);
+    return std::make_unique<CursorResourceFactory>();
 }

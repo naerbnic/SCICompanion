@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Components.h"
+#include "ResourceEntity.h"
 
 class ResourceEntity;
 
@@ -207,5 +208,4 @@ struct CelHeader_VGA11
 };
 #include <poppack.h>
 
-ResourceEntity *CreateViewResource(SCIVersion version);
-ResourceEntity *CreateDefaultViewResource(SCIVersion version);
+std::unique_ptr<ResourceEntityFactory> CreateViewResourceFactory();

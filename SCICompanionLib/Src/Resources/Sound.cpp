@@ -1891,20 +1891,24 @@ SoundTraits soundTraitsSCI1 =
     false,
 };
 
-ResourceEntity *CreateSoundResource(SCIVersion version)
+class SoundResourceFactory : public ResourceEntityFactory
 {
-    SoundTraits *ptraits = &soundTraitsSCI0;
-    if (version.SoundFormat == SoundFormat::SCI1)
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
     {
-        ptraits = &soundTraitsSCI1;
+        SoundTraits* ptraits = &soundTraitsSCI0;
+        if (version.SoundFormat == SoundFormat::SCI1)
+        {
+            ptraits = &soundTraitsSCI1;
+        }
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>((version.SoundFormat == SoundFormat::SCI0) ? soundResTraits : soundResTraitsSCI1);
+        pResource->AddComponent(move(make_unique<SoundComponent>(*ptraits)));
+        return pResource;
     }
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>((version.SoundFormat == SoundFormat::SCI0) ? soundResTraits : soundResTraitsSCI1);
-    pResource->AddComponent(move(make_unique<SoundComponent>(*ptraits)));
-    return pResource.release();
-}
+};
 
-ResourceEntity *CreateDefaultSoundResource(SCIVersion version)
+std::unique_ptr<ResourceEntityFactory> CreateSoundResourceFactory()
 {
-    // Nothing different.
-    return CreateSoundResource(version);
+    return std::make_unique<SoundResourceFactory>();
 }

@@ -1493,7 +1493,7 @@ void CMainFrame::OnFileNewPic()
         CPicDoc *pDocument = (CPicDoc*)pDocTemplate->OpenDocumentFile(nullptr, TRUE);
         if (pDocument)
         {
-            unique_ptr<ResourceEntity> pEditPic(CreateDefaultPicResource(appState->GetVersion()));
+            unique_ptr<ResourceEntity> pEditPic(CreatePicResourceFactory()->CreateDefaultResource(appState->GetVersion()));
             if (appState->GetVersion().PicFormat >= PicFormat::VGA1_1)
             {
                 // Let's add a palette. 
@@ -1531,7 +1531,7 @@ void CMainFrame::OnFileNewGame()
     dialog.DoModal();
 }
 
-#define DECLARE_NEWRESOURCE_AP2(__templateFunc, __documentClass, __resourceClass, __resourceCreate, __resourceSetter) \
+#define DECLARE_NEWRESOURCE_AP2(__templateFunc, __documentClass, __resourceClass, __resourceFactory, __resourceSetter) \
     CDocTemplate *pDocTemplate = appState->__templateFunc(); \
     if (pDocTemplate) \
             { \
@@ -1539,7 +1539,7 @@ void CMainFrame::OnFileNewGame()
         __documentClass *pDocument = (__documentClass*)pDocTemplate->OpenDocumentFile(nullptr, TRUE); \
         if (pDocument) \
                         { \
-            std::unique_ptr<__resourceClass> pEVR(__resourceCreate(appState->GetVersion())); \
+            std::unique_ptr<__resourceClass> pEVR(__resourceFactory()->CreateDefaultResource(appState->GetVersion())); \
             if (SUCCEEDED(hr) && pEVR) \
                                     { \
                 pDocument->__resourceSetter(std::move(pEVR)); \
@@ -1554,22 +1554,22 @@ void CMainFrame::OnFileNewGame()
 
 void CMainFrame::OnFileNewView()
 {
-    DECLARE_NEWRESOURCE_AP2(GetViewTemplate, CNewRasterResourceDocument, ResourceEntity, CreateDefaultViewResource, SetNewResource)
+    DECLARE_NEWRESOURCE_AP2(GetViewTemplate, CNewRasterResourceDocument, ResourceEntity, CreateViewResourceFactory, SetNewResource)
 }
 
 void CMainFrame::OnFileNewFont()
 {
-    DECLARE_NEWRESOURCE_AP2(GetFontTemplate, CNewRasterResourceDocument, ResourceEntity, CreateDefaultFontResource, SetNewResource)
+    DECLARE_NEWRESOURCE_AP2(GetFontTemplate, CNewRasterResourceDocument, ResourceEntity, CreateFontResourceFactory, SetNewResource)
 }
 
 void CMainFrame::OnFileNewCursor()
 {
-    DECLARE_NEWRESOURCE_AP2(GetCursorTemplate, CNewRasterResourceDocument, ResourceEntity, CreateDefaultCursorResource, SetNewResource)
+    DECLARE_NEWRESOURCE_AP2(GetCursorTemplate, CNewRasterResourceDocument, ResourceEntity, CreateCursorResourceFactory, SetNewResource)
 }
 
 void CMainFrame::OnFileNewText()
 {
-    DECLARE_NEWRESOURCE_AP2(GetTextTemplate, CTextDoc, ResourceEntity, CreateDefaultTextResource, SetTextResource)
+    DECLARE_NEWRESOURCE_AP2(GetTextTemplate, CTextDoc, ResourceEntity, CreateTextResourceFactory, SetTextResource)
 }
 
 void CMainFrame::OnFileNewPalette()
@@ -1639,7 +1639,7 @@ void CMainFrame::OnFileNewSound()
         device = DeviceType::SCI1_GM;
     }
     
-    std::unique_ptr<ResourceEntity> pSound(CreateSoundResource(appState->GetVersion()));
+    std::unique_ptr<ResourceEntity> pSound(CreateSoundResourceFactory()->CreateResource(appState->GetVersion()));
     if (pSound)
     {
         CDocTemplate *pDocTemplate = appState->GetSoundTemplate();

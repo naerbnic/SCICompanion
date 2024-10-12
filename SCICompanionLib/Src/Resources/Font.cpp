@@ -241,33 +241,43 @@ FontTraits fontTraitsSCI1 =
     true
 };
 
-ResourceEntity *CreateFontResource(SCIVersion version)
+class FontResourceFactory : public ResourceEntityFactory
 {
-    FontTraits *fontTraits = &fontTraitsSCI0;
-    if (version.FontExtendedChars)
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(const SCIVersion& version) const override
     {
-        fontTraits = &fontTraitsSCI1;
+        FontTraits* fontTraits = &fontTraitsSCI0;
+        if (version.FontExtendedChars)
+        {
+            fontTraits = &fontTraitsSCI1;
+        }
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(fontResTraits);
+        pResource->AddComponent(move(make_unique<RasterComponent>(fontRasterTraits, fontRasterSettings)));
+        pResource->AddComponent(move(make_unique<FontComponent>(*fontTraits)));
+        return pResource;
     }
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(fontResTraits);
-    pResource->AddComponent(move(make_unique<RasterComponent>(fontRasterTraits, fontRasterSettings)));
-    pResource->AddComponent(move(make_unique<FontComponent>(*fontTraits)));
-    return pResource.release();
-}
 
-ResourceEntity *CreateDefaultFontResource(SCIVersion version)
-{
-    std::unique_ptr<ResourceEntity> pResource(CreateFontResource(version));
-    // Make a view with one loop that has one cel.
-    RasterComponent &raster = pResource->GetComponent<RasterComponent>();
-    Loop loop;
-    Cel cel;
-    cel.TransparentColor = 0xf;
-    loop.Cels.push_back(cel);
-    raster.Loops.push_back(loop);
-    ::FillEmpty(raster, CelIndex(0, 0), size16(8, 8));
-    for (int nCel = 1; nCel < SCI0LetterCount; nCel++)
+    std::unique_ptr<ResourceEntity> CreateDefaultResource(
+        const SCIVersion& version) const override
     {
-        ::InsertCel(raster, CelIndex(0, nCel - 1), false, true);
+        std::unique_ptr<ResourceEntity> pResource(CreateResource(version));
+        // Make a view with one loop that has one cel.
+        RasterComponent& raster = pResource->GetComponent<RasterComponent>();
+        Loop loop;
+        Cel cel;
+        cel.TransparentColor = 0xf;
+        loop.Cels.push_back(cel);
+        raster.Loops.push_back(loop);
+        ::FillEmpty(raster, CelIndex(0, 0), size16(8, 8));
+        for (int nCel = 1; nCel < SCI0LetterCount; nCel++)
+        {
+            ::InsertCel(raster, CelIndex(0, nCel - 1), false, true);
+        }
+        return pResource;
     }
-    return pResource.release();
+};
+
+std::unique_ptr<ResourceEntityFactory> CreateFontResourceFactory()
+{
+    return std::make_unique<FontResourceFactory>();
 }

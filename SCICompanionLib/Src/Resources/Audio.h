@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Components.h"
+#include "ResourceEntity.h"
 
 enum class AudioFlags : uint8_t
 {
@@ -70,8 +71,7 @@ public:
     bool IsClipped;
 };
 
-ResourceEntity *CreateAudioResource(SCIVersion version);
-ResourceEntity *CreateWaveAudioResource(SCIVersion version);
-ResourceEntity *CreateDefaultAudioResource(SCIVersion version);
+std::unique_ptr<ResourceEntityFactory> CreateAudioResourceFactory();
+std::unique_ptr<ResourceEntityFactory> CreateWaveAudioResourceFactory();
 uint32_t AudioEstimateSize(const ResourceEntity &resource);
 std::string GetAudioLength(const AudioComponent &audio);

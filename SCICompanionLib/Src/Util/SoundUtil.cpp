@@ -379,7 +379,7 @@ AudioVolumeName GetVolumeToUse(SCIVersion version, uint32_t base36Number)
 
 std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string &filename)
 {
-    std::unique_ptr<ResourceEntity> resource(CreateDefaultAudioResource(appState->GetVersion()));
+    std::unique_ptr<ResourceEntity> resource(CreateAudioResourceFactory()->CreateDefaultResource(appState->GetVersion()));
     AudioComponentFromWaveFile(sci::istream::ReadFromFile(filename), resource->GetComponent<AudioComponent>());
     resource->SourceFlags = ResourceSourceFlags::AudioCache;
     return resource;

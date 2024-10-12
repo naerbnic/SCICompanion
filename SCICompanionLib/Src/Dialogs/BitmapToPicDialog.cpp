@@ -542,7 +542,7 @@ UINT CBitmapToPicDialog::s_ThreadWorker(THREADINFO *pInfo)
         if (!fAbort)
         {
             // Put the pic in the static, and give stats on it.
-            std::unique_ptr<ResourceEntity> pResource(CreatePicResource(appState->GetVersion()));
+            std::unique_ptr<ResourceEntity> pResource(CreatePicResourceFactory()->CreateResource(appState->GetVersion()));
             PicComponent &pic = pResource->GetComponent<PicComponent>();
             InsertCommands(pic, -1, pcommands->size(), &(*pcommands)[0]);
 

@@ -500,7 +500,7 @@ AudioCacheResourceSource::_PrepareForAddOrRemove()
     else
     {
         // Make a default empty audio map. This is used when we create new audio maps (e.g. when creating new message resources)
-        audioMap.reset(CreateDefaultMapResource(_version, resourceNumber));
+        audioMap = CreateDefaultMapResource(_version, resourceNumber);
         audioMap->SourceFlags = ResourceSourceFlags::AudioMapCache;
     }
     return audioMap;

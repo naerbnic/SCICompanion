@@ -1293,68 +1293,73 @@ PicComponent::PicComponent() : PicComponent(&picTraitsEGA) {}
 
 PicComponent::PicComponent(const PicTraits *traits) : Traits(traits), Size(size16(DEFAULT_PIC_WIDTH, DEFAULT_PIC_HEIGHT)), UniqueId(g_PicIds++)  {}
 
-ResourceEntity *CreatePicResource(SCIVersion version)
+class PicResourceFactory : public ResourceEntityFactory
 {
-    PicTraits *picTraits = &picTraitsEGA;
-    ResourceTraits *ptraits = &picResourceTraitsEGA;
-    if (version.PicFormat == PicFormat::VGA1)
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
     {
-        ptraits = &picResourceTraitsVGA;
-        picTraits = &picTraitsVGA_1_0;
-    }
-    else if (version.PicFormat == PicFormat::VGA1_1)
-    {
-        ptraits = &picResourceTraitsVGA11;
-        picTraits = &picTraitsVGA_1_1;
-    }
-    else if (version.PicFormat == PicFormat::VGA2)
-    {
-        ptraits = &picResourceTraitsVGA2;
-        picTraits = &picTraitsVGA_2;
-    }
-
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(*ptraits);
-    pResource->AddComponent(move(make_unique<PicComponent>(picTraits)));
-    return pResource.release();
-}
-
-ResourceEntity *CreateDefaultPicResource(SCIVersion version)
-{
-    std::unique_ptr<ResourceEntity> pResource(CreatePicResource(version));
-    // Make a view with one loop that has one cel.
-    PicComponent &pic = pResource->GetComponent<PicComponent>();
-
-    // Reserve space for about 166 commands.
-    pic.commands.reserve(500 / 2);
-
-    if (version.PicFormat == PicFormat::EGA)
-    {
-        // Now Prepopulate the pic with palettes, pen styles/sizes and screen on/offs.
-        // Otherwise, the SCI interpreter may use values from the previous picture.
-
-        // First the palettes:
-        for (uint8_t b = 0; b < 4; b++)
+        PicTraits* picTraits = &picTraitsEGA;
+        ResourceTraits* ptraits = &picResourceTraitsEGA;
+        if (version.PicFormat == PicFormat::VGA1)
         {
-            pic.commands.push_back(PicCommand::CreateSetPalette(b, g_defaultPalette));
+            ptraits = &picResourceTraitsVGA;
+            picTraits = &picTraitsVGA_1_0;
         }
-        // We actually don't need to set the pen style - it will be set with
-        // the first pen command.
-    }
-    else if (version.PicFormat == PicFormat::VGA1)
-    {
-        // I don't think we need anything else
-    }
-    else if (version.PicFormat == PicFormat::VGA1_1)
-    {
-        // We need to have a set priority bars command
-        PicCommand setPriBarsCommand;
-        setPriBarsCommand.CreateSetPriorityBars(g_defaultPriBands16Bit, pic.Traits->SixteenBitPri, pic.Traits->IsVGA);
-        pic.commands.insert(pic.commands.begin(), setPriBarsCommand);
-    }
-    else if (version.PicFormat == PicFormat::VGA2)
-    {
-        switch (version.DefaultResolution)
+        else if (version.PicFormat == PicFormat::VGA1_1)
         {
+            ptraits = &picResourceTraitsVGA11;
+            picTraits = &picTraitsVGA_1_1;
+        }
+        else if (version.PicFormat == PicFormat::VGA2)
+        {
+            ptraits = &picResourceTraitsVGA2;
+            picTraits = &picTraitsVGA_2;
+        }
+
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(*ptraits);
+        pResource->AddComponent(move(make_unique<PicComponent>(picTraits)));
+        return pResource;
+    }
+
+    std::unique_ptr<ResourceEntity> CreateDefaultResource(
+        const SCIVersion& version) const override
+    {
+        std::unique_ptr<ResourceEntity> pResource(CreateResource(version));
+        // Make a view with one loop that has one cel.
+        PicComponent& pic = pResource->GetComponent<PicComponent>();
+
+        // Reserve space for about 166 commands.
+        pic.commands.reserve(500 / 2);
+
+        if (version.PicFormat == PicFormat::EGA)
+        {
+            // Now Prepopulate the pic with palettes, pen styles/sizes and screen on/offs.
+            // Otherwise, the SCI interpreter may use values from the previous picture.
+
+            // First the palettes:
+            for (uint8_t b = 0; b < 4; b++)
+            {
+                pic.commands.push_back(PicCommand::CreateSetPalette(b, g_defaultPalette));
+            }
+            // We actually don't need to set the pen style - it will be set with
+            // the first pen command.
+        }
+        else if (version.PicFormat == PicFormat::VGA1)
+        {
+            // I don't think we need anything else
+        }
+        else if (version.PicFormat == PicFormat::VGA1_1)
+        {
+            // We need to have a set priority bars command
+            PicCommand setPriBarsCommand;
+            setPriBarsCommand.CreateSetPriorityBars(g_defaultPriBands16Bit, pic.Traits->SixteenBitPri, pic.Traits->IsVGA);
+            pic.commands.insert(pic.commands.begin(), setPriBarsCommand);
+        }
+        else if (version.PicFormat == PicFormat::VGA2)
+        {
+            switch (version.DefaultResolution)
+            {
             case NativeResolution::Res320x200:
                 pic.Size = size16(320, 200);
                 break;
@@ -1367,14 +1372,22 @@ ResourceEntity *CreateDefaultPicResource(SCIVersion version)
             default:
                 assert(false);
                 break;
+            }
         }
+
+        // Finally, turn off the screens.
+        pic.commands.push_back(PicCommand::CreateDisableVisual());
+        pic.commands.push_back(PicCommand::CreateDisablePriority());
+        pic.commands.push_back(PicCommand::CreateDisableControl());
+
+        return pResource;
     }
+};
 
-    // Finally, turn off the screens.
-    pic.commands.push_back(PicCommand::CreateDisableVisual());
-    pic.commands.push_back(PicCommand::CreateDisablePriority());
-    pic.commands.push_back(PicCommand::CreateDisableControl());
 
-    return pResource.release();
+
+std::unique_ptr<ResourceEntityFactory> CreatePicResourceFactory()
+{
+    return std::make_unique<PicResourceFactory>();
 }
 

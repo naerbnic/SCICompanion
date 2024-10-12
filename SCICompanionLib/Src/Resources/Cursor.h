@@ -14,5 +14,4 @@
 #pragma once
 #include "ResourceEntity.h"
 
-ResourceEntity *CreateCursorResource(SCIVersion version);
-ResourceEntity *CreateDefaultCursorResource(SCIVersion version);
+std::unique_ptr<ResourceEntityFactory> CreateCursorResourceFactory();

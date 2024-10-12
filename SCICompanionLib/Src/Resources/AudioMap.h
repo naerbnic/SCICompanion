@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Components.h"
+#include "ResourceEntity.h"
 
 bool IsMainAudioMap(AudioMapVersion version);
 
@@ -62,5 +63,5 @@ public:
     const AudioMapTraits &Traits;
 };
 
-ResourceEntity *CreateMapResource(SCIVersion version);
-ResourceEntity *CreateDefaultMapResource(SCIVersion version, int number);
+std::unique_ptr<ResourceEntityFactory> CreateAudioMapResourceFactory();
+std::unique_ptr<ResourceEntity> CreateDefaultMapResource(const SCIVersion& version, int number);

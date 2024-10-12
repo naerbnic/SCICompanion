@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Components.h"
+#include "ResourceEntity.h"
 
 class ResourceEntity;
 struct AudioComponent;
@@ -276,6 +277,5 @@ void EnsureChannelPreamble(ChannelInfo &channel);
 DWORD _ReadBEDWORD(std::istream &stream);
 uint16_t _ReadBEWORD(std::istream &stream);
 
-ResourceEntity *CreateSoundResource(SCIVersion version);
-ResourceEntity *CreateDefaultSoundResource(SCIVersion version);
+std::unique_ptr<ResourceEntityFactory> CreateSoundResourceFactory();
 

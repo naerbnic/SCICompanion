@@ -716,9 +716,19 @@ ResourceTraits vocabTraits_900 =
     nullptr
 };
 
-ResourceEntity *CreateVocabResource(SCIVersion version)
+class VocabResourceFactory : public ResourceEntityFactory
 {
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(version.MainVocabResource == 0 ? vocabTraits_000 : vocabTraits_900);
-    pResource->AddComponent(move(make_unique<Vocab000>()));
-    return pResource.release();
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
+    {
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(version.MainVocabResource == 0 ? vocabTraits_000 : vocabTraits_900);
+        pResource->AddComponent(move(make_unique<Vocab000>()));
+        return pResource;
+    }
+};
+
+std::unique_ptr<ResourceEntityFactory> CreateVocabResourceFactory()
+{
+    return std::make_unique<VocabResourceFactory>();
 }

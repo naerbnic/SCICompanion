@@ -169,17 +169,20 @@ ResourceTraits textTraits =
     nullptr
 };
 
-ResourceEntity *CreateTextResource(SCIVersion version)
+class TextResourceFactory : public ResourceEntityFactory
 {
-    std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(textTraits);
-    pResource->AddComponent(move(make_unique<TextComponent>()));
-    return pResource.release();
-}
+public:
+    std::unique_ptr<ResourceEntity> CreateResource(
+        const SCIVersion& version) const override
+    {
+        std::unique_ptr<ResourceEntity> pResource = std::make_unique<ResourceEntity>(textTraits);
+        pResource->AddComponent(move(make_unique<TextComponent>()));
+        return pResource;
+    }
+};
 
-ResourceEntity *CreateDefaultTextResource(SCIVersion version)
+std::unique_ptr<ResourceEntityFactory> CreateTextResourceFactory()
 {
-    // Nothing different.
-    return CreateTextResource(version);
+    return std::make_unique<TextResourceFactory>();
 }
-
 

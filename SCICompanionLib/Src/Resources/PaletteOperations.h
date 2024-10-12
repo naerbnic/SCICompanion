@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Components.h"
+#include "ResourceEntity.h"
 
 class GameFolderHelper;
 
@@ -79,7 +80,8 @@ void WritePaletteSCI2(sci::ostream &byteStream, const PaletteComponent &palette)
 
 HBITMAP CreateBitmapFromPaletteResource(const ResourceEntity *prb, SCIBitmapInfo *pbmi, uint8_t **ppBitsDest, COLORREF *transparentColor = nullptr, const std::vector<const Cel*> *imageCels = nullptr);
 HBITMAP CreateBitmapFromPaletteComponent(const PaletteComponent &palette, SCIBitmapInfo *pbmi, uint8_t **ppBitsDest, COLORREF *transparentColor = nullptr, const std::vector<const Cel*> *imageCels = nullptr);
-ResourceEntity *CreatePaletteResource(SCIVersion version);
+
+std::unique_ptr<ResourceEntityFactory> CreatePaletteResourceFactory();
 
 void LoadPALFile(const std::string &filename, PaletteComponent &palette, int startIndex);
 void SavePALFile(const std::string &filename, PaletteComponent &palette, int startIndex, int count);

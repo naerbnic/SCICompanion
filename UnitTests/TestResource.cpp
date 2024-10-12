@@ -44,14 +44,14 @@ namespace UnitTests
         TEST_METHOD(TestCreateDefaultResources)
         {
 	        // Create the default resources.
-            ResourceEntity *pTest = CreateDefaultViewResource(sciVersion0);
+            auto pTest = CreateViewResourceFactory()->CreateDefaultResource(sciVersion0);
         }
 
         TEST_METHOD(TestViewMirror)
         {
             RasterChange change;
-            ResourceEntity *pTest = CreateDefaultViewResource(sciVersion0);
-            Assert::IsNotNull(pTest);
+            auto pTest = CreateViewResourceFactory()->CreateDefaultResource(sciVersion0);
+            Assert::IsNotNull(pTest.get());
             RasterComponent *raster = pTest->TryGetComponent<RasterComponent>();
             Assert::IsNotNull(raster);
             // Insert second loop:
