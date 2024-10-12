@@ -448,7 +448,6 @@
     <ClCompile Include="Src\Compile\SyntaxParser.cpp" />
     <ClCompile Include="Src\Compile\Types.cpp" />
     <ClCompile Include="Src\CppFormat\format.cc" />
-    <ClCompile Include="Src\CRC32\crc.cpp" />
     <ClCompile Include="Src\CrystalEdit\CCrystalEditView.cpp" />
     <ClCompile Include="Src\CrystalEdit\CCrystalTextBuffer.cpp" />
     <ClCompile Include="Src\CrystalEdit\CCrystalTextView.cpp" />
@@ -636,7 +635,6 @@
     <ClInclude Include="Src\Compile\SyntaxParser.h" />
     <ClInclude Include="Src\Compile\Types.h" />
     <ClInclude Include="Src\CppFormat\format.h" />
-    <ClInclude Include="Src\CRC32\crc.h" />
     <ClInclude Include="Src\CrystalEdit\CCrystalEditView.h" />
     <ClInclude Include="Src\CrystalEdit\CCrystalTextBuffer.h" />
     <ClInclude Include="Src\CrystalEdit\CCrystalTextView.h" />
@@ -978,6 +976,9 @@
   <ItemGroup>
     <ProjectReference Include="..\BaseLib\BaseLib.vcxproj">
       <Project>{b1940dc2-f371-46aa-a6b9-687999a0a31c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ThirdPartyLibraries\ThirdPartyLibraries.vcxproj">
+      <Project>{b19c8dc1-b2a9-484d-90c4-c1c3b9683ebc}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

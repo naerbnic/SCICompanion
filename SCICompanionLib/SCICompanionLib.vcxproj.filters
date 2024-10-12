@@ -330,9 +330,6 @@
     <ClCompile Include="Src\CrystalEdit\CFindTextDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\CRC32\crc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Src\CppFormat\format.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1152,9 +1149,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\CrystalEdit\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\CRC32\crc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\CppFormat\format.h">

@@ -171,6 +171,9 @@
     <ProjectReference Include="..\SCICompanionLib\SCICompanionLib.vcxproj">
       <Project>{761de01c-57f6-45c5-aafc-ac48000c423f}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\ThirdPartyLibraries\ThirdPartyLibraries.vcxproj">
+      <Project>{b19c8dc1-b2a9-484d-90c4-c1c3b9683ebc}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Files\Pics\SCI0\pic.006" />
