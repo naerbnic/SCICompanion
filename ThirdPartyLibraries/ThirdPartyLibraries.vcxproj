@@ -75,12 +75,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -153,10 +153,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\CppFormat\format.h" />
+    <ClInclude Include="Libraries\cpptoml\cpptoml.h" />
     <ClInclude Include="Libraries\CRC32\crc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Libraries\CppFormat\README.rst" />
+    <None Include="Libraries\cpptoml\LICENSE" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

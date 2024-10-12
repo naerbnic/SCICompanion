@@ -324,7 +324,6 @@
     <ClInclude Include="Src\Compile\SCISyntaxParser.h" />
     <ClInclude Include="Src\Compile\SyntaxContext.h" />
     <ClInclude Include="Src\Compile\ValidateSaid.h" />
-    <ClInclude Include="Src\cpptoml\cpptoml.h" />
     <ClInclude Include="Src\Dialogs\AudioEditDialog.h" />
     <ClInclude Include="Src\Dialogs\AudioPreferencesDialog.h" />
     <ClInclude Include="Src\Dialogs\ChooseTalkerViewLoopDialog.h" />
@@ -799,7 +798,6 @@
     </None>
     <None Include="SCICompanionLib.def" />
     <None Include="SCICompanionLib.licenseheader" />
-    <None Include="Src\cpptoml\LICENSE" />
     <None Include="Src\CrystalEdit\CCrystalEditView.inl" />
     <None Include="Src\CrystalEdit\CCrystalTextBuffer.inl" />
     <None Include="Src\CrystalEdit\CCrystalTextView.inl" />

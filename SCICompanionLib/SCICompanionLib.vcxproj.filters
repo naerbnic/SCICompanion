@@ -1367,9 +1367,6 @@
     <ClInclude Include="Src\Resources\GameFolderHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\cpptoml\cpptoml.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Compile\DecompilerConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1774,7 +1771,6 @@
     <None Include="res\eyedropper.cur">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Src\cpptoml\LICENSE" />
     <None Include="res\cursorsh.cur">
       <Filter>Resource Files</Filter>
     </None>

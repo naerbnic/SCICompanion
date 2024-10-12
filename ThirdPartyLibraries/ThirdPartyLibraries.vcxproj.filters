@@ -29,8 +29,12 @@
     <ClInclude Include="Libraries\CppFormat\format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Libraries\cpptoml\cpptoml.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Libraries\CppFormat\README.rst" />
+    <None Include="Libraries\cpptoml\LICENSE" />
   </ItemGroup>
 </Project>
