@@ -855,7 +855,7 @@ std::string FigureOutResourceName(const std::string &iniFileName, ResourceType t
     if ((size_t)type < ARRAYSIZE(g_resourceInfo))
     {
         std::string keyName = default_reskey(iNumber, base36Number);
-        name = GetIniString(iniFileName, GetResourceInfo(type).pszTitleDefault, keyName, keyName.c_str());
+        name = GetIniString(iniFileName, GetResourceInfo(type).pszTitleDefault.c_str(), keyName, keyName.c_str());
     }
     return name;
 }

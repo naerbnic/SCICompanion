@@ -28,12 +28,12 @@ void ExportResourceAsBitmap(const ResourceEntity &resourceEntity);
 
 struct SCI_RESOURCE_INFO
 {
-    const char *pszSampleFolderName;
-    const char *pszTitleDefault;         // Name of the resource in the editor, and the header in game.ini
-    const char *pszFileFilter_SCI0;
-    const char *pszFileFilter_SCI1;
-    const char *pszNameMatch_SCI0;
-    const char *pszNameMatch_SCI1;
+    std::string pszSampleFolderName;
+    std::string pszTitleDefault;         // Name of the resource in the editor, and the header in game.ini
+    std::string pszFileFilter_SCI0;
+    std::string pszFileFilter_SCI1;
+    std::string pszNameMatch_SCI0;
+    std::string pszNameMatch_SCI1;
 };
 
 extern SCI_RESOURCE_INFO g_resourceInfo[18];

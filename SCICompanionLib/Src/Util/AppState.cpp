@@ -333,7 +333,7 @@ void AppState::OpenScript(WORD w)
     {
         std::string keyName = default_reskey(w, NoBase36);
         TCHAR szScriptName[100];
-        if (GetPrivateProfileString(GetResourceInfo(ResourceType::Script).pszTitleDefault, keyName.c_str(), keyName.c_str(), szScriptName, ARRAYSIZE(szScriptName), szGameIni))
+        if (GetPrivateProfileString(GetResourceInfo(ResourceType::Script).pszTitleDefault.c_str(), keyName.c_str(), keyName.c_str(), szScriptName, ARRAYSIZE(szScriptName), szGameIni))
         {
             OpenScript(szScriptName, nullptr, w);
         }

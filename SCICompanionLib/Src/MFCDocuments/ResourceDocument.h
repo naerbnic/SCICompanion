@@ -70,7 +70,7 @@ protected:
 
     // Disabled until we see what people are doing with this
     // virtual PCTSTR _GetFileNameDefault() { return g_resourceInfo[(int)_GetType()].pszFileNameDefault; }
-    virtual PCTSTR _GetTitleDefault() { return g_resourceInfo[(int)_GetType()].pszTitleDefault; }
+    virtual PCTSTR _GetTitleDefault() { return g_resourceInfo[(int)_GetType()].pszTitleDefault.c_str(); }
     virtual std::string _GetFileDialogFilter();
 
     DECLARE_MESSAGE_MAP()
