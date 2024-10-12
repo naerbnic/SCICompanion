@@ -148,6 +148,7 @@
     <ClInclude Include="Src\Resources\PicCommandsCommon.h" />
     <ClInclude Include="Src\Resources\ResourceBlob.h" />
     <ClInclude Include="Src\Resources\ResourceLoader.h" />
+    <ClInclude Include="Src\Resources\ResourceUtil.h" />
     <ClInclude Include="Src\Util\Codec.h" />
     <ClInclude Include="Src\Util\CodecAlt.h" />
     <ClInclude Include="Src\Util\EnumFlags.h" />
@@ -168,6 +169,7 @@
     <ClCompile Include="Src\Resources\PicCommandsCommon.cpp" />
     <ClCompile Include="Src\Resources\ResourceBlob.cpp" />
     <ClCompile Include="Src\Resources\ResourceLoader.cpp" />
+    <ClCompile Include="Src\Resources\ResourceUtil.cpp" />
     <ClCompile Include="Src\Util\Codec.cpp" />
     <ClCompile Include="Src\Util\CodecAlt.cpp" />
     <ClCompile Include="Src\Util\Logger.cpp" />

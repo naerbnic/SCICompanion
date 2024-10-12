@@ -14,10 +14,11 @@
 // ResourceBase.cpp : implementation file
 //
 
-#include "stdafx.h"
 #include "ResourceUtil.h"
 #include "format.h"
 #include <regex>
+#include <shlwapi.h>
+
 #include "ResourceBlob.h"
 #include "BaseResourceUtil.h"
 

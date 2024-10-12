@@ -13,6 +13,9 @@
 ***************************************************************************/
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "Version.h"
 
 class ResourceEntity;

@@ -540,7 +540,6 @@
     <ClCompile Include="Src\Resources\PicCommands.cpp" />
     <ClCompile Include="Src\Resources\PicDrawManager.cpp" />
     <ClCompile Include="Src\Resources\RasterOperations.cpp" />
-    <ClCompile Include="Src\Resources\ResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\ResourceContainer.cpp" />
     <ClCompile Include="Src\Resources\ResourceEntity.cpp" />
     <ClCompile Include="Src\Resources\ResourceMap.cpp" />
@@ -733,7 +732,6 @@
     <ClInclude Include="Src\Resources\PicCommands.h" />
     <ClInclude Include="Src\Resources\PicDrawManager.h" />
     <ClInclude Include="Src\Resources\RasterOperations.h" />
-    <ClInclude Include="Src\Resources\ResourceUtil.h" />
     <ClInclude Include="Src\Resources\ResourceContainer.h" />
     <ClInclude Include="Src\Resources\ResourceEntity.h" />
     <ClInclude Include="Src\Resources\ResourceMap.h" />
