@@ -31,7 +31,6 @@
 #include "Audio.h"
 #include "AudioMap.h"
 #include "ResourceEntity.h"
-#include "ResourceSources.h"
 #include "CompiledScript.h"
 #include "ResourceMapOperations.h"
 #include "MessageHeaderFile.h"

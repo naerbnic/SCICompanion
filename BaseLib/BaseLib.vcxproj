@@ -151,7 +151,6 @@
     <ClInclude Include="Src\Resources\ResourceLoader.h" />
     <ClInclude Include="Src\Resources\ResourceRecency.h" />
     <ClInclude Include="Src\Resources\ResourceSourceImpls.h" />
-    <ClInclude Include="Src\Resources\ResourceSources.h" />
     <ClInclude Include="Src\Resources\ResourceUtil.h" />
     <ClInclude Include="Src\Util\Codec.h" />
     <ClInclude Include="Src\Util\CodecAlt.h" />

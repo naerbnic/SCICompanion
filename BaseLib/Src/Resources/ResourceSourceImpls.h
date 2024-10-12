@@ -10,7 +10,7 @@
 #include <optional>
 #include <Shlwapi.h>
 
-#include "ResourceSources.h"
+#include "ResourceContainer.h"
 #include "BaseWindowsUtil.h"
 
 enum class ResourceSourceAccessFlags

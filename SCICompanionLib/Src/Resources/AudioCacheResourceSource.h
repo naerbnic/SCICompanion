@@ -13,7 +13,7 @@
 ***************************************************************************/
 #pragma once
 
-#include "ResourceSources.h"
+#include "ResourceContainer.h"
 #include "GameFolderHelper.h"
 #include "ResourceSourceImpls.h"
 

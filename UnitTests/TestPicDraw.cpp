@@ -21,7 +21,6 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include "PaletteOperations.h"
 #include "View.h"
 #include "ResourceContainer.h"
-#include "ResourceSources.h"
 #include "PatchResourceSource.h"
 #include "PicDrawManager.h"
 #include "Pic.h"

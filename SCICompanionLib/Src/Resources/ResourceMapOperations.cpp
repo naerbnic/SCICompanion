@@ -14,7 +14,6 @@
 #include "stdafx.h"
 #include "ResourceMap.h"
 #include "ResourceBlob.h"
-#include "ResourceSources.h"
 #include "AudioResourceSource.h"
 #include "AudioCacheResourceSource.h"
 #include "PatchResourceSource.h"

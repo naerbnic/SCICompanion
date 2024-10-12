@@ -13,7 +13,8 @@
 ***************************************************************************/
 #pragma once
 
-#include "ResourceSources.h"
+#include "ResourceContainer.h"
+
 class ResourceBlob;
 enum class ResourceTypeFlags;
 

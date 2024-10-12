@@ -50,7 +50,7 @@
 #include "NewRasterResourceDocument.h"
 #include "Task.h"
 #include "crc.h"
-#include "ResourceSources.h"
+#include "ResourceContainer.h"
 #include "ResourceMapOperations.h"
 #include "AudioProcessingSettings.h"
 #include "DebuggerThread.h"
