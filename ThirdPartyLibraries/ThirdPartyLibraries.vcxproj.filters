@@ -21,6 +21,9 @@
     <ClCompile Include="Libraries\CppFormat\format.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Libraries\r8brain\r8bbase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\CRC32\crc.h">
@@ -32,9 +35,43 @@
     <ClInclude Include="Libraries\cpptoml\cpptoml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Libraries\r8brain\CDSPBlockConvolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\CDSPFIRFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\CDSPFracInterpolator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\CDSPProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\CDSPRealFFT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\CDSPResampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\CDSPSincFilterGen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\fft4g.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\r8bbase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\r8bconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\r8brain\r8butil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Libraries\CppFormat\README.rst" />
     <None Include="Libraries\cpptoml\LICENSE" />
+    <None Include="Libraries\r8brain\README.md" />
   </ItemGroup>
 </Project>

@@ -75,12 +75,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -150,15 +150,28 @@
   <ItemGroup>
     <ClCompile Include="Libraries\CppFormat\format.cc" />
     <ClCompile Include="Libraries\CRC32\crc.cpp" />
+    <ClCompile Include="Libraries\r8brain\r8bbase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\CppFormat\format.h" />
     <ClInclude Include="Libraries\cpptoml\cpptoml.h" />
     <ClInclude Include="Libraries\CRC32\crc.h" />
+    <ClInclude Include="Libraries\r8brain\CDSPBlockConvolver.h" />
+    <ClInclude Include="Libraries\r8brain\CDSPFIRFilter.h" />
+    <ClInclude Include="Libraries\r8brain\CDSPFracInterpolator.h" />
+    <ClInclude Include="Libraries\r8brain\CDSPProcessor.h" />
+    <ClInclude Include="Libraries\r8brain\CDSPRealFFT.h" />
+    <ClInclude Include="Libraries\r8brain\CDSPResampler.h" />
+    <ClInclude Include="Libraries\r8brain\CDSPSincFilterGen.h" />
+    <ClInclude Include="Libraries\r8brain\fft4g.h" />
+    <ClInclude Include="Libraries\r8brain\r8bbase.h" />
+    <ClInclude Include="Libraries\r8brain\r8bconf.h" />
+    <ClInclude Include="Libraries\r8brain\r8butil.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Libraries\CppFormat\README.rst" />
     <None Include="Libraries\cpptoml\LICENSE" />
+    <None Include="Libraries\r8brain\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

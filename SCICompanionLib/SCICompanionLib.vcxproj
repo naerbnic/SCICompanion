@@ -272,7 +272,6 @@
     <ClCompile Include="Src\LipSync\sapi_lipsync.cpp" />
     <ClCompile Include="Src\LipSync\sapi_util.cpp" />
     <ClCompile Include="Src\MFCDocuments\DocumentWithPaletteChoices.cpp" />
-    <ClCompile Include="Src\r8brain\r8bbase.cpp" />
     <ClCompile Include="Src\Resources\AudioCacheResourceSource.cpp" />
     <ClCompile Include="Src\Resources\AudioNegative.cpp" />
     <ClCompile Include="Src\Resources\AudioResourceSource.cpp" />
@@ -366,17 +365,6 @@
     <ClInclude Include="Src\LipSync\sapi_util.h" />
     <ClInclude Include="Src\MFCDocuments\DocumentWithPaletteChoices.h" />
     <ClInclude Include="Src\MFCViews\FakeEgo.h" />
-    <ClInclude Include="Src\r8brain\CDSPBlockConvolver.h" />
-    <ClInclude Include="Src\r8brain\CDSPFIRFilter.h" />
-    <ClInclude Include="Src\r8brain\CDSPFracInterpolator.h" />
-    <ClInclude Include="Src\r8brain\CDSPProcessor.h" />
-    <ClInclude Include="Src\r8brain\CDSPRealFFT.h" />
-    <ClInclude Include="Src\r8brain\CDSPResampler.h" />
-    <ClInclude Include="Src\r8brain\CDSPSincFilterGen.h" />
-    <ClInclude Include="Src\r8brain\fft4g.h" />
-    <ClInclude Include="Src\r8brain\r8bbase.h" />
-    <ClInclude Include="Src\r8brain\r8bconf.h" />
-    <ClInclude Include="Src\r8brain\r8butil.h" />
     <ClInclude Include="Src\Resources\AudioCacheResourceSource.h" />
     <ClInclude Include="Src\Resources\AudioNegative.h" />
     <ClInclude Include="Src\Resources\AudioResourceSource.h" />
@@ -789,7 +777,6 @@
     <None Include="Src\CrystalEdit\CCrystalTextView.inl" />
     <None Include="Src\GIFLIB\AUTHORS" />
     <None Include="Src\GIFLIB\COPYING" />
-    <None Include="Src\r8brain\README.md" />
     <None Include="Src\Util\ScriptConvert.h" />
   </ItemGroup>
   <ItemGroup>
