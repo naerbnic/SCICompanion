@@ -12,17 +12,18 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
-
-#include "Components.h"
 #include <memory>
 #include <typeinfo>
 #include <typeindex>
 #include <map>
+#include <unordered_map>
 
-class ResourceBlob;
+#include "Components.h"
+#include "ResourceTypes.h"
+#include "Stream.h"
+#include "ResourceBlob.h"
+
 class ResourceEntity;
-enum class BlobKey;
-enum class ResourceSourceFlags;
 
 typedef void(*DeserializeFuncPtr)(ResourceEntity &resource, sci::istream &byteStream, const std::map<BlobKey, uint32_t> &propertyBag);
 typedef void(*SerializeFuncPtr)(const ResourceEntity &resource, sci::ostream &byteStream, std::map<BlobKey, uint32_t> &propertyBag);

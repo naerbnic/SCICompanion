@@ -539,7 +539,6 @@
     <ClCompile Include="Src\Resources\PicCommands.cpp" />
     <ClCompile Include="Src\Resources\PicDrawManager.cpp" />
     <ClCompile Include="Src\Resources\RasterOperations.cpp" />
-    <ClCompile Include="Src\Resources\ResourceEntity.cpp" />
     <ClCompile Include="Src\Resources\ResourceMap.cpp" />
     <ClCompile Include="Src\Resources\Vocab000.cpp" />
     <ClCompile Include="Src\Resources\Vocab99x.cpp" />
@@ -722,13 +721,11 @@
     <ClInclude Include="Src\MFCViews\SoundView.h" />
     <ClInclude Include="Src\MFCViews\TextView.h" />
     <ClInclude Include="Src\MFCViews\VocabView.h" />
-    <ClInclude Include="Src\Resources\Components.h" />
     <ClInclude Include="Src\Resources\Cursor.h" />
     <ClInclude Include="Src\Resources\FontOperations.h" />
     <ClInclude Include="Src\Resources\PicCommands.h" />
     <ClInclude Include="Src\Resources\PicDrawManager.h" />
     <ClInclude Include="Src\Resources\RasterOperations.h" />
-    <ClInclude Include="Src\Resources\ResourceEntity.h" />
     <ClInclude Include="Src\Resources\ResourceMap.h" />
     <ClInclude Include="Src\Resources\Vocab000.h" />
     <ClInclude Include="Src\Resources\Vocab99x.h" />

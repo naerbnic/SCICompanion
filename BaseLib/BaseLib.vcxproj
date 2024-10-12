@@ -145,9 +145,11 @@
   <ItemGroup>
     <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
+    <ClInclude Include="Src\Resources\Components.h" />
     <ClInclude Include="Src\Resources\PicCommandsCommon.h" />
     <ClInclude Include="Src\Resources\ResourceBlob.h" />
     <ClInclude Include="Src\Resources\ResourceContainer.h" />
+    <ClInclude Include="Src\Resources\ResourceEntity.h" />
     <ClInclude Include="Src\Resources\ResourceLoader.h" />
     <ClInclude Include="Src\Resources\ResourceRecency.h" />
     <ClInclude Include="Src\Resources\ResourceSourceImpls.h" />
@@ -172,6 +174,7 @@
     <ClCompile Include="Src\Resources\PicCommandsCommon.cpp" />
     <ClCompile Include="Src\Resources\ResourceBlob.cpp" />
     <ClCompile Include="Src\Resources\ResourceContainer.cpp" />
+    <ClCompile Include="Src\Resources\ResourceEntity.cpp" />
     <ClCompile Include="Src\Resources\ResourceLoader.cpp" />
     <ClCompile Include="Src\Resources\ResourceRecency.cpp" />
     <ClCompile Include="Src\Resources\ResourceSourceImpls.cpp" />

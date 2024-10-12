@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <cstdint>
+
 struct ResourceComponent
 {
     virtual ResourceComponent* Clone() const = 0;
@@ -21,6 +23,4 @@ struct ResourceComponent
     virtual ~ResourceComponent() {}
 };
 
-typedef void(*GetItemLabelFuncPtr)(PTSTR  pszLabel, size_t cch, int nCel);
-
-extern uint8_t g_egaPaletteMapping[16];
+typedef void(*GetItemLabelFuncPtr)(char* pszLabel, size_t cch, int nCel);

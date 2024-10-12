@@ -25,6 +25,7 @@ void WriteImageData(sci::ostream &rleStream, const Cel &cel, bool isVGA, sci::os
 void ReadCelFromVGA11(sci::istream &byteStream, Cel &cel, bool isPic);
 
 extern uint8_t g_vgaPaletteMapping[256];
+extern uint8_t g_egaPaletteMapping[16];
 
 struct Cel
 {
