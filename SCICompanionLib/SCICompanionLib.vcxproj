@@ -447,7 +447,6 @@
     <ClCompile Include="Src\Compile\ScriptOMTraverse.cpp" />
     <ClCompile Include="Src\Compile\SyntaxParser.cpp" />
     <ClCompile Include="Src\Compile\Types.cpp" />
-    <ClCompile Include="Src\CppFormat\format.cc" />
     <ClCompile Include="Src\CrystalEdit\CCrystalEditView.cpp" />
     <ClCompile Include="Src\CrystalEdit\CCrystalTextBuffer.cpp" />
     <ClCompile Include="Src\CrystalEdit\CCrystalTextView.cpp" />
@@ -634,7 +633,6 @@
     <ClInclude Include="Src\Compile\ScriptOMSmall.h" />
     <ClInclude Include="Src\Compile\SyntaxParser.h" />
     <ClInclude Include="Src\Compile\Types.h" />
-    <ClInclude Include="Src\CppFormat\format.h" />
     <ClInclude Include="Src\CrystalEdit\CCrystalEditView.h" />
     <ClInclude Include="Src\CrystalEdit\CCrystalTextBuffer.h" />
     <ClInclude Include="Src\CrystalEdit\CCrystalTextView.h" />
@@ -801,7 +799,6 @@
     </None>
     <None Include="SCICompanionLib.def" />
     <None Include="SCICompanionLib.licenseheader" />
-    <None Include="Src\CppFormat\README.rst" />
     <None Include="Src\cpptoml\LICENSE" />
     <None Include="Src\CrystalEdit\CCrystalEditView.inl" />
     <None Include="Src\CrystalEdit\CCrystalTextBuffer.inl" />

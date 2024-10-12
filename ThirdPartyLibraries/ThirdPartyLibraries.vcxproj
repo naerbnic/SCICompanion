@@ -75,12 +75,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -148,10 +148,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Libraries\CppFormat\format.cc" />
     <ClCompile Include="Libraries\CRC32\crc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Libraries\CppFormat\format.h" />
     <ClInclude Include="Libraries\CRC32\crc.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Libraries\CppFormat\README.rst" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
