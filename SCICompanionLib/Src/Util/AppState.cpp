@@ -331,7 +331,7 @@ void AppState::OpenScript(WORD w)
     HRESULT hr = _GetGameIni(szGameIni, ARRAYSIZE(szGameIni));
     if (SUCCEEDED(hr))
     {
-        std::string keyName = default_reskey(w, NoBase36);
+        std::string keyName = default_reskey(w);
         TCHAR szScriptName[100];
         if (GetPrivateProfileString(GetResourceInfo(ResourceType::Script).pszTitleDefault.c_str(), keyName.c_str(), keyName.c_str(), szScriptName, ARRAYSIZE(szScriptName), szGameIni))
         {
@@ -783,7 +783,7 @@ HRESULT AppState::AppendResourceAskForNumber(ResourceBlob& resource,
         // Assign it.
         resource.SetNumber(srd.GetResourceNumber());
         resource.SetPackage(srd.GetPackageNumber());
-        resource.SetName(nullptr);
+        resource.SetNameToDefault();
         if (!srd.GetName().empty())
         {
             resource.SetName(srd.GetName().c_str());

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <cstdint>
+#include <optional>
 
 #include "EnumFlags.h"
 
@@ -34,6 +35,8 @@ enum class ResourceType
 
     Max = 18
 };
+
+inline constexpr int NumResourceTypes = static_cast<int>(ResourceType::Max);
 
 enum class ResourceTypeFlags
 {
@@ -103,6 +106,47 @@ enum class ResourceSaveLocation : uint16_t
     Patch,
 };
 
+inline constexpr uint32_t NoBase36 = 0xffffffff;
+
+class ResourceNum
+{
+public:
+    static ResourceNum FromNumber(int resource_number)
+    {
+        return ResourceNum(resource_number);
+    }
+
+    static ResourceNum WithBase36(int resource_number, uint32_t base36_number)
+    {
+        if (base36_number == NoBase36)
+        {
+            return ResourceNum(resource_number);
+        }
+        return ResourceNum(resource_number, base36_number);
+    }
+
+    ResourceNum() = default;
+
+    int GetNumber() const
+    {
+        return resource_number_;
+    }
+
+    std::optional<uint32_t> GetBase36() const
+    {
+        return base36_number_;
+    }
+
+private:
+    explicit ResourceNum(int resource_number, std::optional<uint32_t> base36_number = std::nullopt)
+        : resource_number_(resource_number), base36_number_(base36_number)
+    {
+    }
+
+    int resource_number_;
+    std::optional<uint32_t> base36_number_;
+};
+
 class IResourceIdentifier
 {
 public:
@@ -110,10 +154,12 @@ public:
 
     virtual int GetPackageHint() const = 0;
     virtual int GetNumber() const = 0;
+    virtual uint32_t GetBase36() const = 0;
+    virtual ResourceNum GetResourceNum() const
+    {
+        return ResourceNum::WithBase36(GetNumber(), GetBase36());
+    }
     virtual ResourceType GetType() const = 0;
     virtual int GetChecksum() const = 0;
-    virtual uint32_t GetBase36() const = 0;
 };
 
-static const uint32_t NoBase36 = 0xffffffff;
-static const int NumResourceTypes = 18;

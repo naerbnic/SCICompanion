@@ -71,6 +71,11 @@ public:
     ResourceSourceFlags SourceFlags;
     const ResourceTraits &Traits;
 
+    ResourceNum GetResourceNum() const
+    {
+        return ResourceNum::WithBase36(ResourceNumber, Base36Number);
+    }
+
     template<typename _T>
     const _T &GetComponent() const
     {

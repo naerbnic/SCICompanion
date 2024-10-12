@@ -508,16 +508,15 @@ void ResourceBlob::EnsureRealized()
 //
 // If pszName is null, the resource is called nxxx, where xxx is the resource number.
 //
-void ResourceBlob::_SetName(PCTSTR pszName)
+void ResourceBlob::SetName(PCTSTR pszName)
 {
-    if (pszName)
-    {
-        _strName = pszName;
-    }
-    else
-    {
-        _strName = default_reskey(header.Number, header.Base36Number);
-    }
+    assert(pszName);
+    _strName = pszName;
+}
+
+void ResourceBlob::SetNameToDefault()
+{
+    _strName = default_reskey(GetResourceNum());
 }
 
 

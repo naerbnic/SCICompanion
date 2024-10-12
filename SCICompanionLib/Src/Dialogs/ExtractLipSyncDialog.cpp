@@ -457,7 +457,7 @@ void ExtractLipSyncDialog::OnBnClickedButtonDeleteSync()
 
 void ExtractLipSyncDialog::OnBnClickedButtonRaw()
 {
-    ShowTextFile(_audioResource->GetComponent<SyncComponent>().RawData.c_str(), fmt::format("{0}_rawlipsync.txt", default_reskey(_audioResource->ResourceNumber, _audioResource->Base36Number)));
+    ShowTextFile(_audioResource->GetComponent<SyncComponent>().RawData.c_str(), fmt::format("{0}_rawlipsync.txt", default_reskey(_audioResource->GetResourceNum())));
 }
 
 const char c_szLipSyncTxtFilter[] = "txt files (*.txt)|*.txt|All Files|*.*|";
@@ -466,7 +466,7 @@ void ExtractLipSyncDialog::OnBnClickedButtonExportsync()
 {
     if (_audioResource->TryGetComponent<SyncComponent>())
     {
-        CFileDialog fileDialog(FALSE, ".txt", fmt::format("{0}_lipsync.txt", default_reskey(_audioResource->ResourceNumber, _audioResource->Base36Number)).c_str(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR, c_szLipSyncTxtFilter);
+        CFileDialog fileDialog(FALSE, ".txt", fmt::format("{0}_lipsync.txt", default_reskey(_audioResource->GetResourceNum())).c_str(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR, c_szLipSyncTxtFilter);
         if (IDOK == fileDialog.DoModal())
         {
             CString strFileName = fileDialog.GetPathName();

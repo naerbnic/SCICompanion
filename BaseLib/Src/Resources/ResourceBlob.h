@@ -370,7 +370,8 @@ public:
     const uint8_t *GetDataCompressed() const; // WARNING: this can be nullptr!
     int GetLength() const { return header.cbDecompressed; }
     std::string GetName() const { return _strName; }
-    void SetName(PCTSTR pszName) { _SetName(pszName); }
+    void SetName(PCTSTR pszName);
+    void SetNameToDefault();
     void SetNumber(int iNumber) { header.Number = iNumber; }
     void SetPackage(int iPackage) { header.PackageHint = (uint16_t)iPackage; }
     BOOL HasNumber() const { return _hasNumber || (header.Number != (uint16_t)-1); }  // Does this resource have a number (if you open it from a file, it won't)
@@ -399,7 +400,6 @@ private:
         _hasNumber = (iResourceNumber != -1);
     }
     void _DecompressFromBits(sci::istream byteStream, bool delay);
-    void _SetName(PCTSTR pszName);
     void _EnsureDecompressed();
 
     // Resource header information

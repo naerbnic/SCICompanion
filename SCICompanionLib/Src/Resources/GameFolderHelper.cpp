@@ -280,8 +280,8 @@ std::string GameFolderHelper::GetScriptFileName(WORD wScript) const
 {
     std::string filename;
     std::string scriptTitle = GetIniString("Script",
-                                           default_reskey(wScript, NoBase36),
-                                           default_reskey(wScript, NoBase36).
+                                           default_reskey(wScript),
+                                           default_reskey(wScript).
                                            c_str());
     if (!scriptTitle.empty())
     {
@@ -327,8 +327,8 @@ std::string GameFolderHelper::GetScriptObjectFileName(WORD wScript) const
 {
     std::string filename;
     std::string scriptTitle = GetIniString("Script",
-                                           default_reskey(wScript, NoBase36),
-                                           default_reskey(wScript, NoBase36).
+                                           default_reskey(wScript),
+                                           default_reskey(wScript).
                                            c_str());
     if (!scriptTitle.empty())
     {

@@ -196,7 +196,7 @@ CResourceMap::~CResourceMap()
 void CResourceMap::AssignName(const ResourceBlob &resource)
 {
     // Assign the name of the item.
-    std::string keyName = default_reskey(resource.GetNumber(), resource.GetHeader().Base36Number);
+    std::string keyName = default_reskey(resource.GetResourceNum());
     std::string name = resource.GetName();
     if (!name.empty() && (0 != lstrcmpi(keyName.c_str(), name.c_str())))
     {

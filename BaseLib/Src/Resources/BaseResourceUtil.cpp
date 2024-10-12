@@ -29,9 +29,9 @@ int ResourceNumberFromFileName(PCTSTR pszFileName)
 }
 
 // Returns "n004" for input of 4
-std::string default_reskey(int iNumber, uint32_t base36Number)
+std::string default_reskey(int iNumber, std::optional<uint32_t> base36Number)
 {
-    if (base36Number == NoBase36)
+    if (!base36Number.has_value() || base36Number == NoBase36)
     {
         return fmt::format("n{0:0>3}", iNumber);
     }
@@ -40,11 +40,17 @@ std::string default_reskey(int iNumber, uint32_t base36Number)
         // NNNNNVV.CCS
         return fmt::format("{0:0>3t}{1:0>2t}{2:0>2t}.{3:0>2t}{4:0>1t}",
             iNumber,
-            (base36Number >> 8) & 0xff,
-            (base36Number >> 16) & 0xff,
-            (base36Number >> 0) & 0xff,
-            ((base36Number >> 24) & 0xff) % 36
+            (*base36Number >> 8) & 0xff,
+            (*base36Number >> 16) & 0xff,
+            (*base36Number >> 0) & 0xff,
+            ((*base36Number >> 24) & 0xff) % 36
             // If this number (sequence) is 36, we want it to wrap 0 zero. Seq 0 not allowed.
         );
     }
+}
+
+// Returns "n004" for input of 4
+std::string default_reskey(const ResourceNum& resource_id)
+{
+    return default_reskey(resource_id.GetNumber(), resource_id.GetBase36());
 }

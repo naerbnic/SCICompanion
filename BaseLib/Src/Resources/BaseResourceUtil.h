@@ -1,11 +1,12 @@
 ﻿#pragma once
 
 #include <string>
-#include <Windows.h>
+#include <optional>
 
 #include "ResourceTypes.h"
 
-int ResourceNumberFromFileName(PCTSTR pszFileName);
+int ResourceNumberFromFileName(const char *pszFileName);
 
 // Returns "n004" for 4.
-std::string default_reskey(int iNumber, uint32_t base36Number);
+std::string default_reskey(int iNumber, std::optional<uint32_t> base36Number = std::nullopt);
+std::string default_reskey(const ResourceNum& resource_id);

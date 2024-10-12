@@ -48,7 +48,7 @@ void ResourceRecency::AddResourceToRecency(const IResourceIdentifier *pData, boo
         // Assert that a resource of this id doesn't not already exist in here.
         /*for (INT_PTR i = 0; i <= pidList->GetUpperBound(); i++)
         {
-            ASSERT(pData->GetId() != pidList->GetAt(i));
+            ASSERT(pData->GetResourceNum() != pidList->GetAt(i));
         }*/
 #endif
     }
