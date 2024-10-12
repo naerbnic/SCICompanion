@@ -11,9 +11,10 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
-
 #include "ResourceRecency.h"
+
+#include <cassert>
+
 #include "ResourceBlob.h"
 
 uint64_t _GetLookupKey(const IResourceIdentifier *pData)
@@ -32,7 +33,7 @@ bool contains(const _T &container, const _K &key)
     return container.find(key) != container.end();
 }
 
-void ResourceRecency::AddResourceToRecency(const IResourceIdentifier *pData, BOOL fAddToEnd)
+void ResourceRecency::AddResourceToRecency(const IResourceIdentifier *pData, bool fAddToEnd)
 {
     _idJustAdded = -1;
     uint64_t iKey = _GetLookupKey(pData);
@@ -132,11 +133,11 @@ bool ResourceRecency::WasResourceJustAdded(const ResourceBlob *pData)
 
 void ResourceRecency::ClearResourceType(int iType)
 {
-    ASSERT(iType < NumResourceTypes);
+    assert(iType < NumResourceTypes);
 
     RecencyMap &map = _resourceRecency[iType];
     // Before removing all, we must de-allocate each array we created.
-    for_each(map.begin(), map.end(), delete_map_value());
+    std::for_each(map.begin(), map.end(), [](auto&& entry) { delete entry.second; });
     map.clear();
 }
 

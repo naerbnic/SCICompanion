@@ -297,7 +297,6 @@
     <ClCompile Include="Src\Resources\GameFolderHelper.cpp" />
     <ClCompile Include="Src\Resources\Pic.cpp" />
     <ClCompile Include="Src\Resources\ResourceMapOperations.cpp" />
-    <ClCompile Include="Src\Resources\ResourceSources.cpp" />
     <ClCompile Include="Src\Resources\Message.cpp" />
     <ClCompile Include="Src\Dialogs\GameVersionDialog.cpp" />
     <ClCompile Include="Src\Resources\PaletteOperations.cpp" />
@@ -540,10 +539,8 @@
     <ClCompile Include="Src\Resources\PicCommands.cpp" />
     <ClCompile Include="Src\Resources\PicDrawManager.cpp" />
     <ClCompile Include="Src\Resources\RasterOperations.cpp" />
-    <ClCompile Include="Src\Resources\ResourceContainer.cpp" />
     <ClCompile Include="Src\Resources\ResourceEntity.cpp" />
     <ClCompile Include="Src\Resources\ResourceMap.cpp" />
-    <ClCompile Include="Src\Resources\ResourceRecency.cpp" />
     <ClCompile Include="Src\Resources\Vocab000.cpp" />
     <ClCompile Include="Src\Resources\Vocab99x.cpp" />
     <ClCompile Include="Src\Util\AppState.cpp" />
@@ -586,7 +583,6 @@
     <ClInclude Include="Src\FrameComponents\ZoomCelStatic.h" />
     <ClInclude Include="Src\Resources\Font.h" />
     <ClInclude Include="Src\Resources\ResourceMapOperations.h" />
-    <ClInclude Include="Src\Resources\ResourceSources.h" />
     <ClInclude Include="Src\Resources\Message.h" />
     <ClInclude Include="Src\Dialogs\GameVersionDialog.h" />
     <ClInclude Include="Src\Resources\PaletteOperations.h" />
@@ -732,10 +728,8 @@
     <ClInclude Include="Src\Resources\PicCommands.h" />
     <ClInclude Include="Src\Resources\PicDrawManager.h" />
     <ClInclude Include="Src\Resources\RasterOperations.h" />
-    <ClInclude Include="Src\Resources\ResourceContainer.h" />
     <ClInclude Include="Src\Resources\ResourceEntity.h" />
     <ClInclude Include="Src\Resources\ResourceMap.h" />
-    <ClInclude Include="Src\Resources\ResourceRecency.h" />
     <ClInclude Include="Src\Resources\Vocab000.h" />
     <ClInclude Include="Src\Resources\Vocab99x.h" />
     <ClInclude Include="Src\Util\AppState.h" />

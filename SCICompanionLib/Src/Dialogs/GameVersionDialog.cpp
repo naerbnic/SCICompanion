@@ -19,6 +19,7 @@
 #include "GameVersionDialog.h"
 #include "format.h"
 #include "ResourceContainer.h"
+#include "ResourceSourceImpls.h"
 #include "ResourceUtil.h"
 using namespace fmt;
 

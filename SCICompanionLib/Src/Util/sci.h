@@ -43,38 +43,7 @@ enum MDITabType
     TAB_MESSAGE        =  0x00000800
 };
 
-                                                        
-enum class ResourceTypeFlags
-{
-    None = 0,
-    View = 1 << (int)ResourceType::View,
-    Pic = 1 << (int)ResourceType::Pic,
-    Script = 1 << (int)ResourceType::Script,
-    Text = 1 << (int)ResourceType::Text,
-    Sound = 1 << (int)ResourceType::Sound,
-    Memory = 1 << (int)ResourceType::Memory,
-    Vocab = 1 << (int)ResourceType::Vocab,
-    Font = 1 << (int)ResourceType::Font,
-    Cursor = 1 << (int)ResourceType::Cursor,
-    Patch = 1 << (int)ResourceType::Patch,
-    Bitmap = 1 << (int)ResourceType::Bitmap,
-    Palette = 1 << (int)ResourceType::Palette,
-    CDAudio = 1 << (int)ResourceType::CDAudio,
-    Audio = 1 << (int)ResourceType::Audio,
-    // NOTE: Sync resources are included in Audio resources.
-    // Sync = 1 << (int)ResourceType::Sync,
-    Message = 1 << (int)ResourceType::Message,
-    AudioMap = 1 << (int)ResourceType::AudioMap,
-    Heap = 1 << (int)ResourceType::Heap,
-
-    All = 0x3fffffff,
-
-    AllCreatable = View | Font | Cursor | Text | Sound | Vocab | Pic | Palette | Message | Audio | AudioMap,
-};
-DEFINE_ENUM_FLAGS(ResourceTypeFlags, uint32_t)
-
 static const int NumResourceTypesSCI0 = 10;
-static const int NumResourceTypes = 18;
 
 // Map ID_SHOW_VIEWS to ResourceType::View, for example.  -1 if no match.
 ResourceType ResourceCommandToType(UINT nId);
@@ -83,49 +52,16 @@ BOOL IsValidResourceType(int iResourceType);
 BOOL IsValidResourceNumber(int iResourceNum);
 
 std::string GetGameIniFileName(const std::string &gameFolder);
-std::string FigureOutResourceName(const std::string &iniFileName, ResourceType type, int iNumber, uint32_t base36Number);
 
 const TCHAR *g_rgszTypeToSectionName[];
-
-ResourceTypeFlags ResourceTypeToFlag(ResourceType dwType);
-ResourceType ResourceFlagToType(ResourceTypeFlags dwType);
 struct sPOINT
 {
     __int16 x;
     __int16 y;
 };
 
-struct ScopedHandle
-{
-    ScopedHandle() : hFile(INVALID_HANDLE_VALUE) {}
-    void Close()
-    {
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
-            CloseHandle(hFile);
-            hFile = INVALID_HANDLE_VALUE;
-        }
-    }
-    virtual ~ScopedHandle()
-    {
-        Close();
-    }
-
-    HANDLE hFile;
-};
-
 bool DirectoryExists(LPCTSTR szPath);
 void AdvancePastWhitespace(const std::string &line, size_t &offset);
-
-struct ScopedFile : public ScopedHandle
-{
-    ScopedFile(const std::string &filename, DWORD desiredAccess, DWORD shareMode, DWORD creationDisposition);
-    void Write(const uint8_t *data, uint32_t length);
-    uint32_t GetLength();
-    uint32_t SeekToEnd();
-
-    std::string filename;
-};
 
 #define DEFAULT_PIC_WIDTH      320
 #define DEFAULT_PIC_HEIGHT     190  
@@ -463,13 +399,10 @@ public:
 class ResourceBlob;
 BOOL OpenResource(const ResourceBlob *pData, bool setModifier = false);
 int ResourceNumberFromFileName(PCTSTR pszFileName);
-void deletefile(const std::string &filename);
-void movefile(const std::string &from, const std::string &to);
 void testopenforwrite(const std::string &filename);
 uint32_t GetResourceOffsetInFile(uint8_t secondHeaderByte);
 extern const TCHAR g_szResourceSpec[];
 extern const TCHAR* g_szResourceSpecByType[static_cast<std::size_t>(ResourceType::Max)];
-std::string GetMessageFromLastError(const std::string &details);
 void ToUpper(std::string &aString);
 bool IsCodeFile(const std::string &text);
 

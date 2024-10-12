@@ -13,26 +13,6 @@
 ***************************************************************************/
 #pragma once
 
-#include "BaseWindowsUtil.h"
+#include "ResourceContainer.h"
 
-class PostBuildThread
-{
-public:
-    PostBuildThread(const std::string &gameFolder);
 
-    void Abort();
-
-    friend std::shared_ptr<PostBuildThread> CreatePostBuildThread(const std::string &gameFolder);
-
-private:
-    void _Start(std::shared_ptr<PostBuildThread> myself);
-    static UINT s_PostBuildThreadWorker(void *pParam);
-    void _Main();
-
-    HWND _hwndUI;
-    std::shared_ptr<PostBuildThread> _myself;
-    std::string _gameFolder;
-    ScopedHandle _hAbort;
-};
-
-std::shared_ptr<PostBuildThread> CreatePostBuildThread(const std::string &gameFolder);

@@ -142,3 +142,35 @@ bool MatchesResourceFilenameFormat(const std::string &filename, SCIVersion versi
     }
     return false;
 }
+
+//
+// Returns an empty string (or pszDefault) if there is no key
+//
+std::string GetIniString(const std::string& iniFileName, PCTSTR pszSectionName, const std::string& keyName, PCSTR pszDefault)
+{
+    std::string strRet;
+    char sz[200];
+    if (GetPrivateProfileString(pszSectionName, keyName.c_str(), nullptr, sz, (DWORD)ARRAYSIZE(sz), iniFileName.c_str()))
+    {
+        strRet = sz;
+    }
+    else
+    {
+        strRet = pszDefault;
+    }
+    return strRet;
+}
+
+//
+// Perf: we're opening and closing the file each time.  We could do this once.
+//
+std::string FigureOutResourceName(const std::string& iniFileName, ResourceType type, int iNumber, uint32_t base36Number)
+{
+    std::string name;
+    if ((size_t)type < ARRAYSIZE(g_resourceInfo))
+    {
+        std::string keyName = default_reskey(iNumber, base36Number);
+        name = GetIniString(iniFileName, GetResourceInfo(type).pszTitleDefault.c_str(), keyName, keyName.c_str());
+    }
+    return name;
+}

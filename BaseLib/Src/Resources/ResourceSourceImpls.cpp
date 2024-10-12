@@ -11,12 +11,9 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
-#include "ResourceSources.h"
+
+#include "ResourceSourceImpls.h"
 #include "format.h"
-#include "ResourceEntity.h"
-#include "ResourceContainer.h"
-#include <limits>
 #include "ResourceBlob.h"
 
 using namespace std;

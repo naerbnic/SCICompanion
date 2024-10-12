@@ -11,9 +11,9 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
 #include "ResourceContainer.h"
 #include "ResourceBlob.h"
+#include "ResourceUtil.h"
 
 using namespace std;
 
@@ -91,17 +91,6 @@ bool operator!=(const ResourceContainer::ResourceIterator &one, const ResourceCo
         (
         !one._atEnd && (one._state != two._state)
         );
-}
-
-bool operator==(const IteratorStatePrivate &one, const IteratorStatePrivate &two)
-{
-    return one.lookupTableIndex == two.lookupTableIndex &&
-        one.mapIndex == two.mapIndex &&
-        one.mapStreamOffset == two.mapStreamOffset;
-}
-bool operator!=(const IteratorStatePrivate &one, const IteratorStatePrivate &two)
-{
-    return !(one == two);
 }
 
 sci::istream ResourceContainer::ResourceIterator::_GetResourceHeaderAndPackage(ResourceHeaderAgnostic &rh) const

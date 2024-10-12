@@ -43,6 +43,7 @@
 #include "BaseResourceUtil.h"
 #include "ResourceUtil.h"
 #include "BaseWindowsUtil.h"
+#include "ResourceSourceImpls.h"
 
 using namespace std;
 
@@ -57,19 +58,6 @@ std::string ResourceDisplayNameFromType(ResourceType type);
 HRESULT copyfile(const string &destination, const string &source)
 {
     return CopyFile(destination.c_str(), source.c_str(), FALSE) ? S_OK : ResultFromLastError();
-}
-
-void deletefile(const string &filename)
-{
-    if (PathFileExists(filename.c_str()))
-    {
-        if (!DeleteFile(filename.c_str()))
-        {
-            std::string details = "Deleting ";
-            details += filename;
-            throw std::exception(GetMessageFromLastError(details).c_str());
-        }
-    }
 }
 
 HRESULT SetFilePositionHelper(HANDLE hFile, DWORD dwPos)
@@ -139,24 +127,6 @@ HRESULT TestDelete(const string &filename)
 bool IsValidPackageNumber(int iPackageNumber)
 {
     return (iPackageNumber >= 0) && (iPackageNumber < 63);
-}
-
-
-ResourceTypeFlags ResourceTypeToFlag(ResourceType dwType)
-{
-    return (ResourceTypeFlags)(1 << (int)dwType);
-}
-
-ResourceType ResourceFlagToType(ResourceTypeFlags dwFlags)
-{
-    uint32_t dwType = (uint32_t)dwFlags;
-    int iShifts = 0;
-    while (dwType > 1)
-    {
-        dwType = dwType >> 1;
-        iShifts++;
-    }
-    return (ResourceType)iShifts;
 }
 
 absl::Status RebuildResources(const std::shared_ptr<const GameFolderHelper> &helper, SCIVersion version, BOOL fShowUI, ResourceSaveLocation saveLocation, std::map<ResourceType, RebuildStats> &stats)
@@ -654,24 +624,6 @@ void CResourceMap::DeleteResource(const ResourceBlob *pData)
     }
 }
 
-//
-// Returns an empty string (or pszDefault) if there is no key
-//
-std::string GetIniString(const std::string &iniFileName, PCTSTR pszSectionName, const std::string &keyName, PCSTR pszDefault)
-{
-    std::string strRet;
-    char sz[200];
-    if (GetPrivateProfileString(pszSectionName, keyName.c_str(), nullptr, sz, (DWORD)ARRAYSIZE(sz), iniFileName.c_str()))
-    {
-        strRet = sz;
-    }
-    else
-    {
-        strRet = pszDefault;
-    }
-    return strRet;
-}
-
 std::string CResourceMap::GetGameFolder() const
 {
     return _gameFolderHelper->GetGameFolder();
@@ -844,20 +796,6 @@ const SCIVersion &CResourceMap::GetSCIVersion() const
 void CResourceMap::SetVersion(const SCIVersion &version)
 {
     _version = version;
-}
-
-//
-// Perf: we're opening and closing the file each time.  We could do this once.
-//
-std::string FigureOutResourceName(const std::string &iniFileName, ResourceType type, int iNumber, uint32_t base36Number)
-{
-    std::string name;
-    if ((size_t)type < ARRAYSIZE(g_resourceInfo))
-    {
-        std::string keyName = default_reskey(iNumber, base36Number);
-        name = GetIniString(iniFileName, GetResourceInfo(type).pszTitleDefault.c_str(), keyName, keyName.c_str());
-    }
-    return name;
 }
 
 // Someone on the forums started hitting problems once they had over 350 scripts. Our size was 5000.

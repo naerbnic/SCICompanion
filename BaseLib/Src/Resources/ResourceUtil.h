@@ -47,3 +47,5 @@ bool MatchesResourceFilenameFormat(const std::string &filename, SCIVersion versi
 
 extern const char Base36AudioPrefix;
 extern const char Base36SyncPrefix;
+
+std::string FigureOutResourceName(const std::string& iniFileName, ResourceType type, int iNumber, uint32_t base36Number);

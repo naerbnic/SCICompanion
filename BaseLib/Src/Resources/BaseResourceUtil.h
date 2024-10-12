@@ -3,6 +3,8 @@
 #include <string>
 #include <Windows.h>
 
+#include "ResourceTypes.h"
+
 int ResourceNumberFromFileName(PCTSTR pszFileName);
 
 // Returns "n004" for 4.

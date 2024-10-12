@@ -13,6 +13,8 @@
 ***************************************************************************/
 #include "stdafx.h"
 #include "PatchResourceSource.h"
+
+#include "BaseWindowsUtil.h"
 #include "ResourceBlob.h"
 #include "ResourceUtil.h"
 

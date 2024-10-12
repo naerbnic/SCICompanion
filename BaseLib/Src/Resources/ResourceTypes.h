@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <cstdint>
+
 #include "EnumFlags.h"
 
 //
@@ -32,6 +34,38 @@ enum class ResourceType
 
     Max = 18
 };
+
+enum class ResourceTypeFlags
+{
+    None = 0,
+    View = 1 << (int)ResourceType::View,
+    Pic = 1 << (int)ResourceType::Pic,
+    Script = 1 << (int)ResourceType::Script,
+    Text = 1 << (int)ResourceType::Text,
+    Sound = 1 << (int)ResourceType::Sound,
+    Memory = 1 << (int)ResourceType::Memory,
+    Vocab = 1 << (int)ResourceType::Vocab,
+    Font = 1 << (int)ResourceType::Font,
+    Cursor = 1 << (int)ResourceType::Cursor,
+    Patch = 1 << (int)ResourceType::Patch,
+    Bitmap = 1 << (int)ResourceType::Bitmap,
+    Palette = 1 << (int)ResourceType::Palette,
+    CDAudio = 1 << (int)ResourceType::CDAudio,
+    Audio = 1 << (int)ResourceType::Audio,
+    // NOTE: Sync resources are included in Audio resources.
+    // Sync = 1 << (int)ResourceType::Sync,
+    Message = 1 << (int)ResourceType::Message,
+    AudioMap = 1 << (int)ResourceType::AudioMap,
+    Heap = 1 << (int)ResourceType::Heap,
+
+    All = 0x3fffffff,
+
+    AllCreatable = View | Font | Cursor | Text | Sound | Vocab | Pic | Palette | Message | Audio | AudioMap,
+};
+DEFINE_ENUM_FLAGS(ResourceTypeFlags, uint32_t)
+
+ResourceTypeFlags ResourceTypeToFlag(ResourceType dwType);
+ResourceType ResourceFlagToType(ResourceTypeFlags dwType);
 
 enum class ResourceSourceFlags
 {
@@ -82,3 +116,4 @@ public:
 };
 
 static const uint32_t NoBase36 = 0xffffffff;
+static const int NumResourceTypes = 18;

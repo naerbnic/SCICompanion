@@ -15,6 +15,7 @@
 
 #include "ResourceSources.h"
 #include "GameFolderHelper.h"
+#include "ResourceSourceImpls.h"
 
 struct AudioMapComponent;
 class ResourceEntity;

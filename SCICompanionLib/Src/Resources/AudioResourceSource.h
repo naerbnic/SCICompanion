@@ -13,8 +13,11 @@
 ***************************************************************************/
 #pragma once
 
+#include <optional>
+
 #include "ResourceSources.h"
 #include "GameFolderHelper.h"
+#include "ResourceSourceImpls.h"
 #include "Version.h"
 
 struct AudioMapComponent;

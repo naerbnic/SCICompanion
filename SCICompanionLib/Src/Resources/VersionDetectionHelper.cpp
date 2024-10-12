@@ -27,6 +27,7 @@
 #include "View.h"
 #include "CodeInspector.h"
 #include "BaseResourceUtil.h"
+#include "ResourceSourceImpls.h"
 #include "ResourceUtil.h"
 
 using namespace std;

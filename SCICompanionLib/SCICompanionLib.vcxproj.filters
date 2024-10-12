@@ -39,16 +39,10 @@
     <ClCompile Include="Src\Resources\RasterOperations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Resources\ResourceContainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Resources\ResourceEntity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Resources\ResourceMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Resources\ResourceRecency.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Resources\Vocab000.cpp">
@@ -406,9 +400,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Compile\DecompileScript.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Resources\ResourceSources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Dialogs\ChooseColorDialogVGA.cpp">
@@ -806,16 +797,10 @@
     <ClInclude Include="Src\Resources\RasterOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Resources\ResourceContainer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Resources\ResourceEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Resources\ResourceMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Resources\ResourceRecency.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Resources\Vocab000.h">
@@ -1224,9 +1209,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Compile\DecompileScript.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Resources\ResourceSources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Dialogs\ChooseColorDialogVGA.h">

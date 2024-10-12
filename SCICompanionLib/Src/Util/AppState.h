@@ -20,7 +20,7 @@
 #include "ColoredToolTip.h"
 #include "CompileInterfaces.h"
 #include "RunLogic.h"
-#include "GamePropertiesDialog.h"
+#include "BaseWindowsUtil.h"
 
 class AutoCompleteThread2;
 class CScriptView;

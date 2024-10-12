@@ -13,13 +13,15 @@
 ***************************************************************************/
 #pragma once
 
+#include <vector>
+#include <unordered_map>
+
+#include "ResourceTypes.h"
+#include "ResourceBlob.h"
+
 //
 // Contains information regarding which resources are the "current ones"
 //
-
-// fwd decl
-class ResourceBlob;
-class IResourceIdentifier;
 
 class ResourceRecency
 {
@@ -30,7 +32,7 @@ public:
     // We added a new resource to the view.
     // fAddToEnd: add to end (least recent).  Otherwise, it is added as the most recent.
     //
-    void AddResourceToRecency(const IResourceIdentifier *pData, BOOL fAddToEnd = FALSE);
+    void AddResourceToRecency(const IResourceIdentifier *pData, bool fAddToEnd = false);
 
     //
     // Someone deleted a resource from the view.

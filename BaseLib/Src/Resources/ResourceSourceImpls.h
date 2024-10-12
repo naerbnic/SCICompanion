@@ -1,21 +1,4 @@
-/***************************************************************************
-    Copyright (c) 2015 Philip Fortier
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-***************************************************************************/
 #pragma once
-
-#include <optional>
-
-#include "ResourceBlob.h"
 
 // This file describes various resource sources and the base classes needed for:
 // (1) resource.map/resource.xxx
@@ -24,11 +7,11 @@
 // (4) audio volumes (resource.aud, resource.sfx)
 // (4) audio cache files
 
-enum class AppendBehavior
-{
-    Append,
-    Replace,
-};
+#include <optional>
+#include <Shlwapi.h>
+
+#include "ResourceSources.h"
+#include "BaseWindowsUtil.h"
 
 enum class ResourceSourceAccessFlags
 {
@@ -37,17 +20,11 @@ enum class ResourceSourceAccessFlags
 };
 DEFINE_ENUM_FLAGS(ResourceSourceAccessFlags, uint32_t)
 
-struct RebuildStats
-{
-    size_t ItemCount;
-    size_t TotalSize;
-};
-
-typedef ResourceHeaderAgnostic(*ReadResourceHeaderFunc)(sci::istream &byteStream, SCIVersion version, ResourceSourceFlags sourceFlags, uint16_t packageHint);
-typedef void(*WriteResourceHeaderFunc)(sci::ostream &byteStream, const ResourceHeaderAgnostic &header);
+typedef ResourceHeaderAgnostic(*ReadResourceHeaderFunc)(sci::istream& byteStream, SCIVersion version, ResourceSourceFlags sourceFlags, uint16_t packageHint);
+typedef void(*WriteResourceHeaderFunc)(sci::ostream& byteStream, const ResourceHeaderAgnostic& header);
 
 template<typename _VersionHeader>
-ResourceHeaderAgnostic ReadResourceHeader(sci::istream &byteStream, SCIVersion version, ResourceSourceFlags sourceFlags, uint16_t packageHint)
+ResourceHeaderAgnostic ReadResourceHeader(sci::istream& byteStream, SCIVersion version, ResourceSourceFlags sourceFlags, uint16_t packageHint)
 {
     _VersionHeader rh;
     byteStream >> rh;
@@ -66,7 +43,7 @@ ResourceHeaderAgnostic ReadResourceHeader(sci::istream &byteStream, SCIVersion v
 }
 
 template<typename _VersionHeader>
-void WriteResourceHeader(sci::ostream &byteStream, const ResourceHeaderAgnostic &header)
+void WriteResourceHeader(sci::ostream& byteStream, const ResourceHeaderAgnostic& header)
 {
     _VersionHeader rh;
     rh.FromAgnostic(header);
@@ -89,46 +66,10 @@ ResourceHeaderReadWrite MakeResourceHeaderReadWriter()
     };
 }
 
-struct IteratorState
-{
-    IteratorState() : lookupTableIndex(0), mapStreamOffset(0) {}
-
-    size_t lookupTableIndex;    // In >SCI1 there is a lookuptable at the beginning of resource.map
-    uint32_t mapStreamOffset;   // Current offset within resource.map
-};
-
-struct IteratorStatePrivate : public IteratorState
-{
-    IteratorStatePrivate() : mapIndex(0), IteratorState() {}
-
-    friend bool operator==(const IteratorStatePrivate &one, const IteratorStatePrivate &two);
-    friend bool operator!=(const IteratorStatePrivate &one, const IteratorStatePrivate &two);
-
-    size_t mapIndex;            // Support for enumerating multiple *.map files in one iteration
-};
-
-// Main base class for expressing resource sources
-class ResourceSource
-{
-public:
-    virtual ~ResourceSource() {}
-    void Something(IteratorState &boop) {}
-
-    virtual bool ReadNextEntry(ResourceTypeFlags typeFlags, IteratorState &state, ResourceMapEntryAgnostic &entry, std::vector<uint8_t> *optionalRawData = nullptr) = 0;
-    virtual sci::istream GetHeaderAndPositionedStream(const ResourceMapEntryAgnostic &mapEntry, ResourceHeaderAgnostic &headerEntry) = 0;
-    virtual sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(const ResourceMapEntryAgnostic &mapEntry, uint32_t &size, bool &includesHeader) = 0;
-
-    virtual void RemoveEntry(const ResourceMapEntryAgnostic &mapEntry) = 0;
-    virtual void RebuildResources(bool force, ResourceSource &source, std::map<ResourceType, RebuildStats> &stats) = 0;
-    virtual AppendBehavior AppendResources(const std::vector<const ResourceBlob*> &blobs) = 0;
-};
-
-typedef std::vector<std::unique_ptr<ResourceSource>> ResourceSourceArray;
-
 struct SourceTraits
 {
-    const char *MapFormat;
-    const char *VolumeFormat;
+    const char* MapFormat;
+    const char* VolumeFormat;
 };
 
 extern SourceTraits resourceMapSourceTraits;
@@ -137,9 +78,9 @@ extern SourceTraits altMapSourceTraits;
 
 struct FileDescriptorBase
 {
-    FileDescriptorBase(const std::string &gameFolder, SourceTraits &traits, ResourceSourceFlags sourceFlags) : _gameFolder(gameFolder), _traits(traits), SourceFlags(sourceFlags) {}
+    FileDescriptorBase(const std::string& gameFolder, SourceTraits& traits, ResourceSourceFlags sourceFlags) : _gameFolder(gameFolder), _traits(traits), SourceFlags(sourceFlags) {}
 
-    const SourceTraits &_traits;
+    const SourceTraits& _traits;
     const ResourceSourceFlags SourceFlags;
     const std::string _gameFolder;
 
@@ -168,14 +109,14 @@ struct FileDescriptorBase
         return !!PathFileExists(_GetVolumeFilename(volumeNumber).c_str());
     }
 
-    void WriteAndReplaceMapAndVolumes(const sci::ostream &mapStream, const std::unordered_map<int, sci::ostream> &volumeWriteStreams) const
+    void WriteAndReplaceMapAndVolumes(const sci::ostream& mapStream, const std::unordered_map<int, sci::ostream>& volumeWriteStreams) const
     {
         // TODO: Verify we can write to the orignal files. Or do we need to bother? We'll produce nice error messages anyway.
         // The only time it might be necessary is for .scr and .hep files, since we need those to both succeed or both fail
 
         {
             // Write the volumes to their bak files.
-            for (const auto &volumeStream : volumeWriteStreams)
+            for (const auto& volumeStream : volumeWriteStreams)
             {
                 ScopedFile holderPackage(_GetVolumeFilenameBak(volumeStream.first), GENERIC_WRITE, 0, CREATE_ALWAYS);
                 holderPackage.Write(volumeStream.second.GetInternalPointer(), volumeStream.second.GetDataSize());
@@ -187,11 +128,11 @@ struct FileDescriptorBase
         }
 
         // Move the volumes over
-        for (const auto &volumeStream : volumeWriteStreams)
+        for (const auto& volumeStream : volumeWriteStreams)
         {
-            std::string package_name = _GetVolumeFilename( volumeStream.first);
+            std::string package_name = _GetVolumeFilename(volumeStream.first);
             deletefile(package_name);
-            movefile(_GetVolumeFilenameBak( volumeStream.first), package_name);
+            movefile(_GetVolumeFilenameBak(volumeStream.first), package_name);
         }
 
         // Nothing to do at this point if it fails.
@@ -203,36 +144,36 @@ struct FileDescriptorBase
 
 struct FileDescriptorResourceMap : public FileDescriptorBase
 {
-    FileDescriptorResourceMap(const std::string &gameFolder) : FileDescriptorBase(gameFolder, resourceMapSourceTraits, ResourceSourceFlags::ResourceMap) {}
+    FileDescriptorResourceMap(const std::string& gameFolder) : FileDescriptorBase(gameFolder, resourceMapSourceTraits, ResourceSourceFlags::ResourceMap) {}
 };
 struct FileDescriptorMessageMap : public FileDescriptorBase
 {
-    FileDescriptorMessageMap(const std::string &gameFolder) : FileDescriptorBase(gameFolder, messageMapSourceTraits, ResourceSourceFlags::MessageMap) {}
+    FileDescriptorMessageMap(const std::string& gameFolder) : FileDescriptorBase(gameFolder, messageMapSourceTraits, ResourceSourceFlags::MessageMap) {}
 };
 struct FileDescriptorAltMap : public FileDescriptorBase
 {
-    FileDescriptorAltMap(const std::string &gameFolder) : FileDescriptorBase(gameFolder, altMapSourceTraits, ResourceSourceFlags::AltMap) {}
+    FileDescriptorAltMap(const std::string& gameFolder) : FileDescriptorBase(gameFolder, altMapSourceTraits, ResourceSourceFlags::AltMap) {}
 };
 
-bool IsResourceCompatible(const SCIVersion &version, const ResourceBlob &blob);
+bool IsResourceCompatible(const SCIVersion& version, const ResourceBlob& blob);
 
 // Use for resource.map, alt.map, message.map and such.
 template<typename _TNavigator, typename _FileDescriptor>
 class MapAndPackageSource : public ResourceSource, public _TNavigator, public _FileDescriptor
 {
 public:
-    MapAndPackageSource(SCIVersion version, ResourceHeaderReadWrite headerReadWrite, const std::string &gameFolder) :
+    MapAndPackageSource(SCIVersion version, ResourceHeaderReadWrite headerReadWrite, const std::string& gameFolder) :
         _headerReadWrite(headerReadWrite),
         _version(version),
         _FileDescriptor(gameFolder)
-        {}
+    {}
 
-    bool ReadNextEntry(ResourceTypeFlags typeFlags, IteratorState &state, ResourceMapEntryAgnostic &entry, std::vector<uint8_t> *optionalRawData) override
+    bool ReadNextEntry(ResourceTypeFlags typeFlags, IteratorState& state, ResourceMapEntryAgnostic& entry, std::vector<uint8_t>* optionalRawData) override
     {
-        return NavAndReadNextEntry(typeFlags, GetMapStream(), state, entry, optionalRawData);
+        return this->NavAndReadNextEntry(typeFlags, GetMapStream(), state, entry, optionalRawData);
     }
 
-    sci::istream GetHeaderAndPositionedStream(const ResourceMapEntryAgnostic &mapEntry, ResourceHeaderAgnostic &headerEntry) override
+    sci::istream GetHeaderAndPositionedStream(const ResourceMapEntryAgnostic& mapEntry, ResourceHeaderAgnostic& headerEntry) override
     {
         sci::istream packageByteStream = _GetVolumeStream(mapEntry.PackageNumber);
         if (!packageByteStream.good())
@@ -249,7 +190,7 @@ public:
         return packageByteStream;
     }
 
-    sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(const ResourceMapEntryAgnostic &mapEntry, uint32_t &size, bool &includesHeader) override
+    sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(const ResourceMapEntryAgnostic& mapEntry, uint32_t& size, bool& includesHeader) override
     {
         includesHeader = true;
         sci::istream packageByteStream = _GetVolumeStream(mapEntry.PackageNumber);
@@ -266,7 +207,7 @@ public:
         return packageByteStream;
     }
 
-    void RemoveEntry(const ResourceMapEntryAgnostic &mapEntryToRemove) override
+    void RemoveEntry(const ResourceMapEntryAgnostic& mapEntryToRemove) override
     {
         // The stream might be in a failbit state (because someone enumerated and read off the end), so reset them before continuing.
         // Otherwise, the enumeration will fail, and the resource map will get cleaned out.
@@ -306,7 +247,7 @@ public:
         sci::ostream mapStreamWrite2;
         sci::istream mapStream = GetMapStream();
         mapStream.seekg(0);
-        while (NavAndReadNextEntry(ResourceTypeFlags::All, mapStream, state, entryExisting, nullptr))
+        while (this->NavAndReadNextEntry(ResourceTypeFlags::All, mapStream, state, entryExisting, nullptr))
         {
             // Three cases:
             //  1) if this is the one we're deleting, skip it (don't write the entry)
@@ -323,7 +264,7 @@ public:
                 {
                     entryExisting.Offset -= sizeofSectionRemoved; // 2
                 }
-                WriteEntry(entryExisting, mapStreamWrite1, mapStreamWrite2, false);
+                this->WriteEntry(entryExisting, mapStreamWrite1, mapStreamWrite2, false);
             }
         }
 
@@ -334,7 +275,7 @@ public:
         if (found)
         {
             // Combine the two write streams. Or rather, append stream 2 to the end of stream 1.
-            FinalizeMapStreams(mapStreamWrite1, mapStreamWrite2);
+            this->FinalizeMapStreams(mapStreamWrite1, mapStreamWrite2);
 
             // Now we have mapStreamWrite1 and volumeStreamWrite that have the needed data.
             // Let's ask the _FileDescriptor to replace things.
@@ -342,7 +283,7 @@ public:
         }
     }
 
-    void RebuildResources(bool force, ResourceSource &source, std::map<ResourceType, RebuildStats> &stats) override
+    void RebuildResources(bool force, ResourceSource& source, std::map<ResourceType, RebuildStats>& stats) override
     {
         IteratorState iteratorState;
 
@@ -405,9 +346,9 @@ public:
                         // Then write this entry to the map, after modifying our map header's offset accordingly 
                         entryExisting.Offset = newResourceOffset;
                         entryExisting.PackageNumber = rebuildPackageNumber;
-                        WriteEntry(entryExisting, mapStreamWrite1, mapStreamWrite2, false);
+                        this->WriteEntry(entryExisting, mapStreamWrite1, mapStreamWrite2, false);
 
-                        auto &statsForType = stats[entryExisting.Type];
+                        auto& statsForType = stats[entryExisting.Type];
                         statsForType.ItemCount++;
                         statsForType.TotalSize += totalResourceSize;
                     }
@@ -420,14 +361,14 @@ public:
         }
 
         // Combine the two write streams. Or rather, append stream 2 to the end of stream 1.
-        FinalizeMapStreams(mapStreamWrite1, mapStreamWrite2);
+        this->FinalizeMapStreams(mapStreamWrite1, mapStreamWrite2);
 
         // Now we have mapStreamWrite1 and volumeStreamWrite that have the needed data.
         // Let's ask the _FileDescriptor to replace things.
         this->WriteAndReplaceMapAndVolumes(mapStreamWrite1, volumeWriteStreams);
     }
 
-    virtual ::AppendBehavior AppendResources(const std::vector<const ResourceBlob*> &blobs)
+    virtual ::AppendBehavior AppendResources(const std::vector<const ResourceBlob*>& blobs)
     {
         // For this, we append the resource data to the end of the volume file.
         // We could have any number of volumes being saved to, so we'll use a map.
@@ -438,7 +379,7 @@ public:
 
         // Now append our resources to the volume. We'll need to ask the navigator to write the version specific header,
         // then we can write the raw data.
-        for (const ResourceBlob *blob : blobs)
+        for (const ResourceBlob* blob : blobs)
         {
             assert(IsResourceCompatible(_version, *blob));
             ResourceHeaderAgnostic header = blob->GetHeader();
@@ -461,14 +402,15 @@ public:
             newMapEntry.Type = header.Type;
             newMapEntry.PackageNumber = (uint8_t)header.PackageHint;
             newMapEntry.Offset = resourceOffset;
-            WriteEntry(newMapEntry, mapStreamWriteMain, mapStreamWriteSecondary, true);
+            this->WriteEntry(newMapEntry, mapStreamWriteMain, mapStreamWriteSecondary, true);
 
             // Write the header to the volume
             header.CompressionMethod = 0; // We never write with compression, currently
             (*_headerReadWrite.writer)(volumeWriteStreams[header.PackageHint], blob->GetHeader());
-            
+
+            auto blobStream = blob->GetReadStream();
             // Follow the volume header with the actual resource data
-            transfer(blob->GetReadStream(), volumeWriteStreams[header.PackageHint], blob->GetDecompressedLength());
+            sci::transfer(blobStream, volumeWriteStreams[header.PackageHint], blob->GetDecompressedLength());
         }
 
         // Now we need to follow up with the rest of the map entries. For SCI0, we could just copy over the original resource map.
@@ -477,11 +419,11 @@ public:
         IteratorState iteratorState;
         while (ReadNextEntry(ResourceTypeFlags::All, iteratorState, existingMapEntry, nullptr))
         {
-            WriteEntry(existingMapEntry, mapStreamWriteMain, mapStreamWriteSecondary, false);
+            this->WriteEntry(existingMapEntry, mapStreamWriteMain, mapStreamWriteSecondary, false);
         }
 
         // Combine the two write streams. Or rather, append stream 2 to the end of stream 1.
-        FinalizeMapStreams(mapStreamWriteMain, mapStreamWriteSecondary);
+        this->FinalizeMapStreams(mapStreamWriteMain, mapStreamWriteSecondary);
 
         // Now we have mapStreamWrite1 and volumeStreamWrite that have the needed data.
         // Let's ask the _FileDescriptor to replace things.
@@ -503,7 +445,7 @@ protected:
         return _volumeStreams.find(volumeNumber)->second;
     }
 
-    sci::istream &GetMapStream()
+    sci::istream& GetMapStream()
     {
         if (!_mapStream)
         {

@@ -12,8 +12,12 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
+
+#include <set>
+#include <unordered_set>
+
 #include "ResourceRecency.h"
-#include "ResourceSources.h"
+#include "ResourceTypes.h"
 
 class ResourceBlob;
 
@@ -37,6 +41,43 @@ std::string GetGameIniFileName(const std::string &gameFolder);
 
 DEFINE_ENUM_FLAGS(ResourceEnumFlags, uint16_t)
 
+struct IteratorState
+{
+    IteratorState() : lookupTableIndex(0), mapStreamOffset(0) {}
+
+    size_t lookupTableIndex;    // In >SCI1 there is a lookuptable at the beginning of resource.map
+    uint32_t mapStreamOffset;   // Current offset within resource.map
+};
+
+enum class AppendBehavior
+{
+    Append,
+    Replace,
+};
+
+struct RebuildStats
+{
+    size_t ItemCount;
+    size_t TotalSize;
+};
+
+// Main base class for expressing resource sources
+class ResourceSource
+{
+public:
+    virtual ~ResourceSource() {}
+
+    virtual bool ReadNextEntry(ResourceTypeFlags typeFlags, IteratorState& state, ResourceMapEntryAgnostic& entry, std::vector<uint8_t>* optionalRawData = nullptr) = 0;
+    virtual sci::istream GetHeaderAndPositionedStream(const ResourceMapEntryAgnostic& mapEntry, ResourceHeaderAgnostic& headerEntry) = 0;
+    virtual sci::istream GetPositionedStreamAndResourceSizeIncludingHeader(const ResourceMapEntryAgnostic& mapEntry, uint32_t& size, bool& includesHeader) = 0;
+
+    virtual void RemoveEntry(const ResourceMapEntryAgnostic& mapEntry) = 0;
+    virtual void RebuildResources(bool force, ResourceSource& source, std::map<ResourceType, RebuildStats>& stats) = 0;
+    virtual AppendBehavior AppendResources(const std::vector<const ResourceBlob*>& blobs) = 0;
+};
+
+typedef std::vector<std::unique_ptr<ResourceSource>> ResourceSourceArray;
+
 // This is used for iterating through various resources in the game (views, pics, etc...)
 class ResourceContainer
 {
@@ -58,6 +99,23 @@ public:
 
     class ResourceIterator
     {
+        struct IteratorStatePrivate : public IteratorState
+        {
+            IteratorStatePrivate() : mapIndex(0), IteratorState() {}
+
+            friend bool operator==(const IteratorStatePrivate& one, const IteratorStatePrivate& two)
+            {
+                return one.lookupTableIndex == two.lookupTableIndex &&
+                    one.mapIndex == two.mapIndex &&
+                    one.mapStreamOffset == two.mapStreamOffset;
+            }
+            friend bool operator!=(const IteratorStatePrivate& one, const IteratorStatePrivate& two)
+            {
+                return !(one == two);
+            }
+
+            size_t mapIndex;            // Support for enumerating multiple *.map files in one iteration
+        };
     public:
         ResourceIterator(const ResourceIterator &src) = default;
         ResourceIterator& operator=(const ResourceIterator &src) = default;
@@ -86,6 +144,7 @@ public:
         int GetResourceNumber();
 
     private:
+
         sci::istream _GetResourceHeaderAndPackage(ResourceHeaderAgnostic &rh) const;
         void _GetNextEntry();
         reference _CreateHelper(bool delayDecompression) const;
@@ -289,7 +348,8 @@ public:
         // Now append the actual map entries
         for (int i = 0; i < ARRAYSIZE(subStreams); i++)
         {
-            transfer(istream_from_ostream(subStreams[i]), mapStreamWriteMain, subStreams[i].GetDataSize());
+            auto subStream = istream_from_ostream(subStreams[i]);
+            transfer(subStream, mapStreamWriteMain, subStreams[i].GetDataSize());
         }
         // That's it!
     }

@@ -15,6 +15,8 @@
 
 #include <memory>
 
+#include "ResourceSourceImpls.h"
+
 class GameFolderHelper;
 class CResourceMap;
 class ResourceBlob;
