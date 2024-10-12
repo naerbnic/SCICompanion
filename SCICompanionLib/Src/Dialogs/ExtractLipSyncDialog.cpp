@@ -30,6 +30,8 @@
 #include "AudioProcessing.h"
 #include "PhonemeDialog.h"
 #include "ResourceBlob.h"
+#include "BaseResourceUtil.h"
+#include "ResourceUtil.h"
 
 #define LIPSYNC_TIMER 2345
 

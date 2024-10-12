@@ -82,8 +82,6 @@ ResourceType ResourceCommandToType(UINT nId);
 BOOL IsValidResourceType(int iResourceType);
 BOOL IsValidResourceNumber(int iResourceNum);
 
-static const uint32_t NoBase36 = 0xffffffff;
-
 std::string GetGameIniFileName(const std::string &gameFolder);
 std::string FigureOutResourceName(const std::string &iniFileName, ResourceType type, int iNumber, uint32_t base36Number);
 
@@ -222,8 +220,6 @@ BYTE PriorityFromY(WORD y, const ViewPort &picState);
 
 // The actual width of a cel, used in the bitmaps (multiple of 32 bits)
 #define CX_ACTUAL(cx) (((cx) + 3) / 4 * 4)
-
-inline HRESULT ResultFromLastError() { return HRESULT_FROM_WIN32(GetLastError()); }
 
 void DisplayFileError(HRESULT hr, BOOL fOpen, LPCTSTR pszFileName);
 
@@ -514,6 +510,3 @@ enum class OutputPaneType
 };
 
 bool TerminateProcessTree(HANDLE hProcess, DWORD retCode);
-
-// Returns "n004" for 4.
-std::string default_reskey(int iNumber, uint32_t base36Number);

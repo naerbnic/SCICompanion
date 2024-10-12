@@ -1760,29 +1760,6 @@ void CMainFrame::OnFileOpenResource()
     }
 }
 
-int ResourceNumberFromFileName(PCTSTR pszFileName)
-{
-    int iNumber = -1;
-    PCTSTR pszExt = PathFindExtension(pszFileName);
-    if (pszExt && *pszExt && *(pszExt + 1))
-    {
-        if (isdigit(*(pszExt + 1)))
-        {
-            iNumber = StrToInt(pszExt + 1);
-        }
-        else
-        {
-            PCTSTR pszJustFileName = PathFindFileName(pszFileName);
-            if (pszJustFileName && *pszJustFileName && isdigit(*pszJustFileName))
-            {
-                iNumber = StrToInt(pszJustFileName);
-            }
-        }
-
-    }
-    return iNumber;
-}
-
 //
 // Adds a file resource to the game directly, w/o opening it
 //

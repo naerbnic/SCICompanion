@@ -25,6 +25,8 @@
 #include "PaletteOperations.h"
 #include "ResourceContainer.h"
 #include "ResourceBlob.h"
+#include "BaseResourceUtil.h"
+#include "ResourceUtil.h"
 
 using namespace sci;
 using namespace std;

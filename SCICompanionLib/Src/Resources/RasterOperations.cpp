@@ -13,7 +13,7 @@
 ***************************************************************************/
 #include "stdafx.h"
 
-#include "Components.h"
+#include "StlUtil.h"
 #include "RasterOperations.h"
 #include "PaletteOperations.h"
 #include "ResourceEntity.h"

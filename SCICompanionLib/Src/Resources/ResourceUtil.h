@@ -17,16 +17,6 @@
 
 class ResourceEntity;
 
-class IResourceIdentifier
-{
-public:
-    virtual int GetPackageHint() const = 0;
-    virtual int GetNumber() const = 0;
-    virtual ResourceType GetType() const = 0;
-    virtual int GetChecksum() const = 0;
-    virtual uint32_t GetBase36() const = 0;
-};
-
 // fwd decl
 class ResourceBlob;
 std::unique_ptr<ResourceEntity> CreateResourceFromResourceData(const ResourceBlob &data, bool fallbackOnException = true);

@@ -13,6 +13,14 @@
 ***************************************************************************/
 #pragma once
 
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <memory>
+#include <stack>
+
+#include "Codec.h"
+
 
 template<typename _InIt>
 _InIt match_name(_InIt _First, _InIt _Last, const std::string &name)
@@ -79,10 +87,10 @@ struct key_value_pair
 };
 
 template<typename _T>
-_T LookupStringValue(const key_value_pair<PCSTR, _T> *rgArray, size_t size, const std::string &name, _T defaultValue = nullptr)
+_T LookupStringValue(const key_value_pair<const char*, _T> *rgArray, size_t size, const std::string &name, _T defaultValue = nullptr)
 {
     _T value = defaultValue;
-    bool fRet = FALSE;
+    bool fRet = false;
     for (size_t i = 0; !fRet && i < size; i++)
     {
         fRet = (name == rgArray[i].key);
@@ -156,12 +164,12 @@ bool FindKey(const key_value_pair<_TKey, _TValue> *rgArray, size_t size, const _
 
 
 
-void push_word(std::vector<BYTE> &output, WORD w);
-void write_word(std::vector<BYTE> &output, size_t index, WORD w);
-void push_string(std::vector<BYTE> &output, const std::string &str);
-void push_string_rle(std::vector<BYTE> &output, const std::string &str);
-void push_string_nt(std::vector<BYTE> &output, const std::string &str);
-WORD push_temp(std::vector<BYTE> &output);
+void push_word(std::vector<uint8_t> &output, uint16_t w);
+void write_word(std::vector<uint8_t> &output, size_t index, uint16_t w);
+void push_string(std::vector<uint8_t> &output, const std::string &str);
+void push_string_rle(std::vector<uint8_t> &output, const std::string &str);
+void push_string_nt(std::vector<uint8_t> &output, const std::string &str);
+uint16_t push_temp(std::vector<uint8_t> &output);
 
 template<typename _TContainer, typename _InIt>
 void push_strings_nt(_TContainer &cont, _InIt _First, _InIt _Last)

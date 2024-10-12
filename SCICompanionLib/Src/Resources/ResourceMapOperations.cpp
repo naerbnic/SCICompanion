@@ -23,6 +23,7 @@
 #include "RemoveScriptDialog.h"
 #include "ResourceContainer.h"
 #include "AppState.h"
+#include "BaseResourceUtil.h"
 
 template<typename _TFileDescriptor>
 std::unique_ptr<ResourceSource> _CreateResourceSource(const std::string &gameFolder, const SCIVersion& version, ResourceSourceFlags source)

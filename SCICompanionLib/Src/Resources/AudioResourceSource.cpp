@@ -21,6 +21,7 @@
 #include "SoundUtil.h"
 #include "Audio.h"
 #include "ResourceBlob.h"
+#include "ResourceUtil.h"
 
 using namespace std;
 

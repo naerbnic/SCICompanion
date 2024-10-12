@@ -11,13 +11,16 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
+#include "ResourceBlob.h"
 
-#include "stdafx.h"
+#include <Windows.h>
+
+#include "BaseResourceUtil.h"
+#include "BaseWindowsUtil.h"
 #include "Codec.h"
 #include "CodecAlt.h"
 #include <errno.h>
 #include "crc.h"
-#include "ResourceBlob.h"
 #include <atomic>
 #include "format.h"
 

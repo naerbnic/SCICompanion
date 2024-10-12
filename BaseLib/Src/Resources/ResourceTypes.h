@@ -68,3 +68,17 @@ enum class ResourceSaveLocation : uint16_t
     Package,
     Patch,
 };
+
+class IResourceIdentifier
+{
+public:
+    virtual ~IResourceIdentifier() = default;
+
+    virtual int GetPackageHint() const = 0;
+    virtual int GetNumber() const = 0;
+    virtual ResourceType GetType() const = 0;
+    virtual int GetChecksum() const = 0;
+    virtual uint32_t GetBase36() const = 0;
+};
+
+static const uint32_t NoBase36 = 0xffffffff;

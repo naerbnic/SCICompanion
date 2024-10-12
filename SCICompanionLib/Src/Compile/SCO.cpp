@@ -16,6 +16,7 @@
 #include "ScriptOM.h"
 #include "CompiledScript.h"
 #include "GameFolderHelper.h"
+#include "BaseResourceUtil.h"
 
 using namespace std;
 using namespace sci;

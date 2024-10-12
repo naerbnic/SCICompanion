@@ -22,6 +22,7 @@
 #include "ResourceContainer.h"
 #include "ResourceBlob.h"
 #include "DependencyTracker.h"
+#include "ResourceUtil.h"
 
 // ResourceListDoc
 

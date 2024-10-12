@@ -22,7 +22,6 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include "View.h"
 #include "ResourceContainer.h"
 #include "ResourceSources.h"
-#include "ResourceMapOperations.h"
 #include "PatchResourceSource.h"
 #include "PicDrawManager.h"
 #include "Pic.h"
@@ -30,7 +29,8 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include "ResourceTypes.h"
 #include "format.h"
 #include "Helper.h"
-#include "GameFolderHelper.h"
+#include "BaseResourceUtil.h"
+#include "ResourceUtil.h"
 
 std::unique_ptr<Cel> CelFromBitmapFile(const std::string &filename)
 {

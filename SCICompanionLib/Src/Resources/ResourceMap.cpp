@@ -40,6 +40,9 @@
 #include "ResourceMapEvents.h"
 #include "ResourceBlob.h"
 #include "VersionDetectionHelper.h"
+#include "BaseResourceUtil.h"
+#include "ResourceUtil.h"
+#include "BaseWindowsUtil.h"
 
 using namespace std;
 

@@ -143,7 +143,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
+    <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
     <ClInclude Include="Src\Resources\PicCommandsCommon.h" />
+    <ClInclude Include="Src\Resources\ResourceBlob.h" />
     <ClInclude Include="Src\Resources\ResourceLoader.h" />
     <ClInclude Include="Src\Util\Codec.h" />
     <ClInclude Include="Src\Util\CodecAlt.h" />
@@ -154,12 +157,16 @@
     <ClInclude Include="Src\Resources\ResourceTypes.h" />
     <ClInclude Include="Src\Util\PerfTimer.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
+    <ClInclude Include="Src\Util\StlUtil.h" />
     <ClInclude Include="Src\Util\Stream.h" />
     <ClInclude Include="Src\Util\Version.h" />
     <ClInclude Include="Src\Util\WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
+    <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />
     <ClCompile Include="Src\Resources\PicCommandsCommon.cpp" />
+    <ClCompile Include="Src\Resources\ResourceBlob.cpp" />
     <ClCompile Include="Src\Resources\ResourceLoader.cpp" />
     <ClCompile Include="Src\Util\Codec.cpp" />
     <ClCompile Include="Src\Util\CodecAlt.cpp" />
@@ -169,6 +176,11 @@
     <ClCompile Include="Src\Util\Stream.cpp" />
     <ClCompile Include="Src\Util\Version.cpp" />
     <ClCompile Include="Src\Util\WindowsUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ThirdPartyLibraries\ThirdPartyLibraries.vcxproj">
+      <Project>{b19c8dc1-b2a9-484d-90c4-c1c3b9683ebc}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

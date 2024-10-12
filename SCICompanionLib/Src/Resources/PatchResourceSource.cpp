@@ -14,6 +14,7 @@
 #include "stdafx.h"
 #include "PatchResourceSource.h"
 #include "ResourceBlob.h"
+#include "ResourceUtil.h"
 
 PatchFilesResourceSource::PatchFilesResourceSource(ResourceTypeFlags types, SCIVersion version, const std::string &gameFolder, ResourceSourceFlags sourceFlags) :
     _gameFolder(gameFolder),

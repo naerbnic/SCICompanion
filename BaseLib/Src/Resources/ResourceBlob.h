@@ -13,10 +13,15 @@
 ***************************************************************************/
 #pragma once
 
-#include "ResourceUtil.h"
+#include <limits>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "StlUtil.h"
 #include "Version.h"
 #include "ResourceTypes.h"
-#include <limits>
+#include "Stream.h"
 
 class GameFolderHelper;
 enum class BlobKey;
@@ -81,24 +86,24 @@ struct ResourceHeaderAgnostic
 template<typename _TLayout>
 struct RESOURCEMAPENTRY_SCI0_BASE : public _TLayout
 {
-    ResourceType GetType() const { return (ResourceType)iType; }
+    ResourceType GetType() const { return (ResourceType)this->iType; }
 
     ResourceMapEntryAgnostic ToAgnostic()
     {
         ResourceMapEntryAgnostic agnostic;
-        agnostic.Number = iNumber;
-        agnostic.Type = (ResourceType)iType;
-        agnostic.Offset = iOffset;
-        agnostic.PackageNumber = iPackageNumber;
+        agnostic.Number = this->iNumber;
+        agnostic.Type = (ResourceType)this->iType;
+        agnostic.Offset = this->iOffset;
+        agnostic.PackageNumber = this->iPackageNumber;
         return agnostic;
     }
 
     void FromAgnostic(const ResourceMapEntryAgnostic &agnostic)
     {
-        iNumber = agnostic.Number;
-        iType = (uint16_t)agnostic.Type;
-        iOffset = agnostic.Offset;
-        iPackageNumber = agnostic.PackageNumber;
+        this->iNumber = agnostic.Number;
+        this->iType = (uint16_t)agnostic.Type;
+        this->iOffset = agnostic.Offset;
+        this->iPackageNumber = agnostic.PackageNumber;
     }
 };
 

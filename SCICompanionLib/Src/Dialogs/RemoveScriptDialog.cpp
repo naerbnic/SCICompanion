@@ -17,6 +17,7 @@
 #include "stdafx.h"
 #include "AppState.h"
 #include "RemoveScriptDialog.h"
+#include "BaseResourceUtil.h"
 
 
 // CRemoveScriptDialog dialog

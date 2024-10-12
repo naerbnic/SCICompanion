@@ -33,6 +33,7 @@
 #include "AudioNegative.h"
 #include "AudioEditDialog.h"
 #include "ResourceBlob.h"
+#include "BaseResourceUtil.h"
 
 #define MOUTH_TIMER 9753
 

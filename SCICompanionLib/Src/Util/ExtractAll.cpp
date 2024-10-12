@@ -31,6 +31,8 @@
 #include "SoundUtil.h"
 #include "format.h"
 #include "AudioCacheResourceSource.h"
+#include "BaseResourceUtil.h"
+#include "ResourceUtil.h"
 
 void ExtractAllResources(CResourceMap& resource_map, SCIVersion version, const std::string &destinationFolderIn, bool extractResources, bool extractPicImages, bool extractViewImages, bool disassembleScripts, bool extractMessages, bool generateWavs, IExtractProgress *progress)
 {

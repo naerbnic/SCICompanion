@@ -28,6 +28,8 @@
 #include "RasterOperations.h"
 #include "PaletteOperations.h"
 #include "ResourceBlob.h"
+#include "BaseResourceUtil.h"
+#include "ResourceUtil.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

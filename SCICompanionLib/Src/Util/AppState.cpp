@@ -60,6 +60,8 @@
 #include "DependencyTracker.h"
 #include "PostBuildThread.h"
 #include "SaveResourceDialog.h"
+#include "BaseResourceUtil.h"
+#include "BaseWindowsUtil.h"
 
 // The one and only
 extern AppState *appState;

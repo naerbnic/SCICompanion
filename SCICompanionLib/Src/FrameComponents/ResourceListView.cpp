@@ -29,6 +29,7 @@
 #include "View.h"
 #include "ResourceBlob.h"
 #include "format.h"
+#include "ResourceUtil.h"
 
 using namespace std;
 
