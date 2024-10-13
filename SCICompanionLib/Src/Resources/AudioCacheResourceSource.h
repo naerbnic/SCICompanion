@@ -42,6 +42,7 @@ extern const char* pszAudioCacheFolder;
 class AudioCacheResourceSource : public ResourceSource
 {
 public:
+    class IResourceManager;
     AudioCacheResourceSource(
         CResourceMap* resourceMap,
         const std::shared_ptr<const GameFolderHelper>& helper,
@@ -86,7 +87,6 @@ private:
     std::string GetCacheFolder() const;
     std::string GetCacheSubfolderForEnum() const;
 
-    SCIVersion _version;
     int _mapContext;
     ResourceSourceAccessFlags _access;
     ResourceSourceFlags _sourceFlags;
@@ -101,12 +101,7 @@ private:
 
     bool _enumInitialized;
 
-    // We go through this as much as possible. We create our own,
-    // because we may be enumerated on the background thread.
-    std::shared_ptr<const GameFolderHelper> _helper;
-
-    // But we do need this sometimes...
-    CResourceMap* _resourceMap;
+    std::shared_ptr<IResourceManager> _resourceMap;
 };
 
 void SaveAudioBlobToFiles(const ResourceBlob& blob,
