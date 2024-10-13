@@ -466,34 +466,38 @@ bool ValidateResourceSize(const SCIVersion &version, DWORD cb, ResourceType type
 
 bool CResourceMap::AppendResource(const ResourceEntity &resource, int packageNumber, int resourceNumber, const std::string &name, uint32_t base36Number, int *pChecksum)
 {
-    bool success = false;
-    if (resource.PerformChecks())
+    if (!resource.PerformChecks())
     {
-        ResourceBlob data;
-        sci::ostream serial;
-        resource.WriteTo(serial, true, resourceNumber, data.GetPropertyBag());
-        if (ValidateResourceSize(_version, serial.tellp(), resource.GetType()))
-        {
-            sci::istream readStream = istream_from_ostream(serial);
-            ResourceSourceFlags sourceFlags = resource.SourceFlags;
-            if (sourceFlags == ResourceSourceFlags::Invalid)
-            {
-                sourceFlags = (GetDefaultResourceSaveLocation() == ResourceSaveLocation::Patch) ? ResourceSourceFlags::PatchFile : ResourceSourceFlags::ResourceMap;
-            }
-
-            auto resourceName = Helper().FigureOutName(resource.GetType(), resourceNumber, base36Number);
-            data.CreateFromBits(resourceName.c_str(), resource.GetType(), &readStream, packageNumber, resourceNumber, base36Number, _version, sourceFlags);
-            if (!name.empty())
-            {
-                data.SetName(name.c_str());
-            }
-            success = SUCCEEDED(AppendResource(data));
-            if (pChecksum)
-            {
-                *pChecksum = data.GetChecksum();
-            }
-        }
+        return false;
     }
+    ResourceBlob data;
+    sci::ostream serial;
+    resource.WriteTo(serial, true, resourceNumber, data.GetPropertyBag());
+    if (!ValidateResourceSize(_version, serial.tellp(), resource.GetType()))
+    {
+        return false;
+    }
+    sci::istream readStream = istream_from_ostream(serial);
+    ResourceSourceFlags sourceFlags = resource.SourceFlags;
+    if (sourceFlags == ResourceSourceFlags::Invalid)
+    {
+        sourceFlags = (GetDefaultResourceSaveLocation() == ResourceSaveLocation::Patch) ? ResourceSourceFlags::PatchFile : ResourceSourceFlags::ResourceMap;
+    }
+
+    auto resourceName = Helper().FigureOutName(resource.GetType(), resourceNumber, base36Number);
+    data.CreateFromBits(resourceName.c_str(), resource.GetType(), &readStream, packageNumber, resourceNumber, base36Number, _version, sourceFlags);
+    if (!name.empty())
+    {
+        data.SetName(name.c_str());
+    }
+
+    auto success = SUCCEEDED(AppendResource(data));
+
+    if (pChecksum)
+    {
+        *pChecksum = data.GetChecksum();
+    }
+
     return success;
 }
 
