@@ -26,7 +26,7 @@
 #include "Message.h"
 #include "AudioMap.h"
 #include "AudioEditDialog.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 #include "AudioProcessing.h"
 #include "PhonemeDialog.h"
 #include "ResourceBlob.h"

@@ -148,6 +148,7 @@
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
     <ClInclude Include="Src\Resources\Components.h" />
     <ClInclude Include="Src\Resources\Components\Audio.h" />
+    <ClInclude Include="Src\Resources\Components\AudioNegative.h" />
     <ClInclude Include="Src\Resources\Components\Sound.h" />
     <ClInclude Include="Src\Resources\PicCommandsCommon.h" />
     <ClInclude Include="Src\Resources\ResourceBlob.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />
     <ClCompile Include="Src\Resources\Components\Audio.cpp" />
+    <ClCompile Include="Src\Resources\Components\AudioNegative.cpp" />
     <ClCompile Include="Src\Resources\Components\Sound.cpp" />
     <ClCompile Include="Src\Resources\PicCommandsCommon.cpp" />
     <ClCompile Include="Src\Resources\ResourceBlob.cpp" />

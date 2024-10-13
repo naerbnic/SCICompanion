@@ -99,6 +99,9 @@
     <ClInclude Include="Src\Resources\Components\Sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Resources\Components\AudioNegative.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Util\Logger.cpp">
@@ -165,6 +168,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Resources\Components\Sound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Resources\Components\AudioNegative.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

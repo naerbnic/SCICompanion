@@ -30,7 +30,7 @@
 #include "Sync.h"
 #include "LipSyncUtil.h"
 #include "AudioProcessing.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 #include "AudioEditDialog.h"
 #include "ResourceBlob.h"
 #include "BaseResourceUtil.h"

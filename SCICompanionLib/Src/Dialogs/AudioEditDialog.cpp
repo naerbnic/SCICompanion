@@ -14,7 +14,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "AudioEditDialog.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 #include "ResourceEntity.h"
 #include "AudioProcessing.h"
 

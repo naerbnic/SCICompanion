@@ -269,7 +269,6 @@
     <ClCompile Include="Src\FrameComponents\ViewUIElement.cpp" />
     <ClCompile Include="Src\MFCDocuments\DocumentWithPaletteChoices.cpp" />
     <ClCompile Include="Src\Resources\AudioCacheResourceSource.cpp" />
-    <ClCompile Include="Src\Resources\AudioNegative.cpp" />
     <ClCompile Include="Src\Resources\AudioResourceSource.cpp" />
     <ClCompile Include="Src\Resources\NounsAndCases.cpp" />
     <ClCompile Include="Src\Resources\PatchResourceSource.cpp" />
@@ -355,7 +354,6 @@
     <ClInclude Include="Src\MFCDocuments\DocumentWithPaletteChoices.h" />
     <ClInclude Include="Src\MFCViews\FakeEgo.h" />
     <ClInclude Include="Src\Resources\AudioCacheResourceSource.h" />
-    <ClInclude Include="Src\Resources\AudioNegative.h" />
     <ClInclude Include="Src\Resources\AudioResourceSource.h" />
     <ClInclude Include="Src\Resources\NounsAndCases.h" />
     <ClInclude Include="Src\Resources\PatchResourceSource.h" />

@@ -14,7 +14,7 @@
 #include "stdafx.h"
 #include "AudioProcessing.h"
 #include "Audio.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 #include <random>
 
 void SixteenBitToFloat(const int16_t *bufferIn, size_t sampleCount, std::vector<float> &result)

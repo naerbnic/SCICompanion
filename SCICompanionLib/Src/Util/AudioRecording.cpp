@@ -16,7 +16,7 @@
 #include "Audio.h"
 #include "AppState.h"
 #include "AudioProcessing.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 #include "ResourceTypes.h"
 
 // Our global instance

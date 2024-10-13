@@ -22,7 +22,7 @@
 #include "NounsAndCases.h"
 #include "Sync.h"
 #include "Audio.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 
 using namespace std;
 

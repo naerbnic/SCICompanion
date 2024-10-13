@@ -14,7 +14,7 @@
 #pragma once
 
 #include "Components.h"
-#include "Audio.h"
+#include "Components/Audio.h"
 #include "AudioProcessingSettings.h"
 
 // Contains an original 16-bit recording (the audio "negative")

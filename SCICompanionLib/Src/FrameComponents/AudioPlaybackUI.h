@@ -21,7 +21,7 @@
 #include "ViewUIElement.h"
 #include "AudioWaveformUI.h"
 #include "format.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 
 enum class WaveRecordingFormat;
 class ViewUIElement;

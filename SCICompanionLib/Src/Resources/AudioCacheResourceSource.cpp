@@ -19,7 +19,7 @@
 #include "ResourceEntity.h"
 #include "ResourceContainer.h"
 #include "AudioMap.h"
-#include "AudioNegative.h"
+#include "Components/AudioNegative.h"
 #include "SoundUtil.h"
 #include <filesystem>
 #include "PerfTimer.h"
