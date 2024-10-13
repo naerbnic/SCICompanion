@@ -15,6 +15,8 @@
 #include "resource.h"
 #include "AudioProcessingSettingsUI.h"
 
+#include "AudioProcessingSettings.h"
+
 struct NoisePreset
 {
     NoiseSettings Settings;
@@ -53,6 +55,13 @@ NoisePreset *noisePresets[] =
     &strongNoiseGate
 };
 
+static bool BoolCheck(CDataExchange* pDX,int nIDC)
+{
+    BOOL winBool;
+    DDX_Check(pDX, nIDC, winBool);
+    return winBool != 0;
+}
+
 void AudioProcessingSettingsUI::DoDataExchangeHelper(CDataExchange* pDX)
 {
     DDX_Text(pDX, IDC_EDIT_TRIMLEFT, _settings.TrimLeftMS);
@@ -71,10 +80,10 @@ void AudioProcessingSettingsUI::DoDataExchangeHelper(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT_CLOSETHR, _settings.Noise.CloseThresholdDB);
     DDV_MinMaxInt(pDX, _settings.Noise.CloseThresholdDB, -99, 0);
 
-    DDX_Check(pDX, IDC_CHECK_AUTOGAIN, _settings.AutoGain);
-    DDX_Check(pDX, IDC_CHECK_AUDIODITHER, _settings.AudioDither);
-    DDX_Check(pDX, IDC_CHECK_DETECTSTARTEND, _settings.DetectStartEnd);
-    DDX_Check(pDX, IDC_CHECK_COMPRESSION, _settings.Compression);
+    _settings.AutoGain = BoolCheck(pDX, IDC_CHECK_AUTOGAIN);
+    _settings.AudioDither = BoolCheck(pDX, IDC_CHECK_AUDIODITHER);
+    _settings.DetectStartEnd = BoolCheck(pDX, IDC_CHECK_DETECTSTARTEND);
+    _settings.Compression = BoolCheck(pDX, IDC_CHECK_COMPRESSION);
 
     // Visuals
     DDX_Control(pDX, IDC_STATIC_ATTACK, m_wndLabel1);

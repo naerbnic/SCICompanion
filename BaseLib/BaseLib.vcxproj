@@ -72,12 +72,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Audio\AudioProcessingSettings.h" />
     <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
     <ClInclude Include="Src\Resources\Components.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="Src\Util\WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp" />
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />
     <ClCompile Include="Src\Resources\PicCommandsCommon.cpp" />

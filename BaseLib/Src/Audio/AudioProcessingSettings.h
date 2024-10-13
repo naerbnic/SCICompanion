@@ -13,6 +13,8 @@
 ***************************************************************************/
 #pragma once
 
+#include <cstdint>
+
 struct NoiseSettings
 {
     uint32_t AttackTimeMS;
@@ -28,10 +30,10 @@ struct AudioProcessingSettings
         Version(0),
         TrimLeftMS(0),
         TrimRightMS(0),
-        AutoGain(FALSE),
-        DetectStartEnd(FALSE),
-        AudioDither(FALSE),
-        Compression(FALSE),
+        AutoGain(false),
+        DetectStartEnd(false),
+        AudioDither(false),
+        Compression(false),
         Noise()
     {
     }
@@ -40,10 +42,10 @@ struct AudioProcessingSettings
 
     uint32_t TrimLeftMS;
     uint32_t TrimRightMS;
-    BOOL AutoGain;
-    BOOL DetectStartEnd;
-    BOOL AudioDither;
-    BOOL Compression;
+    bool AutoGain;
+    bool DetectStartEnd;
+    bool AudioDither;
+    bool Compression;
 
     // Noise settings
     NoiseSettings Noise;

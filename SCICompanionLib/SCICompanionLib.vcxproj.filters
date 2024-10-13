@@ -1445,9 +1445,6 @@
     <ClInclude Include="Src\Resources\AudioNegative.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Util\AudioProcessingSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\FrameComponents\AudioProcessingSettingsUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>

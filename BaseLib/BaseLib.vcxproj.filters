@@ -87,6 +87,9 @@
     <ClInclude Include="Src\Resources\Components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Audio\AudioProcessingSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Util\Logger.cpp">
@@ -144,6 +147,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Resources\ResourceEntity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
