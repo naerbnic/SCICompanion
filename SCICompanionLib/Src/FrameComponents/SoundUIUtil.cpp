@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "Components/Sound.h"
+#include "Components/Audio.h"
+#include "SoundUtil.h"
+#include "AppState.h"
 #include "SoundUIUtil.h"
+
+#include "Audio.h"
 
 struct DeviceAndName
 {
@@ -96,4 +101,12 @@ void SelectDeviceInComboHelper(SCIVersion version, CComboBox &combo, DeviceType 
             return;
         }
     }
+}
+
+std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string& filename)
+{
+    std::unique_ptr<ResourceEntity> resource(CreateAudioResourceFactory()->CreateDefaultResource(appState->GetVersion()));
+    AudioComponentFromWaveFile(sci::istream::ReadFromFile(filename), resource->GetComponent<AudioComponent>());
+    resource->SourceFlags = ResourceSourceFlags::AudioCache;
+    return resource;
 }

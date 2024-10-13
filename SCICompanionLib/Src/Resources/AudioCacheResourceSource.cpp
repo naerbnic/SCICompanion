@@ -22,7 +22,6 @@
 #include "Components/AudioNegative.h"
 #include "SoundUtil.h"
 #include <filesystem>
-#include "PerfTimer.h"
 #include "ResourceBlob.h"
 #include "ResourceMap.h"
 

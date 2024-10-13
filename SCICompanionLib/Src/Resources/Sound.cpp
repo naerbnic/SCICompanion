@@ -13,6 +13,8 @@
 ***************************************************************************/
 #include "stdafx.h"
 #include "Sound.h"
+
+#include "SoundUIUtil.h"
 #include "ResourceEntity.h"
 #include "format.h"
 #include "Components/Sound.h"

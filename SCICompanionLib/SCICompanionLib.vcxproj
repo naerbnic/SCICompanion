@@ -399,7 +399,6 @@
     <ClCompile Include="Src\Util\PostBuildThread.cpp" />
     <ClCompile Include="Src\Util\RGBOctree.cpp" />
     <ClCompile Include="Src\Util\ScriptConvert.cpp" />
-    <ClCompile Include="Src\Util\SoundUtil.cpp" />
     <ClCompile Include="Src\Compile\Compile.cpp" />
     <ClCompile Include="Src\Compile\CompileContext.cpp" />
     <ClCompile Include="Src\Compile\CompiledScript.cpp" />
@@ -577,7 +576,6 @@
     <ClInclude Include="Src\Util\RGBOctree.h" />
     <ClInclude Include="Src\Util\sciwin.h" />
     <ClInclude Include="Src\Util\SortedVector.h" />
-    <ClInclude Include="Src\Util\SoundUtil.h" />
     <ClInclude Include="Src\Compile\CompileContext.h" />
     <ClInclude Include="Src\Compile\CompiledScript.h" />
     <ClInclude Include="Src\Compile\CompileInterfaces.h" />

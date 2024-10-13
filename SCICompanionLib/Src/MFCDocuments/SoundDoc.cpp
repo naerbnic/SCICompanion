@@ -21,7 +21,7 @@
 #include "ResourceEntity.h"
 #include "SoundOperations.h"
 #include "SoundUtil.h"
-#include "Audio.h"
+#include "Sound.h"
 
 using namespace std;
 

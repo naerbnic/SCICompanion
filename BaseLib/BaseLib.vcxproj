@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="Src\Audio\AudioProcessing.h" />
     <ClInclude Include="Src\Audio\AudioProcessingSettings.h" />
+    <ClInclude Include="Src\Audio\SoundUtil.h" />
     <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
     <ClInclude Include="Src\Resources\Components.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Src\Resources\ResourceUtil.h" />
     <ClInclude Include="Src\Util\Codec.h" />
     <ClInclude Include="Src\Util\CodecAlt.h" />
+    <ClInclude Include="Src\Util\CompileLog.h" />
     <ClInclude Include="Src\Util\EnumFlags.h" />
     <ClInclude Include="Src\Util\Geometry.h" />
     <ClInclude Include="Src\Util\Iterators.h" />
@@ -169,6 +171,7 @@
     <ClInclude Include="Src\Util\PerfTimer.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
     <ClInclude Include="Src\Util\SciConstants.h" />
+    <ClInclude Include="Src\Util\ScriptId.h" />
     <ClInclude Include="Src\Util\StlUtil.h" />
     <ClInclude Include="Src\Util\Stream.h" />
     <ClInclude Include="Src\Util\Version.h" />
@@ -177,6 +180,7 @@
   <ItemGroup>
     <ClCompile Include="Src\Audio\AudioProcessing.cpp" />
     <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp" />
+    <ClCompile Include="Src\Audio\SoundUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />
     <ClCompile Include="Src\Resources\Components\Audio.cpp" />
@@ -193,9 +197,11 @@
     <ClCompile Include="Src\Resources\ResourceUtil.cpp" />
     <ClCompile Include="Src\Util\Codec.cpp" />
     <ClCompile Include="Src\Util\CodecAlt.cpp" />
+    <ClCompile Include="Src\Util\CompileLog.cpp" />
     <ClCompile Include="Src\Util\Logger.cpp" />
     <ClCompile Include="Src\Util\PerfTimer.cpp" />
     <ClCompile Include="Src\Util\RunLogic.cpp" />
+    <ClCompile Include="Src\Util\ScriptId.cpp" />
     <ClCompile Include="Src\Util\Stream.cpp" />
     <ClCompile Include="Src\Util\Version.cpp" />
     <ClCompile Include="Src\Util\WindowsUtils.cpp" />

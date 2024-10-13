@@ -20,6 +20,7 @@
 
 #include "EnumFlags.h"
 #include "SciConstants.h"
+#include "ScriptId.h"
 #include "ResourceTypes.h"
 
 #ifdef DEBUG
@@ -253,14 +254,6 @@ struct GlobalLockGuard
 
 WORD _HexToWord(PCTSTR psz);
 
-enum LangSyntax
-{
-    // Don't change these values, they are used to index into comboboxes.
-    LangSyntaxUnknown = 2,
-    LangSyntaxStudio = 1,
-    LangSyntaxSCI = 0,
-};
-
 bool IsSCIKeyword(LangSyntax lang, const std::string &word);
 bool IsTopLevelKeyword(LangSyntax lang, const std::string &word);
 const std::vector<std::string> &GetTopLevelKeywords(LangSyntax lang);
@@ -271,65 +264,6 @@ const std::vector<std::string> &GetClassLevelKeywords(LangSyntax lang);
 const std::vector<std::string> &GetValueKeywords(LangSyntax lang);
 bool IsValueKeyword(const std::string &word);
 int string_to_int(const std::string &word);
-static const WORD InvalidResourceNumber = 0xffff;
-
-//
-// A script description consists of:
-// 1) full folder name
-// 2) script title
-// 2) script file name
-//
-class ScriptId
-{
-public:
-    ScriptId();
-    ScriptId(const std::string &fullPath);
-    ScriptId(PCTSTR pszFullFileName);
-    ScriptId(PCTSTR pszFileName, PCTSTR pszFolder);
-    ScriptId(const ScriptId &src);
-    ScriptId& operator=(const ScriptId& src);
-
-    void SetLanguage(LangSyntax lang);
-
-    BOOL IsNone() const;
-    const std::string &GetFileName() const;
-    const std::string &GetFolder() const;
-    const std::string &GetFileNameOrig() const;
-
-    // e.g. for Main.sc, it returns Main.  For keys.sh, it returns keys
-    std::string GetTitle() const;
-    // e.g. for Main.sc, it returns main.  For keys.sh, it returns keys
-    std::string GetTitleLower() const;
-    
-    // Returns the complete path, for loading/saving, etc...
-    std::string GetFullPath() const;
-
-    // Set the path w/o changing the resource number.
-    void SetFullPath(const std::string &fullPath);
-
-    // Script resource number
-    WORD GetResourceNumber() const { return _wScriptNum; }
-    void SetResourceNumber(WORD wScriptNum);
-
-    // Is this a header, or a script file?
-    bool IsHeader() const;
-    LangSyntax Language() const;
-
-    friend bool operator<(const ScriptId& script1, const ScriptId& script2);
-
-private:
-    void _MakeLower();
-    void _Init(PCTSTR pszFullFileName, WORD wScriptNum = InvalidResourceNumber);
-    void _DetermineLanguage();
-
-    std::string _strFolder;
-    std::string _strFileName;
-    std::string _strFileNameOrig;   // Not lower-cased
-    WORD _wScriptNum;
-    LangSyntax _language;
-};
-
-LangSyntax _DetermineLanguage(const std::string &firstLine);
 
 extern const std::string SCILanguageMarker;
 

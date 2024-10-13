@@ -11,15 +11,19 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
 #include "SoundUtil.h"
-#include "Audio.h"
-#include "Sound.h"
-#include "AppState.h"
+
+#include <Shlwapi.h>
+
+#include "Components/Audio.h"
+#include "Components/Sound.h"
 #include "ResourceEntity.h"
 #include "format.h"
 #include "CDSPResampler.h"
 #include "AudioProcessingSettings.h"
+#include "BaseWindowsUtil.h"
+#include "CompileLog.h"
+#include "Logger.h"
 #include "Stream.h"
 #include "ResourceTypes.h"
 
@@ -147,11 +151,9 @@ void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, Audi
         throw std::exception("Only uncompressed wave files are supported");
     }
 
-    std::vector<CompileResult> conversionResults;
-
     if (header.channelCount != 1)
     {
-        conversionResults.emplace_back("Extracting left channel from multi-channel wave.");
+        Logger::UserInfo("Extracting left channel from multi-channel wave.");
     }
 
     // REVIEW: Check sample rate;
@@ -165,17 +167,17 @@ void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, Audi
     if (limitTo8Bit && (convertedBitsPerSample != 8))
     {
         convertedBitsPerSample = 8;
-        conversionResults.emplace_back("Reducing from 16 bits to 8 bits.");
+        Logger::UserInfo("Reducing from 16 bits to 8 bits.");
     }
 
     if ((int)header.sampleRate > maxSampleRate)
     {
-        conversionResults.emplace_back(fmt::format("Downsampling from {0}Hz to {1}Hz.", header.sampleRate, maxSampleRate));
+        Logger::UserInfo("Downsampling from %dHz to %dHz.", header.sampleRate, maxSampleRate);
     }
 
     if (header.formatTag != WAVE_FORMAT_PCM)
     {
-        AfxMessageBox("Warning: Imported .wav is not PCM.", MB_OK | MB_ICONWARNING);
+        Logger::UserWarning("Warning: Imported .wav is not PCM.");
     }
 
     // Set up the AudioComponent and read the data.
@@ -284,11 +286,6 @@ void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, Audi
         }
     }
 
-    if (!conversionResults.empty())
-    {
-        appState->OutputResults(OutputPaneType::Compile, conversionResults);
-    }
-
     audio.ScanForClipped();
 }
 
@@ -375,12 +372,4 @@ AudioVolumeName GetVolumeToUse(SCIVersion version, uint32_t base36Number)
         volumeToUse = (base36Number == NoBase36) ? AudioVolumeName::Sfx : AudioVolumeName::Aud;
     }
     return volumeToUse;
-}
-
-std::unique_ptr<ResourceEntity> WaveResourceFromFilename(const std::string &filename)
-{
-    std::unique_ptr<ResourceEntity> resource(CreateAudioResourceFactory()->CreateDefaultResource(appState->GetVersion()));
-    AudioComponentFromWaveFile(sci::istream::ReadFromFile(filename), resource->GetComponent<AudioComponent>());
-    resource->SourceFlags = ResourceSourceFlags::AudioCache;
-    return resource;
 }

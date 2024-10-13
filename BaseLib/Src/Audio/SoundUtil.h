@@ -12,14 +12,12 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
-#include "Sound.h"
 
-struct AudioComponent;
-struct SoundComponent;
-struct AudioProcessingSettings;
-class ResourceEntity;
-enum class ResourceSourceFlags;
-enum class AudioVolumeName : uint8_t;
+#include "Components/Audio.h"
+#include "AudioProcessingSettings.h"
+#include "ResourceEntity.h"
+#include "ResourceTypes.h"
+#include "Version.h"
 
 extern const int MaxSierraSampleRate;
 
