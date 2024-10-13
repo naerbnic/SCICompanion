@@ -15,7 +15,7 @@
 
 #include "Pic.h"
 #include "Text.h"
-#include "Sound.h"
+#include "Components/Sound.h"
 #include "FontPreviewView.h"
 #include "NoFlickerStatic.h"
 #include "AudioPlaybackUI.h"

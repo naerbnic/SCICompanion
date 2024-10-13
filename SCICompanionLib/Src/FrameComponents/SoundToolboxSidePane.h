@@ -15,7 +15,7 @@
 
 #include "NonViewClient.h"
 #include "ExtDialogFwdCmd.h"
-#include "Sound.h"
+#include "Components/Sound.h"
 
 struct SoundComponent;
 class CSoundDoc;

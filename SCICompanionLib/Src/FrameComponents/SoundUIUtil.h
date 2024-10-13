@@ -12,9 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
-#include "Sound.h"
-
-struct SoundComponent;
+#include "Components/Sound.h"
 
 void PopulateComboWithDevicesHelper(SCIVersion version, CComboBox &combo);
 DeviceType GetDeviceFromComboHelper(SCIVersion version, CComboBox &combo);

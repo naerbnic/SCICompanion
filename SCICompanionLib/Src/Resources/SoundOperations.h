@@ -12,7 +12,5 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
-#include "Sound.h"
-
-SoundChangeHint InitializeFromMidi(SCIVersion version, std::vector<DeviceType> devices, SoundComponent &sound, const std::string &filename);
+#include "Components/Sound.h"
 std::string GetSoundLength(const SoundComponent &sound);

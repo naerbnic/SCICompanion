@@ -13,7 +13,7 @@
 ***************************************************************************/
 #pragma once
 
-#include "Sound.h"
+#include "Components/Sound.h"
 #include "ColoredToolTip.h"
 
 class CSoundDoc;

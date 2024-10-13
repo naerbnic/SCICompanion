@@ -13,7 +13,7 @@
 ***************************************************************************/
 #pragma once
 
-#include "Sound.h"
+#include "Components/Sound.h"
 
 class MidiPlayer
 {

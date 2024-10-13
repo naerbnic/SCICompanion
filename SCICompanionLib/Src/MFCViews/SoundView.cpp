@@ -21,6 +21,7 @@
 #include "MidiPlayer.h"
 #include "AudioPlayback.h"
 #include "Audio.h"
+#include "Components/Sound.h"
 
 // CSoundView
 

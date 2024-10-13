@@ -14,7 +14,7 @@
 #pragma once
 
 #include "ResourceEntityDocument.h"
-#include "Sound.h"
+#include "Components/Sound.h"
 
 class ResourceEntity;
 

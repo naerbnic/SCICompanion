@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Sound.h"
+#include "Components/Sound.h"
 #include "SoundUIUtil.h"
 
 struct DeviceAndName
