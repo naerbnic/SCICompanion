@@ -23,9 +23,9 @@ public:
     NounsAndCasesComponent(const std::string &msgFolder, int messageNumber);
     void Commit(int messageNumber);
 
-    NounsAndCasesComponent *Clone() const override
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new NounsAndCasesComponent(*this);
+        return std::make_unique<NounsAndCasesComponent>(*this);
     }
 
     MessageSource &GetNouns();

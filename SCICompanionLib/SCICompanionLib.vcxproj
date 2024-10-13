@@ -373,13 +373,11 @@
     <ClInclude Include="Src\Resources\Sync.h" />
     <ClInclude Include="Src\Resources\VersionDetectionHelper.h" />
     <ClInclude Include="Src\Resources\View.h" />
-    <ClInclude Include="Src\Util\AudioProcessing.h" />
     <ClInclude Include="Src\Util\AudioRecording.h" />
     <ClInclude Include="Src\Util\BayerMatrix.h" />
     <ClInclude Include="Src\Util\BufferPool.h">
       <FileType>CppCode</FileType>
     </ClInclude>
-    <ClCompile Include="Src\Util\AudioProcessing.cpp" />
     <ClCompile Include="Src\Util\AudioRecording.cpp" />
     <ClCompile Include="Src\Util\ClipboardUtil.cpp" />
     <ClCompile Include="Src\Resources\Sound.cpp" />

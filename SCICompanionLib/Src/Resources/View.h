@@ -167,9 +167,10 @@ struct RasterComponent : ResourceComponent
     RasterComponent();
     RasterComponent(const RasterComponent &src) = default;
     RasterComponent(const RasterTraits &traits, RasterSettings &settings) : Traits(traits), Settings(settings), UnknownData(0), ScaleFlags(0), Resolution(NativeResolution::Res320x200)  {}
-    ResourceComponent *Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new RasterComponent(*this);
+        return std::make_unique<RasterComponent>(*this);
     }
 
     // Helper functions. None of these are bounds checked.

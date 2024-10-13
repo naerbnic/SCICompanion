@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Audio\AudioProcessing.h" />
     <ClInclude Include="Src\Audio\AudioProcessingSettings.h" />
     <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
@@ -174,6 +175,7 @@
     <ClInclude Include="Src\Util\WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Audio\AudioProcessing.cpp" />
     <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp" />
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />

@@ -26,9 +26,9 @@ struct AudioNegativeComponent : public ResourceComponent
 public:
     AudioNegativeComponent() {}
 
-    ResourceComponent *Clone() const override
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new AudioNegativeComponent(*this);
+        return std::make_unique<AudioNegativeComponent>(*this);
     }
 
     AudioComponent Audio;

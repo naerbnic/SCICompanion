@@ -11,11 +11,14 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
 #include "AudioProcessing.h"
-#include "Audio.h"
-#include "Components/AudioNegative.h"
+
+#include <algorithm>
+#include <cassert>
 #include <random>
+
+#include "Components/Audio.h"
+#include "Components/AudioNegative.h"
 
 void SixteenBitToFloat(const int16_t *bufferIn, size_t sampleCount, std::vector<float> &result)
 {
@@ -34,7 +37,7 @@ void FloatToSixteenBit(const std::vector<float> &bufferIn, std::vector<int16_t> 
     for (float f : bufferIn)
     {
         int32_t temp = (int32_t)round(f * 32768.0f);
-        result.push_back((int16_t)max(-32768, min(32767, temp)));
+        result.push_back((int16_t)std::max(-32768, std::min(32767, temp)));
     }
 }
 
@@ -43,20 +46,20 @@ float CalculateMaxAmplitude(const float *buffer, size_t totalFloats)
     float maxAmp = 0.0f;
     for (size_t i = 0; i < totalFloats; i++)
     {
-        maxAmp = max(abs(buffer[i]), maxAmp);
+        maxAmp = std::max(abs(buffer[i]), maxAmp);
     }
     return maxAmp;
 }
 
-// Auto gain will bring the waveform to within 80% of max. This is fairly in line with
+// Auto gain will bring the waveform to within 80% of std::max. This is fairly in line with
 // other Sierra games. Higher than that and we risk clipping when we apply compression.
 void ApplyAutoGain(float *buffer, size_t totalFloats, float maxAmp)
 {
     float scale = 10.0f;    // At most...
     if (maxAmp > 0.002f)    // epsilon
     {
-        maxAmp += 0.001f;   // Ensure we don't go QUITE to max.
-        scale = min(scale, 0.8f / maxAmp);
+        maxAmp += 0.001f;   // Ensure we don't go QUITE to std::max.
+        scale = std::min(scale, 0.8f / maxAmp);
     }
 
     if (scale > 1.0f)
@@ -104,13 +107,13 @@ void ApplyCompression(float *buffer, int totalFloats, float sampleRate, const Au
     // After compression, this amplitude will be less though...
     if (maxAmplitudeDb > Threshold)
     {
-        // Ignoring attack, this is our max amplitude after compression
+        // Ignoring attack, this is our std::max amplitude after compression
         // maxAmplitudeDb = Threshold + (maxAmplitudeDb - Threshold) * Ratio;
         // Except we can't really ignore attack... it's spikes that we're worried about... Even with a 1ms attack,
         // the waveform could reach its highest level.
     }
-    float MakeUpGain = max(0.0f, MaxAllowedAmplitudeDb - maxAmplitudeDb);
-    MakeUpGain = min(3.0f, MakeUpGain); // But no more than 3db of makeup gain.
+    float MakeUpGain = std::max(0.0f, MaxAllowedAmplitudeDb - maxAmplitudeDb);
+    MakeUpGain = std::min(3.0f, MakeUpGain); // But no more than 3db of makeup gain.
 
 
     float attackCoeff = std::exp(-1.0f / (0.001f * (float)AttackMS * sampleRate));
@@ -209,7 +212,7 @@ bool ApplyNoiseGate(float *buffer, int totalFloats, float sampleRate, const Audi
     {
         // Get current input level
         //float curLvl = abs(buffer[i]);
-        float curLvl = abs(buffer[min(i + LookAheadSampleCount, lastIndex)]);
+        float curLvl = abs(buffer[std::min(i + LookAheadSampleCount, lastIndex)]);
 
         // Test thresholds
         if (curLvl > OpenThreshold && !isOpen)
@@ -222,16 +225,16 @@ bool ApplyNoiseGate(float *buffer, int totalFloats, float sampleRate, const Audi
 
         // Decay level slowly so human voice (75-300Hz) doesn't cross the close threshold
         // (Essentially a peak detector with very fast decay)
-        level = max(level, curLvl) - decayRate;
+        level = std::max(level, curLvl) - decayRate;
 
         // Apply gate state to attenuation
         if (isOpen)
-            attenuation = min(1.0f, attenuation + attackRate);
+            attenuation = std::min(1.0f, attenuation + attackRate);
         else
         {
             heldTime += dtPerSample;
             if (heldTime > HoldTime)
-                attenuation = max(0.0f, attenuation - releaseRate);
+                attenuation = std::max(0.0f, attenuation - releaseRate);
         }
 
         // Attenuate!
@@ -252,9 +255,9 @@ void ProcessSound(const AudioNegativeComponent &negative, AudioComponent &audioF
     SixteenBitToFloat(reinterpret_cast<const int16_t*>(&negative.Audio.DigitalSamplePCM[0]), negative.Audio.DigitalSamplePCM.size() / blockAlign, buffer);
 
     // Trim the ends.
-    uint32_t samplesToRemoveOffBack = min(negative.Audio.Frequency * negative.Settings.TrimRightMS / 1000, buffer.size());
+    uint32_t samplesToRemoveOffBack = std::min(negative.Audio.Frequency * negative.Settings.TrimRightMS / 1000, buffer.size());
     buffer.resize(buffer.size() - samplesToRemoveOffBack);
-    uint32_t samplesToRemoveOffFront = min(negative.Audio.Frequency * negative.Settings.TrimLeftMS / 1000, buffer.size());
+    uint32_t samplesToRemoveOffFront = std::min(negative.Audio.Frequency * negative.Settings.TrimLeftMS / 1000, buffer.size());
     buffer.erase(buffer.begin(), buffer.begin() + samplesToRemoveOffFront);
 
     bool hadNoiseGate = false;
@@ -330,9 +333,9 @@ void ProcessSound(const AudioNegativeComponent &negative, AudioComponent &audioF
 
         // We always record in 16bit. Now we'll reduce to 8 bit.
         // We want [-128,128] to map to [127.5,128.5]
-        DWORD samples = processedSound.size();
+        uint32_t samples = processedSound.size();
         audioFinal.DigitalSamplePCM.reserve(samples);
-        for (DWORD i = 0; i < samples; i++)
+        for (uint32_t i = 0; i < samples; i++)
         {
             int32_t value = processedSound[i];
 
@@ -362,8 +365,8 @@ void ProcessSound(const AudioNegativeComponent &negative, AudioComponent &audioF
 
             // I think this is more accurate:
             int32_t signed16Raw = value + 32768;
-            int32_t signed16 = min(signed16Raw + 128, 65535);     // +128 acts as rounding so we can truncate
-            signed16 = max(signed16, 0);
+            int32_t signed16 = std::min(signed16Raw + 128, 65535);     // +128 acts as rounding so we can truncate
+            signed16 = std::max(signed16, 0);
             uint8_t unsigned8 = (uint8_t)(signed16 / 256);
             prevError = (int32_t)signed16Raw - (int32_t)(unsigned8 * 256);
             audioFinal.DigitalSamplePCM.push_back(unsigned8);

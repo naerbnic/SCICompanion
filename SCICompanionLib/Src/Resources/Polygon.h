@@ -57,9 +57,10 @@ public:
     PolygonComponent(const std::string &polyFolder, int picNumber);
     void Commit(int picNumber);
 
-    PolygonComponent *Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new PolygonComponent(*this);
+        return std::make_unique<PolygonComponent>(*this);
     }
 
     const std::vector<SCIPolygon> &Polygons() const { return _polygons; }

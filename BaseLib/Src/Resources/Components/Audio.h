@@ -27,9 +27,9 @@ public:
     AudioComponent(const AudioComponent& src) = default;
     AudioComponent& operator=(const AudioComponent& src) = default;
 
-    ResourceComponent* Clone() const override
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new AudioComponent(*this);
+        return std::make_unique<AudioComponent>(*this);
     }
 
     uint32_t GetLength() const { return (uint32_t)DigitalSamplePCM.size(); }

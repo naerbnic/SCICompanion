@@ -33,9 +33,10 @@ struct FontComponent : ResourceComponent
 {
     FontComponent(const FontComponent &src) = default;
     FontComponent(const FontTraits &traits) : Traits(traits), LineHeight(8) {}
-    ResourceComponent *Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new FontComponent(*this);
+        return std::make_unique<FontComponent>(*this);
     }
 
     uint16_t LineHeight;

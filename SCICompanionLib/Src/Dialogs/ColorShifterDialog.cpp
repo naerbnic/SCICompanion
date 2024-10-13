@@ -183,7 +183,7 @@ void ColorShifterDialog::OnColorClick(BYTE bIndex, int nID, BOOL fLeft)
 {
     _SyncSelection();
     // Now take a snapshot so we have something to start from, and reset the shift.
-    _rasterSnapshot.reset(static_cast<RasterComponent*>(_rasterActual.Clone()));
+    _rasterSnapshot = std::make_unique<RasterComponent>(_rasterActual);
     _totalShift = 0;
     // Hack: Take focus, since if focus was on the "extent" radio buttons, they will eat arrow keys.
     m_wndStatic.SetFocus();

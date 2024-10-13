@@ -71,9 +71,10 @@ public:
 
     Vocab000();
     Vocab000(const Vocab000 &src) = default;
-    ResourceComponent *Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new Vocab000(*this);
+        return std::make_unique<Vocab000>(*this);
     }
 
     VocabChangeHint AddNewWord(PCTSTR pszWord, WordClass dwClass, bool fShowUI);

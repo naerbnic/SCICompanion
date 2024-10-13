@@ -60,9 +60,10 @@ struct TextComponent : public ResourceComponent, public ILookupNames
 {
     TextComponent() { }
     TextComponent(const TextComponent &src) = default;
-    ResourceComponent *Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new TextComponent(*this);
+        return std::make_unique<TextComponent>(*this);
     }
 
     typedef std::vector<TextEntry>::iterator iterator;

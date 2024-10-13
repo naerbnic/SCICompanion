@@ -30,9 +30,9 @@ struct SyncEntry
 struct SyncComponent : public ResourceComponent
 {
 public:
-    ResourceComponent *Clone() const override
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new SyncComponent(*this);
+        return std::make_unique<SyncComponent>(*this);
     }
 
     uint16_t GetMaxTicks() const;

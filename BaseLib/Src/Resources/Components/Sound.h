@@ -178,10 +178,12 @@ void SoundReadFrom_SCI0(ResourceEntity& resource, sci::istream& stream, const st
 struct SoundComponent : public ResourceComponent
 {
 public:
-    SoundComponent* Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new SoundComponent(*this);
+        return std::make_unique<SoundComponent>(*this);
     }
+
     void Reset();
 
     friend void ScanAndReadDigitalSample(ResourceEntity& resource, sci::istream stream);

@@ -45,9 +45,10 @@ struct PaletteComponent : public ResourceComponent
     PaletteComponent();
     PaletteComponent(const PaletteComponent &src) = default;
     PaletteComponent& operator=(const PaletteComponent &src) = default;
-    ResourceComponent *Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new PaletteComponent(*this);
+        return std::make_unique<PaletteComponent>(*this);
     }
 
     bool operator==(const PaletteComponent &src);

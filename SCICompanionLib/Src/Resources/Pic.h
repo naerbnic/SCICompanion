@@ -38,9 +38,10 @@ struct PicComponent : ResourceComponent
     PicComponent(const PicComponent &src) = default;
     PicComponent& operator=(const PicComponent &src) = default;
     PicComponent(const PicTraits *traits);
-    ResourceComponent *Clone() const override
+
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new PicComponent(*this);
+        return std::make_unique<PicComponent>(*this);
     }
 
     std::vector<PicCommand> commands;

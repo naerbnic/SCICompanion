@@ -1512,7 +1512,7 @@ void CMainFrame::OnFileNewPic()
                         unique_ptr<ResourceEntity> paletteEntity = CreateResourceFromResourceData(blob);
                         if (paletteEntity)
                         {
-                            unique_ptr<PaletteComponent> palette(static_cast<PaletteComponent*>((paletteEntity->GetComponent<PaletteComponent>().Clone())));
+                            unique_ptr<PaletteComponent> palette(static_cast<PaletteComponent*>((paletteEntity->GetComponent<PaletteComponent>().Clone().release())));
                             pEditPic->AddComponent<PaletteComponent>(move(palette));
                         }
                     }

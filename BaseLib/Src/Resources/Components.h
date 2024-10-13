@@ -14,10 +14,11 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 struct ResourceComponent
 {
-    virtual ResourceComponent* Clone() const = 0;
+    virtual std::unique_ptr<ResourceComponent> Clone() const = 0;
 
     // This is necessary, or else lists of ResourceComponents won't be properly destroyed.
     virtual ~ResourceComponent() {}

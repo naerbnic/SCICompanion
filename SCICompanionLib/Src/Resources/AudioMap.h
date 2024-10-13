@@ -52,9 +52,9 @@ public:
     AudioMapComponent(const AudioMapTraits &traits);
     ~AudioMapComponent() {}
 
-    ResourceComponent *Clone() const override
+    std::unique_ptr<ResourceComponent> Clone() const final
     {
-        return new AudioMapComponent(*this);
+        return std::make_unique<AudioMapComponent>(*this);
     }
 
     std::vector<AudioMapEntry> Entries;
