@@ -166,7 +166,7 @@ ResourceContainer::ResourceIterator::reference ResourceContainer::ResourceIterat
 
     if (_container->_pResourceRecency)
     {
-        _container->_pResourceRecency->AddResourceToRecency(blob.get(), true);
+        _container->_pResourceRecency->AddResourceToRecency(blob->GetResourceDescriptor(), true);
     }
     return blob;
 }

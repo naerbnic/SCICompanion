@@ -17,7 +17,6 @@
 #include <unordered_map>
 
 #include "ResourceTypes.h"
-#include "ResourceBlob.h"
 
 //
 // Contains information regarding which resources are the "current ones"
@@ -32,23 +31,23 @@ public:
     // We added a new resource to the view.
     // fAddToEnd: add to end (least recent).  Otherwise, it is added as the most recent.
     //
-    void AddResourceToRecency(const IResourceIdentifier *pData, bool fAddToEnd = false);
+    void AddResourceToRecency(const ResourceDescriptor& resource_descriptor, bool fAddToEnd = false);
 
     //
     // Someone deleted a resource from the view.
     //
-    void DeleteResourceFromRecency(const ResourceBlob *pData);
+    void DeleteResourceFromRecency(const ResourceDescriptor& resource_descriptor);
 
     //
     // Is this resource the most recent one of the type/number/id?
     // e.g. the one that will be used by the game.
     //
-    bool IsResourceMostRecent(const IResourceIdentifier *pData);
+    bool IsResourceMostRecent(const ResourceDescriptor& resource_descriptor) const;
 
     //
     // Did the user just add this resource?
     //
-    bool WasResourceJustAdded(const ResourceBlob *pData);
+    bool WasResourceJustAdded(const ResourceDescriptor& resource_descriptor) const;
 
     //
     // Called when we reload the resources of a particular type
@@ -64,7 +63,12 @@ private:
     typedef std::vector<int> ResourceIdArray;
     // hmm... each entry in this array has a bunch of resource keys (combo of number/package) that maps to lists of
     // resource ids.
-	typedef std::unordered_map<uint64_t, ResourceIdArray*> RecencyMap;
+	typedef std::unordered_map<uint64_t, ResourceIdArray> RecencyMap;
+
+    ResourceIdArray* EnsureRecencyList(const ResourceDescriptor& resource_descriptor);
+    std::optional<const ResourceIdArray*> GetRecencyList(const ResourceDescriptor& resource_descriptor) const;
+    std::optional<ResourceIdArray*> GetRecencyList(const ResourceDescriptor& resource_descriptor);
+
     RecencyMap _resourceRecency[NumResourceTypes];
 
     int _idJustAdded;

@@ -234,7 +234,7 @@ void CResourcePicListCtrl::_PrepareLVITEM(LVITEM *pItem)
     if (pData)
     {
         // Add an overlay that indicates it is not the most recent.
-        if (!appState->_resourceRecency.IsResourceMostRecent(pData))
+        if (!appState->_resourceRecency.IsResourceMostRecent(pData->GetResourceDescriptor()))
         {
             pItem->mask |= LVIF_STATE;
             pItem->state = INDEXTOOVERLAYMASK(OVERLAYINDEX_UNUSED);

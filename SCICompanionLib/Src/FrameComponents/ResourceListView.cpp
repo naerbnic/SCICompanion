@@ -362,7 +362,7 @@ void CResourceListCtrl::OnCustomDraw(NMHDR *pNMHDR, LRESULT *pResult)
             // If this is not the most recent resource of this type/number/package, then
             // color the item grey.
             const ResourceBlob *pData = reinterpret_cast<ResourceBlobWrapper*>(pnmlv->nmcd.lItemlParam)->GetBlob();
-            if (!appState->_resourceRecency.IsResourceMostRecent(pData))
+            if (!appState->_resourceRecency.IsResourceMostRecent(pData->GetResourceDescriptor()))
             {
                 pnmlv->clrText = GetSysColor(COLOR_GRAYTEXT);
             }
@@ -372,7 +372,7 @@ void CResourceListCtrl::OnCustomDraw(NMHDR *pNMHDR, LRESULT *pResult)
             }
             else
             {
-                if (appState->_resourceRecency.WasResourceJustAdded(pData))
+                if (appState->_resourceRecency.WasResourceJustAdded(pData->GetResourceDescriptor()))
                 {
                     pnmlv->clrText = RGB(255, 0, 0);
                 }
@@ -782,7 +782,7 @@ void CResourceListCtrl::_ReevaluateRecency(const ResourceBlob *pData)
             (pDataCur->GetNumber() == pData->GetNumber()))
         {
             // This is just like the item that was added or removed.  So let's re-evaluate its recency.
-            bool fMostRecent = appState->_resourceRecency.IsResourceMostRecent(pDataCur);
+            bool fMostRecent = appState->_resourceRecency.IsResourceMostRecent(pDataCur->GetResourceDescriptor());
 
             // ...by specifying an overlay image (if appropriate)
             LVITEM item = { 0 };
@@ -902,7 +902,7 @@ LPARAM CResourceListCtrl::_InsertItem(std::unique_ptr<ResourceBlob> pData)
             break;
         case ColumnStatus:
             szBuf[0] = 0;
-            GetStatusString(*blob, szBuf, ARRAYSIZE(szBuf), appState->_resourceRecency.IsResourceMostRecent(blob));
+            GetStatusString(*blob, szBuf, ARRAYSIZE(szBuf), appState->_resourceRecency.IsResourceMostRecent(blob->GetResourceDescriptor()));
             break;
 
         case ColumnSource:
@@ -962,7 +962,7 @@ void CResourceListCtrl::_UpdateStatusIfFlagsChanged(const ResourceBlob &data, Re
         item.iItem = nItem;
         item.iSubItem = ColumnStatus;
         item.pszText = szBuf;
-        GetStatusString(data, szBuf, ARRAYSIZE(szBuf), appState->_resourceRecency.IsResourceMostRecent(&data));
+        GetStatusString(data, szBuf, ARRAYSIZE(szBuf), appState->_resourceRecency.IsResourceMostRecent(data.GetResourceDescriptor()));
         SetItem(&item);
     }
 }

@@ -1623,7 +1623,7 @@ void CMainFrame::OnFileNewMessage()
                     if (pDocument)
                     {
                         pDocument->SetMessageResource(std::move(resource));
-                        appState->_resourceRecency.AddResourceToRecency(pDocument);
+                        appState->_resourceRecency.AddResourceToRecency(pDocument->GetResourceDescriptor());
                     }
                 }
             }

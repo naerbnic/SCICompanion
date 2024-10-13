@@ -17,13 +17,13 @@
 
 #include "ResourceBlob.h"
 
-uint64_t _GetLookupKey(const IResourceIdentifier *pData)
+static uint64_t _GetLookupKey(const ResourceLocation& resource_location)
 {
     // These should always be already-added resources, so they should never be -1
-    assert(pData->GetNumber() != -1);
-    assert(pData->GetPackageHint() != -1);
-    uint64_t first = pData->GetNumber() * 256 * 256 + pData->GetPackageHint();
-    uint64_t low = pData->GetBase36();
+    assert(resource_location.GetNumber() != -1);
+    assert(resource_location.GetPackageHint() != -1);
+    uint64_t first = resource_location.GetNumber() * 256 * 256 + resource_location.GetPackageHint();
+    uint64_t low = resource_location.GetBase36();
     return low + (first << 32);
 }
 
@@ -33,60 +33,40 @@ bool contains(const _T &container, const _K &key)
     return container.find(key) != container.end();
 }
 
-void ResourceRecency::AddResourceToRecency(const IResourceIdentifier *pData, bool fAddToEnd)
+void ResourceRecency::AddResourceToRecency(const ResourceDescriptor& resource_descriptor, bool fAddToEnd)
 {
     _idJustAdded = -1;
-    uint64_t iKey = _GetLookupKey(pData);
+    uint64_t iKey = _GetLookupKey(resource_descriptor.GetResourceLocation());
 
-    ResourceIdArray *pidList;
-    RecencyMap::iterator found = _resourceRecency[(int)pData->GetType()].find(iKey);
-    if (found != _resourceRecency[(int)pData->GetType()].end())
-    {
-        pidList = found->second;
-#ifdef DEBUG
-        // Now that we use a checksum instead of an id, this is not a valid ASSERT...
-        // Assert that a resource of this id doesn't not already exist in here.
-        /*for (INT_PTR i = 0; i <= pidList->GetUpperBound(); i++)
-        {
-            ASSERT(pData->GetResourceNum() != pidList->GetAt(i));
-        }*/
-#endif
-    }
-    else
-    {
-        // A new one.
-        pidList = new ResourceIdArray;
-        _resourceRecency[(int)pData->GetType()][iKey] = pidList;
-    }
+    ResourceIdArray* pidList = EnsureRecencyList(resource_descriptor);
+
     // Add this resource.
     if (fAddToEnd)
     {
         // This is called when we're enumerating.
-        pidList->push_back(pData->GetChecksum());
+        pidList->push_back(resource_descriptor.GetChecksum());
     }
     else
     {
         // This is called when the user adds a resource.
-        _idJustAdded = pData->GetChecksum();
-        pidList->insert(pidList->begin(), pData->GetChecksum());
+        _idJustAdded = resource_descriptor.GetChecksum();
+        pidList->insert(pidList->begin(), resource_descriptor.GetChecksum());
     }
 }
 
-void ResourceRecency::DeleteResourceFromRecency(const ResourceBlob *pData)
+void ResourceRecency::DeleteResourceFromRecency(const ResourceDescriptor& resource_descriptor)
 {
-    uint64_t iKey = _GetLookupKey(pData);
-
-    RecencyMap::iterator found = _resourceRecency[(int)pData->GetType()].find(iKey);
-    if (found != _resourceRecency[(int)pData->GetType()].end())
+    auto pidList = GetRecencyList(resource_descriptor);
+    if (pidList.has_value())
     {
-        ResourceIdArray *pidList = found->second;
+        auto& recencyList = *pidList.value();
         // Find this item's id.
-        for (ResourceIdArray::iterator it = pidList->begin(); it != pidList->end(); ++it)
+        for (ResourceIdArray::iterator it = recencyList.begin(); it != recencyList.end(); ++it)
         {
-            if (*it == pData->GetChecksum())
+            if (*it == resource_descriptor.GetChecksum())
             {
                 // Found it. Remove it.
-                pidList->erase(it);
+                recencyList.erase(it);
                 break;
             }
         }
@@ -96,39 +76,33 @@ void ResourceRecency::DeleteResourceFromRecency(const ResourceBlob *pData)
 //
 // Is this the most recent resource of this type.
 //
-bool ResourceRecency::IsResourceMostRecent(const IResourceIdentifier *pData)
+bool ResourceRecency::IsResourceMostRecent(const ResourceDescriptor& resource_descriptor) const
 {
-    bool fRet;
-    if (pData->GetNumber() == -1)
+    if (resource_descriptor.GetNumber() == -1)
     {
         // The resource is not saved - so consider it the "most recent" version of itself.
-        fRet = true;
+        return true;
     }
-    else
-    {
-        fRet = false;
-        uint64_t iKey = _GetLookupKey(pData);
 
-        RecencyMap::iterator found = _resourceRecency[(int)pData->GetType()].find(iKey);
-        if (found != _resourceRecency[(int)pData->GetType()].end())
-        {
-            ResourceIdArray *pidList = found->second;
-            // (should always have at least one element)
-            fRet = !pidList->empty() && (*pidList->begin() == pData->GetChecksum());
-        }
-        else
-        {
-            // If we didn't find anything, then consider it the most recent.
-            // (for some items, like audio resources, we don't calculate recency)
-            fRet = true;
-        }
+    auto recencyListOpt = GetRecencyList(resource_descriptor);
+    uint64_t iKey = _GetLookupKey(resource_descriptor.GetResourceLocation());
+
+    RecencyMap::const_iterator found = _resourceRecency[(int)resource_descriptor.GetType()].find(iKey);
+    if (!recencyListOpt.has_value())
+    {
+        // If we didn't find anything, then consider it the most recent.
+        // (for some items, like audio resources, we don't calculate recency)
+        return true;
     }
-    return fRet;
+
+    const auto& recencyList = *recencyListOpt.value();
+    // (should always have at least one element)
+    return !recencyList.empty() && (*recencyList.begin() == resource_descriptor.GetChecksum());
 }
 
-bool ResourceRecency::WasResourceJustAdded(const ResourceBlob *pData)
+bool ResourceRecency::WasResourceJustAdded(const ResourceDescriptor& resource_descriptor) const
 {
-    return (pData->GetChecksum() == _idJustAdded);
+    return (resource_descriptor.GetChecksum() == _idJustAdded);
 }
 
 void ResourceRecency::ClearResourceType(int iType)
@@ -137,7 +111,6 @@ void ResourceRecency::ClearResourceType(int iType)
 
     RecencyMap &map = _resourceRecency[iType];
     // Before removing all, we must de-allocate each array we created.
-    std::for_each(map.begin(), map.end(), [](auto&& entry) { delete entry.second; });
     map.clear();
 }
 
@@ -146,5 +119,44 @@ void ResourceRecency::ClearAllResourceTypes()
     for (int i = 0; i < NumResourceTypes; i++)
     {
         ClearResourceType(i);
+    }
+}
+ResourceRecency::ResourceIdArray* ResourceRecency::EnsureRecencyList(const ResourceDescriptor& resource_descriptor)
+{
+    uint64_t iKey = _GetLookupKey(resource_descriptor.GetResourceLocation());
+
+    ResourceIdArray* pidList;
+    return &_resourceRecency[(int)resource_descriptor.GetType()][iKey];
+}
+
+std::optional<const ResourceRecency::ResourceIdArray*> ResourceRecency::GetRecencyList(
+    const ResourceDescriptor& resource_descriptor) const
+{
+    uint64_t iKey = _GetLookupKey(resource_descriptor.GetResourceLocation());
+
+    auto found = _resourceRecency[(int)resource_descriptor.GetType()].find(iKey);
+    if (found != _resourceRecency[(int)resource_descriptor.GetType()].end())
+    {
+        return &found->second;
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+std::optional<ResourceRecency::ResourceIdArray*> ResourceRecency::GetRecencyList(
+    const ResourceDescriptor& resource_descriptor)
+{
+    uint64_t iKey = _GetLookupKey(resource_descriptor.GetResourceLocation());
+
+    auto found = _resourceRecency[(int)resource_descriptor.GetType()].find(iKey);
+    if (found != _resourceRecency[(int)resource_descriptor.GetType()].end())
+    {
+        return &found->second;
+    }
+    else
+    {
+        return std::nullopt;
     }
 }

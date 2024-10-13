@@ -1195,7 +1195,7 @@ std::unique_ptr<ResourceEntityFactory> CreateResourceEntityFactory(ResourceType 
     case ResourceType::Message:
         return CreateMessageResourceFactory();
     case ResourceType::Audio:
-        if (version.AudioIsWav && (!resource_num.GetBase36().has_value()))
+        if (version.AudioIsWav && (!resource_num.GetBase36Opt().has_value()))
         {
             return CreateWaveAudioResourceFactory();
         }

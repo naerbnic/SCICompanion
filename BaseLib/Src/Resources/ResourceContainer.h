@@ -15,11 +15,11 @@
 
 #include <set>
 #include <unordered_set>
+#include <string>
 
+#include "ResourceBlob.h"
 #include "ResourceRecency.h"
 #include "ResourceTypes.h"
-
-class ResourceBlob;
 
 #define LSL6_FIX 1
 

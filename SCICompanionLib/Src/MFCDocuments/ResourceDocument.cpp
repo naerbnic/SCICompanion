@@ -109,7 +109,7 @@ void CResourceDocument::_UpdateTitle()
     // Set the title:
     SetTitle(sz);
     // Also update recency
-    _fMostRecent = (appState->_resourceRecency.IsResourceMostRecent(this) != FALSE);
+    _fMostRecent = (appState->_resourceRecency.IsResourceMostRecent(GetResourceDescriptor()) != FALSE);
 }
 
 //

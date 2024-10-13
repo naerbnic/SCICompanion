@@ -84,7 +84,7 @@ void CResourceListDoc::OnDisableCommand(CCmdUI *pCmdUI)
 void CResourceListDoc::OnResourceAdded(const ResourceBlob *pData, AppendBehavior appendBehavior)
 {
     // Add this as the most recent resource of this type/number/package
-    appState->_resourceRecency.AddResourceToRecency(pData);
+    appState->_resourceRecency.AddResourceToRecency(pData->GetResourceDescriptor());
     UpdateAllViews(nullptr, 0, &WrapObject((appendBehavior == AppendBehavior::Replace) ? ResourceMapChangeHint::Replaced : ResourceMapChangeHint::Added, pData));
 }
 
@@ -94,7 +94,7 @@ void CResourceListDoc::OnResourceDeleted(const ResourceBlob *pDataDeleted)
     // It is crucial that this come before the update below.  We will check the recency list
     // for the ResourceBlob passed to UpdateAllViews, and at this point, we want to not find
     // it in the list.
-    appState->_resourceRecency.DeleteResourceFromRecency(pDataDeleted);
+    appState->_resourceRecency.DeleteResourceFromRecency(pDataDeleted->GetResourceDescriptor());
 
     // Cast away constness...
     UpdateAllViews(nullptr, 0, &WrapObject(ResourceMapChangeHint::Deleted, pDataDeleted));

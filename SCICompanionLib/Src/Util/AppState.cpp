@@ -472,7 +472,7 @@ void AppState::OpenMostRecentResource(ResourceType type, uint16_t wNum)
     {
         std::unique_ptr<ResourceBlob> blob = move(_resourceMap.MostRecentResource(type, wNum, true));
         OpenResource(blob.get());
-        _resourceRecency.AddResourceToRecency(blob.get());
+        _resourceRecency.AddResourceToRecency(blob->GetResourceDescriptor());
     }
 }
 

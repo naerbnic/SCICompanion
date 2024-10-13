@@ -116,9 +116,9 @@ public:
         return ResourceNum(resource_number);
     }
 
-    static ResourceNum WithBase36(int resource_number, uint32_t base36_number)
+    static ResourceNum WithBase36(int resource_number, std::optional<uint32_t> base36_number)
     {
-        if (base36_number == NoBase36)
+        if (!base36_number.has_value() || base36_number == NoBase36)
         {
             return ResourceNum(resource_number);
         }
@@ -132,7 +132,12 @@ public:
         return resource_number_;
     }
 
-    std::optional<uint32_t> GetBase36() const
+    uint32_t GetBase36() const
+    {
+        return base36_number_.value_or(NoBase36);
+    }
+
+    std::optional<uint32_t> GetBase36Opt() const
     {
         return base36_number_;
     }
@@ -147,6 +152,153 @@ private:
     std::optional<uint32_t> base36_number_;
 };
 
+// A general resource ID. This uniquely determines the resource within a game. This gives no indication on how to
+// locate the resource, only the unique identifier.
+class ResourceId
+{
+public:
+    ResourceId() = default;
+
+    ResourceId(ResourceType resource_type, const ResourceNum& resource_num)
+        : resource_type_(resource_type), resource_num_(resource_num)
+    {
+    }
+
+    ResourceType GetType() const
+    {
+        return resource_type_;
+    }
+
+    const ResourceNum& GetResourceNum() const
+    {
+        return resource_num_;
+    }
+
+    int GetNumber() const
+    {
+        return resource_num_.GetNumber();
+    }
+
+    uint32_t GetBase36() const
+    {
+        return resource_num_.GetBase36();
+    }
+
+    std::optional<uint32_t> GetBase36Opt() const
+    {
+        return resource_num_.GetBase36Opt();
+    }
+
+private:
+    ResourceType resource_type_;
+    ResourceNum resource_num_;
+};
+
+// A description of the location of a resource in the final game. This includes it's ID, and the package it is located
+// in.
+class ResourceLocation
+{
+public:
+    ResourceLocation() = default;
+
+    ResourceLocation(int package_hint, const ResourceId& resource_id)
+        : package_hint_(package_hint), resource_id_(resource_id)
+    {
+    }
+
+    ResourceType GetType() const
+    {
+        return resource_id_.GetType();
+    }
+
+    int GetNumber() const
+    {
+        return resource_id_.GetResourceNum().GetNumber();
+    }
+
+    uint32_t GetBase36() const
+    {
+        return resource_id_.GetResourceNum().GetBase36();
+    }
+
+    std::optional<uint32_t> GetBase36Opt() const
+    {
+        return resource_id_.GetResourceNum().GetBase36Opt();
+    }
+
+    int GetPackageHint() const
+    {
+        return package_hint_;
+    }
+
+    const ResourceId& GetResourceId() const
+    {
+        return resource_id_;
+    }
+
+private:
+    int package_hint_;
+    ResourceId resource_id_;
+};
+
+// A resource identifier that specifies a particular resource within a package.
+//
+// This includes its resource ID, which package it should be contained in, and a checksum to verify the resource.
+class ResourceDescriptor
+{
+public:
+    ResourceDescriptor() = default;
+
+    ResourceDescriptor(const ResourceLocation& resource_location, int checksum)
+        : resource_location_(resource_location), checksum_(checksum)
+    {
+    }
+
+    ResourceType GetType() const
+    {
+        return resource_location_.GetType();
+    }
+
+    int GetNumber() const
+    {
+        return GetResourceId().GetResourceNum().GetNumber();
+    }
+
+    uint32_t GetBase36() const
+    {
+        return GetResourceId().GetResourceNum().GetBase36();
+    }
+
+    std::optional<uint32_t> GetBase36Opt() const
+    {
+        return GetResourceId().GetResourceNum().GetBase36Opt();
+    }
+
+    ResourceLocation GetResourceLocation() const
+    {
+        return resource_location_;
+    }
+
+    int GetPackageHint() const
+    {
+        return resource_location_.GetPackageHint();
+    }
+
+    const ResourceId& GetResourceId() const
+    {
+        return resource_location_.GetResourceId();
+    }
+
+    int GetChecksum() const
+    {
+        return checksum_;
+    }
+
+private:
+    ResourceLocation resource_location_;
+    int checksum_;
+};
+
 class IResourceIdentifier
 {
 public:
@@ -155,11 +307,27 @@ public:
     virtual int GetPackageHint() const = 0;
     virtual int GetNumber() const = 0;
     virtual uint32_t GetBase36() const = 0;
+    virtual ResourceType GetType() const = 0;
+    virtual int GetChecksum() const = 0;
+    
     virtual ResourceNum GetResourceNum() const
     {
         return ResourceNum::WithBase36(GetNumber(), GetBase36());
     }
-    virtual ResourceType GetType() const = 0;
-    virtual int GetChecksum() const = 0;
+
+    virtual ResourceId GetResourceId() const
+    {
+        return ResourceId(GetType(), GetResourceNum());
+    }
+
+    virtual ResourceLocation GetResourceLocation() const
+    {
+        return ResourceLocation(GetPackageHint(), GetResourceId());
+    }
+
+    virtual ResourceDescriptor GetResourceDescriptor() const
+    {
+        return ResourceDescriptor(GetResourceLocation(), GetChecksum());
+    }
 };
 

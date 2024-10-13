@@ -226,7 +226,7 @@ CResourceDocument *CMDITabsDialogBar::ActivateResourceDocument(ResourceType type
         CResourceDocument *pRD = static_cast<CResourceDocument*>(_GetIfKindOf(i, RUNTIME_CLASS(CResourceDocument), &pActive));
         if (pRD && (pRD->GetType() == type) && (pRD->GetNumber() == (int)wNum))
         {
-            if (appState->_resourceRecency.IsResourceMostRecent(pRD))
+            if (appState->_resourceRecency.IsResourceMostRecent(pRD->GetResourceDescriptor()))
             {
                 pRDRet = pRD;
                 pActive->MDIActivate();
@@ -510,7 +510,7 @@ void CMDITabsDialogBar::DrawItem(LPDRAWITEMSTRUCT pdis)
         if (pDocAny && pDocAny->IsKindOf(RUNTIME_CLASS(CResourceDocument)))
         {
             CResourceDocument *pDoc = static_cast<CResourceDocument*>(pDocAny);
-            fNotMostRecent = !appState->_resourceRecency.IsResourceMostRecent(pDoc);
+            fNotMostRecent = !appState->_resourceRecency.IsResourceMostRecent(pDoc->GetResourceDescriptor());
         }
 
         // use _overCloseIcon?
