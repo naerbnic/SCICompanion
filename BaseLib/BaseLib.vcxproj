@@ -147,6 +147,7 @@
     <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
     <ClInclude Include="Src\Resources\Components.h" />
+    <ClInclude Include="Src\Resources\Components\Audio.h" />
     <ClInclude Include="Src\Resources\PicCommandsCommon.h" />
     <ClInclude Include="Src\Resources\ResourceBlob.h" />
     <ClInclude Include="Src\Resources\ResourceContainer.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="Src\Resources\ResourceTypes.h" />
     <ClInclude Include="Src\Util\PerfTimer.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
+    <ClInclude Include="Src\Util\SciConstants.h" />
     <ClInclude Include="Src\Util\StlUtil.h" />
     <ClInclude Include="Src\Util\Stream.h" />
     <ClInclude Include="Src\Util\Version.h" />
@@ -173,6 +175,7 @@
     <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp" />
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />
+    <ClCompile Include="Src\Resources\Components\Audio.cpp" />
     <ClCompile Include="Src\Resources\PicCommandsCommon.cpp" />
     <ClCompile Include="Src\Resources\ResourceBlob.cpp" />
     <ClCompile Include="Src\Resources\ResourceContainer.cpp" />

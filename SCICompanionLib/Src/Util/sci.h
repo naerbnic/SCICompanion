@@ -19,6 +19,7 @@
 #pragma once
 
 #include "EnumFlags.h"
+#include "SciConstants.h"
 #include "ResourceTypes.h"
 
 #ifdef DEBUG
@@ -67,7 +68,6 @@ void AdvancePastWhitespace(const std::string &line, size_t &offset);
 #define DEFAULT_PIC_HEIGHT     190  
 #define sPIC_WIDTH_MAX          320
 #define sPIC_HEIGHT_MAX         200
-#define SCITicksPerSecond 60
 
 // 320 x 190 pixels, each a byte. (For our drawing buffers)
 #define BMPSIZE (DEFAULT_PIC_WIDTH * DEFAULT_PIC_HEIGHT)
