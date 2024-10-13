@@ -648,8 +648,23 @@ HRESULT ResourceBlob::SaveToHandle(HANDLE hFile, bool fNoHeader, DWORD *pcbWritt
 
 std::atomic<int> g_nextUniqueId = 0;
 
-int ResourceBlob::GetChecksum() const
+ResourceDescriptor ResourceBlob::GetResourceDescriptor() const
 {
+    int header_number;
+    if (_hasNumber)
+    {
+        // 0xffff -> 65535
+        header_number = (int)(uint16_t)header.Number;
+    }
+    else
+    {
+        header_number = header.Number;
+    }
+    auto resource_num = ResourceNum::WithBase36(header_number, header.Base36Number);
+    auto resource_id = ResourceId(header.Type, resource_num);
+    auto resource_location = ResourceLocation(header.PackageHint, resource_id);
+
+    // Ensure checksum is up to date.
     if (!_fComputedChecksum)
     {
         size_t size = _pData.size();
@@ -667,7 +682,7 @@ int ResourceBlob::GetChecksum() const
         }
         _fComputedChecksum = true;
     }
-    return _iChecksum;
+    return ResourceDescriptor(resource_location, _iChecksum);
 }
 
 bool operator==(const ResourceMapEntryAgnostic &one, const ResourceMapEntryAgnostic &two)

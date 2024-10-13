@@ -39,11 +39,7 @@ public:
     virtual const ResourceEntity *GetResource() const = 0;
 
     // IResourceIdentifier
-    int GetPackageHint() const override;
-    int GetNumber() const override;
-    uint32_t GetBase36() const override;
-    ResourceType GetType() const override;
-    int GetChecksum() const override { return _checksum; }
+    ResourceDescriptor GetResourceDescriptor() const final;
 
     bool IsMostRecent() const;
 

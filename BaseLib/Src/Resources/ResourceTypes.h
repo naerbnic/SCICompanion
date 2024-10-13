@@ -304,30 +304,44 @@ class IResourceIdentifier
 public:
     virtual ~IResourceIdentifier() = default;
 
-    virtual int GetPackageHint() const = 0;
-    virtual int GetNumber() const = 0;
-    virtual uint32_t GetBase36() const = 0;
-    virtual ResourceType GetType() const = 0;
-    virtual int GetChecksum() const = 0;
-    
-    virtual ResourceNum GetResourceNum() const
+    virtual ResourceDescriptor GetResourceDescriptor() const = 0;
+    int GetPackageHint() const
     {
-        return ResourceNum::WithBase36(GetNumber(), GetBase36());
+        return GetResourceLocation().GetPackageHint();
     }
 
-    virtual ResourceId GetResourceId() const
+    int GetNumber() const
     {
-        return ResourceId(GetType(), GetResourceNum());
+        return GetResourceNum().GetNumber();
     }
 
-    virtual ResourceLocation GetResourceLocation() const
+    uint32_t GetBase36() const
     {
-        return ResourceLocation(GetPackageHint(), GetResourceId());
+        return GetResourceNum().GetBase36();
     }
 
-    virtual ResourceDescriptor GetResourceDescriptor() const
+    ResourceType GetType() const
     {
-        return ResourceDescriptor(GetResourceLocation(), GetChecksum());
+        return GetResourceId().GetType();
+    }
+
+    int GetChecksum() const
+    {
+        return GetResourceDescriptor().GetChecksum();
+    }
+
+    ResourceNum GetResourceNum() const
+    {
+        return GetResourceId().GetResourceNum();
+    }
+
+    ResourceId GetResourceId() const
+    {
+        return GetResourceLocation().GetResourceId();
+    }
+
+    ResourceLocation GetResourceLocation() const
+    {
+        return GetResourceDescriptor().GetResourceLocation();
     }
 };
-

@@ -342,26 +342,7 @@ public:
     HRESULT SaveToHandle(HANDLE hFile, bool fNoHeader, DWORD *pcbWritten = nullptr) const;
     int GetLengthOnDisk() const;
 
-    // IResourceIdentifier
-    int GetPackageHint() const override { return header.PackageHint; }
-    int GetNumber() const override
-    {
-        if (_hasNumber)
-        {
-            // 0xffff -> 65535
-            return (int)(uint16_t)header.Number;
-        }
-        else
-        {
-            return header.Number;
-        }
-    }
-    uint32_t GetBase36() const override
-    {
-        return header.Base36Number;
-    }
-    ResourceType GetType() const override { return header.Type; }
-    int GetChecksum() const override;
+    ResourceDescriptor GetResourceDescriptor() const override;
 
     HRESULT SaveToFile(const std::string &strFileName) const;
     int GetEncoding() const { return header.CompressionMethod; }

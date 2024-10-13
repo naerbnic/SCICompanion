@@ -369,46 +369,29 @@ void CResourceDocument::SetModifiedFlag(BOOL bModified)
     __super::SetModifiedFlag(bModified);
 }
 
-int CResourceDocument::GetPackageHint() const
+ResourceDescriptor CResourceDocument::GetResourceDescriptor() const
 {
-    const ResourceEntity *pRes = GetResource();
-    if (pRes)
+    int resource_number;
+    uint32_t resource_base36;
+    int package_number;
+
+    if (const auto* pRes = GetResource())
     {
-        return pRes->PackageNumber;
+        resource_number = pRes->ResourceNumber;
+        resource_base36 = pRes->Base36Number;
+        package_number = pRes->PackageNumber;
     }
     else
     {
-        return -1;
-    }
-}
-int CResourceDocument::GetNumber() const
-{
-    const ResourceEntity *pRes = GetResource();
-    if (pRes)
-    {
-        return pRes->ResourceNumber;
-    }
-    else
-    {
-        return -1;
-    }
-}
-uint32_t CResourceDocument::GetBase36() const
-{
-    const ResourceEntity *pRes = GetResource();
-    if (pRes)
-    {
-        return pRes->Base36Number;
-    }
-    else
-    {
-        return NoBase36;
+        resource_number = -1;
+        resource_base36 = NoBase36;
+        package_number = -1;
     }
 
-}
-ResourceType CResourceDocument::GetType() const
-{
-    return _GetType();
+    auto resource_num = ResourceNum::WithBase36(resource_number, resource_base36);
+    auto resource_id = ResourceId(_GetType(), resource_num);
+    auto resource_location = ResourceLocation(package_number, resource_id);
+    return ResourceDescriptor(resource_location, _checksum);
 }
 
 std::string CResourceDocument::_GetFileDialogFilter()
