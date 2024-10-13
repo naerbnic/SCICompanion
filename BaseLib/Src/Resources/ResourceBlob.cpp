@@ -660,7 +660,7 @@ ResourceDescriptor ResourceBlob::GetResourceDescriptor() const
     {
         header_number = header.Number;
     }
-    auto resource_num = ResourceNum::WithBase36(header_number, header.Base36Number);
+    auto resource_num = ResourceNum::CreateWithBase36(header_number, header.Base36Number);
     auto resource_id = ResourceId(header.Type, resource_num);
     auto resource_location = ResourceLocation(header.PackageHint, resource_id);
 

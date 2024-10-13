@@ -46,6 +46,8 @@ struct ResourceMapEntryAgnostic
     uint32_t ExtraData;
     uint32_t Base36Number;
     // Adding more members? Update operator==
+
+    ResourceId GetResourceId() const { return ResourceId(Type, ResourceNum::CreateWithBase36(Number, Base36Number)); }
 };
 
 bool operator==(const ResourceMapEntryAgnostic &one, const ResourceMapEntryAgnostic &two);

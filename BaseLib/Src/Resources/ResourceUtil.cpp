@@ -63,29 +63,29 @@ SCI_RESOURCE_INFO &GetResourceInfo(ResourceType type)
 
 std::string GetFileNameFor(const ResourceBlob &blob)
 {
-    return GetFileNameFor(blob.GetType(), blob.GetNumber(), blob.GetBase36(), blob.GetVersion());
+    return GetFileNameFor(blob.GetResourceDescriptor().GetResourceId(), blob.GetVersion());
 }
 
 const char Base36AudioPrefix = '@';
 const char Base36SyncPrefix = '#';
 
-std::string GetFileNameFor(ResourceType type, int number, uint32_t base36Number, SCIVersion version)
+std::string GetFileNameFor(const ResourceId& resource_id, const SCIVersion& version)
 {
-    SCI_RESOURCE_INFO &resInfo = GetResourceInfo(type);
-    if (base36Number == NoBase36)
+    SCI_RESOURCE_INFO &resInfo = GetResourceInfo(resource_id.GetType());
+    if (auto base36 = resource_id.GetBase36Opt(); base36.has_value())
+    {
+        assert(resource_id.GetType() == ResourceType::Audio || resource_id.GetType() == ResourceType::Sync);
+        std::string core = default_reskey(resource_id.GetResourceNum());
+        assert(core.length() == 11);
+        return format("{0}{1}", (resource_id.GetType() == ResourceType::Audio) ? Base36AudioPrefix : Base36SyncPrefix, core);
+    }
+    else
     {
         // Interestingly, SV.exe gets the patch file naming incorrect for early SCI1 (which uses ResourceMapFormat::SCI0). We do it right.
         std::string formatString = (version.MapFormat > ResourceMapFormat::SCI0) ? resInfo.pszFileFilter_SCI1 : resInfo.pszFileFilter_SCI0;
         std::string numberFormatString = (version.MapFormat > ResourceMapFormat::SCI0) ? "{:d}" : "{:03d}";
-        std::string numberString = format(numberFormatString, number);
+        std::string numberString = format(numberFormatString, resource_id.GetNumber());
         return format(formatString, numberString);
-    }
-    else
-    {
-        assert(type == ResourceType::Audio || type == ResourceType::Sync);
-        std::string core = default_reskey(number, base36Number);
-        assert(core.length() == 11);
-        return format("{0}{1}", (type == ResourceType::Audio) ? Base36AudioPrefix : Base36SyncPrefix, core);
     }
 }
 

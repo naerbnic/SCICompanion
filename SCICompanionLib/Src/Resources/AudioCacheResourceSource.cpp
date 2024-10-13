@@ -411,8 +411,7 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
 {
     // REVIEW: Is the offset right?
 
-    std::string fileName = GetFileNameFor(mapEntry.Type, mapEntry.Number,
-                                          mapEntry.Base36Number, _resourceMap->GetVersion());
+    std::string fileName = GetFileNameFor(mapEntry.GetResourceId(), _resourceMap->GetVersion());
     assert(!fileName.empty());
     std::string fullPath = GetCacheSubfolderForEnum() + "\\" + fileName;
 
@@ -440,7 +439,7 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
     else
     {
         std::string fileNameSync = GetFileNameFor(
-            ResourceType::Sync, mapEntry.Number, mapEntry.Base36Number,
+            mapEntry.GetResourceId().WithType(ResourceType::Sync),
             _resourceMap->GetVersion());
         std::string fullPathSync = GetCacheSubfolderForEnum() + "\\" + fileNameSync;
 
@@ -488,9 +487,7 @@ void SaveAudioBlobToFiles(const ResourceBlob& blob,
         lipSyncDataSize = it->second;
     }
 
-    std::string syncFileName = GetFileNameFor(ResourceType::Sync,
-                                              blob.GetNumber(),
-                                              blob.GetBase36(),
+    std::string syncFileName = GetFileNameFor(blob.GetResourceId().WithType(ResourceType::Sync),
                                               blob.GetVersion());
     std::string syncFullPath = cacheSubFolder + "\\" + syncFileName;
     if (lipSyncDataSize)
@@ -504,9 +501,7 @@ void SaveAudioBlobToFiles(const ResourceBlob& blob,
         deletefile(syncFullPath);
     }
 
-    std::string audioFileName = GetFileNameFor(ResourceType::Audio,
-                                               blob.GetNumber(),
-                                               blob.GetBase36(),
+    std::string audioFileName = GetFileNameFor(blob.GetResourceId().WithType(ResourceType::Audio),
                                                blob.GetVersion());
     ScopedFile syncFile(cacheSubFolder + "\\" + audioFileName, GENERIC_WRITE, 0,
                         CREATE_ALWAYS);
@@ -609,8 +604,7 @@ void AudioCacheResourceSource::SaveOrRemoveNegatives(
         for (ResourceEntity* resource : negatives)
         {
             std::string fullPath = GetCacheSubfolderForEnum() + "\\" +
-                GetFileNameFor(ResourceType::Audio, resource->ResourceNumber,
-                               resource->Base36Number, _resourceMap->GetVersion()) + ".wav";
+                GetFileNameFor(resource->GetResourceId().WithType(ResourceType::Audio), _resourceMap->GetVersion()) + ".wav";
             const AudioNegativeComponent* neg = resource->TryGetComponent<
                 AudioNegativeComponent>();
             if (neg)
@@ -634,7 +628,7 @@ void AudioCacheResourceSource::MaybeAddNegative(ResourceEntity& resource)
     try
     {
         std::string fullPath = GetCacheSubfolderForEnum() + "\\" + GetFileNameFor(
-            ResourceType::Audio, resource.ResourceNumber, resource.Base36Number,
+            resource.GetResourceId().WithType(ResourceType::Audio),
             _resourceMap->GetVersion()) + ".wav";
         if (PathFileExists(fullPath.c_str()))
         {
@@ -677,14 +671,16 @@ void AudioCacheResourceSource::RemoveEntries(int number,
                 audioMapModified = true;
             }
 
+            auto resource_num = ResourceNum::CreateWithBase36(number, tuple);
+
             // Now we need to delete any files associated with it.
             std::string fullPath = GetCacheSubfolderForEnum() + "\\" +
-                GetFileNameFor(ResourceType::Audio, number, tuple, _resourceMap->GetVersion());
+                GetFileNameFor(ResourceId(ResourceType::Sync, resource_num), _resourceMap->GetVersion());
             deletefile(fullPath);
             fullPath += ".wav";
             deletefile(fullPath); // The negative, if it exists.
             fullPath = GetCacheSubfolderForEnum() + "\\" + GetFileNameFor(
-                ResourceType::Sync, number, tuple, _resourceMap->GetVersion());
+                ResourceId(ResourceType::Sync, resource_num), _resourceMap->GetVersion());
             deletefile(fullPath);
         }
 
@@ -830,13 +826,14 @@ void RebuildFromAudioCacheFiles(SCIVersion version,
     for (auto& entry : audioMap.Entries)
     {
         uint32_t tuple = isMain ? NoBase36 : GetMessageTuple(entry);
+        auto resource_num = ResourceNum::CreateWithBase36(entry.Number, tuple);
         std::string fullPathAudio = cacheSubfolder + "\\" + GetFileNameFor(
-            ResourceType::Audio, entry.Number, tuple, version);
+            ResourceId(ResourceType::Audio, resource_num), version);
         std::string fullPathSync;
         if (!isMain)
         {
             fullPathSync = cacheSubfolder + "\\" + GetFileNameFor(
-                ResourceType::Sync, entry.Number, tuple, version);
+                ResourceId(ResourceType::Sync, resource_num), version);
         }
 
         entry.Offset = static_cast<uint32_t>(writeStream.tellp());

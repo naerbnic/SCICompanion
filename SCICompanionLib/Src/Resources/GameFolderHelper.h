@@ -114,6 +114,7 @@ public:
     ScriptId GetScriptId(const std::string& name) const;
     std::string FigureOutName(ResourceType type, int iResourceNum,
                               uint32_t base36Number) const;
+    std::string FigureOutName(const ResourceId& resource_id) const;
     std::unique_ptr<ResourceContainer> Resources(
         const SCIVersion& version, ResourceTypeFlags types,
         ResourceEnumFlags enumFlags, ResourceRecency* pRecency = nullptr,

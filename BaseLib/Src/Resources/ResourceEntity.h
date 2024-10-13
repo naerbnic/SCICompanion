@@ -73,7 +73,12 @@ public:
 
     ResourceNum GetResourceNum() const
     {
-        return ResourceNum::WithBase36(ResourceNumber, Base36Number);
+        return ResourceNum::CreateWithBase36(ResourceNumber, Base36Number);
+    }
+
+    ResourceId GetResourceId() const
+    {
+        return ResourceId(Traits.Type, GetResourceNum());
     }
 
     template<typename _T>

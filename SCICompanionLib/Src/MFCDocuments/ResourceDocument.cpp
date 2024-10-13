@@ -322,23 +322,23 @@ void CResourceDocument::OnExportAsResource()
             bool fSaved = false;
             pResource->WriteToTest(serial, false, pResource->ResourceNumber);
             // Bring up the file dialog
-            int iNumber = pResource->ResourceNumber;
-            if (iNumber == -1)
+            auto resource_id = pResource->GetResourceId();
+            if (resource_id.GetNumber() == -1)
             {
-                iNumber = 0;
+                resource_id = resource_id.WithNumber(0);
             }
 
-            std::string filename = GetFileNameFor(GetType(), iNumber, pResource->Base36Number, appState->GetVersion());
+            std::string filename = GetFileNameFor(resource_id, appState->GetVersion());
             std::string filter = _GetFileDialogFilter();
             CFileDialog fileDialog(FALSE, nullptr, filename.c_str(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR, filter.c_str());
             if (IDOK == fileDialog.DoModal())
             {
                 CString strFileName = fileDialog.GetPathName();
                 ResourceBlob data;
-
-                auto resourceName = appState->GetResourceMap().Helper().FigureOutName(_GetType(), iNumber, NoBase36);
+                auto resource_num = ResourceNum::CreateWithBase36(resource_id.GetNumber(), NoBase36);
+                auto resourceName = appState->GetResourceMap().Helper().FigureOutName(ResourceId(_GetType(), resource_num));
                 sci::istream readStream = istream_from_ostream(serial);
-                if (SUCCEEDED(data.CreateFromBits(resourceName.c_str(), _GetType(), &readStream, pResource->PackageNumber, iNumber, NoBase36, appState->GetVersion(), ResourceSourceFlags::PatchFile)))
+                if (SUCCEEDED(data.CreateFromBits(resourceName.c_str(), _GetType(), &readStream, pResource->PackageNumber, resource_num.GetNumber(), NoBase36, appState->GetVersion(), ResourceSourceFlags::PatchFile)))
                 {
                     HRESULT hr = data.SaveToFile((PCSTR)strFileName);
                     if (FAILED(hr))
@@ -388,7 +388,7 @@ ResourceDescriptor CResourceDocument::GetResourceDescriptor() const
         package_number = -1;
     }
 
-    auto resource_num = ResourceNum::WithBase36(resource_number, resource_base36);
+    auto resource_num = ResourceNum::CreateWithBase36(resource_number, resource_base36);
     auto resource_id = ResourceId(_GetType(), resource_num);
     auto resource_location = ResourceLocation(package_number, resource_id);
     return ResourceDescriptor(resource_location, _checksum);

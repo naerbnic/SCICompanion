@@ -116,7 +116,7 @@ public:
         return ResourceNum(resource_number);
     }
 
-    static ResourceNum WithBase36(int resource_number, std::optional<uint32_t> base36_number)
+    static ResourceNum CreateWithBase36(int resource_number, std::optional<uint32_t> base36_number)
     {
         if (!base36_number.has_value() || base36_number == NoBase36)
         {
@@ -140,6 +140,11 @@ public:
     std::optional<uint32_t> GetBase36Opt() const
     {
         return base36_number_;
+    }
+
+    ResourceNum WithNumber(int resource_number) const
+    {
+        return ResourceNum(resource_number, base36_number_);
     }
 
 private:
@@ -187,6 +192,16 @@ public:
     std::optional<uint32_t> GetBase36Opt() const
     {
         return resource_num_.GetBase36Opt();
+    }
+
+    ResourceId WithType(ResourceType type) const
+    {
+        return ResourceId(type, resource_num_);
+    }
+
+    ResourceId WithNumber(int resource_number) const
+    {
+        return ResourceId(resource_type_, resource_num_.WithNumber(resource_number));
     }
 
 private:

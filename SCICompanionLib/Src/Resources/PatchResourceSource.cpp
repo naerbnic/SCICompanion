@@ -147,7 +147,7 @@ sci::istream PatchFilesResourceSource::GetPositionedStreamAndResourceSizeIncludi
 
 void PatchFilesResourceSource::RemoveEntry(const ResourceMapEntryAgnostic &mapEntry)
 {
-    std::string filename = GetFileNameFor(mapEntry.Type, mapEntry.Number, mapEntry.Base36Number, _version);
+    std::string filename = GetFileNameFor(mapEntry.GetResourceId(), _version);
     std::string fullPath = _gameFolder + "\\" + filename;
     deletefile(fullPath);
 }

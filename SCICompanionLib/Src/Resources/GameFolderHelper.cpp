@@ -573,6 +573,13 @@ std::string GameFolderHelper::FigureOutName(ResourceType type, int iNumber,
     return name;
 }
 
+std::string GameFolderHelper::FigureOutName(const ResourceId& resource_id) const
+{
+    return FigureOutName(resource_id.GetType(), resource_id.GetNumber(),
+        resource_id.GetBase36());
+
+}
+
 std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(
     const SCIVersion& version, ResourceTypeFlags types,
     ResourceEnumFlags enumFlags, ResourceRecency* pRecency,
