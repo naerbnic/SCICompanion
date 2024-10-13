@@ -41,6 +41,7 @@ to full paths, and various unicode and ansi conversion routines
 @{
 */
 
+#include <string>
 
 /** @brief converts a TCHAR (unicode or ansi) into a wide character string
 

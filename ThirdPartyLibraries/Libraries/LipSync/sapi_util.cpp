@@ -33,7 +33,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 @brief Implementation for various utility functions
 */
 
-#include "stdafx.h"
+#include <string>
 #include <sphelper.h>
 #include <comdef.h>	// for nice bstr_t thing!
 #include "sapi_util.h"
@@ -45,7 +45,7 @@ std::wstring TCHAR_2_wstring(const TCHAR *str)
 	return std::wstring(str);
 #else
 	bstr_t bst = str;
-	std::wstring ret = bst;
+	std::wstring ret = static_cast<const wchar_t*>(bst);
 	return (ret);
 #endif
 }
@@ -54,7 +54,7 @@ std::wstring TCHAR_2_wstring(const TCHAR *str)
 std::string  wstring_2_string(const std::wstring& str)
 {
 	bstr_t bst = str.c_str();
-	std::string ret = bst;
+	std::string ret = static_cast<const char*>(bst);
 	return (ret);
 }
 

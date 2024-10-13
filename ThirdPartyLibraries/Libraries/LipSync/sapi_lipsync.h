@@ -50,6 +50,9 @@ Mark Zartler - mzartler@annosoft.com
 #ifndef _H_SAPI_LIPSYNC
 #define _H_SAPI_LIPSYNC
 
+#include <string>
+#include <vector>
+
 // forwards 
 class phoneme_estimator;
 

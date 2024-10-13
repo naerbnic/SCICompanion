@@ -148,7 +148,7 @@ public:
 	phoneme_type m_type;
 
 	/// paramaterized constructor
-	engine_phoneme_spec(const wchar_t * _enginePhn, wchar_t * _outputPhn, wchar_t* _desc, phoneme_type _pt)
+	engine_phoneme_spec(const wchar_t * _enginePhn, const wchar_t * _outputPhn, const wchar_t* _desc, phoneme_type _pt)
 	{
 		enginePhoneme = _enginePhn;
 		outputPhoneme = _outputPhn;

@@ -267,10 +267,6 @@
     <ClCompile Include="Src\FrameComponents\PicHelperPane.cpp" />
     <ClCompile Include="Src\FrameComponents\SoundUIUtil.cpp" />
     <ClCompile Include="Src\FrameComponents\ViewUIElement.cpp" />
-    <ClCompile Include="Src\GIFLIB\egif_lib.cpp" />
-    <ClCompile Include="Src\LipSync\phone_estimate.cpp" />
-    <ClCompile Include="Src\LipSync\sapi_lipsync.cpp" />
-    <ClCompile Include="Src\LipSync\sapi_util.cpp" />
     <ClCompile Include="Src\MFCDocuments\DocumentWithPaletteChoices.cpp" />
     <ClCompile Include="Src\Resources\AudioCacheResourceSource.cpp" />
     <ClCompile Include="Src\Resources\AudioNegative.cpp" />
@@ -280,10 +276,6 @@
     <ClCompile Include="Src\Resources\Polygon.cpp" />
     <ClCompile Include="Src\FrameComponents\ViewCelListBox.cpp" />
     <ClCompile Include="Src\FrameComponents\ZoomCelStatic.cpp" />
-    <ClCompile Include="Src\GIFLIB\dgif_lib.cpp" />
-    <ClCompile Include="Src\GIFLIB\gifalloc.cpp" />
-    <ClCompile Include="Src\GIFLIB\gif_err.cpp" />
-    <ClCompile Include="Src\GIFLIB\gif_hash.cpp" />
     <ClCompile Include="Src\MFCDocuments\MessageDoc.cpp" />
     <ClCompile Include="Src\MFCDocuments\PaletteDoc.cpp" />
     <ClCompile Include="Src\MFCFrames\MessageChildFrame.cpp" />
@@ -360,9 +352,6 @@
     <ClInclude Include="Src\FrameComponents\PhonemeEditor.h" />
     <ClInclude Include="Src\FrameComponents\SoundUIUtil.h" />
     <ClInclude Include="Src\FrameComponents\ViewUIElement.h" />
-    <ClInclude Include="Src\LipSync\phone_estimate.h" />
-    <ClInclude Include="Src\LipSync\sapi_lipsync.h" />
-    <ClInclude Include="Src\LipSync\sapi_util.h" />
     <ClInclude Include="Src\MFCDocuments\DocumentWithPaletteChoices.h" />
     <ClInclude Include="Src\MFCViews\FakeEgo.h" />
     <ClInclude Include="Src\Resources\AudioCacheResourceSource.h" />
@@ -372,9 +361,6 @@
     <ClInclude Include="Src\Resources\PatchResourceSource.h" />
     <ClInclude Include="Src\Resources\Polygon.h" />
     <ClInclude Include="Src\FrameComponents\ViewCelListBox.h" />
-    <ClInclude Include="Src\GIFLIB\gif_hash.h" />
-    <ClInclude Include="Src\GIFLIB\gif_lib.h" />
-    <ClInclude Include="Src\GIFLIB\gif_lib_private.h" />
     <ClInclude Include="Src\MFCDocuments\MessageDoc.h" />
     <ClInclude Include="Src\MFCDocuments\PaletteDoc.h" />
     <ClInclude Include="Src\MFCFrames\MessageChildFrame.h" />
@@ -775,8 +761,6 @@
     <None Include="Src\CrystalEdit\CCrystalEditView.inl" />
     <None Include="Src\CrystalEdit\CCrystalTextBuffer.inl" />
     <None Include="Src\CrystalEdit\CCrystalTextView.inl" />
-    <None Include="Src\GIFLIB\AUTHORS" />
-    <None Include="Src\GIFLIB\COPYING" />
     <None Include="Src\Util\ScriptConvert.h" />
   </ItemGroup>
   <ItemGroup>

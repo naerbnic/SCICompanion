@@ -3,7 +3,6 @@
 gif_err.c - handle error reporting for the GIF library.
 
 ****************************************************************************/
-#include "stdafx.h"
 #include <stdio.h>
 
 #include "gif_lib.h"

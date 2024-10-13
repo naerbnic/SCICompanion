@@ -75,12 +75,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\GIFLIB;$(ProjectDir)Libraries\LipSync;$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\GIFLIB;$(ProjectDir)Libraries\LipSync;$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Libraries\GIFLIB;$(ProjectDir)Libraries\LipSync;$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Libraries\GIFLIB;$(ProjectDir)Libraries\LipSync;$(ProjectDir)Libraries\r8brain;$(ProjectDir)Libraries\cpptoml;$(ProjectDir)Libraries\CppFormat;$(ProjectDir)Libraries\CRC32;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -150,12 +150,26 @@
   <ItemGroup>
     <ClCompile Include="Libraries\CppFormat\format.cc" />
     <ClCompile Include="Libraries\CRC32\crc.cpp" />
+    <ClCompile Include="Libraries\GIFLIB\dgif_lib.cpp" />
+    <ClCompile Include="Libraries\GIFLIB\egif_lib.cpp" />
+    <ClCompile Include="Libraries\GIFLIB\gifalloc.cpp" />
+    <ClCompile Include="Libraries\GIFLIB\gif_err.cpp" />
+    <ClCompile Include="Libraries\GIFLIB\gif_hash.cpp" />
+    <ClCompile Include="Libraries\LipSync\phone_estimate.cpp" />
+    <ClCompile Include="Libraries\LipSync\sapi_lipsync.cpp" />
+    <ClCompile Include="Libraries\LipSync\sapi_util.cpp" />
     <ClCompile Include="Libraries\r8brain\r8bbase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\CppFormat\format.h" />
     <ClInclude Include="Libraries\cpptoml\cpptoml.h" />
     <ClInclude Include="Libraries\CRC32\crc.h" />
+    <ClInclude Include="Libraries\GIFLIB\gif_hash.h" />
+    <ClInclude Include="Libraries\GIFLIB\gif_lib.h" />
+    <ClInclude Include="Libraries\GIFLIB\gif_lib_private.h" />
+    <ClInclude Include="Libraries\LipSync\phone_estimate.h" />
+    <ClInclude Include="Libraries\LipSync\sapi_lipsync.h" />
+    <ClInclude Include="Libraries\LipSync\sapi_util.h" />
     <ClInclude Include="Libraries\r8brain\CDSPBlockConvolver.h" />
     <ClInclude Include="Libraries\r8brain\CDSPFIRFilter.h" />
     <ClInclude Include="Libraries\r8brain\CDSPFracInterpolator.h" />
@@ -171,6 +185,8 @@
   <ItemGroup>
     <None Include="Libraries\CppFormat\README.rst" />
     <None Include="Libraries\cpptoml\LICENSE" />
+    <None Include="Libraries\GIFLIB\AUTHORS" />
+    <None Include="Libraries\GIFLIB\COPYING" />
     <None Include="Libraries\r8brain\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

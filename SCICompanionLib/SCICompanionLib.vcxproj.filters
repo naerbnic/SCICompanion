@@ -555,18 +555,6 @@
     <ClCompile Include="Src\FrameComponents\ViewCelListBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\GIFLIB\dgif_lib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\GIFLIB\gif_err.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\GIFLIB\gif_hash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\GIFLIB\gifalloc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Util\CustomMessageBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -603,9 +591,6 @@
     <ClCompile Include="Src\Util\VGADither.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\GIFLIB\egif_lib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Compile\ScriptMakerHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -625,15 +610,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Resources\Sync.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\LipSync\phone_estimate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\LipSync\sapi_lipsync.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\LipSync\sapi_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Dialogs\ExtractLipSyncDialog.cpp">
@@ -1364,15 +1340,6 @@
     <ClInclude Include="Src\FrameComponents\ViewCelListBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\GIFLIB\gif_hash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\GIFLIB\gif_lib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\GIFLIB\gif_lib_private.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Util\CustomMessageBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1434,15 +1401,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Resources\Sync.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\LipSync\phone_estimate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\LipSync\sapi_lipsync.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\LipSync\sapi_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Src\Dialogs\ExtractLipSyncDialog.h">
@@ -1696,8 +1654,6 @@
     <None Include="res\cursorsh.cur">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Src\GIFLIB\AUTHORS" />
-    <None Include="Src\GIFLIB\COPYING" />
     <None Include="SCICompanionLib.licenseheader" />
     <None Include="Src\Util\ScriptConvert.h" />
   </ItemGroup>

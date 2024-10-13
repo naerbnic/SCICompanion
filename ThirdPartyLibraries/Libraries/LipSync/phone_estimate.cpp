@@ -42,15 +42,19 @@ This file has the following data and constants
 @date   created oct 22 2005
 
 **/
-#include "stdafx.h"
 #include <sphelper.h>
 #include <comdef.h>
 #include <string>
 #include "sapi_lipsync.h"
 #include "phone_estimate.h"
+
+#include <array>
+
 #include "sapi_util.h"
 #include <locale>
 #include <codecvt>
+#include <iostream>
+#include <unordered_map>
 
 /** @brief This global is the default phoneme map
 	
@@ -62,12 +66,11 @@ This file has the following data and constants
 	create their own list like the SapiEnglish51 list and construct
 	a phoneme_estimator based on their data.
 */
-engine_phoneme_spec SapiEnglish51[] =
-{
+std::array<engine_phoneme_spec, 43> SapiEnglish51 = {
 engine_phoneme_spec(L"-", L"x",  L"silence", engine_phoneme_spec::silence),     // syllable
 engine_phoneme_spec(L"!", L"x", L"silence" , engine_phoneme_spec::silence),    // sentence
-engine_phoneme_spec(L"aa", L"AH", L"father", engine_phoneme_spec::voiced), 
-engine_phoneme_spec(L"ae", L"AE", L"cat", engine_phoneme_spec::voiced), 
+engine_phoneme_spec(L"aa", L"AH", L"father", engine_phoneme_spec::voiced),
+engine_phoneme_spec(L"ae", L"AE", L"cat", engine_phoneme_spec::voiced),
 engine_phoneme_spec(L"ah", L"AH", L"cut", engine_phoneme_spec::voiced),
 engine_phoneme_spec(L"ao", L"AO", L"dog", engine_phoneme_spec::dipthong),
 engine_phoneme_spec(L"aw", L"AW", L"foul", engine_phoneme_spec::dipthong),
@@ -134,7 +137,7 @@ std::unordered_map<std::string, std::string> CreatePhonemeToExampleMap()
 **/
 phoneme_estimator::phoneme_estimator()
 {
-	this->m_pSpec = SapiEnglish51;
+	this->m_pSpec = SapiEnglish51.data();
 }
 
 /** 

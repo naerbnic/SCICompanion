@@ -10,7 +10,6 @@ gif_hash.c -- module to support the following operations:
 This module is used to hash the GIF codes during encoding.
 
 *****************************************************************************/
-#include "stdafx.h"
 //#include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>

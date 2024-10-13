@@ -49,7 +49,7 @@ Mark Zartler - mzartler@annosoft.com
 */
 
 
-#include "stdafx.h"
+#include <iostream>
 #include <sphelper.h>
 #include <comdef.h>
 #include <string>
@@ -555,7 +555,7 @@ void sapi_textbased_lipsync::callback()
 			pRecoResult->GetResultTimes(&pRecoResultTimes);
 			msStart = sapi_time_to_milli(pRecoResultTimes.ullStart);
 
-			std::wstring strPrintText = pSapiText;
+			std::wstring strPrintText = static_cast<const wchar_t*>(pSapiText);
 			std::cerr << "hypothesis: " << wstring_2_string(strPrintText) << std::endl;
 			// if the new results are longer than existing results in orthographic form
 			// we accept the results and process the phonemes. Otherwise, we skip it

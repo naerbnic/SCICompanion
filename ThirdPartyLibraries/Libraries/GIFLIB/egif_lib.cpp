@@ -7,7 +7,6 @@ if you only require one of read and write capability, only one of these
 two modules will be linked.  Preserve this property!
 
 *****************************************************************************/
-#include "stdafx.h"
 //#include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
