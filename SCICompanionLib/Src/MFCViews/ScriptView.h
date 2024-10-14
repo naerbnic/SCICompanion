@@ -38,10 +38,11 @@ class SCIClassBrowser;
 
 struct HoverTipPayload
 {
-    HoverTipPayload(ScriptId scriptId, CCrystalTextBuffer *pBuffer, CPoint ptLimit) : ScriptId(scriptId), Limiter(pBuffer, ptLimit, 0), Stream(&Limiter), Location(ptLimit) {}
+    HoverTipPayload(LangSyntax language, ScriptId scriptId, CCrystalTextBuffer *pBuffer, CPoint ptLimit) : Language(language), ScriptId(scriptId), Limiter(pBuffer, ptLimit, 0), Stream(&Limiter), Location(ptLimit) {}
     CScriptStreamLimiter Limiter;
     CPoint Location;
     CCrystalScriptStream Stream;
+    LangSyntax Language;
     ScriptId ScriptId;
 };
 

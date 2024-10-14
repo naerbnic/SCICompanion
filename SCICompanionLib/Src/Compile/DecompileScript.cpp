@@ -379,9 +379,8 @@ Script *Decompile(const GameFolderHelper &helper, const SCIVersion& version, con
     unique_ptr<Script> pScript = std::make_unique<Script>();
     pScript->SyntaxVersion = 2;
     ScriptId scriptId;
-    scriptId.SetLanguage(helper.GetLanguage());
     scriptId.SetResourceNumber(compiledScript.GetScriptNumber());
-    pScript->SetScriptId(scriptId);
+    pScript->SetScriptId(helper.GetLanguage(), scriptId);
 
     compiledScript.PopulateSaidStrings(pWords);
 

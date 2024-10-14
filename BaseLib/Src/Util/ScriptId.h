@@ -32,8 +32,6 @@ public:
     ScriptId(const ScriptId& src) = default;
     ScriptId& operator=(const ScriptId& src) = default;
 
-    void SetLanguage(LangSyntax lang);
-
     bool IsNone() const;
     const std::string& GetFileName() const;
     const std::string& GetFolder() const;
@@ -56,7 +54,6 @@ public:
 
     // Is this a header, or a script file?
     bool IsHeader() const;
-    LangSyntax Language() const;
 
     friend bool operator<(const ScriptId& script1, const ScriptId& script2);
 
@@ -66,11 +63,9 @@ private:
 
     void _MakeLower();
     void _Init(const char* pszFullFileName, uint16_t wScriptNum = InvalidResourceNumber);
-    void _DetermineLanguage();
 
     std::string _strFolder;
     std::string _strFileName;
     std::string _strFileNameOrig;   // Not lower-cased
     uint16_t _wScriptNum;
-    LangSyntax _language;
 };

@@ -1152,9 +1152,9 @@ namespace sci
         DECLARE_NODE_TYPE(NodeTypeScript)
     public:
         Script(PCTSTR pszFilePath, PCTSTR pszFileName);
-        Script(ScriptId script);
+        Script(LangSyntax lang, ScriptId script);
         Script();
-        ~Script();
+        ~Script() override;
 
         // Methods to retrieve information from a Loaded script:
         const ClassVector &GetClasses() const { return _classes; }
@@ -1205,8 +1205,8 @@ namespace sci
 
         int SyntaxVersion;
 
-        void SetScriptId(ScriptId scriptId) { _scriptId = scriptId; }
-        LangSyntax Language() const { return _scriptId.Language(); }
+        void SetScriptId(LangSyntax language, ScriptId scriptId) { _language = language; _scriptId = scriptId; }
+        LangSyntax Language() const { return _language; }
         bool IsHeader() const { return _scriptId.IsHeader(); }
 
         void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;

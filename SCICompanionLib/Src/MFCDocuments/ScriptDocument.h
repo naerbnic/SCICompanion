@@ -59,7 +59,7 @@ public:
     void UpdateModified();
 
     // For new scripts:
-    void SetNameAndContent(ScriptId scriptId, int iResourceNumber, std::string &text);
+    void SetNameAndContent(LangSyntax language, ScriptId scriptId, int iResourceNumber, std::string &text);
 
     ScriptId GetScriptId() { return _scriptId; }
     void SetScriptNumber(WORD wScriptNum) { _scriptId.SetResourceNumber(wScriptNum); }
@@ -69,6 +69,8 @@ public:
     void SaveIfModified();
 
     void SetDependencyTracker(DependencyTracker &tracker);
+
+    LangSyntax GetLanguage() const;
 
 protected:
 	virtual BOOL OnNewDocument();
@@ -104,7 +106,6 @@ private:
     afx_msg void OnUpdateLineCount(CCmdUI *pCmdUI);
 
     // Other...
-    LangSyntax GetLanguage() const;
     void OnFileSave();
     void OnFileSaveAs();
     void _ClearErrorCount();
@@ -112,6 +113,7 @@ private:
 
     CSCITextBuffer _buffer;
     ScriptId _scriptId;
+    LangSyntax _language;
     DependencyTracker *_dependencyTracker;
 };
 

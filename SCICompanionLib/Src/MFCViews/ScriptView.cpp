@@ -65,7 +65,7 @@ using namespace std;
 #define UWM_AUTOCOMPLETEREADY      (WM_APP + 0)
 #define UWM_HOVERTIPREADY          (WM_APP + 1)
 
-void DoToolTipParse(ScriptId scriptId, CCrystalScriptStream &stream, CScriptStreamLimiter &limiter, ToolTipResult &result)
+void DoToolTipParse(LangSyntax language, ScriptId scriptId, CCrystalScriptStream &stream, CScriptStreamLimiter &limiter, ToolTipResult &result)
 {
     class CToolTipSyntaxParserCallback : public ISyntaxParserCallback
     {
@@ -82,7 +82,7 @@ void DoToolTipParse(ScriptId scriptId, CCrystalScriptStream &stream, CScriptStre
         ToolTipResult &_result;
     };
 
-    Script script(scriptId);
+    Script script(language, scriptId);
     SyntaxContext context(stream.begin(), script, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), false, false);
     CToolTipSyntaxParserCallback callback(context, result);
     limiter.SetCallback(&callback);
@@ -1330,7 +1330,7 @@ void CScriptView::OnContextMenu(CWnd *pWnd, CPoint point)
             CScriptStreamLimiter limiter(LocateTextBuffer(), ptRight, 0);
             CCrystalScriptStream stream(&limiter);
             ToolTipResult result;
-            DoToolTipParse(GetDocument()->GetScriptId(), stream, limiter, result);
+            DoToolTipParse(GetDocument()->GetLanguage(), GetDocument()->GetScriptId(), stream, limiter, result);
             if (!result.empty())
             {
                 _gotoDefinitionText = result.strBaseText.c_str();
@@ -1864,12 +1864,12 @@ void CScriptView::_TriggerHoverTipParse(CPoint pt)
         _lastHoverTipParse = _hoverTipScheduler->SubmitTask(
             this->GetSafeHwnd(),
             UWM_HOVERTIPREADY,
-            make_unique<HoverTipPayload>(GetDocument()->GetScriptId(), LocateTextBuffer(), pt),
+            make_unique<HoverTipPayload>(GetDocument()->GetLanguage(), GetDocument()->GetScriptId(), LocateTextBuffer(), pt),
             [](ITaskStatus &status, HoverTipPayload &payload)
         {
             std::unique_ptr<HoverTipResponse> response = std::make_unique<HoverTipResponse>();
             response->Location = payload.Location;
-            DoToolTipParse(payload.ScriptId, payload.Stream, payload.Limiter, response->Result);
+            DoToolTipParse(payload.Language, payload.ScriptId, payload.Stream, payload.Limiter, response->Result);
             return response;
         }
             );
@@ -2007,7 +2007,7 @@ BOOL CScriptView::OnACDoubleClick()
 
 LangSyntax CScriptView::GetLanguage() const
 {
-    return GetDocument()->GetScriptId().Language();
+    return GetDocument()->GetLanguage();
 }
 
 void CScriptView::OnToggleComment()

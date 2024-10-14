@@ -1953,7 +1953,7 @@ void CMainFrame::_OnNewScriptDialog(CNewScriptDialog &dialog)
             if (pDoc)
             {
                 pDoc->SetDependencyTracker(appState->GetDependencyTracker());
-                pDoc->SetNameAndContent(script, dialog.GetNumber(), strBuffer);
+                pDoc->SetNameAndContent(appState->GetResourceMap().Helper().GetDefaultGameLanguage(), script, dialog.GetNumber(), strBuffer);
                 // Compile it so it is added to the resource map.
                 pDoc->Compile();
 

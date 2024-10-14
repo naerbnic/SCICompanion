@@ -274,7 +274,7 @@ void CNewRoomDialog::_PrepareBuffer()
 {
     NewRoomProfile profile = GetProfile(appState->GetVersion());
     std::string roomName = (profile == NewRoomProfile::SCI11) ? "Room" : "Rm";
-    sci::Script script(_scriptId);
+    sci::Script script(DetermineFileLanguage(_scriptId.GetFullPath()), _scriptId);
     bool includePolys = (appState->GetVersion().UsesPolygons) && (m_wndCheckPolys.GetCheck() == BST_CHECKED);
 
     script.AddInclude("sci.sh");

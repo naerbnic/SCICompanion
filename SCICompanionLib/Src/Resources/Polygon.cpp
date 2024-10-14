@@ -297,7 +297,7 @@ void PolygonComponent::Commit(int picNumber)
     {
         string polyFile = GetPolyFilePath();
         // Construct the script om
-        Script script(ScriptId::FromFullFileName(polyFile.c_str()));
+        Script script(DetermineFileLanguage(polyFile), ScriptId::FromFullFileName(polyFile.c_str()));
 
         // Output in the current game language, regardless of the previous version of the file.
         LangSyntax lang = appState->GetResourceMap().Helper().GetDefaultGameLanguage();

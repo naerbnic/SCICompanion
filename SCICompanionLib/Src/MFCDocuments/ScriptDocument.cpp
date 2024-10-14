@@ -198,7 +198,7 @@ void CScriptDocument::OnCompile()
 std::unique_ptr<sci::Script> SimpleCompile(CompileLog &log, ScriptId &scriptId, bool addCommentsToOM)
 {
     std::unique_ptr<sci::Script> script = make_unique<sci::Script>();
-    script->SetScriptId(scriptId);
+    script->SetScriptId(DetermineFileLanguage(scriptId.GetFullPath()), scriptId);
     // Make a new buffer.
     CCrystalTextBuffer buffer;
     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
@@ -230,7 +230,7 @@ bool NewCompileScript(CompileResults &results, CompileLog &log, CompileTables &t
         CScriptStreamLimiter limiter(&buffer);
         CCrystalScriptStream stream(&limiter);
 
-		std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(script);
+		std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(language, script);
 
         if (SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log))
         {
@@ -456,26 +456,6 @@ void CScriptDocument::OnViewScriptResource()
     }
 }
 
-unique_ptr<sci::Script> _ParseScript(ScriptId id)
-{
-    CCrystalTextBuffer buffer;
-    if (buffer.LoadFromFile(id.GetFullPath().c_str()))
-    {
-        CScriptStreamLimiter limiter(&buffer);
-        CCrystalScriptStream stream(&limiter);
-
-        std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(id);
-        CompileLog log;
-        bool result = SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log);
-        buffer.FreeAll();
-        if (result)
-        {
-            return pScript;
-        }
-    }
-    return nullptr;
-}
-
 void CScriptDocument::OnViewSyntaxTree()
 {
     // What we do
@@ -487,7 +467,7 @@ void CScriptDocument::OnViewSyntaxTree()
     //SCIClassBrowser &browser = appState->GetClassBrowser(); 
     //browser.Lock();
     // 1)
-    sci::Script script(_scriptId);
+    sci::Script script(GetLanguage(), _scriptId);
     CompileLog log;
     bool fCompile = SyntaxParser_Parse(script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log);;
     if (fCompile)
@@ -504,35 +484,6 @@ void CScriptDocument::OnViewSyntaxTree()
 
         ShowTextFile(out.str().c_str(), "syntaxtree.txt");
     }
-
-
-#if NOT_NEEDED
-    // Repurposing it for something else: calculating the dependency tree
-    set<string> complete;
-    stack<ScriptId> toProcess;
-    toProcess.push(_scriptId);
-    while (!toProcess.empty())
-    {
-        ScriptId id = toProcess.top();
-        toProcess.pop();
-        string title = id.GetTitle();
-        ToUpper(title);
-        complete.insert(title);
-        unique_ptr<sci::Script> parsedScript = _ParseScript(id);
-        if (parsedScript)
-        {
-            for (auto use : parsedScript->GetUses())
-            {
-                string USE = use;
-                ToUpper(USE);
-                if (complete.find(USE) == complete.end())
-                {
-                    toProcess.push(appState->GetResourceMap().Helper().GetScriptId(use));
-                }
-            }
-        }
-    }
-#endif
 }
 
 void CScriptDocument::OnDebugRoom()
@@ -585,7 +536,7 @@ void CScriptDocument::OnUpdateLineCount(CCmdUI *pCmdUI)
 
 LangSyntax CScriptDocument::GetLanguage() const
 {
-    return _scriptId.Language();
+    return _language;
 }
 
 void CScriptDocument::_ClearErrorCount()
@@ -638,6 +589,7 @@ BOOL CScriptDocument::OnOpenDocument(LPCTSTR lpszPathName, uint16_t scriptNumber
         return FALSE;
     _scriptId = ScriptId::FromFullFileName(lpszPathName);
     _scriptId.SetResourceNumber(scriptNumber);
+    _language = DetermineFileLanguage(lpszPathName);
     _buffer.FreeAll();
     BOOL result = _buffer.LoadFromFile(lpszPathName);
     _buffer.SetReadOnly(IsReadOnly(lpszPathName));
@@ -649,6 +601,7 @@ BOOL CScriptDocument::OnOpenDocument(LPCTSTR lpszPathName)
 	if (!__super::OnOpenDocument(lpszPathName))
 		return FALSE;
 	_scriptId = ScriptId::FromFullFileName(lpszPathName);
+    _language = DetermineFileLanguage(lpszPathName);
     _buffer.FreeAll();
 	BOOL result = _buffer.LoadFromFile(lpszPathName);
     _buffer.SetReadOnly(IsReadOnly(lpszPathName));
@@ -658,6 +611,7 @@ BOOL CScriptDocument::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	_buffer.SaveToFile(lpszPathName);
     _scriptId = ScriptId::FromFullFileName(lpszPathName);
+    _language = DetermineFileLanguage(lpszPathName);
 	return TRUE;	//	Note - we didn't call inherited member!
 }
 BOOL CScriptDocument::OnNewDocument()
@@ -673,8 +627,9 @@ void CScriptDocument::SaveIfModified()
         OnFileSave();
     }
 }
-void CScriptDocument::SetNameAndContent(ScriptId scriptId, int iResourceNumber, std::string &text)
+void CScriptDocument::SetNameAndContent(LangSyntax language, ScriptId scriptId, int iResourceNumber, std::string &text)
 {
+    _language = language;
     _scriptId = scriptId;
     int nEndLine = 0;
     int nEndChar = 0;
@@ -727,6 +682,7 @@ void CScriptDocument::OnFileSaveAs()
         {
             // We have a new identity
             _scriptId = ScriptId::FromFullFileName(strFileName.GetString());
+            _language = DetermineFileLanguage(strFileName.GetString());
         }
     }
 }

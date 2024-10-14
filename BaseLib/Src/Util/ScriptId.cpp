@@ -49,9 +49,9 @@ ScriptId ScriptId::FromFullFileName(const std::string& filename)
     return id;
 }
 
-ScriptId::ScriptId() : _language(LangSyntaxUnknown) { _wScriptNum = InvalidResourceNumber; };
+ScriptId::ScriptId() { _wScriptNum = InvalidResourceNumber; };
 
-ScriptId::ScriptId(const char* pszFileName, const char* pszFolder) : _language(LangSyntaxUnknown)
+ScriptId::ScriptId(const char* pszFileName, const char* pszFolder)
 {
     assert(std::strchr(pszFileName, '\\') == nullptr); // Ensure file and path are not mixed up.
     _strFileName = pszFileName;
@@ -67,22 +67,11 @@ ScriptId ScriptId::WithFullPath(const std::string& fullPath) const
     return new_id;
 }
 
-void ScriptId::_DetermineLanguage()
-{
-    if (_language == LangSyntaxUnknown)
-    {
-        _language = DetermineFileLanguage(GetFullPath());
-    }
-}
-
 void ScriptId::SetResourceNumber(WORD wScriptNum)
 {
     assert((_wScriptNum == InvalidResourceNumber) || (_wScriptNum == wScriptNum));
     _wScriptNum = wScriptNum;
 }
-
-
-void ScriptId::SetLanguage(LangSyntax lang) { _language = lang; }
 
 bool ScriptId::IsNone() const { return _strFileName.empty(); }
 const std::string& ScriptId::GetFileName() const { return _strFileName; }
@@ -127,17 +116,10 @@ bool ScriptId::IsHeader() const
     //(strcmp(TEXT(".shp"), pszExt) == 0);
 }
 
-LangSyntax ScriptId::Language() const
-{
-    // It's ok if language is unknown if the filename is empty.
-    assert(_language != LangSyntaxUnknown || _strFileNameOrig.empty());
-    return _language;
-}
-
 ScriptId::ScriptId(std::string strFolder, std::string strFileName, std::string strFileNameOrig, uint16_t wScriptNum,
                    LangSyntax language)
     : _strFolder(std::move(strFolder)), _strFileName(std::move(strFileName)),
-      _strFileNameOrig(std::move(strFileNameOrig)), _wScriptNum(wScriptNum), _language(language)
+      _strFileNameOrig(std::move(strFileNameOrig)), _wScriptNum(wScriptNum)
 {
 }
 
@@ -163,6 +145,5 @@ void ScriptId::_Init(const char* pszFullFileName, uint16_t wScriptNum)
 
         _strFileNameOrig = _strFileName;
         _MakeLower();
-        _DetermineLanguage();
     }
 }

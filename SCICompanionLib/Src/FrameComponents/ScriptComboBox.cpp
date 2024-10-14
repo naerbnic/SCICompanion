@@ -36,15 +36,16 @@ using namespace std;
 
 struct ParsePayload
 {
-    ParsePayload(ScriptId script, CCrystalTextBuffer *pBuffer);
+    ParsePayload(LangSyntax language, ScriptId script, CCrystalTextBuffer *pBuffer);
 
     CScriptStreamLimiter Limiter;
     CCrystalScriptStream Stream;
+    LangSyntax Language;
     ScriptId Script;
 };
 
-ParsePayload::ParsePayload(ScriptId script, CCrystalTextBuffer *pBuffer) :
-    Limiter(pBuffer), Stream(&Limiter), Script(script) {}
+ParsePayload::ParsePayload(LangSyntax language, ScriptId script, CCrystalTextBuffer *pBuffer) :
+    Limiter(pBuffer), Stream(&Limiter), Language(language), Script(script) {}
 
 CScriptComboBox::CScriptComboBox() : _lastTaskId(-1), _pDoc(nullptr), _fDroppedDown(false), _fIgnorePosChanged(false)
 {
@@ -132,10 +133,10 @@ bool CScriptComboBox::_SpawnScriptTask()
             {
                 // Do a full parse (e.g. don't ask for LKG)
                 _lastTaskId = _scheduler->SubmitTask(
-                    make_unique<ParsePayload>(_pDoc->GetScriptId(), _pDoc->GetTextBuffer()),
+                    make_unique<ParsePayload>(_pDoc->GetLanguage(), _pDoc->GetScriptId(), _pDoc->GetTextBuffer()),
                     [](ITaskStatus &status, ParsePayload &payload)
                 {
-                    std::unique_ptr<Script> pScript(new Script(payload.Script));
+                    auto pScript = std::make_unique<Script>(payload.Language, payload.Script);
                     if (!SyntaxParser_Parse(*pScript, payload.Stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), nullptr))
                     {
                         pScript.reset(nullptr);

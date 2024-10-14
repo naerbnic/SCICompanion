@@ -562,8 +562,7 @@ void SCIClassBrowser::ReLoadFromCompiled(ITaskStatus &task)
         TCHAR szScriptNum[20];
         StringCchPrintf(szScriptNum, ARRAYSIZE(szScriptNum), TEXT("script %03d"), compiledScript.first);
         auto scriptId = ScriptId::FromFullFileName(szScriptNum);
-        scriptId.SetLanguage(LangSyntaxSCI); // A good default
-        std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(scriptId);
+        std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(LangSyntaxSCI, scriptId);
         LoadScriptFromCompiled(pScript.get(), compiledScript.second.get(), &_selectorNames, speciesToName);
 		_AddToClassTree(*pScript);
 		_scripts.push_back(std::move(pScript)); // Takes ownership
@@ -753,7 +752,7 @@ bool SCIClassBrowser::_AddFileName(std::string fullPath, bool fReplace)
 
         CScriptStreamLimiter limiter(&buffer);
         CCrystalScriptStream stream(&limiter);
-        std::unique_ptr<Script> pScript = std::make_unique<Script>(ScriptId::FromFullFileName(fullPath.c_str()));
+        std::unique_ptr<Script> pScript = std::make_unique<Script>(DetermineFileLanguage(fullPath), ScriptId::FromFullFileName(fullPath.c_str()));
         if (SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {
             Script *pWeakRef = pScript.get();
@@ -963,7 +962,7 @@ void SCIClassBrowser::TriggerCustomIncludeCompile(std::string name)
                     {
                         CScriptStreamLimiter limiter(&buffer);
                         CCrystalScriptStream stream(&limiter);
-                        unique_ptr<Script> pNewHeader = std::make_unique<Script>(scriptId);
+                        unique_ptr<Script> pNewHeader = std::make_unique<Script>(DetermineFileLanguage(path), scriptId);
                         if (SyntaxParser_Parse(*pNewHeader, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), nullptr))
                         {
                             // For performance, let's pre-sort the defines.
@@ -1063,7 +1062,7 @@ std::unique_ptr<sci::Script> SCIClassBrowser::_LoadScript(PCTSTR pszPath)
     {
         CScriptStreamLimiter limiter(&buffer);
         CCrystalScriptStream stream(&limiter);
-        std::unique_ptr<Script> pScriptT = std::make_unique<Script>(ScriptId::FromFullFileName(pszPath));
+        std::unique_ptr<Script> pScriptT = std::make_unique<Script>(DetermineFileLanguage(pszPath), ScriptId::FromFullFileName(pszPath));
         if (SyntaxParser_Parse(*pScriptT, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {
             pScript = move(pScriptT);

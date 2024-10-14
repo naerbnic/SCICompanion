@@ -255,7 +255,7 @@ Script::Script(PCTSTR pszFilePath, PCTSTR pszFileName) : SyntaxVersion(1)
 {
     _scriptId = ScriptId(pszFileName, pszFilePath);
 }
-Script::Script(ScriptId script) : _scriptId(script), SyntaxVersion(1)
+Script::Script(LangSyntax lang, ScriptId script) : _language(lang), _scriptId(script), SyntaxVersion(1)
 {
 }
 Script::Script() : SyntaxVersion(1)
