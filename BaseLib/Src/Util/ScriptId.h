@@ -48,7 +48,7 @@ public:
     std::string GetFullPath() const;
 
     // Set the path w/o changing the resource number.
-    void SetFullPath(const std::string& fullPath);
+    ScriptId WithFullPath(const std::string& fullPath) const;
 
     // Script resource number
     uint16_t GetResourceNumber() const { return _wScriptNum; }

@@ -60,10 +60,11 @@ ScriptId::ScriptId(const char* pszFileName, const char* pszFolder) : _language(L
     _wScriptNum = InvalidResourceNumber;
 }
 
-// Set the path w/o changing the resource number.
-void ScriptId::SetFullPath(const std::string& fullPath)
+ScriptId ScriptId::WithFullPath(const std::string& fullPath) const
 {
-    _Init(fullPath.c_str(), GetResourceNumber());
+    ScriptId new_id;
+    new_id._Init(fullPath.c_str(), GetResourceNumber());
+    return new_id;
 }
 
 void ScriptId::_DetermineLanguage()

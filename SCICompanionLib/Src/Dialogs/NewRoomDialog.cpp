@@ -514,7 +514,7 @@ void CNewRoomDialog::OnOK()
         // Prepare the script name.
         // (Without the .sc extension)
         StringCchPrintf(_szScriptName, ARRAYSIZE(_szScriptName), TEXT("rm%03d"), _scriptId.GetResourceNumber());
-        _scriptId.SetFullPath(appState->GetResourceMap().Helper().GetScriptFileName(_szScriptName));
+        _scriptId = _scriptId.WithFullPath(appState->GetResourceMap().Helper().GetScriptFileName(_szScriptName));
     }
 
     if (fClose)
