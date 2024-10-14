@@ -109,7 +109,7 @@ BOOL SaveResourceDialog::_ValidateData()
 
     if (fRet && _warnOnOverwrite)
     {
-        if (appState->GetResourceMap().DoesResourceExist(_type, _iResourceNumber))
+        if (appState->GetResourceMap().DoesResourceExist(ResourceId::Create(_type, _iResourceNumber)))
         {
             fRet = (IDYES == AfxMessageBox("A resource already exists for this number. Overwrite?", MB_YESNO | MB_ICONWARNING));
         }

@@ -680,7 +680,7 @@ void DropResourceFiles(CArray<CString, CString&> *pDropFiles)
                 std::string existingName;
                 if (iNumber != -1)
                 {
-                    if (appState->GetResourceMap().DoesResourceExist(data.GetType(), iNumber, &existingName))
+                    if (appState->GetResourceMap().DoesResourceExist(ResourceId::Create(data.GetType(), iNumber), &existingName))
                     {
                         if (resNameFromFilename.empty())
                         {

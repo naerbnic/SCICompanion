@@ -523,9 +523,9 @@ std::unique_ptr<ResourceContainer> CResourceMap::Resources(ResourceTypeFlags typ
     return Helper().Resources(_version, types, enumFlags, pRecency, mapContext);
 }
 
-bool CResourceMap::DoesResourceExist(ResourceType type, int number, std::string *retrieveName, ResourceSaveLocation location) const
+bool CResourceMap::DoesResourceExist(const ResourceId& resource_id, std::string* retrieveName, ResourceSaveLocation location) const
 {
-    return Helper().DoesResourceExist(_version, type, number, retrieveName, location);
+    return Helper().DoesResourceExist(_version, resource_id, retrieveName, location);
 }
 
 std::unique_ptr<ResourceBlob> CResourceMap::MostRecentResource(const ResourceId& resource_id, bool getName, int mapContext) const

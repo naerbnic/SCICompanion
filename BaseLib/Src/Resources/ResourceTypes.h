@@ -154,6 +154,16 @@ public:
         return CreateWithBase36(resource_number_, base36);
     }
 
+    bool operator==(const ResourceNum& other) const
+    {
+        return resource_number_ == other.resource_number_ && base36_number_ == other.base36_number_;
+    }
+
+    bool operator!=(const ResourceNum& other) const
+    {
+        return !(*this == other);
+    }
+
 private:
     explicit ResourceNum(int resource_number, std::optional<uint32_t> base36_number = std::nullopt)
         : resource_number_(resource_number), base36_number_(base36_number)
@@ -219,6 +229,16 @@ public:
     ResourceId WithBase36(std::optional<uint32_t> base36) const
     {
         return ResourceId(resource_type_, resource_num_.WithBase36(base36));
+    }
+
+    bool operator==(const ResourceId& other) const
+    {
+        return resource_type_ == other.resource_type_ && resource_num_ == other.resource_num_;
+    }
+
+    bool operator!=(const ResourceId& other) const
+    {
+        return !(*this == other);
     }
 
 private:

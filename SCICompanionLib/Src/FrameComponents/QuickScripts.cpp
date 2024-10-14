@@ -419,7 +419,7 @@ void QuickScriptsSidePane::_ResetUI()
     }
     m_wndScriptNum.SetWindowText(ss.str().c_str());
 
-    bool msgEnabled = (appState->GetVersion().SupportsMessages && appState->GetResourceMap().DoesResourceExist(ResourceType::Message, wNum));
+    bool msgEnabled = (appState->GetVersion().SupportsMessages && appState->GetResourceMap().DoesResourceExist(ResourceId::Create(ResourceType::Message, wNum)));
     m_wndGotoMessage.ShowWindow(msgEnabled ? SW_SHOW : SW_HIDE);
     if (msgEnabled)
     {

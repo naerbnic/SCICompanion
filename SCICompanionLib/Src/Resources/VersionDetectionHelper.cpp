@@ -334,7 +334,7 @@ KernelSet _DetectKernelSet(const ResourceLoader& resource_loader, const SCIVersi
     }
     else
     {
-        if (resource_loader.DoesResourceExist(currentVersion, ResourceType::Vocab, VocabKernelNames, nullptr, ResourceSaveLocation::Package))
+        if (resource_loader.DoesResourceExist(currentVersion, ResourceId::Create(ResourceType::Vocab, VocabKernelNames), nullptr, ResourceSaveLocation::Package))
         {
             // The kernels are listed in a vocab resource (typical for SCI0).
             kernelSet = KernelSet::Provided;
@@ -817,8 +817,8 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     result.IsExportWide = _DetectIsExportWide(helper, result);
 
     // Which is the parser vocab? If resource 0 is present it's 0. Otherwise it's 900 (or none).
-    result.MainVocabResource = (helper.MostRecentResource(result, ResourceId(ResourceType::Vocab, ResourceNum::FromNumber(0)), ResourceEnumFlags::AddInDefaultEnumFlags)) ? 0 : 900;
-    result.HasSaidVocab = helper.DoesResourceExist(result, ResourceType::Vocab, result.MainVocabResource, nullptr, ResourceSaveLocation::Package);
+    result.MainVocabResource = (helper.MostRecentResource(result, ResourceId::Create(ResourceType::Vocab, 0), ResourceEnumFlags::AddInDefaultEnumFlags)) ? 0 : 900;
+    result.HasSaidVocab = helper.DoesResourceExist(result, ResourceId::Create(ResourceType::Vocab, result.MainVocabResource), nullptr, ResourceSaveLocation::Package);
 
     if (result.MapFormat == ResourceMapFormat::SCI0)
     {

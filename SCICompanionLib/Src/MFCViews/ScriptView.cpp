@@ -1370,7 +1370,7 @@ void CScriptView::OnContextMenu(CWnd *pWnd, CPoint point)
 
                 if ((int)result.possibleResourceNumber < appState->GetVersion().GetMaximumResourceNumber())
                 {
-                    if (appState->GetResourceMap().DoesResourceExist(ResourceType::View, (int)result.possibleResourceNumber))
+                    if (appState->GetResourceMap().DoesResourceExist(ResourceId::Create(ResourceType::View, (int)result.possibleResourceNumber)))
                     {
                         _gotoView = result.possibleResourceNumber;
                     }

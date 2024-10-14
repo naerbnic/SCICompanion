@@ -68,9 +68,9 @@ public:
         const SCIVersion& version, ResourceType type, int number,
         ResourceEnumFlags flags, uint32_t base36Number = NoBase36,
         int mapContext = -1) const;
-    bool DoesResourceExist(const SCIVersion& version, ResourceType type,
-                           int number, std::string* retrieveName,
-                           ResourceSaveLocation location) const;
+    bool DoesResourceExist(const SCIVersion& version,
+        const ResourceId& resource_id, std::string* retrieveName,
+        ResourceSaveLocation location) const;
 
 private:
     // The owning object
@@ -122,9 +122,8 @@ public:
     std::unique_ptr<ResourceBlob> MostRecentResource(
         const SCIVersion& version, const ResourceId& resource_id,
         ResourceEnumFlags flags, int mapContext = -1) const;
-    bool DoesResourceExist(const SCIVersion& version, ResourceType type,
-                           int number, std::string* retrieveName,
-                           ResourceSaveLocation location) const;
+    bool DoesResourceExist(const SCIVersion& version, const ResourceId& resource_id, std::string* retrieveName,
+        ResourceSaveLocation location) const;
 
     bool GetUseSierraAspectRatio(bool defaultValue) const;
     void SetUseSierraAspectRatio(bool useSierra) const;

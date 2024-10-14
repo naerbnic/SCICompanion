@@ -232,26 +232,24 @@ std::unique_ptr<ResourceBlob> ResourceLoader::MostRecentResource(
     return returnBlob;
 }
 
-bool ResourceLoader::DoesResourceExist(const SCIVersion& version,
-                                       ResourceType type, int number,
-                                       std::string* retrieveName,
-                                       ResourceSaveLocation location) const
+bool ResourceLoader::DoesResourceExist(const SCIVersion& version, const ResourceId& resource_id,
+    std::string* retrieveName, ResourceSaveLocation location) const
 {
     ResourceEnumFlags enumFlags = (parent_->GetResourceSaveLocation(location) ==
-                                      ResourceSaveLocation::Package)
-                                      ? ResourceEnumFlags::ExcludePatchFiles
-                                      : ResourceEnumFlags::ExcludePackagedFiles;
+        ResourceSaveLocation::Package)
+        ? ResourceEnumFlags::ExcludePatchFiles
+        : ResourceEnumFlags::ExcludePackagedFiles;
 
     if (retrieveName)
     {
         enumFlags |= ResourceEnumFlags::NameLookups;
     }
-    auto resourceContainer = Resources(version, ResourceTypeToFlag(type),
-                                       enumFlags);
+    auto resourceContainer = Resources(version, ResourceTypeToFlag(resource_id.GetType()),
+        enumFlags);
     for (auto blobIt = resourceContainer->begin(); blobIt != resourceContainer->
-         end(); ++blobIt)
+        end(); ++blobIt)
     {
-        if (blobIt.GetResourceNumber() == number)
+        if (blobIt.GetResourceId() == resource_id)
         {
             if (retrieveName)
             {
@@ -594,11 +592,9 @@ std::unique_ptr<ResourceBlob> GameFolderHelper::MostRecentResource(const SCIVers
     return resource_loader_->MostRecentResource(version, resource_id.GetType(), resource_id.GetNumber(), flags, mapContext);
 }
 
-bool GameFolderHelper::DoesResourceExist(const SCIVersion& version,
-                                         ResourceType type, int number,
-                                         std::string* retrieveName,
-                                         ResourceSaveLocation location) const
+bool GameFolderHelper::DoesResourceExist(const SCIVersion& version, const ResourceId& resource_id,
+    std::string* retrieveName, ResourceSaveLocation location) const
 {
-    return resource_loader_->DoesResourceExist(version, type, number,
-                                               retrieveName, location);
+    return resource_loader_->DoesResourceExist(version, resource_id,
+        retrieveName, location);
 }

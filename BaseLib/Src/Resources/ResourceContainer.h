@@ -142,6 +142,7 @@ public:
         ResourceIterator operator++(int);
 
         int GetResourceNumber();
+        ResourceId GetResourceId();
 
     private:
 

@@ -79,7 +79,7 @@ public:
     // The main functions for enumerating resources.
     std::unique_ptr<ResourceContainer> Resources(ResourceTypeFlags types, ResourceEnumFlags flags, int mapContext = -1);
     std::unique_ptr<ResourceBlob> MostRecentResource(const ResourceId& resource_id, bool getName, int mapContext = -1) const;
-    bool DoesResourceExist(ResourceType type, int number, std::string *retrieveName = nullptr, ResourceSaveLocation location = ResourceSaveLocation::Default) const;
+    bool DoesResourceExist(const ResourceId& resource_id, std::string* retrieveName = nullptr, ResourceSaveLocation location = ResourceSaveLocation::Default) const;
 
     void AddSync(IResourceMapEvents *pSync);
     void RemoveSync(IResourceMapEvents *pSync);
