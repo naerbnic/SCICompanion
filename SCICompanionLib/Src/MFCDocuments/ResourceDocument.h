@@ -55,7 +55,7 @@ private:
 protected:
     void OnExportAsBitmap();
 
-    BOOL _DoResourceSave(int iPackageNumber, int iResourceNumber, const std::string &name);
+    BOOL _DoResourceSave(const ResourceLocation& resource_location, const std::string &name);
     void _UpdateTitle();
     afx_msg void OnUpdateAlwaysOn(CCmdUI *pCmdUI) { pCmdUI->Enable() ; }
 

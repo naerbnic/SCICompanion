@@ -257,7 +257,7 @@ bool NewCompileScript(CompileResults &results, CompileLog &log, CompileTables &t
                     auto existingTextResource = appState->GetResourceMap().CreateResourceFromNumber(ResourceType::Text, textResource.ResourceNumber);
                     if (!existingTextResource || !existingTextResource->GetComponent<TextComponent>().AreTextsEqual(textResource.GetComponent<TextComponent>()))
                     {
-                        appState->GetResourceMap().AppendResource(textResource, appState->GetVersion().DefaultVolumeFile, textResource.ResourceNumber, "");
+                        appState->GetResourceMap().AppendResource(textResource, textResource.GetResourceLocation().WithPackageHint(appState->GetVersion().DefaultVolumeFile), "");
                         log.ReportResult(
                             CompileResult(fmt::format("Text resource {1} changed. Added {0} entries.", results.GetTextComponent().Texts.size(), textResource.ResourceNumber),
                             CompileResult::CompileResultType::CRT_Message)

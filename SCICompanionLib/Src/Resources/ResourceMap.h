@@ -68,7 +68,7 @@ public:
     // ResourceEntity: a runtime version of a resource that we can edit.
     HRESULT AppendResource(const ResourceBlob &resource);
     bool AppendResource(const ResourceEntity &resource, int *pChecksum = nullptr);
-    bool AppendResource(const ResourceEntity &resource, int packageNumber, int resourceNumber, const std::string &name, uint32_t base36Header = NoBase36, int *pChecksum = nullptr);
+    bool AppendResource(const ResourceEntity& resource, const ResourceLocation& resource_location, const std::string& name, int* pChecksum = nullptr);
 
     int SuggestResourceNumber(ResourceType type);
     void AssignName(const ResourceBlob &resource);

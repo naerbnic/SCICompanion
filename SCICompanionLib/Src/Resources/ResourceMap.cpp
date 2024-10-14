@@ -444,7 +444,7 @@ HRESULT CResourceMap::AppendResource(const ResourceBlob &resource)
 
 bool CResourceMap::AppendResource(const ResourceEntity &resource, int *pChecksum)
 {
-    return AppendResource(resource, resource.PackageNumber, resource.ResourceNumber, "", resource.Base36Number, pChecksum);
+    return AppendResource(resource, resource.GetResourceLocation(), "", pChecksum);
 }
 
 bool ValidateResourceSize(const SCIVersion &version, DWORD cb, ResourceType type)
@@ -464,7 +464,8 @@ bool ValidateResourceSize(const SCIVersion &version, DWORD cb, ResourceType type
     return fRet;
 }
 
-bool CResourceMap::AppendResource(const ResourceEntity &resource, int packageNumber, int resourceNumber, const std::string &name, uint32_t base36Number, int *pChecksum)
+
+bool CResourceMap::AppendResource(const ResourceEntity& resource, const ResourceLocation& resource_location, const std::string& name, int* pChecksum)
 {
     if (!resource.PerformChecks())
     {
@@ -472,7 +473,7 @@ bool CResourceMap::AppendResource(const ResourceEntity &resource, int packageNum
     }
     ResourceBlob data;
     sci::ostream serial;
-    resource.WriteTo(serial, true, resourceNumber, data.GetPropertyBag());
+    resource.WriteTo(serial, true, resource_location.GetNumber(), data.GetPropertyBag());
     if (!ValidateResourceSize(_version, serial.tellp(), resource.GetType()))
     {
         return false;
@@ -484,8 +485,8 @@ bool CResourceMap::AppendResource(const ResourceEntity &resource, int packageNum
         sourceFlags = (GetDefaultResourceSaveLocation() == ResourceSaveLocation::Patch) ? ResourceSourceFlags::PatchFile : ResourceSourceFlags::ResourceMap;
     }
 
-    auto resourceName = Helper().FigureOutName(resource.GetType(), resourceNumber, base36Number);
-    data.CreateFromBits(resourceName.c_str(), resource.GetType(), &readStream, packageNumber, resourceNumber, base36Number, _version, sourceFlags);
+    auto resourceName = Helper().FigureOutName(resource_location.GetResourceId());
+    data.CreateFromBits(resourceName, resource_location, &readStream, _version, sourceFlags);
     if (!name.empty())
     {
         data.SetName(name.c_str());

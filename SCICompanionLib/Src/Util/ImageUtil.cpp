@@ -965,7 +965,10 @@ std::unique_ptr<ResourceBlob> Load8BitBmp(const GameFolderHelper &helper, SCIVer
                         auto resourceName = helper.FigureOutName(type, -1, NoBase36);
                         sci::istream stream(extractedData.get(), header.wSize);
                         pBlob = std::make_unique<ResourceBlob>();
-                        if (FAILED(pBlob->CreateFromBits(resourceName.c_str(), type, &stream, -1, -1, NoBase36, version, ResourceSourceFlags::ResourceMap)))
+                        auto resource_num = ResourceNum::CreateWithBase36(-1, std::nullopt);
+                        auto resource_id = ResourceId(type, resource_num);
+                        auto resource_location = ResourceLocation(-1, resource_id);
+                        if (FAILED(pBlob->CreateFromBits(resourceName, resource_location, &stream, version, ResourceSourceFlags::ResourceMap)))
                         {
                             pBlob.reset(nullptr);
                         }

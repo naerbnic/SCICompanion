@@ -131,7 +131,7 @@ int ResourceBlob::GetLengthOnDisk() const
     return headerSize + header.cbCompressed;
 }
 
-HRESULT ResourceBlob::CreateFromBits(PCTSTR pszName, ResourceType iType, sci::istream *pStream, int iPackageHint, int iNumber, uint32_t base36Number, SCIVersion version, ResourceSourceFlags sourceFlags)
+HRESULT ResourceBlob::CreateFromBits(std::string pszName, const ResourceLocation& resource_location, sci::istream* pStream, const SCIVersion& version, ResourceSourceFlags sourceFlags)
 {
     HRESULT hr = E_FAIL;
     if (pStream)
@@ -143,18 +143,18 @@ HRESULT ResourceBlob::CreateFromBits(PCTSTR pszName, ResourceType iType, sci::is
 
         assert(pStream->good()); // It told us the size, so it should always succeed.
         // REVIEW: do some validation
-        header.Type = iType;
-        header.Number = (WORD)iNumber;
-        header.Base36Number = base36Number;
-        _hasNumber = (iNumber != -1);
+        header.Type = resource_location.GetType();
+        header.Number = (WORD)resource_location.GetNumber();
+        header.Base36Number = resource_location.GetBase36();
+        _hasNumber = (resource_location.GetNumber() != -1);
         header.CompressionMethod = 0;
         header.cbDecompressed = pStream->GetDataSize();
         header.cbCompressed = header.cbDecompressed;
-        header.PackageHint = iPackageHint;
+        header.PackageHint = (WORD)resource_location.GetPackageHint();
         header.Version = version;
         header.SourceFlags = sourceFlags;
 
-        _strName = pszName;
+        _strName = std::move(pszName);
     }
     return hr; // TODO Do data validation
 }

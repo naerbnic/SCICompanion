@@ -81,6 +81,11 @@ public:
         return ResourceId(Traits.Type, GetResourceNum());
     }
 
+    ResourceLocation GetResourceLocation() const
+    {
+        return ResourceLocation(PackageNumber, GetResourceId());
+    }
+
     template<typename _T>
     const _T &GetComponent() const
     {

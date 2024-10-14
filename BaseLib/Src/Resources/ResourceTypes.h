@@ -147,6 +147,11 @@ public:
         return ResourceNum(resource_number, base36_number_);
     }
 
+    ResourceNum WithBase36(std::optional<uint32_t> base36) const
+    {
+        return CreateWithBase36(resource_number_, base36);
+    }
+
 private:
     explicit ResourceNum(int resource_number, std::optional<uint32_t> base36_number = std::nullopt)
         : resource_number_(resource_number), base36_number_(base36_number)
@@ -204,6 +209,11 @@ public:
         return ResourceId(resource_type_, resource_num_.WithNumber(resource_number));
     }
 
+    ResourceId WithBase36(std::optional<uint32_t> base36) const
+    {
+        return ResourceId(resource_type_, resource_num_.WithBase36(base36));
+    }
+
 private:
     ResourceType resource_type_;
     ResourceNum resource_num_;
@@ -249,6 +259,21 @@ public:
     const ResourceId& GetResourceId() const
     {
         return resource_id_;
+    }
+
+    ResourceLocation WithNumber(int resource_number) const
+    {
+        return ResourceLocation(package_hint_, resource_id_.WithNumber(resource_number));
+    }
+
+    ResourceLocation WithBase36(std::optional<uint32_t> base36) const
+    {
+        return ResourceLocation(package_hint_, resource_id_.WithBase36(base36));
+    }
+
+    ResourceLocation WithPackageHint(int package_hint) const
+    {
+        return ResourceLocation(package_hint, resource_id_);
     }
 
 private:

@@ -173,22 +173,21 @@ BOOL CResourceDocument::DoPreResourceSave(BOOL fSaveAs)
                         bool fCancelled = false;
 
                         // Make sure we have a package and resource number.
-                        int iResourceNumber = pResource->ResourceNumber;
-                        int iPackageNumber = pResource->PackageNumber;
+                        auto resource_location = pResource->GetResourceLocation();
                         std::string name;
-                        if (fSaveAs || (iResourceNumber == -1) || (iPackageNumber == -1))
+
+                        if (fSaveAs || (resource_location.GetNumber() == -1) || (resource_location.GetPackageHint() == -1))
                         {
-                            if (iResourceNumber == -1)
+                            if (resource_location.GetNumber() == -1)
                             {
-                                iResourceNumber = appState->GetResourceMap().SuggestResourceNumber(pResource->GetType());
+                                resource_location = resource_location.WithNumber(appState->GetResourceMap().SuggestResourceNumber(resource_location.GetType()));
                             }
                             // Invoke dialog.
                             SaveResourceDialog srd(true, pResource->GetType());
-                            srd.Init(iPackageNumber, iResourceNumber);
+                            srd.Init(resource_location.GetPackageHint(), resource_location.GetNumber());
                             if (IDOK == srd.DoModal())
                             {
-                                iResourceNumber = srd.GetResourceNumber();
-                                iPackageNumber = srd.GetPackageNumber();
+                                resource_location = resource_location.WithNumber(srd.GetResourceNumber()).WithPackageHint(srd.GetPackageNumber());
                                 name = srd.GetName();
                             }
                             else
@@ -197,10 +196,10 @@ BOOL CResourceDocument::DoPreResourceSave(BOOL fSaveAs)
                             }
                         }
 
-                        if (!fCancelled && (iResourceNumber != -1) && (iPackageNumber != -1))
+                        if (!fCancelled && (resource_location.GetNumber() != -1) && (resource_location.GetPackageHint() != -1))
                         {
                             // We're good to go.
-                            fRet = _DoResourceSave(iPackageNumber, iResourceNumber, name);
+                            fRet = _DoResourceSave(resource_location, name);
                             if (fRet)
                             {
                                 // We might have a new resource number, so update our title.
@@ -220,7 +219,7 @@ BOOL CResourceDocument::DoPreResourceSave(BOOL fSaveAs)
     return fRet;
 }
 
-BOOL CResourceDocument::_DoResourceSave(int iPackageNumber, int iResourceNumber, const std::string &name)
+BOOL CResourceDocument::_DoResourceSave(const ResourceLocation& resource_location, const std::string &name)
 {
     // Ignore path name.
     const ResourceEntity *pResource = static_cast<const ResourceEntity *>(GetResource());
@@ -228,7 +227,7 @@ BOOL CResourceDocument::_DoResourceSave(int iPackageNumber, int iResourceNumber,
     int checksum = 0;
     if (pResource)
     {
-        saved = appState->GetResourceMap().AppendResource(*pResource, iPackageNumber, iResourceNumber, name, NoBase36, &checksum);
+        saved = appState->GetResourceMap().AppendResource(*pResource, resource_location, name, &checksum);
     }
 
     if (saved)
@@ -236,8 +235,8 @@ BOOL CResourceDocument::_DoResourceSave(int iPackageNumber, int iResourceNumber,
         // If we successfully saved, make sure our resource has these
         // possibly new package/resource numbers. Need to do this prior to _OnSuccessfulSave!
         ResourceEntity *pEntityNC = const_cast<ResourceEntity*>(pResource);
-        pEntityNC->PackageNumber = iPackageNumber;
-        pEntityNC->ResourceNumber = iResourceNumber;
+        pEntityNC->PackageNumber = resource_location.GetPackageHint();
+        pEntityNC->ResourceNumber = resource_location.GetNumber();
 
         _checksum = checksum;
         _OnSuccessfulSave(pResource);
@@ -267,16 +266,16 @@ void ExportResourceAsBitmap(const ResourceEntity &resourceEntity)
     resourceEntity.WriteToTest(serial, false, resourceEntity.ResourceNumber);
     ResourceBlob data;
     // Bring up the file dialog
-    int iNumber = resourceEntity.ResourceNumber;
-    if (iNumber == -1)
+    auto resource_location = resourceEntity.GetResourceLocation();
+    if (resource_location.GetNumber() == -1)
     {
-        iNumber = 0;
+        resource_location = resource_location.WithNumber(0);
     }
 
     sci::istream readStream = istream_from_ostream(serial);
 
-    auto resourceName = appState->GetResourceMap().Helper().FigureOutName(resourceEntity.Traits.Type, iNumber, resourceEntity.Base36Number);
-    data.CreateFromBits(resourceName.c_str(), resourceEntity.Traits.Type, &readStream, resourceEntity.PackageNumber, iNumber, resourceEntity.Base36Number, appState->GetVersion(), ResourceSourceFlags::PatchFile);
+    auto resourceName = appState->GetResourceMap().Helper().FigureOutName(resource_location.GetResourceId());
+    data.CreateFromBits(resourceName, resource_location, &readStream, appState->GetVersion(), ResourceSourceFlags::PatchFile);
     CBitmap bitmap;
     SCIBitmapInfo bmi;
     BYTE *pBitsDest;
@@ -322,23 +321,23 @@ void CResourceDocument::OnExportAsResource()
             bool fSaved = false;
             pResource->WriteToTest(serial, false, pResource->ResourceNumber);
             // Bring up the file dialog
-            auto resource_id = pResource->GetResourceId();
-            if (resource_id.GetNumber() == -1)
+            auto resource_location = pResource->GetResourceLocation();
+            if (resource_location.GetNumber() == -1)
             {
-                resource_id = resource_id.WithNumber(0);
+                resource_location = resource_location.WithNumber(0);
             }
 
-            std::string filename = GetFileNameFor(resource_id, appState->GetVersion());
+            std::string filename = GetFileNameFor(resource_location.GetResourceId(), appState->GetVersion());
             std::string filter = _GetFileDialogFilter();
             CFileDialog fileDialog(FALSE, nullptr, filename.c_str(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR, filter.c_str());
             if (IDOK == fileDialog.DoModal())
             {
                 CString strFileName = fileDialog.GetPathName();
                 ResourceBlob data;
-                auto resource_num = ResourceNum::CreateWithBase36(resource_id.GetNumber(), NoBase36);
-                auto resourceName = appState->GetResourceMap().Helper().FigureOutName(ResourceId(_GetType(), resource_num));
+                auto new_resource_location = resource_location.WithBase36(std::nullopt);
+                auto resourceName = appState->GetResourceMap().Helper().FigureOutName(new_resource_location.GetResourceId());
                 sci::istream readStream = istream_from_ostream(serial);
-                if (SUCCEEDED(data.CreateFromBits(resourceName.c_str(), _GetType(), &readStream, pResource->PackageNumber, resource_num.GetNumber(), NoBase36, appState->GetVersion(), ResourceSourceFlags::PatchFile)))
+                if (SUCCEEDED(data.CreateFromBits(resourceName, new_resource_location, &readStream, appState->GetVersion(), ResourceSourceFlags::PatchFile)))
                 {
                     HRESULT hr = data.SaveToFile((PCSTR)strFileName);
                     if (FAILED(hr))
