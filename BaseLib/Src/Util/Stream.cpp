@@ -458,8 +458,9 @@ void transfer(istream& from, ostream& to, uint32_t count)
     while (count > 0)
     {
         uint32_t amountToTransfer = min(count, ARRAYSIZE(buffer));
-        from.read_data(buffer, amountToTransfer);
-        to.WriteBytes(buffer, amountToTransfer);
+        absl::Span buffer_span(buffer, amountToTransfer);
+        from.read_data(buffer_span);
+        to.WriteBytes(buffer_span);
         count -= amountToTransfer;
     }
 }

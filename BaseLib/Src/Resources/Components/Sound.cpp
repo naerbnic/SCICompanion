@@ -680,7 +680,7 @@ void SoundWriteToWorker_SCI1(const SoundComponent& soundIn, const AudioComponent
         channelStream.WriteWord(static_cast<uint16_t>(audio->DigitalSamplePCM.size()));
         channelStream.WriteWord(0);     // Offset (from end of header)
         channelStream.WriteWord(static_cast<uint16_t>(audio->DigitalSamplePCM.size()));    // end
-        channelStream.WriteBytes(&audio->DigitalSamplePCM[0], audio->DigitalSamplePCM.size());
+        channelStream.WriteBytes(audio->DigitalSamplePCM);
 
         // Keep track of offset and size.
         uint16_t dataSize = (uint16_t)(channelStream.tellp() - offset);

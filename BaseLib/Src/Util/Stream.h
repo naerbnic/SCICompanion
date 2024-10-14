@@ -114,6 +114,10 @@ public:
             _state = std::ios_base::eofbit | std::ios_base::failbit;
         }
     }
+    void read_data(absl::Span<uint8_t> buffer)
+    {
+        read_data(buffer.data(), buffer.size());
+    }
 
     template <class _T>
     istream& operator>>(_T& t)
