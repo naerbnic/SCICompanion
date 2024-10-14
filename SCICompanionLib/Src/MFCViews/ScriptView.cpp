@@ -1827,7 +1827,7 @@ void CScriptView::OnGotoDefinition()
         {
             // Ensure the script is open (might not be if we did a "compile all")
             // +1 because line# in crystal-edit-speak starts at 1
-            appState->OpenScriptAtLine(_gotoScript.GetFullPath(), _gotoLineNumber + 1);
+            appState->OpenScriptAtLine(ScriptId::FromFullFileName(_gotoScript.GetFullPath()), _gotoLineNumber + 1);
         }
     }
 }

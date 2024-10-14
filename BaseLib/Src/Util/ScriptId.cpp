@@ -42,16 +42,15 @@ LangSyntax DetermineFileLanguage(const std::string& filename)
     return langSniff;
 }
 
+ScriptId ScriptId::FromFullFileName(const std::string& filename)
+{
+    ScriptId id;
+    id._Init(filename.c_str());
+    return id;
+}
+
 ScriptId::ScriptId() : _language(LangSyntaxUnknown) { _wScriptNum = InvalidResourceNumber; };
 
-ScriptId::ScriptId(const std::string& fullPath) : _language(LangSyntaxUnknown)
-{
-    _Init(fullPath.c_str());
-}
-ScriptId::ScriptId(const char* pszFullFileName) : _language(LangSyntaxUnknown)
-{
-    _Init(pszFullFileName);
-}
 ScriptId::ScriptId(const char* pszFileName, const char* pszFolder) : _language(LangSyntaxUnknown)
 {
     assert(std::strchr(pszFileName, '\\') == nullptr); // Ensure file and path are not mixed up.
@@ -153,6 +152,13 @@ LangSyntax ScriptId::Language() const
     // It's ok if language is unknown if the filename is empty.
     assert(_language != LangSyntaxUnknown || _strFileNameOrig.empty());
     return _language;
+}
+
+ScriptId::ScriptId(std::string strFolder, std::string strFileName, std::string strFileNameOrig, uint16_t wScriptNum,
+                   LangSyntax language)
+    : _strFolder(std::move(strFolder)), _strFileName(std::move(strFileName)),
+      _strFileNameOrig(std::move(strFileNameOrig)), _wScriptNum(wScriptNum), _language(language)
+{
 }
 
 void ScriptId::_MakeLower()

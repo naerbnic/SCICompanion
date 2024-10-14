@@ -251,7 +251,7 @@ void GenerateDocsDialog::OnBnClickedGeneratedoc()
                 std::string scriptName = (PCSTR)strText;
                 std::string fullPath = _helper->GetScriptFileName(scriptName);
                 CompileLog log;
-                std::unique_ptr<sci::Script> script = SimpleCompile(log, ScriptId(fullPath), true);
+                std::unique_ptr<sci::Script> script = SimpleCompile(log, ScriptId::FromFullFileName(fullPath), true);
                 if (script)
                 {
                     try
@@ -278,7 +278,7 @@ void GenerateDocsDialog::OnBnClickedGeneratekernels()
     _GenerateDocHelper(
         [&](const std::string &buildFolder, std::vector<std::string> &generatedFiles)
     {
-        ScriptId scriptId(appState->GetResourceMap().GetIncludePath("kernels.scp"));
+        auto scriptId = ScriptId::FromFullFileName(appState->GetResourceMap().GetIncludePath("kernels.scp"));
         CompileLog log;
         std::unique_ptr<sci::Script> script = SimpleCompile(log, scriptId, true);
         if (script)

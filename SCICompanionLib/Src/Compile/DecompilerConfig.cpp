@@ -36,7 +36,7 @@ class DummyLog : public ICompileLog
 static unique_ptr<Script> GetDefinesScript(const SCIVersion& version, const GameFolderHelper &helper, const std::string &name)
 {
     DummyLog log;
-    ScriptId scriptId(helper.GetIncludeFolder() + "\\" + name);
+    auto scriptId = ScriptId::FromFullFileName(helper.GetIncludeFolder() + "\\" + name);
     unique_ptr<Script> script = make_unique<Script>(scriptId);
     assert(scriptId.Language() == LangSyntaxStudio);
     CCrystalTextBuffer buffer;

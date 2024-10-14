@@ -561,7 +561,7 @@ void SCIClassBrowser::ReLoadFromCompiled(ITaskStatus &task)
         // There was a script of this number...
         TCHAR szScriptNum[20];
         StringCchPrintf(szScriptNum, ARRAYSIZE(szScriptNum), TEXT("script %03d"), compiledScript.first);
-        ScriptId scriptId(szScriptNum);
+        auto scriptId = ScriptId::FromFullFileName(szScriptNum);
         scriptId.SetLanguage(LangSyntaxSCI); // A good default
         std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(scriptId);
         LoadScriptFromCompiled(pScript.get(), compiledScript.second.get(), &_selectorNames, speciesToName);
@@ -753,7 +753,7 @@ bool SCIClassBrowser::_AddFileName(std::string fullPath, bool fReplace)
 
         CScriptStreamLimiter limiter(&buffer);
         CCrystalScriptStream stream(&limiter);
-        std::unique_ptr<Script> pScript = std::make_unique<Script>(fullPath.c_str());
+        std::unique_ptr<Script> pScript = std::make_unique<Script>(ScriptId::FromFullFileName(fullPath.c_str()));
         if (SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {
             Script *pWeakRef = pScript.get();
@@ -956,7 +956,7 @@ void SCIClassBrowser::TriggerCustomIncludeCompile(std::string name)
                 {
                     // Time-stamp is different, or we haven't yet compiled this file
                     // It's a header we have not yet encountered. Parse it.
-                    ScriptId scriptId(path);
+                    auto scriptId = ScriptId::FromFullFileName(path);
 
                     CCrystalTextBuffer buffer;
                     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
@@ -1063,7 +1063,7 @@ std::unique_ptr<sci::Script> SCIClassBrowser::_LoadScript(PCTSTR pszPath)
     {
         CScriptStreamLimiter limiter(&buffer);
         CCrystalScriptStream stream(&limiter);
-        std::unique_ptr<Script> pScriptT = std::make_unique<Script>(pszPath);
+        std::unique_ptr<Script> pScriptT = std::make_unique<Script>(ScriptId::FromFullFileName(pszPath));
         if (SyntaxParser_Parse(*pScriptT, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {
             pScript = move(pScriptT);

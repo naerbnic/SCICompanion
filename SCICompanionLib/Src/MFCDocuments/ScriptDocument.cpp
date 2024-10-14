@@ -629,7 +629,7 @@ BOOL CScriptDocument::OnOpenDocument(LPCTSTR lpszPathName, uint16_t scriptNumber
 {
     if (!__super::OnOpenDocument(lpszPathName))
         return FALSE;
-    _scriptId = ScriptId(lpszPathName);
+    _scriptId = ScriptId::FromFullFileName(lpszPathName);
     _scriptId.SetResourceNumber(scriptNumber);
     _buffer.FreeAll();
     BOOL result = _buffer.LoadFromFile(lpszPathName);
@@ -641,7 +641,7 @@ BOOL CScriptDocument::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	if (!__super::OnOpenDocument(lpszPathName))
 		return FALSE;
-	_scriptId = ScriptId(lpszPathName);
+	_scriptId = ScriptId::FromFullFileName(lpszPathName);
     _buffer.FreeAll();
 	BOOL result = _buffer.LoadFromFile(lpszPathName);
     _buffer.SetReadOnly(IsReadOnly(lpszPathName));
@@ -650,7 +650,7 @@ BOOL CScriptDocument::OnOpenDocument(LPCTSTR lpszPathName)
 BOOL CScriptDocument::OnSaveDocument(LPCTSTR lpszPathName) 
 {
 	_buffer.SaveToFile(lpszPathName);
-    _scriptId = ScriptId(lpszPathName);
+    _scriptId = ScriptId::FromFullFileName(lpszPathName);
 	return TRUE;	//	Note - we didn't call inherited member!
 }
 BOOL CScriptDocument::OnNewDocument()
@@ -719,7 +719,7 @@ void CScriptDocument::OnFileSaveAs()
         if (_buffer.SaveToFile(strFileName))
         {
             // We have a new identity
-            _scriptId = ScriptId(strFileName);
+            _scriptId = ScriptId::FromFullFileName(strFileName.GetString());
         }
     }
 }

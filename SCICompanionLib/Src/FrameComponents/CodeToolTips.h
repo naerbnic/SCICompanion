@@ -174,7 +174,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                 // Give location information for it.
                 result.strBaseText = (*classIt)->GetName();
                 result.iLineNumber = (*classIt)->GetLineNumber();
-                result.scriptId = ScriptId((*classIt)->GetOwnerScript()->GetPath().c_str());
+                result.scriptId = ScriptId::FromFullFileName((*classIt)->GetOwnerScript()->GetPath().c_str());
                 fFound = true;
             }
         }
@@ -208,7 +208,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                 // Give location information for it.
                 result.strBaseText = strText;
                 result.iLineNumber = 0;
-                result.scriptId = ScriptId(filename);
+                result.scriptId = ScriptId::FromFullFileName(filename);
                 fFound = true;
             }
         }
@@ -250,7 +250,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                                 // "goto definition" info
                                 result.iLineNumber = (*methodIt)->GetLineNumber();
 
-                                result.scriptId = ScriptId((*methodIt)->GetOwnerScript()->GetPath().c_str());
+                                result.scriptId = ScriptId::FromFullFileName((*methodIt)->GetOwnerScript()->GetPath().c_str());
                                 StringCchPrintf(szTemp, ARRAYSIZE(szTemp), TEXT("%s::%s"), (*methodIt)->GetOwnerClass()->GetName().c_str(), (*methodIt)->GetName().c_str());
                                 result.strBaseText = szTemp;
                             }
@@ -326,7 +326,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                             // Give location information for it.
                             result.strBaseText = (*defineIt)->GetLabel().c_str();
                             result.iLineNumber = (*defineIt)->GetLineNumber();
-                            result.scriptId = ScriptId((*defineIt)->GetOwnerScript()->GetPath().c_str());
+                            result.scriptId = ScriptId::FromFullFileName((*defineIt)->GetOwnerScript()->GetPath().c_str());
                             result.possibleResourceNumber = (*defineIt)->GetValue();
                         }
                     }
@@ -373,7 +373,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                             result.strTip = szTip;
                             // "goto definition" info
                             result.iLineNumber = pProc->GetLineNumber();
-                            result.scriptId = ScriptId(pProc->GetOwnerScript()->GetPath().c_str());
+                            result.scriptId = ScriptId::FromFullFileName(pProc->GetOwnerScript()->GetPath().c_str());
                             result.strBaseText = pProc->GetName();
                         }
                     }
@@ -407,7 +407,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                                 result.strTip = fmt::format("Temporary variable: {}", strText);
                                 // Add some goto info
                                 result.iLineNumber = (*varIt)->GetLineNumber();
-                                result.scriptId = ScriptId(pFunction->GetOwnerScript()->GetPath().c_str());
+                                result.scriptId = ScriptId::FromFullFileName(pFunction->GetOwnerScript()->GetPath().c_str());
                                 result.strBaseText = (*varIt)->GetName().c_str();
                             }
                             if (!fFound && !pFunction->GetSignatures().empty())
@@ -420,7 +420,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                                     result.strTip = fmt::format("Parameter {}", strText);
                                     // Add some goto info
                                     result.iLineNumber = (*procIt2)->GetLineNumber();
-                                    result.scriptId = ScriptId(pFunction->GetOwnerScript()->GetPath().c_str());
+                                    result.scriptId = ScriptId::FromFullFileName(pFunction->GetOwnerScript()->GetPath().c_str());
                                     result.strBaseText = (*procIt2)->GetName().c_str();
                                 }
                             }
@@ -463,7 +463,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                         {
                             // Add some goto info
                             result.iLineNumber = pVar->GetLineNumber();
-                            result.scriptId = ScriptId(pVar->GetOwnerScript()->GetPath().c_str());
+                            result.scriptId = ScriptId::FromFullFileName(pVar->GetOwnerScript()->GetPath().c_str());
                             result.strBaseText = pVar->GetName().c_str();
                         }
                     }
@@ -480,7 +480,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                                 result.strTip = fmt::format("{}::{}", get<1>(classAndProp)->GetName(), strText);
                                 // Add some goto info
                                 result.iLineNumber = get<2>(classAndProp)->GetLineNumber();
-                                result.scriptId = ScriptId(get<0>(classAndProp)->GetOwnerScript()->GetPath().c_str());
+                                result.scriptId = ScriptId::FromFullFileName(get<0>(classAndProp)->GetOwnerScript()->GetPath().c_str());
                                 result.strBaseText = strText;
                             }
                         }
@@ -499,7 +499,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                                 result.strTip = fmt::format("{} of {}", strText, (*classIt)->GetSuperClass());
                                 // "goto definition" info
                                 result.iLineNumber = (*classIt)->GetLineNumber();
-                                result.scriptId = ScriptId((*classIt)->GetOwnerScript()->GetPath().c_str());
+                                result.scriptId = ScriptId::FromFullFileName((*classIt)->GetOwnerScript()->GetPath().c_str());
                                 result.strBaseText = (*classIt)->GetName();
                             }
                         }
@@ -513,7 +513,7 @@ ToolTipResult GetToolTipResult(_TContext *pContext)
                                 result.strTip = fmt::format("{} of {}", globalClass->GetName(), globalClass->GetSuperClass());
                                 // "goto definition" info
                                 result.iLineNumber = globalClass->GetLineNumber();
-                                result.scriptId = ScriptId(globalClass->GetOwnerScript()->GetPath().c_str());
+                                result.scriptId = ScriptId::FromFullFileName(globalClass->GetOwnerScript()->GetPath().c_str());
                                 result.strBaseText = globalClass->GetName();
                             }
                         }

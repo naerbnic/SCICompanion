@@ -2086,7 +2086,7 @@ void CMainFrame::_AddFindResults(vector<char> &dummyBuffer, ICompileLog &log, PC
 
                     TCHAR szDescription[MAX_PATH];
                     StringCchPrintf(szDescription, ARRAYSIZE(szDescription), TEXT("%s: %s"), pszFileName, (PCTSTR)lineCleansed);
-                    log.ReportResult(CompileResult(szDescription, ScriptId(pszFullPath), nLine + 1));
+                    log.ReportResult(CompileResult(szDescription, ScriptId::FromFullFileName(pszFullPath), nLine + 1));
                 }
             }
         }

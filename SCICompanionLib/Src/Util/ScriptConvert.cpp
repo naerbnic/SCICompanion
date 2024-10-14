@@ -85,7 +85,7 @@ bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId &scri
 
                     // 3) Switch to the new script
                     uint16_t scriptNumber = scriptId.GetResourceNumber();
-                    scriptId = ScriptId(scriptId.GetFullPath());
+                    scriptId = ScriptId::FromFullFileName(scriptId.GetFullPath());
                     scriptId.SetResourceNumber(scriptNumber);
 
                     // Should be the new language now
@@ -120,7 +120,7 @@ void EnumScriptIds(vector<ScriptId> &scripts, const std::string &folder, const s
             std::string temp = file.filename().string();
             if (!is_directory(file) && std::regex_search(temp, sm, matchRSTRegex) && (sm.size() > 1))
             {
-                scripts.push_back(ScriptId(file.string()));
+                scripts.push_back(ScriptId::FromFullFileName(file.string()));
             }
         }
     }

@@ -304,7 +304,7 @@ void AppState::OpenScriptHeader(std::string strName)
     if (_pApp && _pScriptTemplate)
     {
         std::string fullPath = _resourceMap.GetIncludePath(strName);
-        ScriptId scriptId(fullPath);
+        auto scriptId = ScriptId::FromFullFileName(fullPath);
         if (!scriptId.IsNone())
         {
             // If it's already open, just activate it.

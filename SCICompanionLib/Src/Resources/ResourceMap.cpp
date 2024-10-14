@@ -661,7 +661,7 @@ void CResourceMap::_SniffGameLanguage()
             // Studio language. If so, we'll use that. Otherwise, we'll use SCI.
             // We'll explicitly set the language, so this doesn't happen again.
             std::string scriptZeroFilename = _gameFolderHelper->GetScriptFileName(0);
-            ScriptId testScript(scriptZeroFilename);
+            auto testScript = ScriptId::FromFullFileName(scriptZeroFilename);
             if (testScript.Language() == LangSyntaxStudio)
             {
                 SetGameLanguage(LangSyntaxStudio);
@@ -1040,7 +1040,7 @@ std::vector<ScriptId> CResourceMap::GetAllScripts()
                     if (pszEq)
                     {
                         // Add this script...
-                        ScriptId scriptId(_gameFolderHelper->GetScriptFileName(pszEq + 1));
+                        auto scriptId = ScriptId::FromFullFileName(_gameFolderHelper->GetScriptFileName(pszEq + 1));
                         // Isolate the number.
                         *pszEq = 0;     // n123
                         pszNumber++;    // 123

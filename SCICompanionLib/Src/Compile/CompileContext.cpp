@@ -846,7 +846,7 @@ void CompileContext::_ReportThing(bool fError, const ISourceCodePosition* pPos, 
     char sz[300];
     // Add one to line number, since they are reported from a 0-base (parser), but displayed from a 1-base (script editor)
     int line = pPos->GetLineNumber() + 1;
-    ScriptId scriptIdThing(_pErrorScript->GetPath().c_str());
+    auto scriptIdThing = ScriptId::FromFullFileName(_pErrorScript->GetPath().c_str());
     StringCchPrintf(sz, ARRAYSIZE(sz), "%s: (%s) %s  Line: %d, col: %d", fError ? "Error" : "Warning",
                     scriptIdThing.GetFileNameOrig().c_str(), szMessage, line, pPos->GetColumnNumber());
     _results.ReportResult(CompileResult(sz, scriptIdThing, line, pPos->GetColumnNumber(),
@@ -1268,7 +1268,7 @@ void PrecompiledHeaders::Update(CompileContext& context, Script& script)
                 if (encounteredIt == nonHeadersEncountered.end())
                 {
                     // It's a header we have not yet encountered. Parse it.
-                    ScriptId scriptId(_resourceMap.GetIncludePath(*curHeaderIt));
+                    auto scriptId = ScriptId::FromFullFileName(_resourceMap.GetIncludePath(*curHeaderIt));
                     CCrystalTextBuffer buffer;
                     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
                     {

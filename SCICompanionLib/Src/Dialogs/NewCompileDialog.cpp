@@ -166,7 +166,7 @@ BOOL CNewCompileDialog::OnInitDialog()
                     std::string temp = file.filename().string();
                     if (!is_directory(file) && std::regex_search(temp, sm, matchRSTRegex) && (sm.size() > 1))
                     {
-                        _scripts.push_back(ScriptId(file.string()));
+                        _scripts.push_back(ScriptId::FromFullFileName(file.string()));
                     }
                 }
                 if (_scripts.empty())

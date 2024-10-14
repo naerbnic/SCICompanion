@@ -1404,7 +1404,7 @@ bool SCISyntaxParser::Parse(Script &script, streamIt &stream, std::unordered_set
             }
         }
 
-        ScriptId scriptId(script.GetPath().c_str());
+        auto scriptId = ScriptId::FromFullFileName(script.GetPath().c_str());
         if (pError)
         {
             // Add one to line#, since editor lines are 1-based
@@ -1433,7 +1433,7 @@ bool SCISyntaxParser::ParseHeader(Script &script, streamIt &stream, std::unorder
     {
         std::string strError = context.GetErrorText();
         streamIt errorPos = context.GetErrorPosition();
-        ScriptId scriptId(script.GetPath().c_str());
+        auto scriptId = ScriptId::FromFullFileName(script.GetPath().c_str());
         if (pError)
         {
             pError->ReportResult(CompileResult(strError, scriptId, errorPos.GetLineNumber() + 1, errorPos.GetColumnNumber(), CompileResult::CRT_Error));

@@ -473,7 +473,7 @@ std::string GameFolderHelper::GetPolyFolder(const std::string* prefix) const
 //
 ScriptId GameFolderHelper::GetScriptId(const std::string& name) const
 {
-    return ScriptId(GetScriptFileName(name).c_str());
+    return ScriptId::FromFullFileName(GetScriptFileName(name).c_str());
 }
 
 bool GameFolderHelper::GetUseSierraAspectRatio(bool defaultValue) const

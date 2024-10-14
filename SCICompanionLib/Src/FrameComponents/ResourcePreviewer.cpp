@@ -295,7 +295,7 @@ void ScriptPreviewer::SetResource(const ResourceBlob &blob)
     std::ifstream scriptFile(scriptFileName.c_str());
     if (scriptFile.is_open())
     {
-        ScriptId scriptId(scriptFileName);
+        auto scriptId = ScriptId::FromFullFileName(scriptFileName);
         if (scriptId.Language() == LangSyntaxStudio)
         {
             m_wndHeader.SetWindowText("Language: SCI Studio");

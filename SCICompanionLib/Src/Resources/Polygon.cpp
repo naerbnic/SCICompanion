@@ -216,7 +216,7 @@ PolygonComponent::PolygonComponent(const string &polyFolder, int picNumber) : _p
     if (picNumber != -1)
     {
         CompileLog log;
-        unique_ptr<Script> script = SimpleCompile(log, ScriptId(GetPolyFilePath().c_str()));
+        unique_ptr<Script> script = SimpleCompile(log, ScriptId::FromFullFileName(GetPolyFilePath().c_str()));
         ExtractPolygonsFromHeader extractPolygons(*this);
         script->Traverse(extractPolygons);
     }
@@ -297,7 +297,7 @@ void PolygonComponent::Commit(int picNumber)
     {
         string polyFile = GetPolyFilePath();
         // Construct the script om
-        Script script(ScriptId(polyFile.c_str()));
+        Script script(ScriptId::FromFullFileName(polyFile.c_str()));
 
         // Output in the current game language, regardless of the previous version of the file.
         LangSyntax lang = appState->GetResourceMap().Helper().GetDefaultGameLanguage();

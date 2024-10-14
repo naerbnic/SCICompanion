@@ -26,9 +26,8 @@ static const uint16_t InvalidResourceNumber = 0xffff;
 class ScriptId
 {
 public:
+    static ScriptId FromFullFileName(const std::string& filename);
     ScriptId();
-    ScriptId(const std::string& fullPath);
-    ScriptId(const char* pszFullFileName);
     ScriptId(const char* pszFileName, const char* pszFolder);
     ScriptId(const ScriptId& src);
     ScriptId& operator=(const ScriptId& src);
@@ -62,6 +61,9 @@ public:
     friend bool operator<(const ScriptId& script1, const ScriptId& script2);
 
 private:
+    ScriptId(std::string strFolder, std::string strFileName, std::string strFileNameOrig, uint16_t wScriptNum,
+             LangSyntax language);
+
     void _MakeLower();
     void _Init(const char* pszFullFileName, uint16_t wScriptNum = InvalidResourceNumber);
     void _DetermineLanguage();

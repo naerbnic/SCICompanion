@@ -903,7 +903,7 @@ bool StudioSyntaxParser::Parse(Script &script, streamIt &stream, std::unordered_
         std::string strError = "  [Error]: ";
         strError += context.GetErrorText();
         streamIt errorPos = context.GetErrorPosition();
-        ScriptId scriptId(script.GetPath().c_str());
+        auto scriptId = ScriptId::FromFullFileName(script.GetPath().c_str());
         if (pError)
         {
             // Add one to line#, since editor lines are 1-based
@@ -931,7 +931,7 @@ bool StudioSyntaxParser::ParseHeader(Script &script, streamIt &stream, std::unor
     {
         std::string strError = context.GetErrorText();
         streamIt errorPos = context.GetErrorPosition();
-        ScriptId scriptId(script.GetPath().c_str());
+        auto scriptId = ScriptId::FromFullFileName(script.GetPath().c_str());
         if (pError)
         {
             pError->ReportResult(CompileResult(strError, scriptId, errorPos.GetLineNumber() + 1, errorPos.GetColumnNumber(), CompileResult::CRT_Error));
