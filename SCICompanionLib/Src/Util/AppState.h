@@ -263,7 +263,7 @@ public: // TODO for now
 
     std::unique_ptr<BackgroundScheduler<HoverTipPayload, HoverTipResponse>> _pHoverTipScheduler;
 
-    ScopedHandle _hProcessDebugged;
+    OldScopedHandle _hProcessDebugged;
 
     RunLogic _runLogic;
 

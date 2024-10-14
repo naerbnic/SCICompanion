@@ -5,9 +5,9 @@
 
 inline HRESULT ResultFromLastError() { return HRESULT_FROM_WIN32(GetLastError()); }
 
-struct ScopedHandle
+struct OldScopedHandle
 {
-    ScopedHandle() : hFile(INVALID_HANDLE_VALUE) {}
+    OldScopedHandle() : hFile(INVALID_HANDLE_VALUE) {}
     void Close()
     {
         if (hFile != INVALID_HANDLE_VALUE)
@@ -16,7 +16,7 @@ struct ScopedHandle
             hFile = INVALID_HANDLE_VALUE;
         }
     }
-    virtual ~ScopedHandle()
+    virtual ~OldScopedHandle()
     {
         Close();
     }
@@ -24,9 +24,9 @@ struct ScopedHandle
     HANDLE hFile;
 };
 
-struct ScopedFile : public ScopedHandle
+struct OldScopedFile : public OldScopedHandle
 {
-    ScopedFile(const std::string& filename, DWORD desiredAccess, DWORD shareMode, DWORD creationDisposition);
+    OldScopedFile(const std::string& filename, DWORD desiredAccess, DWORD shareMode, DWORD creationDisposition);
     void Write(const uint8_t* data, uint32_t length);
     uint32_t GetLength();
     uint32_t SeekToEnd();

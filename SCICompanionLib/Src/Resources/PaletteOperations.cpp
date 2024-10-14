@@ -35,7 +35,7 @@ uint32_t ToUint32(const char *marker)
 void SavePALFile(const std::string &filename, PaletteComponent &palette, int startIndex, int count)
 {
     // TODO: http://worms2d.info/Palette_file#File_format
-    ScopedFile file(filename, GENERIC_WRITE, 0, CREATE_ALWAYS);
+    OldScopedFile file(filename, GENERIC_WRITE, 0, CREATE_ALWAYS);
     sci::ostream byteStream;
 
     uint16_t colorEntryCount = (uint16_t)count;

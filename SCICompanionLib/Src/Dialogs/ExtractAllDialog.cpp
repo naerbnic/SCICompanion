@@ -197,7 +197,7 @@ void ExtractAllDialog::OnBnClickedExtract()
         char szTestFile[MAX_PATH];
         PathCombine(szTestFile, strLocation, testFileName);
         {
-            ScopedHandle holder;
+            OldScopedHandle holder;
             holder.hFile = CreateFile(szTestFile, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
             good = holder.hFile != INVALID_HANDLE_VALUE;
             if (!good)

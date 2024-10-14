@@ -118,12 +118,12 @@ struct FileDescriptorBase
             // Write the volumes to their bak files.
             for (const auto& volumeStream : volumeWriteStreams)
             {
-                ScopedFile holderPackage(_GetVolumeFilenameBak(volumeStream.first), GENERIC_WRITE, 0, CREATE_ALWAYS);
+                OldScopedFile holderPackage(_GetVolumeFilenameBak(volumeStream.first), GENERIC_WRITE, 0, CREATE_ALWAYS);
                 holderPackage.Write(volumeStream.second.GetInternalPointer(), volumeStream.second.GetDataSize());
             }
 
             // Now the map
-            ScopedFile holderMap(_GetMapFilenameBak(), GENERIC_WRITE, 0, CREATE_ALWAYS);
+            OldScopedFile holderMap(_GetMapFilenameBak(), GENERIC_WRITE, 0, CREATE_ALWAYS);
             holderMap.Write(mapStream.GetInternalPointer(), mapStream.GetDataSize());
         }
 

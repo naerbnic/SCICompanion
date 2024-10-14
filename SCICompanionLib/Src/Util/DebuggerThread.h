@@ -38,7 +38,7 @@ private:
     std::shared_ptr<DebuggerThread> _myself;
     std::string _gameFolder;
     int _optionalResourceNumber;
-    ScopedHandle _hAbort;
+    OldScopedHandle _hAbort;
 };
 
 std::shared_ptr<DebuggerThread> CreateDebuggerThread(const std::string &gameFolder, int optionalResourceNumber);

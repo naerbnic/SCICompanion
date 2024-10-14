@@ -104,8 +104,8 @@ void PostBuildThread::_Main()
     saAttr.bInheritHandle = TRUE;   // Inherit handles
     saAttr.lpSecurityDescriptor = nullptr;
 
-    ScopedHandle childOutRead;
-    ScopedHandle childOutWrite;
+    OldScopedHandle childOutRead;
+    OldScopedHandle childOutWrite;
     if (CreatePipe(&childOutRead.hFile, &childOutWrite.hFile, &saAttr, 0))
     {
         // Each this is not inherited:

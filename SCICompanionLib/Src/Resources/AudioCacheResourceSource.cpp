@@ -491,7 +491,7 @@ void SaveAudioBlobToFiles(const ResourceBlob& blob,
     std::string syncFullPath = cacheSubFolder + "\\" + syncFileName;
     if (lipSyncDataSize)
     {
-        ScopedFile syncFile(syncFullPath, GENERIC_WRITE, 0, CREATE_ALWAYS);
+        OldScopedFile syncFile(syncFullPath, GENERIC_WRITE, 0, CREATE_ALWAYS);
         syncFile.Write(blob.GetData(), lipSyncDataSize);
     }
     else
@@ -502,7 +502,7 @@ void SaveAudioBlobToFiles(const ResourceBlob& blob,
 
     std::string audioFileName = GetFileNameFor(blob.GetResourceId().WithType(ResourceType::Audio),
                                                blob.GetVersion());
-    ScopedFile syncFile(cacheSubFolder + "\\" + audioFileName, GENERIC_WRITE, 0,
+    OldScopedFile syncFile(cacheSubFolder + "\\" + audioFileName, GENERIC_WRITE, 0,
                         CREATE_ALWAYS);
     syncFile.Write(blob.GetData() + lipSyncDataSize,
                    blob.GetDecompressedLength() - lipSyncDataSize);
@@ -524,7 +524,7 @@ void FirstTimeAudioExtraction(AudioCacheResourceSource::IResourceManager const* 
         // First the audio map.
         std::string audioMapPath = cacheFolder + "\\" + GetFileNameFor(
             *audioMapBlob);
-        ScopedFile file(audioMapPath, GENERIC_WRITE, 0, CREATE_ALWAYS);
+        OldScopedFile file(audioMapPath, GENERIC_WRITE, 0, CREATE_ALWAYS);
         audioMapBlob->SaveToHandle(file.hFile, true);
 
         // Now all audio and sync resources.

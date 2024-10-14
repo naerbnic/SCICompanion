@@ -66,7 +66,7 @@ bool PatchFilesResourceSource::ReadNextEntry(ResourceTypeFlags typeFlags, Iterat
             {
                 // We need a valid number.
                 // We do need to peek open the file right now.
-                ScopedHandle patchFile;
+                OldScopedHandle patchFile;
                 std::string fullPath = _gameFolder + "\\" + _findData.cFileName;
                 patchFile.hFile = CreateFile(fullPath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
                 if (patchFile.hFile != INVALID_HANDLE_VALUE)
@@ -111,7 +111,7 @@ sci::istream PatchFilesResourceSource::GetHeaderAndPositionedStream(const Resour
 {
     std::string fileName = _indexToFilename[mapEntry.ExtraData];    // We used package number as a transport vessel for our arbitrary data
     assert(!fileName.empty());
-    ScopedHandle patchFile;
+    OldScopedHandle patchFile;
     std::string fullPath = _gameFolder + "\\" + fileName;
     patchFile.hFile = CreateFile(fullPath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (patchFile.hFile != INVALID_HANDLE_VALUE)
@@ -161,7 +161,7 @@ AppendBehavior PatchFilesResourceSource::AppendResources(const std::vector<const
         std::string bakPath = _gameFolder + "\\" + filename + ".bak";
         // Write to the bak file
         {
-            ScopedFile file(bakPath, GENERIC_WRITE, 0, CREATE_ALWAYS);
+            OldScopedFile file(bakPath, GENERIC_WRITE, 0, CREATE_ALWAYS);
             blob->SaveToHandle(file.hFile, true);
         }
         // move it to the main guy

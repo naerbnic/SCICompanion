@@ -70,7 +70,7 @@ void DebuggerThread::_Start(std::shared_ptr<DebuggerThread> myself)
 
     // Make the startdebug.txt file
     {
-        ScopedFile file(GetStartDebugFilename(_gameFolder), GENERIC_WRITE, 0, CREATE_ALWAYS);
+        OldScopedFile file(GetStartDebugFilename(_gameFolder), GENERIC_WRITE, 0, CREATE_ALWAYS);
         if (_optionalResourceNumber == -1)
         {
             // Standard case
@@ -139,7 +139,7 @@ void DebuggerThread::_Main()
 
     if ((waitResult == WAIT_TIMEOUT) && (waitTime >= 0))
     {
-        ScopedHandle readHandle;
+        OldScopedHandle readHandle;
         readHandle.hFile = CreateFile(debugLogFilename.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (readHandle.hFile != INVALID_HANDLE_VALUE)
         {

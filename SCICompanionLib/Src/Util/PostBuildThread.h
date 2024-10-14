@@ -32,7 +32,7 @@ private:
     HWND _hwndUI;
     std::shared_ptr<PostBuildThread> _myself;
     std::string _gameFolder;
-    ScopedHandle _hAbort;
+    OldScopedHandle _hAbort;
 };
 
 std::shared_ptr<PostBuildThread> CreatePostBuildThread(const std::string &gameFolder);

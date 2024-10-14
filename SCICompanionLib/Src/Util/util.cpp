@@ -761,7 +761,7 @@ void throw_if(bool value, const char *message)
 
 void testopenforwrite(const std::string &filename)
 {
-    ScopedFile file(filename, GENERIC_WRITE, 0, OPEN_ALWAYS);
+    OldScopedFile file(filename, GENERIC_WRITE, 0, OPEN_ALWAYS);
 }
 
 struct convert {

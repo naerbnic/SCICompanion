@@ -4,7 +4,7 @@
 #include <Shlwapi.h>
 #include <strsafe.h>
 
-ScopedFile::ScopedFile(const std::string& filename, DWORD desiredAccess, DWORD shareMode, DWORD creationDisposition) : filename(filename)
+OldScopedFile::OldScopedFile(const std::string& filename, DWORD desiredAccess, DWORD shareMode, DWORD creationDisposition) : filename(filename)
 {
     hFile = CreateFile(filename.c_str(), desiredAccess, shareMode, nullptr, creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (hFile == INVALID_HANDLE_VALUE)
@@ -15,7 +15,7 @@ ScopedFile::ScopedFile(const std::string& filename, DWORD desiredAccess, DWORD s
     }
 }
 
-void ScopedFile::Write(const uint8_t* data, uint32_t length)
+void OldScopedFile::Write(const uint8_t* data, uint32_t length)
 {
     DWORD cbWritten = 0;
     if (length > 0)
@@ -29,7 +29,7 @@ void ScopedFile::Write(const uint8_t* data, uint32_t length)
     }
 }
 
-uint32_t ScopedFile::SeekToEnd()
+uint32_t OldScopedFile::SeekToEnd()
 {
     uint32_t position = SetFilePointer(hFile, 0, nullptr, FILE_END);
     if (position == INVALID_SET_FILE_POINTER)
@@ -39,7 +39,7 @@ uint32_t ScopedFile::SeekToEnd()
     return position;
 }
 
-uint32_t ScopedFile::GetLength()
+uint32_t OldScopedFile::GetLength()
 {
     DWORD upperSize;
     uint32_t size = GetFileSize(hFile, &upperSize);

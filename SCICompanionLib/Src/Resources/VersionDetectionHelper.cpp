@@ -95,7 +95,7 @@ ResourcePackageFormat _DetectPackageFormat(const GameFolderHelper &helper, Resou
     }
     if (hFile != INVALID_HANDLE_VALUE)
     {
-        ScopedHandle holder;
+        OldScopedHandle holder;
         holder.hFile = hFile;
         sci::istream byteStream = sci::istream::ReadFromFile(holder.hFile);
         bool sci1Aligned = false;

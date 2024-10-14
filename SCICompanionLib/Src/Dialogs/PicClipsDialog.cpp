@@ -224,7 +224,7 @@ void PicClipsDialog::OnBnClickedSave()
 
     try
     {
-        ScopedFile holderMap(savePath.string(), GENERIC_WRITE, 0, CREATE_ALWAYS);
+        OldScopedFile holderMap(savePath.string(), GENERIC_WRITE, 0, CREATE_ALWAYS);
         holderMap.Write(data.GetInternalPointer(), data.GetDataSize());
 
         // Add it to the list if it wasn't overwriting something...

@@ -343,7 +343,7 @@ void WriteWaveFile(const std::string &filename, const AudioComponent &audio, con
     out.seekp(fileSizePosition);
     out << fileSize;
 
-    ScopedFile file(filename, GENERIC_WRITE, 0, CREATE_ALWAYS);
+    OldScopedFile file(filename, GENERIC_WRITE, 0, CREATE_ALWAYS);
     file.Write(out.GetInternalPointer(), out.GetDataSize());
 }
 
