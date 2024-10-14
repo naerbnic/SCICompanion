@@ -85,7 +85,7 @@ void MessageHeaderFile::_Load(const std::vector<std::string> &sourcesOptional)
     {
         if (lang == LangSyntaxUnknown)
         {
-            lang = _DetermineLanguage(line);
+            lang = DetermineLanguageFromFirstLine(line);
         }
         char commentChar = lang == LangSyntaxSCI ? ';' : '/';
         int minChars = lang == LangSyntaxSCI ? 1 : 2;

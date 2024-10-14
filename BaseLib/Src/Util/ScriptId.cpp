@@ -10,7 +10,7 @@
 
 const std::string SCILanguageMarker = "Sierra Script";
 
-LangSyntax _DetermineLanguage(const std::string& firstLine)
+LangSyntax DetermineLanguageFromFirstLine(const std::string& firstLine)
 {
     LangSyntax langSniff = LangSyntaxStudio;
     size_t pos = firstLine.find(';');
@@ -20,6 +20,24 @@ LangSyntax _DetermineLanguage(const std::string& firstLine)
         {
             langSniff = LangSyntaxSCI;
         }
+    }
+    return langSniff;
+}
+
+LangSyntax DetermineFileLanguage(const std::string& filename)
+{
+    // Sniff the file
+    LangSyntax langSniff;
+    std::ifstream file(filename);
+    std::string line;
+    if (std::getline(file, line))
+    {
+        langSniff = ::DetermineLanguageFromFirstLine(line);
+    }
+    else
+    {
+        // This can happen if the file doesn't exist.
+        langSniff = LangSyntaxSCI;
     }
     return langSniff;
 }
@@ -74,20 +92,7 @@ void ScriptId::_DetermineLanguage()
 {
     if (_language == LangSyntaxUnknown)
     {
-        // Sniff the file
-        LangSyntax langSniff = LangSyntaxUnknown;
-        std::ifstream file(GetFullPath());
-        std::string line;
-        if (std::getline(file, line))
-        {
-            langSniff = ::_DetermineLanguage(line);
-        }
-        else
-        {
-            // This can happen if the file doesn't exist.
-            langSniff = LangSyntaxSCI;
-        }
-        _language = langSniff;
+        _language = DetermineFileLanguage(GetFullPath());
     }
 }
 

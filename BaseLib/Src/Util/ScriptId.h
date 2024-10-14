@@ -12,7 +12,8 @@ enum LangSyntax
 
 extern const std::string SCILanguageMarker;
 
-LangSyntax _DetermineLanguage(const std::string& firstLine);
+LangSyntax DetermineLanguageFromFirstLine(const std::string& firstLine);
+LangSyntax DetermineFileLanguage(const std::string& filename);
 
 static const uint16_t InvalidResourceNumber = 0xffff;
 
