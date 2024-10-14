@@ -17,6 +17,7 @@
 #include <optional>
 #include <absl/status/statusor.h>
 
+#include "DataBuffer.h"
 #include "WindowsUtils.h"
 
 namespace sci
@@ -142,41 +143,30 @@ class istream::Impl
 public:
     virtual ~Impl() = default;
 
-    virtual const uint8_t* GetDataBuffer() const = 0;
-    virtual uint32_t GetDataSize() const = 0;
+    virtual absl::Span<const uint8_t> GetDataBuffer() const = 0;
 };
 
 class istream::MemoryImpl : public istream::Impl
 {
 public:
-    MemoryImpl(uint32_t size) :
-        size_(size), data_(std::unique_ptr<uint8_t[]>(new uint8_t[size]))
+    MemoryImpl(std::vector<uint8_t> data) :
+        data_(std::move(data))
     {
     }
 
-    MemoryImpl(const uint8_t* data, uint32_t size) : MemoryImpl(size)
+    MemoryImpl(const uint8_t* pData, uint32_t cbSize)
     {
-        std::memcpy(data_.get(), data, size);
+        data_.resize(cbSize);
+        memcpy(data_.data(), pData, cbSize);
     }
 
-    virtual uint8_t* GetMutableDataBuffer()
+    absl::Span<const uint8_t> GetDataBuffer() const override
     {
-        return data_.get();
-    }
-
-    const uint8_t* GetDataBuffer() const override
-    {
-        return data_.get();
-    }
-
-    uint32_t GetDataSize() const override
-    {
-        return size_;
+        return absl::MakeConstSpan(data_);
     }
 
 private:
-    std::size_t size_;
-    std::unique_ptr<uint8_t[]> data_;
+    std::vector<uint8_t> data_;
 };
 
 class istream::FileImpl : public istream::Impl
@@ -192,14 +182,9 @@ public:
         return std::unique_ptr<FileImpl>(new FileImpl(std::move(mapped_file).value()));
     }
 
-    const uint8_t* GetDataBuffer() const override
+    absl::Span<const uint8_t> GetDataBuffer() const override
     {
-        return mapped_file_.GetDataBuffer().data();
-    }
-
-    uint32_t GetDataSize() const override
-    {
-        return mapped_file_.GetDataBuffer().size();
+        return mapped_file_.GetDataBuffer();
     }
 
 private:
@@ -209,6 +194,7 @@ private:
     }
     MemoryMappedFile mapped_file_;
 };
+
 istream istream::MapFile(const std::string& filename)
 {
     return istream(FileImpl::FromFilename(filename).value());
@@ -216,54 +202,22 @@ istream istream::MapFile(const std::string& filename)
 
 istream istream::ReadFromFile(HANDLE hFile, DWORD lengthToInclude)
 {
-    // Start from the current position:
-    uint32_t dwSize = lengthToInclude;
-    if (dwSize == 0)
+    auto file_contents = lengthToInclude > 0 ? ReadFileContents(hFile, 0, lengthToInclude) : ReadFileContents(hFile);
+    if (!file_contents.ok())
     {
-        // If no length specifies, then until the end of the file.
-        DWORD dwCurrentPosition = SetFilePointer(
-            hFile, 0, nullptr, FILE_CURRENT);
-        DWORD dwSizeHigh = 0;
-        DWORD file_size = GetFileSize(hFile, &dwSizeHigh);
-
-        if (file_size == INVALID_FILE_SIZE)
-        {
-            throw std::exception("Unable to get file size.");
-        }
-
-        // Limit ourselves a little (to 4GB).
-        if (dwSizeHigh != 0)
-        {
-            throw std::exception("File size too large.");
-        }
-
-        dwSize = file_size - dwCurrentPosition;
+        throw std::runtime_error(absl::StrFormat("Error reading file: %v", file_contents.status()));
     }
-    auto impl = std::make_shared<MemoryImpl>(dwSize);
-    // = std::make_unique<uint8_t[]>(dwSize);
-    // Don't use make_unique, because it will zero init the array (perf).
-    DWORD dwSizeRead;
-    if (!ReadFile(hFile, impl->GetMutableDataBuffer(), dwSize, &dwSizeRead, nullptr))
-    {
-        throw std::exception("Unable to read file data.");
-    }
-
-    if (dwSizeRead != dwSize)
-    {
-        throw std::exception("Unable to read beyond end of file.");
-    }
-
-    return istream(std::move(impl));
+    return istream(std::make_shared<MemoryImpl>(std::move(file_contents).value()));
 }
 istream istream::ReadFromFile(const std::string& filename, DWORD lengthToInclude)
 {
-    auto file_handle = ScopedHandle(CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
-        nullptr, OPEN_EXISTING, 0, nullptr));
-    if (!file_handle.IsValid())
+
+    auto file_contents = lengthToInclude > 0 ? ReadFileContents(filename, 0, lengthToInclude) : ReadFileContents(filename);
+    if (!file_contents.ok())
     {
-        throw std::exception("Unable to open file.");
+        throw std::runtime_error("Unable to open file.");
     }
-    return ReadFromFile(file_handle.GetValue(), lengthToInclude);
+    return istream(std::make_shared<MemoryImpl>(std::move(file_contents).value()));
 }
 
 istream::istream(const uint8_t* pData, uint32_t cbSize) : 
@@ -283,7 +237,6 @@ istream::istream(std::shared_ptr<Impl> impl) :
     assert(_impl);
 }
 
-
 istream::istream(const istream& original,
                  uint32_t absoluteOffset) : istream(original)
 {
@@ -292,21 +245,21 @@ istream::istream(const istream& original,
 
 uint32_t istream::GetDataSize() const
 {
-    return _impl->GetDataSize();
+    return _impl->GetDataBuffer().size();
 }
 
 const uint8_t* istream::GetInternalPointer() const
 {
-    return _impl->GetDataBuffer();
+    return _impl->GetDataBuffer().data();
 }
 
 bool istream::_Read(uint8_t* pDataDest, uint32_t cCount)
 {
-    auto buffer_size = _impl->GetDataSize();
+    auto buffer_size = GetDataSize();
     if ((buffer_size > _iIndex) && ((buffer_size - _iIndex) >= cCount))
     {
         // we're good.
-        CopyMemory(pDataDest, _impl->GetDataBuffer() + _iIndex, cCount);
+        CopyMemory(pDataDest, GetInternalPointer() + _iIndex, cCount);
         _iIndex += cCount;
         return true;
     }
@@ -316,7 +269,7 @@ bool istream::_Read(uint8_t* pDataDest, uint32_t cCount)
 void istream::seekg(uint32_t dwIndex)
 {
     _iIndex = dwIndex;
-    if (_iIndex > _impl->GetDataSize())
+    if (_iIndex > GetDataSize())
     {
         _OnReadPastEnd();
     }
@@ -333,7 +286,7 @@ void istream::seekg(int32_t offset, std::ios_base::seekdir way)
         seekg(_iIndex + offset);
         break;
     case std::ios_base::end:
-        seekg(_impl->GetDataSize() + offset);
+        seekg(GetDataSize() + offset);
         break;
     }
 }
@@ -374,7 +327,7 @@ istream& istream::operator>>(uint8_t& b)
 istream& istream::operator>>(std::string& str)
 {
     auto buffer = _impl->GetDataBuffer();
-    auto buffer_size = _impl->GetDataSize();
+    auto buffer_size = GetDataSize();
     uint32_t dwSave = tellg();
     str.clear();
     // Read a null terminated string.
@@ -405,7 +358,7 @@ istream& istream::operator>>(std::string& str)
 
 void istream::skip(uint32_t cBytes)
 {
-    if ((_iIndex + cBytes) < _impl->GetDataSize())
+    if ((_iIndex + cBytes) < GetDataSize())
     {
         _iIndex += cBytes;
     }
@@ -418,7 +371,7 @@ void istream::skip(uint32_t cBytes)
 bool istream::peek(uint8_t& b)
 {
     auto buffer = _impl->GetDataBuffer();
-    if (_iIndex < _impl->GetDataSize())
+    if (_iIndex < GetDataSize())
     {
         b = buffer[_iIndex];
         return true;
@@ -429,7 +382,7 @@ bool istream::peek(uint8_t& b)
 bool istream::peek(uint16_t& w)
 {
     auto buffer = _impl->GetDataBuffer();
-    if ((_iIndex + 1) < _impl->GetDataSize())
+    if ((_iIndex + 1) < GetDataSize())
     {
         w = *reinterpret_cast<const uint16_t*>(&buffer[_iIndex]);
         return true;

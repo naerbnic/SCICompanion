@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -57,3 +58,9 @@ private:
     ScopedMappedMemory mapped_memory_;
     uint32_t size_;
 };
+
+absl::StatusOr<std::vector<uint8_t>> ReadFileContents(std::string_view filename, std::size_t start = 0,
+                                                      std::optional<std::size_t> size = std::nullopt);
+
+absl::StatusOr<std::vector<uint8_t>> ReadFileContents(HANDLE file_handle, std::size_t start = 0,
+    std::optional<std::size_t> size = std::nullopt);

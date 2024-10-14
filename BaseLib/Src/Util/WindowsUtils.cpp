@@ -89,6 +89,68 @@ MemoryMappedFile::MemoryMappedFile(ScopedHandle file_handle, ScopedHandle mappin
 {
 }
 
+absl::StatusOr<std::vector<uint8_t>> ReadFileContents(std::string_view filename, std::size_t start,
+    std::optional<std::size_t> size)
+{
+    auto file_handle = ScopedHandle(CreateFile(filename.data(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr));
+    if (!file_handle.IsValid())
+    {
+        return absl::NotFoundError("Could not open file for reading");
+    }
 
+    return ReadFileContents(file_handle.GetValue(), start, size);
+}
+
+absl::StatusOr<std::vector<uint8_t>> ReadFileContents(HANDLE file_handle, std::size_t start,
+    std::optional<std::size_t> size)
+{
+    // If no length specifies, then until the end of the file.
+    DWORD dwSizeHigh;
+    DWORD dwSize = GetFileSize(file_handle, &dwSizeHigh);
+    if (dwSize == INVALID_FILE_SIZE)
+    {
+        return absl::FailedPreconditionError("Unable to get file size.");
+    }
+    if (dwSizeHigh != 0)
+    {
+        return absl::FailedPreconditionError("File too large to read into memory.");
+    }
+
+    std::size_t end;
+
+    if (size.has_value())
+    {
+        end = start + size.value();
+        if (end > dwSize)
+        {
+            return absl::FailedPreconditionError("Requested size is too large.");
+        }
+    }
+    else
+    {
+        end = dwSize;
+    }
+
+    std::size_t real_size = end - start;
+    auto seekPos = SetFilePointer(file_handle, start, nullptr, FILE_BEGIN);
+
+    if (seekPos == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
+    {
+        return absl::FailedPreconditionError("Failed to seek file.");
+    }
+
+    assert(seekPos == start);
+
+    std::vector<uint8_t> data;
+    data.resize(real_size);
+    DWORD bytesRead;
+    //
+    if (!ReadFile(file_handle, data.data(), real_size, &bytesRead, nullptr))
+    {
+        return absl::FailedPreconditionError("Failed to read file.");
+    }
+    assert(bytesRead == real_size);
+    return data;
+}
 
 

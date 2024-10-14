@@ -3,7 +3,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace BaseLibUnitTest
+namespace BaseLibUnitTests
 {
 	TEST_CLASS(BaseLibUnitTest)
 	{

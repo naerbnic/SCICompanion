@@ -146,6 +146,7 @@ private:
     class Impl;
     class MemoryImpl;
     class FileImpl;
+    class DataBufferImpl;
 
     istream(std::shared_ptr<Impl> impl);
 
