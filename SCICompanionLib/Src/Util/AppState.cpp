@@ -760,7 +760,7 @@ void AppState::AppendResourceAskForNumber(ResourceEntity& resource, const std::s
         // Assign it.
         resource.ResourceNumber = srd.GetResourceNumber();
         resource.PackageNumber = srd.GetPackageNumber();
-        _resourceMap.AssignName(resource.GetType(), resource.ResourceNumber, NoBase36, srd.GetName().c_str());
+        _resourceMap.AssignName(resource.GetResourceId(), srd.GetName().c_str());
         _resourceMap.AppendResource(resource);
     }
 }

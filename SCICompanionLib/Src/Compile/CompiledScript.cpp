@@ -448,7 +448,7 @@ bool CompiledScript::DetectIfExportsAreWide(const SCIVersion &version, sci::istr
 
 ResourceId CompiledScript::GetExpectedResourceId(int script_id)
 {
-    return ResourceId(ResourceType::Script, ResourceNum::FromNumber(script_id));
+    return ResourceId::Create(ResourceType::Script, script_id);
 }
 
 ResourceId CompiledScript::GetResourceId() const

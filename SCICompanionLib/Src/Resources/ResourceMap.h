@@ -72,7 +72,7 @@ public:
 
     int SuggestResourceNumber(ResourceType type);
     void AssignName(const ResourceBlob &resource);
-    void AssignName(ResourceType iType, int iResourceNumber, uint32_t base36Number, PCTSTR pszName);
+    void AssignName(const ResourceId& resource_id, PCTSTR pszName);
 
     ResourceSaveLocation GetDefaultResourceSaveLocation();
 

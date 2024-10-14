@@ -125,7 +125,9 @@ public:
         return ResourceNum(resource_number, base36_number);
     }
 
-    ResourceNum() = default;
+    ResourceNum() : resource_number_(-1), base36_number_(std::nullopt)
+    {
+    }
 
     int GetNumber() const
     {
@@ -167,7 +169,12 @@ private:
 class ResourceId
 {
 public:
-    ResourceId() = default;
+    static ResourceId Create(ResourceType resource_type, int resource_number, std::optional<uint32_t> base36_number = std::nullopt)
+    {
+        return ResourceId(resource_type, ResourceNum::CreateWithBase36(resource_number, base36_number));
+    }
+
+    ResourceId() : resource_type_(ResourceType::None) {}
 
     ResourceId(ResourceType resource_type, const ResourceNum& resource_num)
         : resource_type_(resource_type), resource_num_(resource_num)

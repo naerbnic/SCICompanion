@@ -23,6 +23,7 @@
 #include "CompileCommon.h"
 #include "scii.h"
 #include "ScriptOMSmall.h"
+#include "ResourceTypes.h"
 
 //
 // Information gleaned from the actual script resources.
@@ -200,6 +201,7 @@ public:
     std::vector<std::unique_ptr<CompiledObject>> &GetObjects() { return _objects; }
     const std::vector<std::unique_ptr<CompiledObject>> &GetObjects() const { return _objects; }
     uint16_t GetScriptNumber() const { return _wScript; }
+    ResourceId GetResourceId() const;
 
     static bool DetectIfExportsAreWide(const SCIVersion &version, sci::istream &byteStream);
 
@@ -247,7 +249,6 @@ public:
 
 private:
     static ResourceId GetExpectedResourceId(int script_id);
-    ResourceId GetResourceId() const;
     bool _LoadSCI0_SCI1(sci::istream &byteStream);
     bool _LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumber, sci::istream &byteStream, sci::istream *heapStream);
     void _LoadStringOffsetsSCI1_1(uint16_t offset, sci::istream heapStream);

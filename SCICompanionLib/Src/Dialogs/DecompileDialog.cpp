@@ -540,7 +540,8 @@ void DecompileDialog::OnLvnEndlabeleditListscripts(NMHDR *pNMHDR, LRESULT *pResu
         // Rename the .sco and .sc files
         string scOld = _helper->GetScriptFileName(scriptNumber);
         string scoOld = _helper->GetScriptObjectFileName(scriptNumber);
-        appState->GetResourceMap().AssignName(ResourceType::Script, scriptNumber, NoBase36, pDispInfo->item.pszText);
+        ResourceId resource_id;
+        appState->GetResourceMap().AssignName(ResourceId::Create(ResourceType::Script, scriptNumber), pDispInfo->item.pszText);
         
         // And move them.
         try
@@ -745,7 +746,7 @@ void DecompileDialog::_AssignFilenames()
                 }
                 usedNames.insert(suggestedNameUpper);
 
-                appState->GetResourceMap().AssignName(ResourceType::Script, script->GetScriptNumber(), NoBase36, suggestedName.c_str());
+                appState->GetResourceMap().AssignName(script->GetResourceId(), suggestedName.c_str());
             }
         }
 

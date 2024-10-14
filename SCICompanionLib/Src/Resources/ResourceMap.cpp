@@ -198,24 +198,26 @@ void CResourceMap::AssignName(const ResourceBlob &resource)
     // Assign the name of the item.
     std::string keyName = default_reskey(resource.GetResourceNum());
     std::string name = resource.GetName();
-    if (!name.empty() && (0 != lstrcmpi(keyName.c_str(), name.c_str())))
+    if (!name.empty())
     {
-        Helper().SetIniString(g_resourceInfo[(int)resource.GetType()].pszTitleDefault, keyName, name);
+        AssignName(resource.GetResourceId(), name.c_str());
     }
 }
 
-void CResourceMap::AssignName(ResourceType type, int iResourceNumber, uint32_t base36Number, PCTSTR pszName)
+void CResourceMap::AssignName(const ResourceId& resource_id, PCTSTR pszName)
 {
     // Assign the name of the item.
-    std::string keyName = default_reskey(iResourceNumber, base36Number);
     std::string newValue;
     if (pszName)
     {
         newValue = pszName;
     }
-    if (0 != lstrcmpi(keyName.c_str(), newValue.c_str()))
+
+    std::string keyName = default_reskey(resource_id.GetResourceNum());
+
+    if (keyName != newValue)
     {
-        Helper().SetIniString(g_resourceInfo[(int)type].pszTitleDefault, keyName, newValue);
+        Helper().SetIniString(g_resourceInfo[(int)resource_id.GetType()].pszTitleDefault, keyName, newValue);
     }
 }
 

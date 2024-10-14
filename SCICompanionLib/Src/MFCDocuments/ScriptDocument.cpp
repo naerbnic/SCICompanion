@@ -673,7 +673,7 @@ void CScriptDocument::SetNameAndContent(ScriptId scriptId, int iResourceNumber, 
     int nEndChar = 0;
     _buffer.InsertText(NULL, 0, 0, text.c_str(), nEndLine, nEndChar);
     _buffer.SetModified();
-    appState->GetResourceMap().AssignName(ResourceType::Script, iResourceNumber, NoBase36, scriptId.GetTitle().c_str());
+    appState->GetResourceMap().AssignName(ResourceId::Create(ResourceType::Script, iResourceNumber), scriptId.GetTitle().c_str());
     // Since we're assigning a name, we'd better save it too.
     OnFileSave();
 }
