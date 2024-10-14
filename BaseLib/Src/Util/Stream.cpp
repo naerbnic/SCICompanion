@@ -88,6 +88,11 @@ void ostream::WriteBytes(const uint8_t* pDataIn, int cCount)
     _cbSizeValid = max(_cbSizeValid, _iIndex);
 }
 
+void ostream::WriteBytes(absl::Span<const uint8_t> data)
+{
+    WriteBytes(data.data(), data.size());
+}
+
 void ostream::FillByte(uint8_t value, int cCount)
 {
     if ((_iIndex + cCount) >= _cbReserved)
@@ -149,24 +154,23 @@ public:
 class istream::MemoryImpl : public istream::Impl
 {
 public:
-    MemoryImpl(std::vector<uint8_t> data) :
-        data_(std::move(data))
+    MemoryImpl(MemoryBuffer buffer) :
+        buffer_(std::move(buffer))
     {
     }
 
     MemoryImpl(const uint8_t* pData, uint32_t cbSize)
     {
-        data_.resize(cbSize);
-        memcpy(data_.data(), pData, cbSize);
+        buffer_ = MemoryBuffer::CreateFromVector(std::vector<uint8_t>(pData, pData + cbSize));
     }
 
     absl::Span<const uint8_t> GetDataBuffer() const override
     {
-        return absl::MakeConstSpan(data_);
+        return buffer_.GetAllData();
     }
 
 private:
-    std::vector<uint8_t> data_;
+    MemoryBuffer buffer_;
 };
 
 class istream::FileImpl : public istream::Impl
@@ -207,17 +211,23 @@ istream istream::ReadFromFile(HANDLE hFile, DWORD lengthToInclude)
     {
         throw std::runtime_error(absl::StrFormat("Error reading file: %v", file_contents.status()));
     }
-    return istream(std::make_shared<MemoryImpl>(std::move(file_contents).value()));
+    return istream(
+        std::make_shared<MemoryImpl>(MemoryBuffer::CreateFromVector(std::move(std::move(file_contents).value()))));
 }
 istream istream::ReadFromFile(const std::string& filename, DWORD lengthToInclude)
 {
-
     auto file_contents = lengthToInclude > 0 ? ReadFileContents(filename, 0, lengthToInclude) : ReadFileContents(filename);
     if (!file_contents.ok())
     {
         throw std::runtime_error("Unable to open file.");
     }
-    return istream(std::make_shared<MemoryImpl>(std::move(file_contents).value()));
+    return istream(
+        std::make_shared<MemoryImpl>(MemoryBuffer::CreateFromVector(std::move(std::move(file_contents).value()))));
+}
+
+istream istream::ReadFromMemory(MemoryBuffer memory_buffer)
+{
+    return istream(std::make_shared<MemoryImpl>(std::move(memory_buffer)));
 }
 
 istream::istream(const uint8_t* pData, uint32_t cbSize) : 

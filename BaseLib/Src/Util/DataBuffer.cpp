@@ -5,26 +5,8 @@
 namespace sci
 {
     namespace {
-        class MemoryImpl : public DataBuffer::Impl
-        {
-        public:
-            absl::StatusOr<std::size_t> GetSize() const final
-            {
-                return GetMemory().size();
-            }
 
-            absl::Status Read(std::size_t offset, absl::Span<uint8_t> dest_buffer) const final {
-                if (offset + dest_buffer.size() > GetMemory().size()) {
-                    return absl::InvalidArgumentError("Read out of range");
-                }
-                std::memcpy(dest_buffer.data(), GetMemory().data() + offset, dest_buffer.size());
-                return absl::OkStatus();
-            }
-
-            virtual absl::Span<const uint8_t> GetMemory() const = 0;
-        };
-
-        class VectorMemoryImpl : public MemoryImpl
+        class VectorMemoryImpl : public MemoryBuffer::Impl
         {
         public:
             explicit VectorMemoryImpl(std::vector<uint8_t> data) : data_(std::move(data))
@@ -40,7 +22,7 @@ namespace sci
             std::vector<uint8_t> data_;
         };
 
-        class StringMemoryImpl : public MemoryImpl
+        class StringMemoryImpl : public MemoryBuffer::Impl
         {
         public:
             explicit StringMemoryImpl(std::string data) : data_(std::move(data))
@@ -55,7 +37,7 @@ namespace sci
             std::string data_;
         };
 
-        class MappedFileImpl : public MemoryImpl
+        class MappedFileImpl : public MemoryBuffer::Impl
         {
         public:
             explicit MappedFileImpl(MemoryMappedFile mapped_file) : mapped_file_(std::move(mapped_file))
@@ -70,7 +52,112 @@ namespace sci
         private:
             MemoryMappedFile mapped_file_;
         };
+
+        class MemoryImpl : public DataBuffer::Impl
+        {
+        public:
+            explicit MemoryImpl(MemoryBuffer memory_buffer) : memory_buffer_(std::move(memory_buffer))
+            {
+            }
+
+            absl::StatusOr<std::size_t> GetSize() const final
+            {
+                return memory_buffer_.GetSize();
+            }
+
+            absl::Status Read(std::size_t offset, absl::Span<uint8_t> dest_buffer) const final {
+                auto data_span = memory_buffer_.GetData(offset, dest_buffer.size());
+                if (!data_span.ok()) {
+                    return data_span.status();
+                }
+                std::memcpy(dest_buffer.data(), data_span->data(), dest_buffer.size());
+                return absl::OkStatus();
+            }
+        private:
+            MemoryBuffer memory_buffer_;
+        };
     }
+
+    absl::StatusOr<MemoryBuffer> MemoryBuffer::CreateFromImpl(std::shared_ptr<Impl> impl)
+    {
+        auto buffer_size = impl->GetMemory().size();
+        return MemoryBuffer(std::move(impl), 0, buffer_size);
+    }
+
+    MemoryBuffer MemoryBuffer::CreateFromVector(std::vector<uint8_t> data)
+    {
+        // This should never error.
+        return CreateFromImpl(std::make_shared<VectorMemoryImpl>(std::move(data))).value();
+    }
+
+    MemoryBuffer MemoryBuffer::CreateFromString(std::string data)
+    {
+        // This should never error.
+        return CreateFromImpl(std::make_shared<StringMemoryImpl>(std::move(data))).value();
+    }
+
+    absl::StatusOr<MemoryBuffer> MemoryBuffer::CreateMappedFile(std::string_view file_path)
+    {
+        auto mapped_file = MemoryMappedFile::FromFilename(std::string(file_path));
+        if (!mapped_file.ok()) {
+            return CreateFromImpl(nullptr);
+        }
+        return CreateFromImpl(std::make_shared<MappedFileImpl>(std::move(mapped_file).value()));
+    }
+
+    MemoryBuffer::MemoryBuffer() : impl_(nullptr), offset_(0), size_(0)
+    {
+    }
+
+    std::size_t MemoryBuffer::GetSize() const
+    {
+        return size_;
+    }
+
+    absl::Span<const uint8_t> MemoryBuffer::GetAllData() const
+    {
+        return impl_->GetMemory();
+    }
+
+    absl::StatusOr<absl::Span<const uint8_t>> MemoryBuffer::GetData(std::size_t offset,
+        std::optional<std::size_t> size) const
+    {
+        auto start = offset + offset_;
+        auto end = size.has_value() ? size.value() + start : size_;
+        if (end > size_)
+        {
+            return absl::InvalidArgumentError("GetData out of range");
+        }
+
+        return impl_->GetMemory().subspan(start, end - start);
+    }
+
+    absl::StatusOr<MemoryBuffer> MemoryBuffer::SubBuffer(std::size_t offset, std::optional<std::size_t> size) const
+    {
+        if (offset > size_)
+        {
+            return absl::InvalidArgumentError("SubBuffer out of range");
+        }
+
+        std::size_t end;
+        if (size.has_value())
+        {
+            if (size.value() + offset > size_)
+            {
+                return absl::InvalidArgumentError("SubBuffer out of range");
+            }
+            end = offset_ + offset + size.value();
+        }
+        else
+        {
+            end = size_;
+        }
+
+        auto start = offset + offset_;
+        return MemoryBuffer(impl_, start, end - start);
+    }
+
+    // DataBuffer
 
     absl::StatusOr<DataBuffer> DataBuffer::CreateFromImpl(std::shared_ptr<Impl> impl)
     {
@@ -81,25 +168,30 @@ namespace sci
         return DataBuffer(std::move(impl), 0, *buffer_size);
     }
 
-    DataBuffer DataBuffer::CreateFromMemory(std::vector<uint8_t> data)
+    DataBuffer DataBuffer::CreateFromMemory(MemoryBuffer memory_buffer)
     {
         // This should never error.
-        return CreateFromImpl(std::make_shared<VectorMemoryImpl>(std::move(data))).value();
+        return CreateFromImpl(std::make_shared<MemoryImpl>(std::move(memory_buffer))).value();
+    }
+
+    DataBuffer DataBuffer::CreateFromVector(std::vector<uint8_t> data)
+    {
+        return CreateFromMemory(MemoryBuffer::CreateFromVector(std::move(data)));
     }
 
     DataBuffer DataBuffer::CreateFromString(std::string data)
     {
-        // This should never error.
-        return CreateFromImpl(std::make_shared<StringMemoryImpl>(std::move(data))).value();
+        return CreateFromMemory(MemoryBuffer::CreateFromString(std::move(data)));
     }
 
-    absl::StatusOr<DataBuffer> DataBuffer::CreateMappedFile(std::filesystem::path file_path)
+    absl::StatusOr<DataBuffer> DataBuffer::CreateMappedFile(std::string_view file_path)
     {
-        auto mapped_file = MemoryMappedFile::FromFilename(file_path.string());
-        if (!mapped_file.ok()) {
-            return CreateFromImpl(nullptr);
+        auto data = MemoryBuffer::CreateMappedFile(file_path);
+        if (!data.ok())
+        {
+            return data.status();
         }
-        return CreateFromImpl(std::make_shared<MappedFileImpl>(std::move(mapped_file).value()));
+        return CreateFromMemory(std::move(data).value());
     }
 
     DataBuffer::DataBuffer() : impl_(nullptr), offset_(0), size_(0)
@@ -116,12 +208,27 @@ namespace sci
         return impl_->Read(offset, dest_buffer);
     }
 
-    absl::StatusOr<DataBuffer> DataBuffer::SubBuffer(std::size_t offset, std::size_t size) const
+    absl::StatusOr<DataBuffer> DataBuffer::SubBuffer(std::size_t offset, std::optional<std::size_t> size) const
     {
-        if (offset + size > size_)
+        if (offset > size_)
         {
             return absl::InvalidArgumentError("SubBuffer out of range");
         }
-        return DataBuffer(impl_, offset_ + offset, size);
+
+        std::size_t end;
+        if (size.has_value())
+        {
+            if (size.value() + offset > size_)
+            {
+                return absl::InvalidArgumentError("SubBuffer out of range");
+            }
+            end = offset_ + offset + size.value();
+        }
+        else
+        {
+            end = size_;
+        }
+        auto start = offset + offset_;
+        return DataBuffer(impl_, start, end - start);
     }
 }

@@ -16,6 +16,9 @@
 #include <Windows.h>
 #include <cstdint>
 #include <ios>
+#include <absl/types/span.h>
+
+#include "DataBuffer.h"
 
 namespace sci
 {
@@ -31,6 +34,7 @@ public:
     void WriteWord(uint16_t w);
     void WriteByte(uint8_t b);
     void WriteBytes(const uint8_t* pData, int cCount);
+    void WriteBytes(absl::Span<const uint8_t> data);
     void FillByte(uint8_t value, int cCount);
 
     void reset();
@@ -81,6 +85,7 @@ public:
     static istream MapFile(const std::string& filename);
     static istream ReadFromFile(HANDLE hFile, DWORD lengthToInclude = 0);
     static istream ReadFromFile(const std::string& filename, DWORD lengthToInclude = 0);
+    static istream ReadFromMemory(MemoryBuffer memory_buffer);
     istream(const uint8_t* pData, uint32_t cbSize);
     istream(const istream& original, uint32_t absoluteOffset);
     istream();
