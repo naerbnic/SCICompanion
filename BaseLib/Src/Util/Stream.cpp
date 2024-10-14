@@ -17,7 +17,7 @@
 #include <optional>
 #include <absl/status/statusor.h>
 
-#include "PerfTimer.h"
+#include "WindowsUtils.h"
 
 namespace sci
 {
@@ -136,79 +136,6 @@ void ostream::seekp(int32_t offset, std::ios_base::seekdir way)
     }
 }
 
-// CRTP base class for scoped values.
-template <class Derived, class T>
-class ScopedValue
-{
-public:
-    ScopedValue() = default;
-    explicit ScopedValue(T value)
-    {
-        if (Derived::IsValidImpl(value))
-        {
-            value_ = std::move(value);
-        }
-    }
-    ~ScopedValue()
-    {
-        if (IsValid())
-        {
-            Derived::CleanupValue(std::move(value_).value());
-        }
-    }
-
-    ScopedValue(const ScopedValue&) = delete;
-    ScopedValue(ScopedValue&& other) noexcept {
-        std::swap(value_, other.value_);
-    }
-    ScopedValue& operator=(const ScopedValue&) = delete;
-    ScopedValue& operator=(ScopedValue&& other) noexcept
-    {
-        std::swap(value_, other.value_);
-        return *this;
-    }
-
-    const T& GetValue() const { return *value_; }
-
-    explicit operator bool() const { return IsValid(); }
-
-    bool IsValid() const { return value_.has_value(); }
-
-private:
-    std::optional<T> value_;
-};
-
-class ScopedHandle : public ScopedValue<ScopedHandle, HANDLE>
-{
-public:
-    using ScopedValue::ScopedValue;
-
-    static bool IsValidImpl(HANDLE value) { return value != nullptr && value != INVALID_HANDLE_VALUE; }
-    static void CleanupValue(HANDLE value)
-    {
-        if (!CloseHandle(value))
-        {
-            throw std::exception("Failed to close handle.");
-        }
-    }
-};
-
-class ScopedMappedMemory : public ScopedValue<ScopedMappedMemory, const uint8_t*>
-{
-public:
-    using ScopedValue::ScopedValue;
-
-    static bool IsValidImpl(const uint8_t* value) { return value != nullptr; }
-    static void CleanupValue(const uint8_t* value)
-    {
-        BOOL result = UnmapViewOfFile(value);
-        if (!result)
-        {
-            throw std::exception("Failed to unmap memory.");
-        }
-    }
-};
-
 // We need at least two implementations: One for a memory buffer, another for a memory-mapped file.
 class istream::Impl
 {
@@ -257,57 +184,30 @@ class istream::FileImpl : public istream::Impl
 public:
     static absl::StatusOr<std::unique_ptr<Impl>> FromFilename(const std::string& filename)
     {
-        auto file_handle = ScopedHandle(CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
-            nullptr, OPEN_EXISTING, 0, nullptr));
-        if (!file_handle.IsValid())
+        auto mapped_file = MemoryMappedFile::FromFilename(filename);
+        if (!mapped_file.ok())
         {
-            return absl::NotFoundError("Could not open file for reading");
+            return mapped_file.status();
         }
-
-        // If no length specifies, then until the end of the file.
-        DWORD dwSizeHigh;
-        DWORD dwSize = GetFileSize(file_handle.GetValue(), &dwSizeHigh);
-        if (dwSize == INVALID_FILE_SIZE)
-        {
-            return absl::FailedPreconditionError("Unable to get file size.");
-        }
-        assert(dwSizeHigh == 0);
-        auto mapping_handle = ScopedHandle(CreateFileMapping(file_handle.GetValue(), nullptr, PAGE_READONLY, 0, 0,
-            nullptr));
-        if (!mapping_handle.IsValid())
-        {
-            return absl::FailedPreconditionError("Could not open file mapping.");
-        }
-        auto dataMemoryMapped = ScopedMappedMemory(static_cast<const uint8_t*>(MapViewOfFile(
-            mapping_handle.GetValue(), FILE_MAP_READ, 0, 0, 0)));
-        if (!dataMemoryMapped)
-        {
-            return absl::FailedPreconditionError("Could not get mapped file view.");
-        }
-        
-        auto valid_size = dwSize;
-        return std::unique_ptr<Impl>(new FileImpl(std::move(file_handle), std::move(mapping_handle), std::move(dataMemoryMapped), valid_size));
+        return std::unique_ptr<FileImpl>(new FileImpl(std::move(mapped_file).value()));
     }
 
     const uint8_t* GetDataBuffer() const override
     {
-        return mapped_memory_.GetValue();
+        return mapped_file_.GetDataBuffer().data();
     }
 
     uint32_t GetDataSize() const override
     {
-        return size_;
+        return mapped_file_.GetDataBuffer().size();
     }
 
 private:
-    FileImpl(ScopedHandle file_handle, ScopedHandle mapping_handle, ScopedMappedMemory mapped_memory, uint32_t size)
-        : file_handle_(std::move(file_handle)), mapping_handle_(std::move(mapping_handle)), mapped_memory_(std::move(mapped_memory)), size_(size)
+    FileImpl(MemoryMappedFile mapped_file)
+        : mapped_file_(std::move(mapped_file))
     {
     }
-    ScopedHandle file_handle_;
-    ScopedHandle mapping_handle_;
-    ScopedMappedMemory mapped_memory_;
-    uint32_t size_;
+    MemoryMappedFile mapped_file_;
 };
 istream istream::MapFile(const std::string& filename)
 {
