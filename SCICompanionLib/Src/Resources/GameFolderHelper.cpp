@@ -589,12 +589,9 @@ std::unique_ptr<ResourceContainer> GameFolderHelper::Resources(
                                        mapContext);
 }
 
-std::unique_ptr<ResourceBlob> GameFolderHelper::MostRecentResource(
-    const SCIVersion& version, ResourceType type, int number,
-    ResourceEnumFlags flags, uint32_t base36Number, int mapContext) const
+std::unique_ptr<ResourceBlob> GameFolderHelper::MostRecentResource(const SCIVersion& version, const ResourceId& resource_id, ResourceEnumFlags flags, int mapContext) const
 {
-    return resource_loader_->MostRecentResource(version, type, number, flags,
-                                                base36Number, mapContext);
+    return resource_loader_->MostRecentResource(version, resource_id.GetType(), resource_id.GetNumber(), flags, mapContext);
 }
 
 bool GameFolderHelper::DoesResourceExist(const SCIVersion& version,

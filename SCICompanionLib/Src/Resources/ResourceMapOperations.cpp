@@ -208,7 +208,7 @@ void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data)
                 if (dialog.AlsoDelete())
                 {
                     // Remove the heap too
-                    std::unique_ptr<ResourceBlob> theHeapOne = resourceMap.MostRecentResource(ResourceType::Heap, data.GetNumber(), false);
+                    std::unique_ptr<ResourceBlob> theHeapOne = resourceMap.MostRecentResource(data.GetResourceId().WithType(ResourceType::Heap), false);
                     if (theHeapOne)
                     {
                         DeleteResource(resourceMap, *theHeapOne);

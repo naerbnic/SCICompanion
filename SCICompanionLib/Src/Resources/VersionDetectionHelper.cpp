@@ -169,7 +169,7 @@ static bool _HasEarlySCI0Scripts(const GameFolderHelper &helper, const SCIVersio
 {
     bool hasEarly = false;
     // Look at script 0
-    std::unique_ptr<ResourceBlob> data = helper.MostRecentResource(currentVersion, ResourceType::Script, 0, ResourceEnumFlags::AddInDefaultEnumFlags);
+    std::unique_ptr<ResourceBlob> data = helper.MostRecentResource(currentVersion, ResourceId(ResourceType::Script, ResourceNum::FromNumber(0)), ResourceEnumFlags::AddInDefaultEnumFlags);
     if (data)
     {
         sci::istream byteStream = data->GetReadStream();
@@ -574,7 +574,7 @@ bool _DetectIsExportWide(const GameFolderHelper &helper, const SCIVersion& curre
     }
     // Now we're left with the middle ones, which sometimes were 32-bit.
     bool isWide = false;
-    auto blob = helper.MostRecentResource(currentVersion, ResourceType::Script, 0, ResourceEnumFlags::AddInDefaultEnumFlags);
+    auto blob = helper.MostRecentResource(currentVersion, ResourceId(ResourceType::Script, ResourceNum::FromNumber(0)), ResourceEnumFlags::AddInDefaultEnumFlags);
     if (blob)
     {
         sci::istream byteStream = blob->GetReadStream();
@@ -817,7 +817,7 @@ SCIVersion SniffSCIVersion(const GameFolderHelper& helper)
     result.IsExportWide = _DetectIsExportWide(helper, result);
 
     // Which is the parser vocab? If resource 0 is present it's 0. Otherwise it's 900 (or none).
-    result.MainVocabResource = (helper.MostRecentResource(result, ResourceType::Vocab, 0, ResourceEnumFlags::AddInDefaultEnumFlags)) ? 0 : 900;
+    result.MainVocabResource = (helper.MostRecentResource(result, ResourceId(ResourceType::Vocab, ResourceNum::FromNumber(0)), ResourceEnumFlags::AddInDefaultEnumFlags)) ? 0 : 900;
     result.HasSaidVocab = helper.DoesResourceExist(result, ResourceType::Vocab, result.MainVocabResource, nullptr, ResourceSaveLocation::Package);
 
     if (result.MapFormat == ResourceMapFormat::SCI0)

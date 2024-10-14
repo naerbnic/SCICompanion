@@ -189,7 +189,7 @@ void ExtractAllResources(CResourceMap& resource_map, SCIVersion version, const s
                     std::unique_ptr<ResourceBlob> heapBlob =
                         resource_map.Helper().MostRecentResource(
                             version,
-                            ResourceType::Heap, blob->GetNumber(),
+                            blob->GetResourceId().WithType(ResourceType::Heap),
                             ResourceEnumFlags::ExcludePatchFiles);
                     if (heapBlob)
                     {

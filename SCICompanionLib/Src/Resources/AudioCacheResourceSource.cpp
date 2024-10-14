@@ -160,8 +160,7 @@ public:
         ResourceEnumFlags enumFlags, ResourceRecency* pRecency = nullptr,
         int mapContext = -1) const = 0;
     virtual std::unique_ptr<ResourceBlob> MostRecentResource(
-        ResourceType type, int number,
-        ResourceEnumFlags flags, uint32_t base36Number = NoBase36,
+        const ResourceId& resource_id, ResourceEnumFlags flags,
         int mapContext = -1) const = 0;
 
     virtual HRESULT AppendResource(const ResourceEntity& entity) = 0;
@@ -203,10 +202,10 @@ namespace {
             return _helper->Resources(_version, types, enumFlags, pRecency, mapContext);
         }
 
-        std::unique_ptr<ResourceBlob> MostRecentResource(ResourceType type, int number, ResourceEnumFlags flags,
-                                                         uint32_t base36Number, int mapContext) const override
+        std::unique_ptr<ResourceBlob> MostRecentResource(const ResourceId& resource_id, ResourceEnumFlags flags,
+            int mapContext) const override
         {
-            return _helper->MostRecentResource(_version, type, number, flags, base36Number, mapContext);
+            return _helper->MostRecentResource(_version, resource_id, flags, mapContext);
         }
 
         HRESULT AppendResource(const ResourceEntity& entity) override
@@ -518,7 +517,7 @@ void FirstTimeAudioExtraction(AudioCacheResourceSource::IResourceManager const* 
                              ? resourceMap->GetVersion().AudioMapResourceNumber
                              : mapContext;
     std::unique_ptr<ResourceBlob> audioMapBlob = resourceMap->MostRecentResource(
-        ResourceType::AudioMap, resourceNumber,
+        ResourceId(ResourceType::AudioMap, ResourceNum::FromNumber(resourceNumber)),
         ResourceEnumFlags::None);
     if (audioMapBlob)
     {
@@ -555,7 +554,7 @@ AudioCacheResourceSource::_PrepareForAddOrRemove()
                              ? _resourceMap->GetVersion().AudioMapResourceNumber
                              : _mapContext;
     std::unique_ptr<ResourceBlob> audioMapBlobTest = _resourceMap->
-        MostRecentResource(ResourceType::AudioMap, resourceNumber,
+        MostRecentResource(ResourceId(ResourceType::AudioMap, ResourceNum::FromNumber(resourceNumber)),
                            ResourceEnumFlags::IncludeCacheFiles |
                            ResourceEnumFlags::MostRecentOnly);
     if (audioMapBlobTest)
@@ -567,7 +566,7 @@ AudioCacheResourceSource::_PrepareForAddOrRemove()
                                      GetCacheSubfolderForEnum(),
                                      _mapContext);
             audioMapBlobTest = _resourceMap->MostRecentResource(
-                ResourceType::AudioMap, resourceNumber,
+                ResourceId(ResourceType::AudioMap, ResourceNum::FromNumber(resourceNumber)),
                 ResourceEnumFlags::IncludeCacheFiles |
                 ResourceEnumFlags::MostRecentOnly);
         }

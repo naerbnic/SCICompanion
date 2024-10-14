@@ -237,13 +237,14 @@ void _CreateMessageFile(int scriptNumber)
         nounSource->AddDefine("N_ROOM", 1);
     }
     messageHeaderFile->Commit();
+    auto resource_location = ResourceLocation(appState->GetVersion().DefaultVolumeFile, ResourceId(ResourceType::Message, ResourceNum::FromNumber(scriptNumber)));
 
     // And a message resource.
-    std::unique_ptr<ResourceBlob> messageResource = appState->GetResourceMap().MostRecentResource(ResourceType::Message, scriptNumber, false);
+    std::unique_ptr<ResourceBlob> messageResource = appState->GetResourceMap().MostRecentResource(resource_location.GetResourceId(), false);
     if (!messageResource)
     {
         // Look at 0.msg to see the version we should use
-        std::unique_ptr<ResourceBlob> mainMessageResource = appState->GetResourceMap().MostRecentResource(ResourceType::Message, 0, false);
+        std::unique_ptr<ResourceBlob> mainMessageResource = appState->GetResourceMap().MostRecentResource(resource_location.GetResourceId().WithNumber(0), false);
         if (mainMessageResource)
         {
             sci::istream byteStream = mainMessageResource->GetReadStream();
@@ -258,7 +259,6 @@ void _CreateMessageFile(int scriptNumber)
             entry.Sequence = 1; 
             entry.Text = "This is the room description";
             text.Texts.push_back(entry);
-            auto resource_location = ResourceLocation(appState->GetVersion().DefaultVolumeFile, ResourceId(ResourceType::Message, ResourceNum::FromNumber(scriptNumber)));
             appState->GetResourceMap().AppendResource(*newMessageResource, resource_location, "");
         }
     }

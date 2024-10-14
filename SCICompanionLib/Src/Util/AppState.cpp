@@ -470,7 +470,7 @@ void AppState::OpenMostRecentResource(ResourceType type, uint16_t wNum)
     CResourceDocument *pDocAlready = pMainWnd->Tabs().ActivateResourceDocument(type, wNum);
     if (pDocAlready == nullptr)
     {
-        std::unique_ptr<ResourceBlob> blob = move(_resourceMap.MostRecentResource(type, wNum, true));
+        std::unique_ptr<ResourceBlob> blob = move(_resourceMap.MostRecentResource(ResourceId(type, ResourceNum::FromNumber(wNum)), true));
         OpenResource(blob.get());
         _resourceRecency.AddResourceToRecency(blob->GetResourceDescriptor());
     }

@@ -69,7 +69,7 @@ void CMessageDoc::_PreloadAudio()
         // combine them with audio resources enumerated from resource.aud). Otherwise, you could delete an audio resource from
         // a message entry, and it would keeping "returning" when you re-opened the message resource (until you rebuilt audio files)
         std::unique_ptr<std::unordered_set<uint32_t>> restrictToTheseTuples;
-        unique_ptr<ResourceBlob> amBlob = appState->GetResourceMap().Helper().MostRecentResource(appState->GetResourceMap().GetSCIVersion(), ResourceType::AudioMap, GetResource()->ResourceNumber, ResourceEnumFlags::IncludeCacheFiles);
+        unique_ptr<ResourceBlob> amBlob = appState->GetResourceMap().Helper().MostRecentResource(appState->GetResourceMap().GetSCIVersion(), GetResource()->GetResourceId().WithType(ResourceType::AudioMap), ResourceEnumFlags::IncludeCacheFiles);
         if (amBlob && (amBlob->GetSourceFlags() == ResourceSourceFlags::AudioMapCache))
         {
             std::unique_ptr<ResourceEntity> amResource = CreateResourceFromResourceData(*amBlob);
@@ -155,7 +155,7 @@ void CMessageDoc::PostSuccessfulSave(const ResourceEntity *pResource)
             int newNumber = pResource->ResourceNumber;
 
             // First get the original audiomap and save it under the number, just sowe have something in the right place.
-            unique_ptr<ResourceBlob> amBlob = appState->GetResourceMap().Helper().MostRecentResource(appState->GetResourceMap().GetSCIVersion(), ResourceType::AudioMap, _originalResourceNumber, ResourceEnumFlags::IncludeCacheFiles);
+            unique_ptr<ResourceBlob> amBlob = appState->GetResourceMap().Helper().MostRecentResource(appState->GetResourceMap().GetSCIVersion(), pResource->GetResourceId().WithType(ResourceType::AudioMap).WithNumber(_originalResourceNumber), ResourceEnumFlags::IncludeCacheFiles);
             if (amBlob)
             {
                 amBlob->SetNumber(newNumber);

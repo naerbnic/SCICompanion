@@ -879,7 +879,7 @@ LRESULT CMainFrame::OnExtMenuPrepare(WPARAM wParam, LPARAM)
             // Get a bitmap for it and assign it to the command.
             try
             {
-                std::unique_ptr<ResourceBlob> blob = appState->GetResourceMap().MostRecentResource(ResourceType::View, viewNumber, true);
+                std::unique_ptr<ResourceBlob> blob = appState->GetResourceMap().MostRecentResource(ResourceId(ResourceType::View, ResourceNum::FromNumber(viewNumber)), true);
                 if (blob)
                 {
                     text = blob->GetName();

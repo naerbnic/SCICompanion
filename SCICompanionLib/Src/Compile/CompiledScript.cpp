@@ -59,7 +59,7 @@ bool CompiledScript::Load(const GameFolderHelper &helper, SCIVersion version, in
     _version = version;
     _wScript = (uint16_t)iScriptNumber;
 
-    std::unique_ptr<ResourceBlob> scriptResource = helper.MostRecentResource(version, ResourceType::Script, iScriptNumber, ResourceEnumFlags::None);
+    std::unique_ptr<ResourceBlob> scriptResource = helper.MostRecentResource(version, GetExpectedResourceId(iScriptNumber), ResourceEnumFlags::None);
     if (scriptResource)
     {
         Load(helper, version, iScriptNumber, scriptResource->GetReadStream());
@@ -236,7 +236,7 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
         unique_ptr<sci::istream> heapStreamScope;
         if (heapStream == nullptr)
         {
-            heapBlob = helper.MostRecentResource(_version, ResourceType::Heap, iScriptNumber, ResourceEnumFlags::None);
+            heapBlob = helper.MostRecentResource(_version, GetExpectedResourceId(iScriptNumber), ResourceEnumFlags::None);
             if (heapBlob)
             {
                 heapStreamScope = make_unique<sci::istream>(heapBlob->GetReadStream());
@@ -444,6 +444,17 @@ bool CompiledScript::DetectIfExportsAreWide(const SCIVersion &version, sci::istr
         }
     }
     return false;
+}
+
+ResourceId CompiledScript::GetExpectedResourceId(int script_id)
+{
+    return ResourceId(ResourceType::Script, ResourceNum::FromNumber(script_id));
+}
+
+ResourceId CompiledScript::GetResourceId() const
+{
+    return GetExpectedResourceId(_wScript);
+
 }
 
 bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)

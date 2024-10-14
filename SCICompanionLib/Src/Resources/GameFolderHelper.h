@@ -120,9 +120,8 @@ public:
         ResourceEnumFlags enumFlags, ResourceRecency* pRecency = nullptr,
         int mapContext = -1) const;
     std::unique_ptr<ResourceBlob> MostRecentResource(
-        const SCIVersion& version, ResourceType type, int number,
-        ResourceEnumFlags flags, uint32_t base36Number = NoBase36,
-        int mapContext = -1) const;
+        const SCIVersion& version, const ResourceId& resource_id,
+        ResourceEnumFlags flags, int mapContext = -1) const;
     bool DoesResourceExist(const SCIVersion& version, ResourceType type,
                            int number, std::string* retrieveName,
                            ResourceSaveLocation location) const;

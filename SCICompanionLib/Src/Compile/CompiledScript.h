@@ -246,6 +246,8 @@ public:
     SCIVersion GetVersion() const { return _version; }
 
 private:
+    static ResourceId GetExpectedResourceId(int script_id);
+    ResourceId GetResourceId() const;
     bool _LoadSCI0_SCI1(sci::istream &byteStream);
     bool _LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumber, sci::istream &byteStream, sci::istream *heapStream);
     void _LoadStringOffsetsSCI1_1(uint16_t offset, sci::istream heapStream);
