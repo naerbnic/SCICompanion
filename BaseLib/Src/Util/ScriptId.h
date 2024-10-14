@@ -29,8 +29,8 @@ public:
     static ScriptId FromFullFileName(const std::string& filename);
     ScriptId();
     ScriptId(const char* pszFileName, const char* pszFolder);
-    ScriptId(const ScriptId& src);
-    ScriptId& operator=(const ScriptId& src);
+    ScriptId(const ScriptId& src) = default;
+    ScriptId& operator=(const ScriptId& src) = default;
 
     void SetLanguage(LangSyntax lang);
 

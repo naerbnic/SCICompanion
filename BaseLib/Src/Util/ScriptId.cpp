@@ -60,27 +60,6 @@ ScriptId::ScriptId(const char* pszFileName, const char* pszFolder) : _language(L
     _wScriptNum = InvalidResourceNumber;
 }
 
-ScriptId::ScriptId(const ScriptId& src)
-{
-    _strFolder = src.GetFolder();
-    _strFileName = src.GetFileName();
-    _strFileNameOrig = src._strFileNameOrig;
-    _MakeLower();
-    _wScriptNum = src.GetResourceNumber();
-    _language = src._language;
-}
-
-ScriptId& ScriptId::operator=(const ScriptId& src)
-{
-    _strFolder = src.GetFolder();
-    _strFileName = src.GetFileName();
-    _strFileNameOrig = src._strFileNameOrig;
-    _MakeLower();
-    _wScriptNum = src.GetResourceNumber();
-    _language = src._language;
-    return(*this);
-}
-
 // Set the path w/o changing the resource number.
 void ScriptId::SetFullPath(const std::string& fullPath)
 {
