@@ -1016,8 +1016,9 @@ HRESULT GetFilePositionHelper(HANDLE hFile, DWORD *pdwPos)
     return hr;
 }
 
-void CResourceMap::GetAllScripts(std::vector<ScriptId> &scripts)
+std::vector<ScriptId> CResourceMap::GetAllScripts()
 {
+    std::vector<ScriptId> scripts;
     TCHAR szIniFile[MAX_PATH];
     if (SUCCEEDED(GetGameIni(szIniFile, ARRAYSIZE(szIniFile))))
     {
@@ -1052,6 +1053,7 @@ void CResourceMap::GetAllScripts(std::vector<ScriptId> &scripts)
             }
         }
     }
+    return scripts;
 }
 
 void CResourceMap::GetNumberToNameMap(std::unordered_map<WORD, std::string> &scos)

@@ -2756,8 +2756,7 @@ void CMainFrame::OnValidateAllSaids()
 
 void CMainFrame::ExtractAllScriptStrings()
 {
-    std::vector<ScriptId> scripts;
-    appState->GetResourceMap().GetAllScripts(scripts);
+    std::vector<ScriptId> scripts = appState->GetResourceMap().GetAllScripts();
     CompileLog log;
     std::vector<std::string> allStrings;
     for (ScriptId &script : scripts)

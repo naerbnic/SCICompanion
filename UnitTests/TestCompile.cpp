@@ -54,8 +54,7 @@ namespace UnitTests
 
         void _DoItHelper()
         {
-            std::vector<ScriptId> scripts;
-            appState->GetResourceMap().GetAllScripts(scripts);
+            std::vector<ScriptId> scripts = appState->GetResourceMap().GetAllScripts();
             CompileLog log;
             // TODO: Clear errors?
             CompileTables tables;

@@ -117,7 +117,7 @@ public:
     ResourceEntity *GetVocabResourceToEdit();
     void ClearVocab000();
     std::unique_ptr<ResourceEntity> CreateResourceFromNumber(const ResourceId& resource_id, int mapContext = -1) const;
-    void GetAllScripts(std::vector<ScriptId> &scripts);
+    std::vector<ScriptId> GetAllScripts();
 	void GetNumberToNameMap(std::unordered_map<WORD, std::string> &scos);
     void SetGameLanguage(LangSyntax language);
     void SetIncludeFolderForTest(const std::string &folder) { _includeFolderOverride = folder; }

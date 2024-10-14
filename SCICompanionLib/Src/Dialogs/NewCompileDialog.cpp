@@ -138,13 +138,12 @@ BOOL CNewCompileDialog::OnInitDialog()
         if (_scriptsToRecompile.empty())
         {
             // Everything
-            appState->GetResourceMap().GetAllScripts(_scripts);
+            _scripts = appState->GetResourceMap().GetAllScripts();
         }
         else
         {
             // Filtered
-            std::vector<ScriptId> scriptsTemp;
-            appState->GetResourceMap().GetAllScripts(scriptsTemp);
+            std::vector<ScriptId> scriptsTemp = appState->GetResourceMap().GetAllScripts();
             std::copy_if(scriptsTemp.begin(), scriptsTemp.end(), std::back_inserter(_scripts),
                 [&](const ScriptId &scriptId)
             {

@@ -324,8 +324,7 @@ void ValidateSaids(CResourceMap& resource_map, const SCIVersion& version, Compil
     std::map<uint16_t, int> saidsUsedInScripts;
     std::map<string, int> rootsUsedInScripts;
 
-    std::vector<ScriptId> scripts;
-    resource_map.GetAllScripts(scripts);
+    std::vector<ScriptId> scripts = resource_map.GetAllScripts();
     std::unique_ptr<Script> mainScript;
     std::unique_ptr<ExtractSaids> mainSaids;
     for (ScriptId script : scripts)

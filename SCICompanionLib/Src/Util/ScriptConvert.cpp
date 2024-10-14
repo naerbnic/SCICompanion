@@ -139,8 +139,7 @@ void ConvertGame(CResourceMap &map, LangSyntax targetLanguage, CompileLog &log)
     CopyFilesOver(AfxGetMainWnd()->GetSafeHwnd(), helper.GetSrcFolder(), helper.GetSrcFolder(&convertBak));
 
     // Script files
-    vector<ScriptId> scripts;
-    map.GetAllScripts(scripts);
+    vector<ScriptId> scripts = map.GetAllScripts();
 
     // Now all the shm and shp files, and sh files in the src folder.
     EnumScriptIds(scripts, helper.GetPolyFolder(), "shp");

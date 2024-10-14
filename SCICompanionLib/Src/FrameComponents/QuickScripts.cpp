@@ -368,8 +368,7 @@ void QuickScriptsSidePane::_UpdateEntries()
     _AddFilesOfType(iItem, TEXT("\\*.sh"));
     _nFirstScript = iItem;
 
-    std::vector<ScriptId> scripts;
-    appState->GetResourceMap().GetAllScripts(scripts);
+    std::vector<ScriptId> scripts = appState->GetResourceMap().GetAllScripts();
     sort(scripts.begin(), scripts.end(), SortScriptsIntelligently);
     for (size_t i = 0; i < scripts.size(); ++i)
     {

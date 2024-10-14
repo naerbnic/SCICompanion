@@ -1011,8 +1011,7 @@ bool SCIClassBrowser::_CreateClassTree(ITaskStatus &task)
     {
         _pEvents->NotifyClassBrowserStatus(IClassBrowserEvents::InProgress, 0);
     }
-    std::vector<ScriptId> scripts;
-    appState->GetResourceMap().GetAllScripts(scripts);
+    std::vector<ScriptId> scripts = appState->GetResourceMap().GetAllScripts();
     bool fRet = false;
     std::vector<ScriptId>::iterator scriptIt = scripts.begin();
     int cItems = (int)scripts.size();
