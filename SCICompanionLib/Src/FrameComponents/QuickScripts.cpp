@@ -453,7 +453,7 @@ void QuickScriptsSidePane::_ResetUI()
                             if (browser.GetPropertyValue("picture", classDef.get(), &_wPic))
                             {
                                 // Create the pic resource
-                                unique_ptr<ResourceEntity> pic = appState->GetResourceMap().CreateResourceFromNumber(ResourceType::Pic, _wPic);
+                                unique_ptr<ResourceEntity> pic = appState->GetResourceMap().CreateResourceFromNumber(ResourceId::Create(ResourceType::Pic, _wPic));
                                 if (pic)
                                 {
                                     CRect rc;
@@ -497,7 +497,7 @@ void QuickScriptsSidePane::_ResetUI()
 							browser.GetPropertyValue("cel", classDef.get(), &wCel);
 
                             // Create the view resource
-                            unique_ptr<ResourceEntity> view = appState->GetResourceMap().CreateResourceFromNumber(ResourceType::View, wView);
+                            unique_ptr<ResourceEntity> view = appState->GetResourceMap().CreateResourceFromNumber(ResourceId::Create(ResourceType::View, wView));
                             if (view)
                             {
                                 _PrepareViewCommands(iViewIndex, *view, wLoop, wCel);

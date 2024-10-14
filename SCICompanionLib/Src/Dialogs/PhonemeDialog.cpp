@@ -39,7 +39,7 @@ LRESULT PhonemeDialog::_OnLipSyncDone(WPARAM wParam, LPARAM lParam)
 
 PhonemeDialog::PhonemeDialog(int nView, int nLoop, PhonemeMap &map, CWnd* pParent)
     : AudioPlaybackUI<CExtResizableDialog>(PhonemeDialog::IDD, pParent),
-    _viewResource(appState->GetResourceMap().CreateResourceFromNumber(ResourceType::View, nView)),
+    _viewResource(appState->GetResourceMap().CreateResourceFromNumber(ResourceId::Create(ResourceType::View, nView))),
     _nView(nView),
     _nLoop(nLoop),
     m_wndMap(this, _viewResource.get(), nView, nLoop, map),

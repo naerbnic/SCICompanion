@@ -3488,8 +3488,9 @@ ResourceEntity *CPicView::_GetFakeEgo()
 {
     if (!_fakeEgo && GetDocument())
     {
-        _fakeEgoAttributes.back().View = GetDocument()->GetFakeEgo();
-        _fakeEgo = appState->GetResourceMap().CreateResourceFromNumber(ResourceType::View, _fakeEgoAttributes.back().View);
+        auto& attrsBack = _fakeEgoAttributes.back();
+        attrsBack.View = GetDocument()->GetFakeEgo();
+        _fakeEgo = appState->GetResourceMap().CreateResourceFromNumber(ResourceId::Create(ResourceType::View, attrsBack.View));
     }
     return _fakeEgo.get();
 }

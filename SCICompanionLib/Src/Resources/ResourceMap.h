@@ -116,7 +116,7 @@ public:
     std::unique_ptr<PaletteComponent> GetMergedPalette(const ResourceEntity &resource, int fallbackPalette);
     ResourceEntity *GetVocabResourceToEdit();
     void ClearVocab000();
-    std::unique_ptr<ResourceEntity> CreateResourceFromNumber(ResourceType type, int wNumber, uint32_t base36Number = NoBase36, int mapContext = -1);
+    std::unique_ptr<ResourceEntity> CreateResourceFromNumber(const ResourceId& resource_id, int mapContext = -1) const;
     void GetAllScripts(std::vector<ScriptId> &scripts);
 	void GetNumberToNameMap(std::unordered_map<WORD, std::string> &scos);
     void SetGameLanguage(LangSyntax language);

@@ -350,7 +350,7 @@ bool MessageEditPane::_UpdateAudio(const TextEntry &messageEntry)
         {
             if (view != currentMouthView)
             {
-                _mouthView = appState->GetResourceMap().CreateResourceFromNumber(ResourceType::View, view);
+                _mouthView = appState->GetResourceMap().CreateResourceFromNumber(ResourceId::Create(ResourceType::View, view));
             }
         }
         else

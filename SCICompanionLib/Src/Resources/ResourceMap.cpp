@@ -878,7 +878,7 @@ std::unique_ptr<PaletteComponent> CResourceMap::GetPalette(int fallbackPaletteNu
     }
     else
     {
-        std::unique_ptr<ResourceEntity> paletteFallback = CreateResourceFromNumber(ResourceType::Palette, fallbackPaletteNumber);
+        std::unique_ptr<ResourceEntity> paletteFallback = CreateResourceFromNumber(ResourceId::Create(ResourceType::Palette, fallbackPaletteNumber));
         if (paletteFallback && paletteFallback->TryGetComponent<PaletteComponent>())
         {
             paletteReturn = make_unique<PaletteComponent>(paletteFallback->GetComponent<PaletteComponent>());
@@ -905,7 +905,7 @@ std::unique_ptr<PaletteComponent> CResourceMap::GetMergedPalette(const ResourceE
     }
     else
     {
-        std::unique_ptr<ResourceEntity> paletteFallback = CreateResourceFromNumber(ResourceType::Palette, fallbackPaletteNumber);
+        std::unique_ptr<ResourceEntity> paletteFallback = CreateResourceFromNumber(ResourceId::Create(ResourceType::Palette, fallbackPaletteNumber));
         if (paletteFallback)
         {
             paletteReturn->MergeFromOther(paletteFallback->TryGetComponent<PaletteComponent>());
@@ -922,7 +922,7 @@ void CResourceMap::SaveAudioMap65535(const AudioMapComponent &newAudioMap, int m
     {
         number = newAudioMap.Traits.MainAudioMapResourceNumber;
     }
-    std::unique_ptr<ResourceEntity> entity = CreateResourceFromNumber(ResourceType::AudioMap, number, NoBase36, mapContext);
+    std::unique_ptr<ResourceEntity> entity = CreateResourceFromNumber(ResourceId::Create(ResourceType::AudioMap, number), mapContext);
     
     // Assign the new component to it.
     entity->RemoveComponent<AudioMapComponent>();
@@ -937,7 +937,7 @@ const PaletteComponent *CResourceMap::GetPalette999()
     {
         if (!_pPalette999)
         {
-            _pPalette999 = CreateResourceFromNumber(ResourceType::Palette, 999);
+            _pPalette999 = CreateResourceFromNumber(ResourceId::Create(ResourceType::Palette, 999));
         }
         if (_pPalette999)
         {
@@ -994,7 +994,7 @@ ResourceEntity *CResourceMap::GetVocabResourceToEdit()
 {
     if (!_pVocab000)
     {
-        _pVocab000 = CreateResourceFromNumber(ResourceType::Vocab, _version.MainVocabResource);
+        _pVocab000 = CreateResourceFromNumber(ResourceId::Create(ResourceType::Vocab, _version.MainVocabResource));
     }
     return _pVocab000.get();
 }
@@ -1160,11 +1160,10 @@ TalkerToViewMap &CResourceMap::GetTalkerToViewMap()
     return _talkerToView;
 }
 
-// Returns null if it doesn't exist.
-std::unique_ptr<ResourceEntity> CResourceMap::CreateResourceFromNumber(ResourceType type, int number, uint32_t base36Number, int mapContext)
+std::unique_ptr<ResourceEntity> CResourceMap::CreateResourceFromNumber(const ResourceId& resource_id, int mapContext ) const
 {
     std::unique_ptr<ResourceEntity> pResource;
-    unique_ptr<ResourceBlob> data = MostRecentResource(ResourceId(type, ResourceNum::CreateWithBase36(number, base36Number)), mapContext);
+    unique_ptr<ResourceBlob> data = MostRecentResource(resource_id, mapContext);
     // This can legitimately fail. For instance, a script that hasn't yet been compiled.
     if (data)
     {
