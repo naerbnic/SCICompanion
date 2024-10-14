@@ -1,10 +1,15 @@
 
-#include "stdafx.h"
+#include "pch.h"
+
+#include <vector>
+
+#include "CppUnitTest.h"
+
 #include "Iterators.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace UnitTests
+namespace BaseLibUnitTests
 {
     TEST_CLASS(TestIterators)
     {

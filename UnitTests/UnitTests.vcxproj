@@ -159,7 +159,6 @@
     <ClCompile Include="TestResource.cpp" />
     <ClCompile Include="TestResourceDelete.cpp" />
     <ClCompile Include="TestResourceLoad.cpp" />
-    <ClCompile Include="Util\TestIterators.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaseLib\BaseLib.vcxproj">
