@@ -93,7 +93,8 @@ public:
     void OnVisualScript();
 #endif
 
-protected:
+private:
+    LangSyntax GetLanguage() const;
 
 // Implementation
 public:

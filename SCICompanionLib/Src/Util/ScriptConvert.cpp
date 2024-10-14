@@ -30,12 +30,11 @@ using namespace sci;
 using namespace std;
 using namespace std::filesystem;
 
-
-
-bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId &scriptId, CompileLog &log, bool makeBak, GlobalCompiledScriptLookups *lookups)
+bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId& scriptId, CompileLog& log, bool makeBak, GlobalCompiledScriptLookups* lookups)
 {
     bool success = false;
-    if (targetLanguage != scriptId.Language())
+    auto sourceLanguage = DetermineFileLanguage(scriptId.GetFullPath());
+    if (targetLanguage != sourceLanguage)
     {
         // What we do
         // 1) Parse this script and generate a syntax tree.
@@ -55,10 +54,10 @@ bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId &scri
                 PrepForLanguage(targetLanguage, script, lookups);
 
                 std::stringstream out;
-                sci::SourceCodeWriter theCode(out, targetLanguage, &script);
+                sci::SourceCodeWriter theCode(out, &script);
                 theCode.indentChar = '\t';
                 theCode.indentAmount = 1;
-                script.OutputSourceCode(theCode);
+                script.OutputSourceCode(targetLanguage, theCode);
 
                 // Copy the old file to .bak
                 std::string bakPath;
@@ -84,12 +83,10 @@ bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId &scri
                     }
 
                     // 3) Switch to the new script
-                    uint16_t scriptNumber = scriptId.GetResourceNumber();
-                    scriptId = ScriptId::FromFullFileName(scriptId.GetFullPath());
-                    scriptId.SetResourceNumber(scriptNumber);
+                    scriptId = scriptId.WithFullPath(scriptId.GetFullPath());
 
                     // Should be the new language now
-                    assert(scriptId.Language() == targetLanguage);
+                    assert(DetermineFileLanguage(scriptId.GetFullPath()) == targetLanguage);
                 }
                 else
                 {

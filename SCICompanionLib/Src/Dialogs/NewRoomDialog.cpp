@@ -446,9 +446,9 @@ void CNewRoomDialog::_PrepareBuffer()
     }
 
     std::stringstream ss;
-    SourceCodeWriter out(ss, script.Language());
+    SourceCodeWriter out(ss);
     out.pszNewLine = "\r\n";
-    script.OutputSourceCode(out);
+    script.OutputSourceCode(script.Language(), out);
     _strBuffer = ss.str();
 }
 

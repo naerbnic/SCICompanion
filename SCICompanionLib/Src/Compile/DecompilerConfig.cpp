@@ -38,7 +38,7 @@ static unique_ptr<Script> GetDefinesScript(const SCIVersion& version, const Game
     DummyLog log;
     auto scriptId = ScriptId::FromFullFileName(helper.GetIncludeFolder() + "\\" + name);
     unique_ptr<Script> script = make_unique<Script>(scriptId);
-    assert(scriptId.Language() == LangSyntaxStudio);
+    assert(DetermineFileLanguage(scriptId.GetFullPath()) == LangSyntaxStudio);
     CCrystalTextBuffer buffer;
     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
     {

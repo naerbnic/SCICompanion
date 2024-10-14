@@ -116,9 +116,8 @@ bool CommentTracker::Sync(const sci::SyntaxNode *pNode, SourceCodeWriter &out, i
     return outputComment;
 }
 
-SourceCodeWriter::SourceCodeWriter(std::stringstream &ss, LangSyntax syntax, Script *pScript) :
+SourceCodeWriter::SourceCodeWriter(std::stringstream &ss, Script *pScript) :
     out(ss),
-    lang(syntax),
     iIndent(0),
     fInline(false),
     fLast(false),
@@ -139,49 +138,49 @@ SourceCodeWriter::SourceCodeWriter(std::stringstream &ss, LangSyntax syntax, Scr
     }
 }
 
-void Script::OutputSourceCode(SourceCodeWriter &out) const
+void Script::OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const
 {
-    if (out.lang == LangSyntaxStudio)
+    if (lang == LangSyntaxStudio)
     {
         OutputSourceCode_SCIStudio(*this, out);
     }
-    else if (out.lang == LangSyntaxSCI)
+    else if (lang == LangSyntaxSCI)
     {
         OutputSourceCode_SCI(*this, out);
     }
 }
 
-void ClassDefinition::OutputSourceCode(SourceCodeWriter &out) const
+void ClassDefinition::OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const
 {
-    if (out.lang == LangSyntaxStudio)
+    if (lang == LangSyntaxStudio)
     {
         OutputSourceCode_SCIStudio(*this, out);
     }
-    else if (out.lang == LangSyntaxSCI)
+    else if (lang == LangSyntaxSCI)
     {
         OutputSourceCode_SCI(*this, out);
     }
 }
 
-void MethodDefinition::OutputSourceCode(SourceCodeWriter &out) const
+void MethodDefinition::OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const
 {
-    if (out.lang == LangSyntaxStudio)
+    if (lang == LangSyntaxStudio)
     {
         OutputSourceCode_SCIStudio(*this, out);
     }
-    else if (out.lang == LangSyntaxSCI)
+    else if (lang == LangSyntaxSCI)
     {
         OutputSourceCode_SCI(*this, out);
     }
 }
 
-void ClassProperty::OutputSourceCode(SourceCodeWriter &out) const
+void ClassProperty::OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const
 {
-    if (out.lang == LangSyntaxStudio)
+    if (lang == LangSyntaxStudio)
     {
         OutputSourceCode_SCIStudio(*this, out);
     }
-    else if (out.lang == LangSyntaxSCI)
+    else if (lang == LangSyntaxSCI)
     {
         OutputSourceCode_SCI(*this, out);
     }

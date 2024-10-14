@@ -116,13 +116,13 @@ void _GetClassInfoHelper(LangSyntax lang, PTSTR szBuf, size_t cchBuf, const Clas
     StringCchPrintf(szBuf, cchBuf, TEXT("(class %s%s\n    (properties\n"), pClass->GetName().c_str(), szTemp);
 
     std::stringstream ss;
-    SourceCodeWriter out(ss, lang);
+    SourceCodeWriter out(ss);
     DebugIndent indent1(out);
     DebugIndent indent2(out);
     out.pszNewLine = "\r\n";
     for (auto &prop : pClass->GetProperties())
     {
-        prop->OutputSourceCode(out);
+        prop->OutputSourceCode(lang, out);
     }
     std::string propValues = ss.str();
     StringCchCat(szBuf, cchBuf, propValues.c_str());

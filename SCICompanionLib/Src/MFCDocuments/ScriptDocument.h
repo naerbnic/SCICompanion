@@ -104,6 +104,7 @@ private:
     afx_msg void OnUpdateLineCount(CCmdUI *pCmdUI);
 
     // Other...
+    LangSyntax GetLanguage() const;
     void OnFileSave();
     void OnFileSaveAs();
     void _ClearErrorCount();

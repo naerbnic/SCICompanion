@@ -98,12 +98,12 @@ void AvailableMethods::PrepareBuffer(const sci::MethodDefinition *methodDef, CSt
     //sci::SourceCodeWriter out(ss, _targetLanguage, _objectToScript[theClass]);
     // Providing the script lets us sync comments, but it is not working properly. They merge with newlines, and comments in
     // unused functions are included. Really, we need an option to parse comments inline.
-    sci::SourceCodeWriter out(ss, _targetLanguage, nullptr);
+    sci::SourceCodeWriter out(ss, nullptr);
     DebugIndent indent(out);
     out.pszNewLine = "\r\n";
     out.fAlwaysExpandCodeBlocks = true;
     ss << out.pszNewLine;
-    methodDef->OutputSourceCode(out);
+    methodDef->OutputSourceCode(_targetLanguage, out);
     buffer = ss.str().c_str();
 }
 
@@ -259,11 +259,11 @@ void AvailableObjects::PrepareBuffer(sci::ClassDefinition *theClass, CString &bu
     //sci::SourceCodeWriter out(ss, _targetLanguage, _objectToScript[theClass]);
     // Providing the script lets us sync comments, but it is not working properly. They merge with newlines, and comments in
     // unused functions are included. Really, we need an option to parse comments inline.
-    sci::SourceCodeWriter out(ss, _targetLanguage, nullptr);
+    sci::SourceCodeWriter out(ss, nullptr);
     out.pszNewLine = "\r\n";
     out.fAlwaysExpandCodeBlocks = true;
     ss << out.pszNewLine;
-    theClass->OutputSourceCode(out);
+    theClass->OutputSourceCode(_targetLanguage, out);
     buffer = ss.str().c_str();
 }
 

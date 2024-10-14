@@ -275,7 +275,7 @@ namespace sci
     //
     struct SourceCodeWriter
     {
-        SourceCodeWriter(std::stringstream &ss, LangSyntax syntax, Script *pScript = nullptr);
+        SourceCodeWriter(std::stringstream &ss, Script *pScript = nullptr);
 
         void SyncComments(const sci::SyntaxNode *pNode)
         {
@@ -323,7 +323,6 @@ namespace sci
         void IndentToCommentColumn();
 
         std::stringstream::pos_type lastNewLineLength;
-        LangSyntax lang;
         std::stringstream &out;
         char indentChar;
         int indentAmount;
@@ -713,7 +712,7 @@ namespace sci
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
-        void OutputSourceCode(SourceCodeWriter &out) const;
+        void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
     };
 
     typedef std::vector<std::unique_ptr<ClassProperty>> ClassPropertyVector;
@@ -875,7 +874,7 @@ namespace sci
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
-        void OutputSourceCode(SourceCodeWriter &out) const;
+        void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
 
     private:
         bool _fPrivate;
@@ -971,7 +970,7 @@ namespace sci
             CompileContext &context, const std::string &str, WORD &wIndex,
             SpeciesIndex &dataType) const override;
 
-        void OutputSourceCode(SourceCodeWriter &out) const;
+        void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 
@@ -1210,7 +1209,7 @@ namespace sci
         LangSyntax Language() const { return _scriptId.Language(); }
         bool IsHeader() const { return _scriptId.IsHeader(); }
 
-        void OutputSourceCode(SourceCodeWriter &out) const;
+        void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
 
         void Accept(ISyntaxNodeVisitor &visitor) const override;
 

@@ -992,8 +992,7 @@ DWORD CScriptView::_ParseLineSCI(DWORD dwCookie, int nLineIndex, TEXTBLOCK *pBuf
 
 DWORD CScriptView::ParseLine(DWORD dwCookie, int nLineIndex, TEXTBLOCK *pBuf, int &nActualItems)
 {
-    LangSyntax lang = GetDocument()->GetScriptId().Language();
-    switch (lang)
+    switch (GetLanguage())
     {
         case LangSyntaxSCI:
             return _ParseLineSCI(dwCookie, nLineIndex, pBuf, nActualItems);
@@ -1385,7 +1384,7 @@ void CScriptView::OnContextMenu(CWnd *pWnd, CPoint point)
             CMenu *subMenu = pTracker->GetSubMenu(insertObjectIndex);
             if (subMenu)
             {
-                _availableObjects = make_unique<AvailableObjects>(appState->GetVersion(), &appState->GetResourceMap().Helper().GetResourceLoader(), GetDocument()->GetScriptId().Language());
+                _availableObjects = make_unique<AvailableObjects>(appState->GetVersion(), &appState->GetResourceMap().Helper().GetResourceLoader(), GetLanguage());
                 for (size_t i = 0; i < _availableObjects->GetObjects().size(); i++)
                 {
                     int iIndex = 0;
@@ -1408,7 +1407,7 @@ void CScriptView::OnContextMenu(CWnd *pWnd, CPoint point)
             if (subMenu)
             {
                 subMenu->RemoveMenu(0, MF_BYPOSITION);
-                _availableMethods = make_unique<AvailableMethods>(appState->GetVersion(), &appState->GetResourceMap().Helper().GetResourceLoader(), GetDocument()->GetScriptId().Language());
+                _availableMethods = make_unique<AvailableMethods>(appState->GetVersion(), &appState->GetResourceMap().Helper().GetResourceLoader(), GetLanguage());
                 for (size_t i = 0; i < _availableMethods->GetMethods().size(); i++)
                 {
                     int iIndex = 0;
@@ -1464,7 +1463,7 @@ void CScriptView::OnSetFocus(CWnd *pNewWnd)
     appState->GiveMeAutoComplete(this);
     if (_pACThread)
     {
-        _pACThread->InitializeForScript(LocateTextBuffer(), GetDocument()->GetScriptId().Language());
+        _pACThread->InitializeForScript(LocateTextBuffer(), GetLanguage());
     }
 
     if (_pAutoComp && _pAutoComp->IsWindowVisible())
@@ -1592,7 +1591,7 @@ void CScriptView::_OnInsertObject(bool currentPosition)
     CScriptDocument *pDoc = GetDocument();
     if (pDoc)
     {
-        CInsertObject dialog(pDoc->GetScriptId().Language());
+        CInsertObject dialog(GetLanguage());
         if (IDOK == dialog.DoModal())
         {
             CString strBuffer = dialog.GetBuffer();
@@ -1780,7 +1779,7 @@ void CScriptView::OnAddAsSynonymOf()
 
 void CScriptView::OnUpdateIsSCI(CCmdUI *pCmdUI)
 {
-    pCmdUI->Enable(GetDocument() && (GetDocument()->GetScriptId().Language() == LangSyntaxSCI));
+    pCmdUI->Enable(GetDocument() && (GetLanguage() == LangSyntaxSCI));
 }
 
 void CScriptView::OnUpdateAddAs(CCmdUI *pCmdUI)
@@ -1838,7 +1837,7 @@ void CScriptView::OnInitialUpdate()
 
     if (_pACThread)
     {
-        _pACThread->InitializeForScript(LocateTextBuffer(), GetDocument()->GetScriptId().Language());
+        _pACThread->InitializeForScript(LocateTextBuffer(), GetLanguage());
     }
 }
 
@@ -2006,9 +2005,14 @@ BOOL CScriptView::OnACDoubleClick()
     return fSomethingWasSelected;
 }
 
+LangSyntax CScriptView::GetLanguage() const
+{
+    return GetDocument()->GetScriptId().Language();
+}
+
 void CScriptView::OnToggleComment()
 {
-    if (GetDocument() && GetDocument()->GetScriptId().Language() == LangSyntaxSCI)
+    if (GetDocument() && GetLanguage() == LangSyntaxSCI)
     {
         // This is for SCI Script only. There are no multiline comments, so this helps with that.
         // Get the current block of code. See if the lines predominatly have comments or not.

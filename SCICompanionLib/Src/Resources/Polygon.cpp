@@ -312,11 +312,11 @@ void PolygonComponent::Commit(int picNumber)
         _ApplyPolygonsToScript(picNumber, script, _polygons);
 
         std::stringstream ss;
-        SourceCodeWriter out(ss, lang, &script);
+        SourceCodeWriter out(ss, &script);
         out.pszNewLine = "\n";
 
         // Now the meat of the script
-        script.OutputSourceCode(out);
+        script.OutputSourceCode(lang, out);
         string bakPath = polyFile + ".bak";
         MakeTextFile(ss.str().c_str(), bakPath);
         deletefile(polyFile);

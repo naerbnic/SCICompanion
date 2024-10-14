@@ -1105,7 +1105,7 @@ void _TrackExternalScriptUsage(std::list<scii> code, DecompileLookups &lookups)
 // pEnd can be teh end of script data. I have added autodetection support.
 void DecompileRaw(const SCIVersion& version, FunctionBase &func, DecompileLookups &lookups, const BYTE *pBegin, const BYTE *pEstimatedMaxEnd, const BYTE *pScriptResourceEnd, WORD wBaseOffset)
 {
-    bool allowContinues = func.GetOwnerScript()->GetScriptId().Language() == LangSyntaxSCI;
+    bool allowContinues = func.GetOwnerScript()->Language() == LangSyntaxSCI;
 
     lookups.EndowWithFunction(&func);
 

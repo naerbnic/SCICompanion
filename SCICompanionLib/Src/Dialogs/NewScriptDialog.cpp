@@ -149,9 +149,9 @@ void CNewScriptDialog::_PrepareBuffer()
     }
 
     std::stringstream ss;
-    sci::SourceCodeWriter out(ss, script.Language());
+    sci::SourceCodeWriter out(ss);
     out.pszNewLine = "\r\n";
-    script.OutputSourceCode(out);
+    script.OutputSourceCode(script.Language(), out);
     _strBuffer = ss.str();
 }
 

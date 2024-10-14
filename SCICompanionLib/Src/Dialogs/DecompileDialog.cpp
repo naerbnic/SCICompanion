@@ -806,8 +806,8 @@ void DecompileDialog::s_DecompileThreadWorker(DecompileDialog *pThis)
                         // Dump it to the .sc file
                         // TODO: If it already exists, we might want to ask for confirmation.
                         std::stringstream ss;
-                        sci::SourceCodeWriter out(ss, helper.GetDefaultGameLanguage(), pScript.get());
-                        pScript->OutputSourceCode(out);
+                        sci::SourceCodeWriter out(ss, pScript.get());
+                        pScript->OutputSourceCode(helper.GetDefaultGameLanguage(),out);
                         string sourceFilename = helper.GetScriptFileName(scriptNum);
                         MakeTextFile(ss.str().c_str(), sourceFilename);
                         pThis->_decompileResults->AddResult(DecompilerResultType::Important, fmt::format("Generated {0}", sourceFilename));
