@@ -118,8 +118,10 @@
     <ClInclude Include="Src\Util\EnumFlags.h" />
     <ClInclude Include="Src\Util\Geometry.h" />
     <ClInclude Include="Src\Util\Iterators.h" />
+    <ClInclude Include="Src\Util\LineCol.h" />
     <ClInclude Include="Src\Util\Logger.h" />
     <ClInclude Include="Src\Resources\ResourceTypes.h" />
+    <ClInclude Include="Src\Util\ParserStream.h" />
     <ClInclude Include="Src\Util\PerfTimer.h" />
     <ClInclude Include="Src\Util\RunLogic.h" />
     <ClInclude Include="Src\Util\SciConstants.h" />
@@ -134,6 +136,7 @@
     <ClCompile Include="Src\Audio\AudioProcessing.cpp" />
     <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp" />
     <ClCompile Include="Src\Audio\SoundUtil.cpp" />
+    <ClCompile Include="Src\LineCol.cpp" />
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />
     <ClCompile Include="Src\Resources\Components\Audio.cpp" />
@@ -153,6 +156,7 @@
     <ClCompile Include="Src\Util\CompileLog.cpp" />
     <ClCompile Include="Src\Util\DataBuffer.cpp" />
     <ClCompile Include="Src\Util\Logger.cpp" />
+    <ClCompile Include="Src\Util\ParserStream.cpp" />
     <ClCompile Include="Src\Util\PerfTimer.cpp" />
     <ClCompile Include="Src\Util\RunLogic.cpp" />
     <ClCompile Include="Src\Util\ScriptId.cpp" />
