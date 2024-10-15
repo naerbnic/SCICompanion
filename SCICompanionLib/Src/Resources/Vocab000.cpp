@@ -18,7 +18,6 @@
 #include "ResourceEntity.h"
 
 using namespace std;
-using namespace stdext;
 
 
 bool IsValidVocabChar(TCHAR ch)
