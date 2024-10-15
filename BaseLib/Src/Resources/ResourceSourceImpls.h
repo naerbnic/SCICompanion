@@ -28,7 +28,7 @@ ResourceHeaderAgnostic ReadResourceHeader(sci::istream& byteStream, SCIVersion v
 {
     _VersionHeader rh;
     byteStream >> rh;
-    if (!byteStream.good())
+    if (!byteStream.IsGood())
     {
         // TODO: This is a failure, but corrupted data possibly... just continue and log it? Instead of ending
         // Or make an empty resource.
@@ -176,14 +176,14 @@ public:
     sci::istream GetHeaderAndPositionedStream(const ResourceMapEntryAgnostic& mapEntry, ResourceHeaderAgnostic& headerEntry) override
     {
         sci::istream packageByteStream = _GetVolumeStream(mapEntry.PackageNumber);
-        if (!packageByteStream.good())
+        if (!packageByteStream.IsGood())
         {
             // TODO: This is a failure, but corrupted data possibly... just continue and log it? Instead of ending
             // Or make an empty resource.
             throw std::exception("corrupted resource!");
         }
 
-        packageByteStream.seekg(mapEntry.Offset);
+        packageByteStream.SeekAbsolute(mapEntry.Offset);
 
         headerEntry = (*_headerReadWrite.reader)(packageByteStream, _version, this->SourceFlags, mapEntry.PackageNumber);
 
@@ -194,16 +194,16 @@ public:
     {
         includesHeader = true;
         sci::istream packageByteStream = _GetVolumeStream(mapEntry.PackageNumber);
-        if (!packageByteStream.good())
+        if (!packageByteStream.IsGood())
         {
             throw std::exception("corrupted resource!");
         }
 
-        packageByteStream.seekg(mapEntry.Offset);
+        packageByteStream.SeekAbsolute(mapEntry.Offset);
         ResourceHeaderAgnostic headerEntry = (*_headerReadWrite.reader)(packageByteStream, _version, this->SourceFlags, mapEntry.PackageNumber);
-        uint32_t headerSize = packageByteStream.tellg() - mapEntry.Offset;
+        uint32_t headerSize = packageByteStream.GetAbsolutePosition() - mapEntry.Offset;
         size = headerSize + headerEntry.cbCompressed;
-        packageByteStream.seekg(mapEntry.Offset);
+        packageByteStream.SeekAbsolute(mapEntry.Offset);
         return packageByteStream;
     }
 
@@ -220,13 +220,13 @@ public:
         ResourceHeaderAgnostic rh;
         sci::istream volumeStream = GetHeaderAndPositionedStream(mapEntryToRemove, rh);
         uint32_t offsetOfRemovedEntry = mapEntryToRemove.Offset;
-        uint32_t originalOffsetOfEntryAfterRemovedEntry = volumeStream.tellg() + rh.cbCompressed;
+        uint32_t originalOffsetOfEntryAfterRemovedEntry = volumeStream.GetAbsolutePosition() + rh.cbCompressed;
         _TNavigator::EnsureResourceAlignment(originalOffsetOfEntryAfterRemovedEntry);
 
         // Deleting the entry from the resource map itself is the job of the navigator.
         // First though, the job we can do here is the following:
         // Copy over the volume with the resource in question removed:
-        volumeStream.seekg(0);
+        volumeStream.SeekAbsolute(0);
         transfer(volumeStream, volumeStreamWrites[mapEntryToRemove.PackageNumber], offsetOfRemovedEntry);
         // Ensure alignment for when we're writing the next resource here.
         _TNavigator::EnsureResourceAlignment(volumeStreamWrites[mapEntryToRemove.PackageNumber]);
@@ -235,8 +235,8 @@ public:
 
         // The point we read from needs to be aligned potentially... the next resource might not start
         // right there.
-        volumeStream.seekg(originalOffsetOfEntryAfterRemovedEntry);
-        transfer(volumeStream, volumeStreamWrites[mapEntryToRemove.PackageNumber], volumeStream.getBytesRemaining());
+        volumeStream.SeekAbsolute(originalOffsetOfEntryAfterRemovedEntry);
+        transfer(volumeStream, volumeStreamWrites[mapEntryToRemove.PackageNumber], volumeStream.GetBytesRemaining());
 
         // Now copy over every resource map entry except the one for the resource in question.
         // And other entries may need to be modified.
@@ -246,7 +246,7 @@ public:
         sci::ostream mapStreamWrite1;
         sci::ostream mapStreamWrite2;
         sci::istream mapStream = GetMapStream();
-        mapStream.seekg(0);
+        mapStream.SeekAbsolute(0);
         while (this->NavAndReadNextEntry(ResourceTypeFlags::All, mapStream, state, entryExisting, nullptr))
         {
             // Three cases:
@@ -388,8 +388,8 @@ public:
             if (volumeWriteStreams.find(header.PackageHint) == volumeWriteStreams.end())
             {
                 sci::istream volumeReadStream = _GetVolumeStream(blob->GetPackageHint());
-                volumeReadStream.seekg(0);
-                transfer(volumeReadStream, volumeWriteStreams[header.PackageHint], volumeReadStream.getBytesRemaining());
+                volumeReadStream.SeekAbsolute(0);
+                transfer(volumeReadStream, volumeWriteStreams[header.PackageHint], volumeReadStream.GetBytesRemaining());
             }
 
             // Take note of the offset so we can create a map entry

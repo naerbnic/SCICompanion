@@ -154,7 +154,7 @@ void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data)
                         // Let's compare some bits to see if it's really identical
                         // Either cbCompressed is the same as decompressed (no compression), or else the ResourceBlob should have compressed data in it for us to compare with.
                         const uint8_t *data1;
-                        const uint8_t *data2 = volumeStream.GetInternalPointer() + volumeStream.tellg();
+                        const uint8_t *data2 = volumeStream.GetInternalPointer() + volumeStream.GetAbsolutePosition();
                         size_t dataLength;
                         if (header.CompressionMethod != 0)
                         {
@@ -167,7 +167,7 @@ void DeleteResource(CResourceMap &resourceMap, const ResourceBlob &data)
                             data1 = data.GetData();
                             dataLength = header.cbDecompressed;
                         }
-                        if (volumeStream.getBytesRemaining() >= dataLength)
+                        if (volumeStream.GetBytesRemaining() >= dataLength)
                         {
                             if (data1 && data2 && (0 == memcmp(data1, data2, header.cbCompressed)))
                             {

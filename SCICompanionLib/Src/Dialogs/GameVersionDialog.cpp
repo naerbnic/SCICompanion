@@ -297,13 +297,13 @@ void _OnViewResourceMap(const _TResourceSource &fileDescriptor, SCIVersion versi
             // The main data
             ResourceMapEntryAgnostic mapEntry;
             std::vector<uint8_t> rawData;
-            uint32_t currentPosition = reader.tellg();
+            uint32_t currentPosition = reader.GetAbsolutePosition();
             IteratorState state;
             while (resourceSource->ReadNextEntry(ResourceTypeFlags::All, state, mapEntry, &rawData))
             {
                 // more info
                 _PrintMapEntry(writer, currentPosition, rawData, mapEntry);
-                currentPosition = reader.tellg();
+                currentPosition = reader.GetAbsolutePosition();
 
                 volumeToResourceOffsets[mapEntry.PackageNumber].push_back(mapEntry.Offset);
             }
@@ -324,8 +324,8 @@ void _OnViewResourceMap(const _TResourceSource &fileDescriptor, SCIVersion versi
 
             for (uint32_t offset : volumeAndOffsets.second)
             {
-                reader.seekg(offset);
-                int countOfBytesToShow = min(16, reader.getBytesRemaining());
+                reader.SeekAbsolute(offset);
+                int countOfBytesToShow = min(16, reader.GetBytesRemaining());
                 writer << pad(hex(offset), 6, '0') << ": ";
 
                 for (int i = 0; i < countOfBytesToShow; i++)

@@ -98,23 +98,23 @@ void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, Audi
 
     if (audioProcessingSettings)
     {
-        if (stream.good() && (fmt == (*(uint32_t*)scicMarker)))
+        if (stream.IsGood() && (fmt == (*(uint32_t*)scicMarker)))
         {
             ReadAudioProcessingSettings(stream, *audioProcessingSettings);
-            stream.skip(chunkSize);
+            stream.SkipBytes(chunkSize);
             stream >> fmt;
             stream >> chunkSize;
         }
     }
 
-    while (stream.good() && (fmt != (*(uint32_t*)fmtMarker)))
+    while (stream.IsGood() && (fmt != (*(uint32_t*)fmtMarker)))
     {
-        stream.skip(chunkSize);
+        stream.SkipBytes(chunkSize);
         stream >> fmt;
         stream >> chunkSize;
     }
 
-    if (!stream.good())
+    if (!stream.IsGood())
     {
         throw std::exception("Unable to find wave fmt marker.");
     }
@@ -129,18 +129,18 @@ void AudioComponentFromWaveFile(sci::istream stream, AudioComponent &audio, Audi
     static_assert(sizeof(WaveHeader) == 16, "bad wave header size");
 
     // There might be some extra bytes in the header
-    stream.skip(chunkSize - sizeof(WaveHeader));
+    stream.SkipBytes(chunkSize - sizeof(WaveHeader));
     stream >> data;
     stream >> dataSize;
 
-    while (stream.good() && (data != (*(uint32_t*)dataMarker)))
+    while (stream.IsGood() && (data != (*(uint32_t*)dataMarker)))
     {
-        stream.skip(dataSize);
+        stream.SkipBytes(dataSize);
         stream >> data;
         stream >> dataSize;
     }
 
-    if (!stream.good())
+    if (!stream.IsGood())
     {
         throw std::exception("Unable to find wave data marker.");
     }

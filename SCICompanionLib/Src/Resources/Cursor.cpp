@@ -47,7 +47,7 @@ void CursorReadFromVersioned(ResourceEntity &resource, sci::istream &byteStream,
     }
 
     // Now read the masks
-    for (int iRow = 0; byteStream.good() && (iRow < 16); iRow++)
+    for (int iRow = 0; byteStream.IsGood() && (iRow < 16); iRow++)
     {
         uint16_t w16bits;
         byteStream >> w16bits;
@@ -60,7 +60,7 @@ void CursorReadFromVersioned(ResourceEntity &resource, sci::istream &byteStream,
     }
 
     // Now the white/black values
-    for (int iRow = 0; byteStream.good() && (iRow < CursorDimensions); iRow++)
+    for (int iRow = 0; byteStream.IsGood() && (iRow < CursorDimensions); iRow++)
     {
         uint16_t w16bits;
         byteStream >> w16bits;

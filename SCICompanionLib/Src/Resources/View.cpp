@@ -82,7 +82,7 @@ void ReadImageDataWorker(sci::istream &byteStreamRLE, Cel &cel, bool isVGA, sci:
     int cCount = 0;
     int cxRemainingForThisCommand = 0;
 
-    while (byteStreamRLE.good() && (cBufferSizeRemaining > 0))
+    while (byteStreamRLE.IsGood() && (cBufferSizeRemaining > 0))
     {
         uint8_t b;
         if (cxRemainingForThisCommand == 0)
@@ -182,8 +182,8 @@ void CalculateSCI2RowOffsets(Cel &cel, sci::istream byteStreamRLE, sci::istream 
 {
     uint32_t orig = byteStreamOffsets.tellp();
 
-    uint32_t baseRLE = byteStreamRLE.tellg();
-    uint32_t baseLiteral = byteStreamLiteral.tellg();
+    uint32_t baseRLE = byteStreamRLE.GetAbsolutePosition();
+    uint32_t baseLiteral = byteStreamLiteral.GetAbsolutePosition();
 
     sci::istream byteStreamRLE1 = byteStreamRLE;
     sci::istream byteStreamLiteral1 = byteStreamLiteral;
@@ -192,7 +192,7 @@ void CalculateSCI2RowOffsets(Cel &cel, sci::istream byteStreamRLE, sci::istream 
     {
         if (y >= 0)
         {
-            byteStreamOffsets << (byteStreamRLE.tellg() - baseRLE);
+            byteStreamOffsets << (byteStreamRLE.GetAbsolutePosition() - baseRLE);
         }
     }
     );
@@ -204,7 +204,7 @@ void CalculateSCI2RowOffsets(Cel &cel, sci::istream byteStreamRLE, sci::istream 
     {
         if (y >= 0)
         {
-            byteStreamOffsets << (byteStreamLiteral.tellg() - baseLiteral);
+            byteStreamOffsets << (byteStreamLiteral.GetAbsolutePosition() - baseLiteral);
         }
     }
     );
@@ -282,7 +282,7 @@ void ReadLoopFrom(ResourceEntity &resource, sci::istream byteStream, Loop &loop,
             uint16_t nOffset;
             byteStream >> nOffset;
             sci::istream byteStreamCel(byteStream);
-            byteStreamCel.seekg(nOffset);
+            byteStreamCel.SeekAbsolute(nOffset);
             ReadCelFrom(resource, byteStreamCel, loop.Cels[i], isVGA);
         }
     }
@@ -620,7 +620,7 @@ void ViewReadFromVersioned(ResourceEntity &resource, sci::istream &byteStream, b
     {
         assert(paletteOffset != 0x100 && "Unimplemented");
         sci::istream streamPalette(byteStream);
-        streamPalette.seekg(paletteOffset);
+        streamPalette.SeekAbsolute(paletteOffset);
         ReadPalette(resource, streamPalette);
     }
 
@@ -632,7 +632,7 @@ void ViewReadFromVersioned(ResourceEntity &resource, sci::istream &byteStream, b
         {
             // Make a copy of the stream so we don't lose our position in this one.
             sci::istream streamLoop(byteStream);
-            streamLoop.seekg(rgOffsets[i]);
+            streamLoop.SeekAbsolute(rgOffsets[i]);
             ReadLoopFrom(resource, streamLoop, raster.Loops[i], isVGA);
         }
     }
@@ -736,7 +736,7 @@ void ReadCelFromVGA11(sci::istream &byteStream, Cel &cel, bool isPic)
 
     // RLE are the encoding "instructions", while Literal is the raw data it reads from
     assert(celHeader.offsetRLE != 0);
-    byteStream.seekg(celHeader.offsetRLE);
+    byteStream.SeekAbsolute(celHeader.offsetRLE);
     if (celHeader.offsetLiteral == 0)
     {
         // Just copy the bits directly. AFAIK this is only for LB_Dagger views 86, 456 and 527
@@ -786,7 +786,7 @@ void ReadLoopFromVGA(ResourceEntity &resource, sci::istream &byteStream, Loop &l
         for (uint16_t i = 0; i < loopHeader.celCount; i++)
         {
             sci::istream streamCel(byteStream);
-            streamCel.seekg(loopHeader.celOffsetAbsolute + celHeaderSize * i);
+            streamCel.SeekAbsolute(loopHeader.celOffsetAbsolute + celHeaderSize * i);
             ReadCelFromVGA11(streamCel, loop.Cels[i], false);
         }
     }
@@ -936,9 +936,9 @@ void ViewWriteToVGA11_2_Helper(const ResourceEntity &resource, sci::ostream &byt
                 {
                     // Read our cel data back so as to calculate offsets to the rows.
                     sci::istream rleData = sci::istream_from_ostream(celRLEData);
-                    rleData.seekg(celHeader.offsetRLE);
+                    rleData.SeekAbsolute(celHeader.offsetRLE);
                     sci::istream literalData = sci::istream_from_ostream(celRawData);
-                    literalData.seekg(celHeader.offsetLiteral);
+                    literalData.SeekAbsolute(celHeader.offsetLiteral);
                     uint32_t rowOffsetOffset = rowOffsetStream->tellp();
                     // Terrible hack, copying cel!
                     Cel celTemp = {};
@@ -1010,7 +1010,7 @@ void ViewReadFromVGA11Helper(ResourceEntity &resource, sci::istream &byteStream,
     if (header.paletteOffset)
     {
         sci::istream streamPalette(byteStream);
-        streamPalette.seekg(header.paletteOffset);
+        streamPalette.SeekAbsolute(header.paletteOffset);
         ReadPalette(resource, streamPalette);
     }
 
@@ -1018,7 +1018,7 @@ void ViewReadFromVGA11Helper(ResourceEntity &resource, sci::istream &byteStream,
     for (int i = 0; i < header.loopCount; i++)
     {
         sci::istream streamLoop(byteStream);
-        streamLoop.seekg(header.headerSize + (header.loopHeaderSize * i));  // Start of this loop's data
+        streamLoop.SeekAbsolute(header.headerSize + (header.loopHeaderSize * i));  // Start of this loop's data
         ReadLoopFromVGA(resource, streamLoop, raster.Loops[i], i, header.celHeaderSize, isSCI2);
     }
 

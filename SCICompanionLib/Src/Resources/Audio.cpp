@@ -159,9 +159,9 @@ void AudioReadFromHelper(ResourceEntity &resource, sci::istream &stream, const s
 
         // We can still read in the raw data in either case though. It should be the rest of the data between the end
         // of the normal lipsync data and the beginning of the audio.
-        if (streamLipSync.tellg() < (*itLipSyncDataSize).second)
+        if (streamLipSync.GetAbsolutePosition() < (*itLipSyncDataSize).second)
         {
-            uint32_t bufferSize = (*itLipSyncDataSize).second - streamLipSync.tellg();
+            uint32_t bufferSize = (*itLipSyncDataSize).second - streamLipSync.GetAbsolutePosition();
             std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(bufferSize);
             streamLipSync.read_data(buffer.get(), bufferSize);
             std::string rawLipSyncData;
@@ -179,7 +179,7 @@ void AudioReadFromHelper(ResourceEntity &resource, sci::istream &stream, const s
 
         offset = (*itLipSyncDataSize).second;
     }
-    stream.skip(offset);
+    stream.SkipBytes(offset);
 
     AudioComponent &audio = resource.GetComponent<AudioComponent>();
 
@@ -193,7 +193,7 @@ void AudioReadFromHelper(ResourceEntity &resource, sci::istream &stream, const s
         AudioHeader header;
         stream >> header;
 
-        stream.seekg(offset + header.headerSize + 2);
+        stream.SeekAbsolute(offset + header.headerSize + 2);
 
         audio.Frequency = header.sampleRate;
         audio.Flags = header.flags;

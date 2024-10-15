@@ -122,7 +122,7 @@ void Vocab000::_ReadWord(sci::istream &byteStream, char *pszBuffer, size_t cchBu
         cchBuffer -= bCopyCount;
 
         uint8_t bChar;
-        while ((cchBuffer > 0) && (byteStream >> bChar).good())
+        while ((cchBuffer > 0) && (byteStream >> bChar).IsGood())
         {
             *pszStartHere = is900 ? bChar : (0x7f & bChar);
             pszStartHere++;
@@ -153,7 +153,7 @@ void Vocab000::_ReadWord(sci::istream &byteStream, char *pszBuffer, size_t cchBu
         return; // Bad data in the file.
     }
 
-    if (byteStream.has_more_data())
+    if (byteStream.HasMoreData())
     {
         // Ok, we have a word in our buffer.  Time to read the group and class
         DWORD dwInfo = 0;
@@ -163,7 +163,7 @@ void Vocab000::_ReadWord(sci::istream &byteStream, char *pszBuffer, size_t cchBu
         byteStream >> b;
         dwInfo |= (((DWORD)b) << 8);
         byteStream >> b;
-        if (byteStream.good())
+        if (byteStream.IsGood())
         {
             dwInfo |= b;
 
@@ -669,11 +669,11 @@ void VocabReadFrom(ResourceEntity &resource, sci::istream &byteStream, bool is90
     vocab._words.reserve(1000);
 
     // Skip the "alphabetical offset" table
-    byteStream.skip(is900 ? Vocab000::AlphaIndexLength_900 : Vocab000::AlphaIndexLength);
+    byteStream.SkipBytes(is900 ? Vocab000::AlphaIndexLength_900 : Vocab000::AlphaIndexLength);
 
     // Now we have started with the words.
     char sz[MAX_PATH];
-    while (byteStream.has_more_data())
+    while (byteStream.HasMoreData())
     {
         vocab._ReadWord(byteStream, sz, ARRAYSIZE(sz), is900);
     }

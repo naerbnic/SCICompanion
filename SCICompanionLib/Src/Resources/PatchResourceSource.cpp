@@ -125,9 +125,9 @@ sci::istream PatchFilesResourceSource::GetHeaderAndPositionedStream(const Resour
         headerEntry.CompressionMethod = 0;
         headerEntry.Version = _version;
 
-        readStream.seekg(mapEntry.Offset);
-        headerEntry.cbDecompressed = readStream.getBytesRemaining();
-        headerEntry.cbCompressed = readStream.getBytesRemaining();
+        readStream.SeekAbsolute(mapEntry.Offset);
+        headerEntry.cbDecompressed = readStream.GetBytesRemaining();
+        headerEntry.cbCompressed = readStream.GetBytesRemaining();
         headerEntry.SourceFlags = _sourceFlags;
         headerEntry.PackageHint = 0;    // No package.
 

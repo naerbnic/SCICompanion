@@ -141,7 +141,7 @@ HRESULT ResourceBlob::CreateFromBits(std::string pszName, const ResourceLocation
         _pData.allocate(pStream->GetDataSize());
         pStream->read_data(&_pData[0], pStream->GetDataSize());
 
-        assert(pStream->good()); // It told us the size, so it should always succeed.
+        assert(pStream->IsGood()); // It told us the size, so it should always succeed.
         // REVIEW: do some validation
         header.Type = resource_location.GetType();
         header.Number = (WORD)resource_location.GetNumber();

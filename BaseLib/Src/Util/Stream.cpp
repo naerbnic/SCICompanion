@@ -276,7 +276,7 @@ bool istream::_Read(uint8_t* pDataDest, uint32_t cCount)
     return false;
 }
 
-void istream::seekg(uint32_t dwIndex)
+void istream::SeekAbsolute(uint32_t dwIndex)
 {
     _iIndex = dwIndex;
     if (_iIndex > GetDataSize())
@@ -285,18 +285,18 @@ void istream::seekg(uint32_t dwIndex)
     }
 }
 
-void istream::seekg(int32_t offset, std::ios_base::seekdir way)
+void istream::Seek(int32_t offset, std::ios_base::seekdir way)
 {
     switch (way)
     {
     case std::ios_base::beg:
-        seekg(offset);
+        SeekAbsolute(offset);
         break;
     case std::ios_base::cur:
-        seekg(_iIndex + offset);
+        SeekAbsolute(_iIndex + offset);
         break;
     case std::ios_base::end:
-        seekg(GetDataSize() + offset);
+        SeekAbsolute(GetDataSize() + offset);
         break;
     }
 }
@@ -312,10 +312,10 @@ void istream::_OnReadPastEnd()
 
 istream& istream::operator>>(uint16_t& w)
 {
-    uint32_t dwSave = tellg();
+    uint32_t dwSave = GetAbsolutePosition();
     if (!_ReadWord(&w))
     {
-        seekg(dwSave);
+        SeekAbsolute(dwSave);
         w = 0;
         _OnReadPastEnd();
     }
@@ -324,10 +324,10 @@ istream& istream::operator>>(uint16_t& w)
 
 istream& istream::operator>>(uint8_t& b)
 {
-    uint32_t dwSave = tellg();
+    uint32_t dwSave = GetAbsolutePosition();
     if (!_ReadByte(&b))
     {
-        seekg(dwSave);
+        SeekAbsolute(dwSave);
         b = 0;
         _OnReadPastEnd();
     }
@@ -338,7 +338,7 @@ istream& istream::operator>>(std::string& str)
 {
     auto buffer = _impl->GetDataBuffer();
     auto buffer_size = GetDataSize();
-    uint32_t dwSave = tellg();
+    uint32_t dwSave = GetAbsolutePosition();
     str.clear();
     // Read a null terminated string.
     bool fDone = false;
@@ -360,13 +360,13 @@ istream& istream::operator>>(std::string& str)
     {
         // Failure
         str.clear();
-        seekg(dwSave);
+        SeekAbsolute(dwSave);
         _OnReadPastEnd();
     }
     return *this;
 }
 
-void istream::skip(uint32_t cBytes)
+void istream::SkipBytes(uint32_t cBytes)
 {
     if ((_iIndex + cBytes) < GetDataSize())
     {
@@ -378,7 +378,7 @@ void istream::skip(uint32_t cBytes)
     }
 }
 
-bool istream::peek(uint8_t& b)
+bool istream::PeekByte(uint8_t& b)
 {
     auto buffer = _impl->GetDataBuffer();
     if (_iIndex < GetDataSize())
@@ -389,7 +389,7 @@ bool istream::peek(uint8_t& b)
     return false;
 }
 
-bool istream::peek(uint16_t& w)
+bool istream::PeekWord(uint16_t& w)
 {
     auto buffer = _impl->GetDataBuffer();
     if ((_iIndex + 1) < GetDataSize())
@@ -400,10 +400,10 @@ bool istream::peek(uint16_t& w)
     return false;
 }
 
-uint8_t istream::peek()
+uint8_t istream::PeekByte()
 {
     uint8_t b;
-    peek(b);
+    PeekByte(b);
     return b;
 }
 
@@ -411,7 +411,7 @@ void istream::getRLE(std::string& str)
 {
     // Vocab files strings are run-length encoded.
     uint16_t wSize;
-    uint32_t dwSave = tellg();
+    uint32_t dwSave = GetAbsolutePosition();
     *this >> wSize;
     if (wSize == 0)
     {
@@ -419,7 +419,7 @@ void istream::getRLE(std::string& str)
     }
     else
     {
-        while (good() && wSize)
+        while (IsGood() && wSize)
         {
             uint8_t b;
             *this >> b;
@@ -437,10 +437,10 @@ void istream::getRLE(std::string& str)
             }
         }
     }
-    if (!good())
+    if (!IsGood())
     {
         str.clear();
-        seekg(dwSave);
+        SeekAbsolute(dwSave);
     }
 }
 

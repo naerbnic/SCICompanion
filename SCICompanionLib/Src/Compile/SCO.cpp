@@ -59,7 +59,7 @@ using namespace sci;
 
 bool CSCOFile::Load(sci::istream stream, const SelectorTable &selectors)
 {
-    stream.seekg(stream.tellg() + 3);
+    stream.SeekAbsolute(stream.GetAbsolutePosition() + 3);
     stream >> _bMajorVersion;
     stream >> _bMinorVersion;
     stream >> _bBuild;
@@ -73,21 +73,21 @@ bool CSCOFile::Load(sci::istream stream, const SelectorTable &selectors)
         nameSelector = (_bSCIVersion == SCOVersion::SCI0) ? 23 : 20; // Defaults for template games, at least.
     }
 
-    if (stream.good())
+    if (stream.IsGood())
     {
         DWORD dwSavePos = 0;
         // The publics:
         WORD wTotalPublics;
         stream >> wTotalPublics;
-        if (stream.good())
+        if (stream.IsGood())
         {
             _wOffsetPublics;
             stream >> _wOffsetPublics;
-            if (stream.good())
+            if (stream.IsGood())
             {
-                dwSavePos = stream.tellg();
-                stream.seekg(_wOffsetPublics);
-                for (WORD i = 0; stream.good() && i < wTotalPublics; i++)
+                dwSavePos = stream.GetAbsolutePosition();
+                stream.SeekAbsolute(_wOffsetPublics);
+                for (WORD i = 0; stream.IsGood() && i < wTotalPublics; i++)
                 {
                     CSCOPublicExport procedure;
                     if (procedure.Create(stream))
@@ -98,22 +98,22 @@ bool CSCOFile::Load(sci::istream stream, const SelectorTable &selectors)
             }
         }
 
-        if (stream.good())
+        if (stream.IsGood())
         {
             // Go back
-            stream.seekg(dwSavePos);
-            if (stream.good())
+            stream.SeekAbsolute(dwSavePos);
+            if (stream.IsGood())
             {
                 WORD wTotalClasses;
                 stream >> wTotalClasses;
-                if (stream.good())
+                if (stream.IsGood())
                 {
                     _wOffsetClasses;
                     stream >> _wOffsetClasses;
-                    if (stream.good())
+                    if (stream.IsGood())
                     {
-                        dwSavePos = stream.tellg();
-                        stream.seekg(_wOffsetClasses);
+                        dwSavePos = stream.GetAbsolutePosition();
+                        stream.SeekAbsolute(_wOffsetClasses);
                         bool fRet = true;
                         for (WORD i = 0; fRet && i < wTotalClasses; i++)
                         {
@@ -129,23 +129,23 @@ bool CSCOFile::Load(sci::istream stream, const SelectorTable &selectors)
             }
         }
 
-        if (stream.good())
+        if (stream.IsGood())
         {
             // Go back
-            stream.seekg(dwSavePos);
-            if (stream.good())
+            stream.SeekAbsolute(dwSavePos);
+            if (stream.IsGood())
             {
                 WORD wTotalVars;
                 stream >> wTotalVars;
-                if (stream.good())
+                if (stream.IsGood())
                 {
                     _wOffsetVars;
                     stream >> _wOffsetVars;
-                    if (stream.good())
+                    if (stream.IsGood())
                     {
-                        dwSavePos = stream.tellg();
-                        stream.seekg(_wOffsetVars);
-                        bool fRet = stream.good();
+                        dwSavePos = stream.GetAbsolutePosition();
+                        stream.SeekAbsolute(_wOffsetVars);
+                        bool fRet = stream.IsGood();
                         _vars.reserve(wTotalVars);
                         for (WORD i = 0; fRet && i < wTotalVars; i++)
                         {
@@ -161,7 +161,7 @@ bool CSCOFile::Load(sci::istream stream, const SelectorTable &selectors)
             }
         }
     }
-    return stream.good();
+    return stream.IsGood();
 }
 
 void CSCOFile::Save(vector<BYTE> &output) const
@@ -425,7 +425,7 @@ bool CSCOPublicExport::Create(sci::istream &stream)
 {
     stream >> _wProcIndex;
     stream.getRLE(_strName);
-    return stream.good();
+    return stream.IsGood();
 }
 
 bool CSCOPublicExport::operator==(const CSCOPublicExport& value) const
@@ -443,7 +443,7 @@ bool CSCOPublicExport::operator!=(const CSCOPublicExport& value) const
 bool CSCOLocalVariable::Create(sci::istream &stream)
 {
     stream.getRLE(_strName);
-    return stream.good();
+    return stream.IsGood();
 }
 bool CSCOLocalVariable::operator==(const CSCOLocalVariable& value) const
 {
@@ -466,7 +466,7 @@ bool CSCOObjectProperty::Create(sci::istream &stream)
 {
     stream >> _wNameIndex;
     stream >> _wValue;
-    return stream.good();
+    return stream.IsGood();
 }
 
 bool CSCOObjectProperty::operator==(const CSCOObjectProperty& value) const
@@ -499,7 +499,7 @@ bool CSCOObjectClass::Load(sci::istream &stream, SCOVersion version, uint16_t na
     stream >> wNumMethods;
     stream >> _wSpecies;
     stream >> _wSuperClass;
-    bool fRet = stream.good();
+    bool fRet = stream.IsGood();
     if (fRet)
     {
         if (version == SCOVersion::SCI0)
@@ -539,14 +539,14 @@ bool CSCOObjectClass::Load(sci::istream &stream, SCOVersion version, uint16_t na
     }
     if (fRet)
     {
-        for (WORD i = 0; stream.good() && i < wNumMethods; i++)
+        for (WORD i = 0; stream.IsGood() && i < wNumMethods; i++)
         {
             uint16_t selector;
             stream >> selector;
             _methods.push_back(selector);
         }
     }
-    return stream.good();
+    return stream.IsGood();
 }
 
 bool CSCOObjectClass::operator==(const CSCOObjectClass& value) const

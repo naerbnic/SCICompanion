@@ -350,7 +350,7 @@ namespace
         *pw = 0;
         uint8_t b;
         stream >> b;
-        while (stream.good())
+        while (stream.IsGood())
         {
             if (b == 0xf8) // special marker
             {
@@ -364,7 +364,7 @@ namespace
             }
             assert(b != 0xfc); // TODO: we don't handle this yet
         }
-        return stream.good();
+        return stream.IsGood();
     }
 
     bool _IsStatusByte(uint8_t b)
@@ -515,34 +515,34 @@ void ScanAndReadDigitalSample(ResourceEntity& resource, sci::istream stream)
     resource.AddComponent(std::move(std::make_unique<AudioComponent>()));
     AudioComponent& audio = resource.GetComponent<AudioComponent>();
 
-    stream.seekg(0);
+    stream.SeekAbsolute(0);
     uint32_t offset = 0;
-    while (!offset && (stream.getBytesRemaining() > 0))
+    while (!offset && (stream.GetBytesRemaining() > 0))
     {
         uint8_t marker;
         stream >> marker;
         if (marker == 0xfc)
         {
             // Sometimes two 0xfc's in a row
-            if ((stream.getBytesRemaining() > 0) && (stream.peek() == 0xfc))
+            if ((stream.GetBytesRemaining() > 0) && (stream.PeekByte() == 0xfc))
             {
-                stream.skip(1);
+                stream.SkipBytes(1);
             }
-            offset = stream.tellg();
+            offset = stream.GetAbsolutePosition();
         }
     }
 
     if (offset)
     {
-        stream.skip(14);
+        stream.SkipBytes(14);
         stream >> audio.Frequency;
-        stream.skip(16);
+        stream.SkipBytes(16);
         uint16_t length;
         stream >> length;
-        stream.skip(10);
+        stream.SkipBytes(10);
         // Now comes the wave data.
-        assert(stream.getBytesRemaining() == length);
-        audio.DigitalSamplePCM.assign(stream.getBytesRemaining(), 0);
+        assert(stream.GetBytesRemaining() == length);
+        audio.DigitalSamplePCM.assign(stream.GetBytesRemaining(), 0);
         stream.read_data(&audio.DigitalSamplePCM[0], audio.DigitalSamplePCM.size());
     }
 }
@@ -726,14 +726,14 @@ void SoundReadFrom_SCI1(ResourceEntity& resource, sci::istream& stream, const st
     sci::istream trackCountStream = stream;
     uint8_t marker;
     trackCountStream >> marker;
-    while (trackCountStream.good() && (marker != 0xff))
+    while (trackCountStream.IsGood() && (marker != 0xff))
     {
         trackCount++;
         uint8_t channelMarker;
         trackCountStream >> channelMarker;
         while (channelMarker != 0xff)
         {
-            trackCountStream.skip(5);
+            trackCountStream.SkipBytes(5);
             trackCountStream >> channelMarker;
         }
         trackCountStream >> marker;
@@ -756,10 +756,10 @@ void SoundReadFrom_SCI1(ResourceEntity& resource, sci::istream& stream, const st
         int channelCount = 0;
         sci::istream channelCountStream = stream;
         channelCountStream >> marker;
-        while (channelCountStream.good() && (marker != 0xff))
+        while (channelCountStream.IsGood() && (marker != 0xff))
         {
             channelCount++;
-            channelCountStream.skip(5);
+            channelCountStream.SkipBytes(5);
             channelCountStream >> marker;
         }
 
@@ -784,7 +784,7 @@ void SoundReadFrom_SCI1(ResourceEntity& resource, sci::istream& stream, const st
                 else
                 {
                     sci::istream channelStream = stream;
-                    channelStream.seekg(dataOffset);
+                    channelStream.SeekAbsolute(dataOffset);
                     uint8_t channelNumber;
                     channelStream >> channelNumber;
 
@@ -813,7 +813,7 @@ void SoundReadFrom_SCI1(ResourceEntity& resource, sci::istream& stream, const st
 
                         if (sampleSize)
                         {
-                            channelStream.seekg(offset, std::ios_base::cur);
+                            channelStream.Seek(offset, std::ios_base::cur);
                             audio.DigitalSamplePCM.assign(sampleSize, 0);
                             channelStream.read_data(&audio.DigitalSamplePCM[0], audio.DigitalSamplePCM.size());
 
@@ -869,9 +869,9 @@ void SoundReadFrom_SCI1(ResourceEntity& resource, sci::istream& stream, const st
             // The first byte of the 0xF0 track's channel list is priority
             // TODO: What is this? Is this cues?
 
-            stream.skip(6);
+            stream.SkipBytes(6);
         }
-        stream.skip(1); // Skip ff that closes channels list.
+        stream.SkipBytes(1); // Skip ff that closes channels list.
     }
 
     AssertNoDuplicateTracks(sound);
@@ -896,7 +896,7 @@ void SoundReadFrom_SCI0(ResourceEntity& resource, sci::istream& stream, const st
     std::vector<SoundEvent> events;
     ReadChannel(stream, events, sound.TotalTicks, sound);
 
-    if (!stream.good())
+    if (!stream.IsGood())
     {
         Logger::DevError("Corrupt sound resource.");
     }
@@ -1024,18 +1024,18 @@ void ReadChannel(sci::istream& stream, std::vector<SoundEvent>& events, DWORD& t
     // Get delta time.
     bool fDone = false;
     totalTicks = 0;
-    while (!fDone && stream.good())
+    while (!fDone && stream.IsGood())
     {
         SoundEvent event;
         // Get the delta time
         _GetDeltaTime(stream, &event.wTimeDelta);
         uint8_t bStatus;
-        if (stream.good())
+        if (stream.IsGood())
         {
             totalTicks += event.wTimeDelta;
             stream >> bStatus;
         }
-        if (stream.good())
+        if (stream.IsGood())
         {
             if (_IsStatusByte(bStatus))
             {
@@ -1051,7 +1051,7 @@ void ReadChannel(sci::istream& stream, std::vector<SoundEvent>& events, DWORD& t
                 // else TODO: error conditions
 
                 // And back up one byte
-                stream.seekg(stream.tellg() - 1);
+                stream.SeekAbsolute(stream.GetAbsolutePosition() - 1);
             }
 
             switch (event.GetCommand())
@@ -1099,15 +1099,15 @@ void ReadChannel(sci::istream& stream, std::vector<SoundEvent>& events, DWORD& t
                 {
                     // Eat bytes until 0xF7
                     bool fNotEnd = true;
-                    while (stream.good() && fNotEnd)
+                    while (stream.IsGood() && fNotEnd)
                     {
                         uint8_t bByte;
                         stream >> bByte;
                         fNotEnd = (bByte != 0xF7);
                     }
-                    if (stream.good())
+                    if (stream.IsGood())
                     {
-                        stream.seekg(stream.tellg() - 1); // Go back one.
+                        stream.SeekAbsolute(stream.GetAbsolutePosition() - 1); // Go back one.
                     }
                 }
                 break;

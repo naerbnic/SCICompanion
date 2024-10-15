@@ -346,9 +346,9 @@ void PicClipsDialog::OnCbnSelchangeFiles()
                 uint32_t innerDataSize;
                 reader >> innerDataSize;
                 clip->Commands = make_unique<vector<PicCommand>>();
-                GetCommandsFromRaw(reader.GetInternalPointer() + reader.tellg(), innerDataSize, nullptr, *clip->Commands);
+                GetCommandsFromRaw(reader.GetInternalPointer() + reader.GetAbsolutePosition(), innerDataSize, nullptr, *clip->Commands);
                 newClips.push_back(move(clip));
-                reader.skip(innerDataSize);
+                reader.SkipBytes(innerDataSize);
             }
 
             _clips.swap(newClips);

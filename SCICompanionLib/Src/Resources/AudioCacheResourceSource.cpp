@@ -429,9 +429,9 @@ sci::istream AudioCacheResourceSource::GetHeaderAndPositionedStream(
         sci::istream readStream = sci::istream::ReadFromFile(fullPath);
         // Keep alive during enumeration
 
-        readStream.seekg(mapEntry.Offset);
-        headerEntry.cbDecompressed = readStream.getBytesRemaining();
-        headerEntry.cbCompressed = readStream.getBytesRemaining();
+        readStream.SeekAbsolute(mapEntry.Offset);
+        headerEntry.cbDecompressed = readStream.GetBytesRemaining();
+        headerEntry.cbCompressed = readStream.GetBytesRemaining();
 
         return readStream;
     }

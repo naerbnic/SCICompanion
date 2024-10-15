@@ -532,25 +532,25 @@ bool CVocabWithNames::_Create(sci::istream &byteStream, bool fTruncationOk)
     // Perf: reserve this capacity so we don't need to resize.
     _names.reserve(wMaxIndex);
 
-    for (uint16_t i = 0; byteStream.good() && i < wMaxIndex; i++)
+    for (uint16_t i = 0; byteStream.IsGood() && i < wMaxIndex; i++)
     {
         uint16_t wOffset;
         byteStream >> wOffset;
-        uint32_t dwSavePos = byteStream.tellg();
-        byteStream.seekg(wOffset);
-        if (byteStream.good())
+        uint32_t dwSavePos = byteStream.GetAbsolutePosition();
+        byteStream.SeekAbsolute(wOffset);
+        if (byteStream.IsGood())
         {
             std::string str;
             // Vocab files strings are run-length encoded.
             byteStream.getRLE(str);
-            if (byteStream.good())
+            if (byteStream.IsGood())
             {
                 _names.push_back(str);
             }
         }
-        byteStream.seekg(dwSavePos); // Go back
+        byteStream.SeekAbsolute(dwSavePos); // Go back
     }
-    return byteStream.good();
+    return byteStream.IsGood();
 }
 
 uint16_t CVocabWithNames::Add(const string &str)
@@ -580,7 +580,7 @@ bool SelectorTable::_Create(sci::istream &byteStream)
     _names.reserve(800);    // Just some fairly large number.
     _firstInvalidSelector = 0xffff;
     uint16_t firstBadOffset = 0;
-    for (uint16_t i = 0; byteStream.good() && i < totalCount; i++)
+    for (uint16_t i = 0; byteStream.IsGood() && i < totalCount; i++)
     {
         uint16_t wOffset;
         byteStream >> wOffset;
@@ -590,14 +590,14 @@ bool SelectorTable::_Create(sci::istream &byteStream)
         }
         else
         {
-            uint32_t dwSavePos = byteStream.tellg();
-            byteStream.seekg(wOffset);
-            if (byteStream.good())
+            uint32_t dwSavePos = byteStream.GetAbsolutePosition();
+            byteStream.SeekAbsolute(wOffset);
+            if (byteStream.IsGood())
             {
                 std::string str;
                 // Vocab files strings are run-length encoded.
                 byteStream.getRLE(str);
-                if (byteStream.good())
+                if (byteStream.IsGood())
                 {
                     if (str == c_szBadSelector)
                     {
@@ -618,7 +618,7 @@ bool SelectorTable::_Create(sci::istream &byteStream)
                     }
                 }
             }
-            byteStream.seekg(dwSavePos); // Go back
+            byteStream.SeekAbsolute(dwSavePos); // Go back
         }
 
         // early KQ4 only has "even" selector values.
@@ -634,7 +634,7 @@ bool SelectorTable::_Create(sci::istream &byteStream)
         _firstInvalidSelector = _indices.size();
     }
 
-    return byteStream.good();
+    return byteStream.IsGood();
 }
 
 std::vector<std::string> SelectorTable::GetNamesForDisplay() const
@@ -836,11 +836,11 @@ bool KernelTable::Load(const SCIVersion& version, const ResourceLoader& resource
         {
             appState->LogInfo("Failed to load kernel names from vocab resource - trying alternate KQ1-style method");
             sci::istream byteStream = blob->GetReadStream();
-            while (byteStream.good())
+            while (byteStream.IsGood())
             {
                 std::string kernelName;
                 byteStream >> kernelName;
-                if (byteStream.good())
+                if (byteStream.IsGood())
                 {
                     Add(kernelName);
                 }
@@ -1144,13 +1144,13 @@ void SpeciesTable::PurgeOldClasses(const SCIVersion& version, const ResourceLoad
 bool SpeciesTable::_Create(sci::istream &byteStream)
 {
     _wNewSpeciesIndex = 0;
-    while (byteStream.good())
+    while (byteStream.IsGood())
     {
         uint16_t offset;
         byteStream >> offset;   // Don't know what this is.
         uint16_t wScriptNum;
         byteStream >> wScriptNum;
-        if (byteStream.good())
+        if (byteStream.IsGood())
         {
             _direct.push_back(wScriptNum);
             _map[wScriptNum].push_back(_wNewSpeciesIndex++);

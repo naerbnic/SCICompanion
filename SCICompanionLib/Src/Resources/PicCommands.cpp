@@ -2592,7 +2592,7 @@ bool PicCommand::Initialize(sci::istream &byteStream)
     _CleanUp();
     memset(this, 0, sizeof(PicCommand));
     byteStream >> *this;
-    if (byteStream.good())
+    if (byteStream.IsGood())
     {
         assert(type <= CommandTypeMax); // That we have a valid command!
         if (type == SetPalette)
@@ -2612,7 +2612,7 @@ bool PicCommand::Initialize(sci::istream &byteStream)
             DeserializeCelRuntime(byteStream, *drawVisualBitmap.pCel);
         }
     }
-    return byteStream.good();
+    return byteStream.IsGood();
 }
 
 // Serialization for clipboard

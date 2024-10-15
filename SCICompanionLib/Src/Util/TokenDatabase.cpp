@@ -94,8 +94,8 @@ void TokenDatabase::GetAutoCompleteChoices(const std::string &prefix, AutoComple
         if (itOffset != _offsets.end())
         {
             size_t offset = itOffset->second;
-            stream.seekg(offset);
-            assert(0 == stream.peek()); // 0 chars in common with previous.
+            stream.SeekAbsolute(offset);
+            assert(0 == stream.PeekByte()); // 0 chars in common with previous.
             uint8_t charsInCommon;
             stream >> charsInCommon;
             size_t matchingChars = 0; // This can only go up, then go down.
@@ -179,7 +179,7 @@ void TokenDatabase::GetAutoCompleteChoices(const std::string &prefix, AutoComple
                 }
                 else
                 {
-                    stream.skip(sizeof(uint16_t));
+                    stream.SkipBytes(sizeof(uint16_t));
                 }
 
                 

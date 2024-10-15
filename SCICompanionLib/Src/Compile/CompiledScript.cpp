@@ -125,7 +125,7 @@ bool _DoesExportPointToObjectInstanceSCI1_1(uint16_t exportOffset, sci::istream 
 {
     if ((uint16_t)heapStream.GetDataSize() >= (exportOffset + 2))
     {
-        heapStream.seekg(exportOffset);
+        heapStream.SeekAbsolute(exportOffset);
         uint16_t magicMarker;
         heapStream >> magicMarker;
         return (magicMarker == 0x1234);
@@ -135,7 +135,7 @@ bool _DoesExportPointToObjectInstanceSCI1_1(uint16_t exportOffset, sci::istream 
 
 void CompiledScript::_LoadStringOffsetsSCI1_1(uint16_t offset, sci::istream heapStream)
 {
-    heapStream.seekg(offset);
+    heapStream.SeekAbsolute(offset);
     uint16_t count;
     heapStream >> count;
     for (uint16_t i = 0; i < count; i++)
@@ -185,7 +185,7 @@ std::string CompiledScript::GetStringOrSaidFromOffset(uint16_t value, ValueType 
 
 void _ReadHeapPointerOffsets(sci::istream scriptStream, uint16_t heapPointerListOffset, unordered_set<uint16_t> &heapPointerList)
 {
-    scriptStream.seekg(heapPointerListOffset);
+    scriptStream.SeekAbsolute(heapPointerListOffset);
     uint16_t count;
     scriptStream >> count;
     for (int i = 0; i < count; i++)
@@ -250,7 +250,7 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
             _scriptResource.resize(scriptStream.GetDataSize());
             scriptStream.read_data(&_scriptResource[0], scriptStream.GetDataSize());
             // Then go back to the beginning
-            scriptStream.seekg(0);
+            scriptStream.SeekAbsolute(0);
 
             uint16_t earliestMethodCodeOffset = 0xffff;
 
@@ -262,14 +262,14 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
             unordered_set<uint16_t> heapPointerList;
             _ReadHeapPointerOffsets(scriptStream, heapPointerListOffset, heapPointerList);
 
-            scriptStream.skip(4);   // This might have a preload flag, not sure.
+            scriptStream.SkipBytes(4);   // This might have a preload flag, not sure.
 
             // Now read the exports
             uint16_t wNumExports;
             scriptStream >> wNumExports;
             for (uint16_t i = 0; i < wNumExports; i++)
             {
-                bool isHeapPointer = heapPointerList.find((uint16_t)scriptStream.tellg()) != heapPointerList.end();
+                bool isHeapPointer = heapPointerList.find((uint16_t)scriptStream.GetAbsolutePosition()) != heapPointerList.end();
                 uint16_t exportOffset;
                 scriptStream >> exportOffset;
 
@@ -293,7 +293,7 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
                 }
             }
 
-            uint16_t addressAfterLastObject = (uint16_t)scriptStream.tellg();
+            uint16_t addressAfterLastObject = (uint16_t)scriptStream.GetAbsolutePosition();
             if (isSuccess)
             {
                 // Local variables
@@ -304,7 +304,7 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
                 (*heapStream) >> localsCount;
                 for (int i = 0; i < localsCount; i++)
                 {
-                    bool isObjectOrString = IsStringPointerSCI1_1((uint16_t)heapStream->tellg());
+                    bool isObjectOrString = IsStringPointerSCI1_1((uint16_t)heapStream->GetAbsolutePosition());
                     uint16_t w;
                     (*heapStream) >> w;
                     _localVars.push_back({ w, isObjectOrString });
@@ -313,11 +313,11 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
                 // Now we're into the objects.
                 uint16_t magic;
                 int classIndex = 0;
-                while (isSuccess && heapStream->peek(magic) && (magic == 0x1234))
+                while (isSuccess && heapStream->PeekWord(magic) && (magic == 0x1234))
                 {
                     unique_ptr<CompiledObject> pObject = make_unique<CompiledObject>();
                     // Is the current position of the heapstream (which points to an object) in the list of public instance exports?
-                    pObject->IsPublic = (find(_exportedObjectInstances.begin(), _exportedObjectInstances.end(), (uint16_t)heapStream->tellg()) != _exportedObjectInstances.end());
+                    pObject->IsPublic = (find(_exportedObjectInstances.begin(), _exportedObjectInstances.end(), (uint16_t)heapStream->GetAbsolutePosition()) != _exportedObjectInstances.end());
                     uint16_t wInstanceOffsetTO, endOfObjectInScript;
                     isSuccess = pObject->Create_SCI1_1(*this, _version, scriptStream, *heapStream, &wInstanceOffsetTO, classIndex, &endOfObjectInScript);
                     if (isSuccess)
@@ -344,16 +344,16 @@ bool CompiledScript::_LoadSCI1_1(const GameFolderHelper &helper, int iScriptNumb
                 _stringsOffset.reserve(100);
                 do
                 {
-                    uint16_t offset = (uint16_t)heapStream->tellg();
+                    uint16_t offset = (uint16_t)heapStream->GetAbsolutePosition();
                     (*heapStream) >> aString;
                     // We DO add empty strings to the offsets. However, we may have a bogus empty
                     // one at the end, since afterStrings is WORD-aligned.
-                    if (!aString.empty() || (heapStream->tellg() < stringPointerOffsetsOffset))
+                    if (!aString.empty() || (heapStream->GetAbsolutePosition() < stringPointerOffsetsOffset))
                     {
                         _stringsOffset.push_back(offset);
                         _strings.push_back(aString);
                     }
-                } while (heapStream->tellg() < stringPointerOffsetsOffset);
+                } while (heapStream->GetAbsolutePosition() < stringPointerOffsetsOffset);
 
             }
 
@@ -401,7 +401,7 @@ bool CompiledScript::DetectIfExportsAreWide(const SCIVersion &version, sci::istr
     bool fRet = byteStream.GetDataSize() > 0;
     while (fRet)
     {
-        DWORD dwSavePos = byteStream.tellg();
+        DWORD dwSavePos = byteStream.GetAbsolutePosition();
         // Read the type and size.
         uint16_t wType;
         uint16_t wSectionSize;
@@ -409,7 +409,7 @@ bool CompiledScript::DetectIfExportsAreWide(const SCIVersion &version, sci::istr
         if (wType != 0)
         {
             byteStream >> wSectionSize;
-            fRet = byteStream.good() && (wSectionSize >= 4);
+            fRet = byteStream.IsGood() && (wSectionSize >= 4);
             if (fRet)
             {
                 if (wType == 7)
@@ -432,8 +432,8 @@ bool CompiledScript::DetectIfExportsAreWide(const SCIVersion &version, sci::istr
                 assert(wSectionSize > 0); // else we'll never get anywhere.
                 if (wSectionSize > 0)
                 {
-                    byteStream.seekg(dwSavePos + wSectionSize);
-                    fRet = byteStream.good();
+                    byteStream.SeekAbsolute(dwSavePos + wSectionSize);
+                    fRet = byteStream.IsGood();
                 }
             }
 
@@ -466,7 +466,7 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
         _scriptResource.resize(byteStream.GetDataSize());
         byteStream.read_data(&_scriptResource[0], byteStream.GetDataSize());
         // Then go back to the beginning
-        byteStream.seekg(0);
+        byteStream.SeekAbsolute(0);
 
         _rawScriptSections.clear();
 
@@ -480,12 +480,12 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
             _localVars.assign(localVarsCount, { 0, false });
         }
 
-        DWORD dwSaveBeginning = byteStream.tellg();
+        DWORD dwSaveBeginning = byteStream.GetAbsolutePosition();
         // Read section 4 and 5 in first - those are the said/string sections, and we need to know beforehand
         // which numbers are valid saids/strings.
         while (fRet)
         {
-            DWORD dwSavePos = byteStream.tellg();
+            DWORD dwSavePos = byteStream.GetAbsolutePosition();
 
             // Read the type and size.
             uint16_t wType;
@@ -494,7 +494,7 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
             if (wType != 0)
             {
                 byteStream >> wSectionSize;
-                fRet = byteStream.good() && (wSectionSize >= 4);
+                fRet = byteStream.IsGood() && (wSectionSize >= 4);
                 if (fRet)
                 {
                     switch (wType)
@@ -524,19 +524,19 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
                 assert(wSectionSize > 0); // else we'll never get anywhere.
                 if (wSectionSize > 0)
                 {
-                    byteStream.seekg(dwSavePos + wSectionSize);
-                    fRet = byteStream.good();
+                    byteStream.SeekAbsolute(dwSavePos + wSectionSize);
+                    fRet = byteStream.IsGood();
                 }
             }
         }
-        byteStream.seekg(dwSaveBeginning);
+        byteStream.SeekAbsolute(dwSaveBeginning);
 
 
         // Now the rest of the stuff.
         int classIndex = 0;
         while (fRet)
         {
-            DWORD dwSavePos = byteStream.tellg();
+            DWORD dwSavePos = byteStream.GetAbsolutePosition();
 
             // Read the type and size.
             uint16_t wType;
@@ -545,7 +545,7 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
             if (wType != 0)
             {
                 byteStream >> wSectionSize;
-                fRet = byteStream.good() && (wSectionSize >= 4);
+                fRet = byteStream.IsGood() && (wSectionSize >= 4);
                 if (fRet)
                 {
                     ScriptSection scriptSection = { (uint16_t)dwSavePos, wType, wSectionSize };
@@ -571,8 +571,8 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
                     case 2:
                     {
                         uint16_t wCodeLength = wSectionSize - 4;
-                        uint16_t wCodePosTO = static_cast<uint16_t>(byteStream.tellg());
-                        byteStream.seekg(wCodeLength); // Skip this section.
+                        uint16_t wCodePosTO = static_cast<uint16_t>(byteStream.GetAbsolutePosition());
+                        byteStream.SeekAbsolute(wCodeLength); // Skip this section.
                         CodeSection section = { wCodePosTO, wCodePosTO + wCodeLength };
                         _codeSections.push_back(section);
                     }
@@ -591,7 +591,7 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
                             uint16_t wB;
                             byteStream >> wB;
                             _synonyms[wB].push_back(wA);
-                            fRet = byteStream.good();
+                            fRet = byteStream.IsGood();
                         }
                     }
                     break;
@@ -674,7 +674,7 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
                         {
                             uint16_t w;
                             byteStream >> w;
-                            fRet = byteStream.good();
+                            fRet = byteStream.IsGood();
                             _localVars.push_back({ w, IsAnOffset(w, _saidsOffset, _stringsOffset) });
                         }
                     }
@@ -694,8 +694,8 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
                 ASSERT(wSectionSize > 0); // else we'll never get anywhere.
                 if (wSectionSize > 0)
                 {
-                    byteStream.seekg(dwSavePos + wSectionSize);
-                    fRet = byteStream.good();
+                    byteStream.SeekAbsolute(dwSavePos + wSectionSize);
+                    fRet = byteStream.IsGood();
                 }
             }
         }
@@ -720,7 +720,7 @@ bool CompiledScript::_LoadSCI0_SCI1(sci::istream &byteStream)
 // Pretend the code has been loaded at an address other than 0x0000
 uint16_t _GetTestStreamPosition(sci::istream *pStream)
 {
-    return (uint16_t)(pStream->tellg()) + TEST_OFFSET;
+    return (uint16_t)(pStream->GetAbsolutePosition()) + TEST_OFFSET;
 }
 
 std::string _GenerateClassName(uint16_t scriptNumber, int &index)
@@ -732,7 +732,7 @@ std::string _GenerateClassName(uint16_t scriptNumber, int &index)
 bool CompiledObject::Create_SCI1_1(const CompiledScript &compiledScript, SCIVersion version, sci::istream scriptStream, sci::istream &heapStream, uint16_t *pwOffset, int classIndex, uint16_t *endOfObjectInScript)
 {
     uint16_t scriptNum = compiledScript.GetScriptNumber();
-    *pwOffset = heapStream.tellg();
+    *pwOffset = heapStream.GetAbsolutePosition();
     _version = version;
     uint16_t wMagic, numVars, varOffset, methodsOffset;
     heapStream >> wMagic;
@@ -754,7 +754,7 @@ bool CompiledObject::Create_SCI1_1(const CompiledScript &compiledScript, SCIVers
     // Get the property selectors, which are only present for classes.
     if (!_fInstance)
     {
-        scriptStream.seekg(varOffset);
+        scriptStream.SeekAbsolute(varOffset);
         _propertySelectors.reserve(numVars);
         for (uint16_t i = 0; i < numVars; i++)
         {
@@ -770,7 +770,7 @@ bool CompiledObject::Create_SCI1_1(const CompiledScript &compiledScript, SCIVers
         uint16_t propertyValue;
         if (i >= 5)
         {
-            bool isString = compiledScript.IsStringPointerSCI1_1((uint16_t)heapStream.tellg());
+            bool isString = compiledScript.IsStringPointerSCI1_1((uint16_t)heapStream.GetAbsolutePosition());
             heapStream >> propertyValue;
             _propertyValues.push_back({ propertyValue, isString });
         }
@@ -802,7 +802,7 @@ bool CompiledObject::Create_SCI1_1(const CompiledScript &compiledScript, SCIVers
 
     // We need to read function selectors, and code
     // _functionSelectors, _functionOffsetsTO
-    scriptStream.seekg(methodsOffset);
+    scriptStream.SeekAbsolute(methodsOffset);
     uint16_t numMethods;
     scriptStream >> numMethods;
     for (uint16_t i = 0; i < numMethods; i++)
@@ -819,7 +819,7 @@ bool CompiledObject::Create_SCI1_1(const CompiledScript &compiledScript, SCIVers
     {
         // Don't modify heapstream, it's right where we need it.
         sci::istream temp = heapStream;
-        temp.seekg(wName);
+        temp.SeekAbsolute(wName);
         temp >> _strName;
     }
     else
@@ -828,7 +828,7 @@ bool CompiledObject::Create_SCI1_1(const CompiledScript &compiledScript, SCIVers
         _strName = _GenerateClassName(scriptNum, classIndex);
     }
 
-    *endOfObjectInScript = (uint16_t)scriptStream.tellg();
+    *endOfObjectInScript = (uint16_t)scriptStream.GetAbsolutePosition();
 
     assert((_propertySelectors.size() == _propertyValues.size()) || (_fInstance && _propertySelectors.empty()));
     return true;
@@ -837,7 +837,7 @@ bool CompiledObject::Create_SCI1_1(const CompiledScript &compiledScript, SCIVers
 bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const std::vector<uint16_t> &stringOffsets, uint16_t scriptNum, SCIVersion version, sci::istream &stream, BOOL fClass, uint16_t *pwOffset, int classIndex)
 {
     _version = version;
-    *pwOffset = static_cast<uint16_t>(stream.tellg());
+    *pwOffset = static_cast<uint16_t>(stream.GetAbsolutePosition());
     _fInstance = !fClass;
     uint16_t wMagic;
     stream >> wMagic; //  ASSERT(wMagic == 0x1234);
@@ -845,9 +845,9 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
     {
         return false; // We'll hit this when loading KQ4 for example, which uses a different format
     }
-    if (stream.good())
+    if (stream.IsGood())
     {
-        _wPosInResource = static_cast<uint16_t>(stream.tellg());
+        _wPosInResource = static_cast<uint16_t>(stream.GetAbsolutePosition());
         uint16_t wLocalVarOffset;
         stream >> wLocalVarOffset;
         uint16_t wFunctionSelectorOffset;
@@ -855,14 +855,14 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
         uint16_t wNumVarSelectors;
         stream >> wNumVarSelectors;
         assert(wNumVarSelectors >= 3); // Really 4, but iceman only has 3
-        if (stream.good())
+        if (stream.IsGood())
         {
             uint16_t wNumVarValuesLeft = wNumVarSelectors;
-            while (stream.good() && wNumVarValuesLeft)
+            while (stream.IsGood() && wNumVarValuesLeft)
             {
                 uint16_t wValue;
                 stream >> wValue;
-                if (stream.good())
+                if (stream.IsGood())
                 {
                     _propertyValues.push_back({ wValue, IsAnOffset(wValue, saidOffsets, stringOffsets) });
                 }
@@ -883,14 +883,14 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
 
         // Now read their selector IDs - but only if this is a class.
         // Instances don't need this, since all the selector IDs are defined by its class.
-        if (stream.good() && fClass)
+        if (stream.IsGood() && fClass)
         {
             // If this is a class, it's now followed by selector IDs, matching the selectors.
-            for (INT_PTR i = 0; stream.good() && i < (INT_PTR)wNumVarSelectors; i++)
+            for (INT_PTR i = 0; stream.IsGood() && i < (INT_PTR)wNumVarSelectors; i++)
             {
                 uint16_t wSelectorID;
                 stream >> wSelectorID;
-                if (stream.good())
+                if (stream.IsGood())
                 {
                     _propertySelectors.push_back(wSelectorID);
                 }
@@ -899,7 +899,7 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
 
         // Now their function selectors, for both instances and classes.
         uint16_t wNumFunctionSelectors = 0;
-        if (stream.good())
+        if (stream.IsGood())
         {
             // Read function selectors.
             stream >> wNumFunctionSelectors;
@@ -911,11 +911,11 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
             // For classes, it describes the function code pointers coming before the selectors for the functions.
             // But the selectors come before for both classes and instances.
             //
-            while(stream.good() && wNumFunctionSelectorsLeft)
+            while(stream.IsGood() && wNumFunctionSelectorsLeft)
             {
                 uint16_t wSelectorID;
                 stream >> wSelectorID;
-                if (stream.good())
+                if (stream.IsGood())
                 {
                     _functionSelectors.push_back(wSelectorID);
                 }
@@ -926,14 +926,14 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
         // Now the method code pointers.
         uint16_t wZero;
         stream >> wZero;
-        if (stream.good())
+        if (stream.IsGood())
         {
             ASSERT(wZero == 0); // There is supposed to be a zero here.
-            while (stream.good() && wNumFunctionSelectors)
+            while (stream.IsGood() && wNumFunctionSelectors)
             {
                 uint16_t wPtr;
                 stream >> wPtr;
-                if (stream.good())
+                if (stream.IsGood())
                 {
                     // These are supposed to be offsets to within the script resource, so they
                     // had better be smaller!
@@ -944,14 +944,14 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
             }
         }
 
-        if (stream.good() && (wName != 0))
+        if (stream.IsGood() && (wName != 0))
         {
             // Retrieve the name of the object.  wName is a pointer.
-            DWORD dwSavePos = stream.tellg();
-            stream.seekg(wName);
+            DWORD dwSavePos = stream.GetAbsolutePosition();
+            stream.SeekAbsolute(wName);
             stream >> _strName;
             // Restore
-            stream.seekg(dwSavePos);
+            stream.SeekAbsolute(dwSavePos);
         }
         else
         {
@@ -964,16 +964,16 @@ bool CompiledObject::Create_SCI0(const std::vector<uint16_t> &saidOffsets, const
 
     assert((_propertySelectors.size() == _propertyValues.size()) || (!fClass && _propertySelectors.empty()));
 
-    return stream.good();
+    return stream.IsGood();
 }
 
 bool CompiledScript::_ReadExports(sci::istream &stream)
 {
     uint16_t wNumExports;
     stream >> wNumExports;
-    if (stream.good())
+    if (stream.IsGood())
     {
-        for (uint16_t i = 0; stream.good() && i < wNumExports; i++)
+        for (uint16_t i = 0; stream.IsGood() && i < wNumExports; i++)
         {
             uint16_t offset;
             if (_version.IsExportWide)
@@ -987,7 +987,7 @@ bool CompiledScript::_ReadExports(sci::istream &stream)
             {
                 stream >> offset;
             }
-            if (stream.good())
+            if (stream.IsGood())
             {
                 _exportsTO.push_back(offset + TEST_OFFSET);
             }
@@ -1006,7 +1006,7 @@ bool CompiledScript::_ReadExports(sci::istream &stream)
             }
         }
     }
-    return stream.good();
+    return stream.IsGood();
 }
 
 bool CompiledScript::_ReadSaids(sci::istream &stream, uint16_t wDataSize)
@@ -1016,11 +1016,11 @@ bool CompiledScript::_ReadSaids(sci::istream &stream, uint16_t wDataSize)
     // the total length of all of them of course.
     // We pass the offset of this thing to callk Said.  This would be a program-counter-relative
     // offset.
-    DWORD dwMaxPos = stream.tellg() + wDataSize;
-    while (stream.good() && (stream.tellg() < (dwMaxPos - 1))) // -1 since we need at least a little more data to read...
+    DWORD dwMaxPos = stream.GetAbsolutePosition() + wDataSize;
+    while (stream.IsGood() && (stream.GetAbsolutePosition() < (dwMaxPos - 1))) // -1 since we need at least a little more data to read...
     {
         // Store the actual position in the stream (this is how other parts of the script refer to it).
-        uint16_t wBeginingOfSaid = static_cast<uint16_t>(stream.tellg());
+        uint16_t wBeginingOfSaid = static_cast<uint16_t>(stream.GetAbsolutePosition());
         vector<uint16_t> saidSequence;
         bool fDone = false;
         do
@@ -1028,7 +1028,7 @@ bool CompiledScript::_ReadSaids(sci::istream &stream, uint16_t wDataSize)
             BYTE b;
             stream >> b;
             //fRet = pStream->ReadByte(&b);
-            if (stream.good())
+            if (stream.IsGood())
             {
                 fDone = (b == 0xff);
                 if (!fDone)
@@ -1044,15 +1044,15 @@ bool CompiledScript::_ReadSaids(sci::istream &stream, uint16_t wDataSize)
                         BYTE b2;
                         stream >> b2;
                         //fRet = pStream->ReadByte(&b2);
-                        if (stream.good())
+                        if (stream.IsGood())
                         {
                             saidSequence.push_back((((uint16_t)b) << 8) | b2);
                         }
                     }
                 }
             }
-        } while (stream.good() && !fDone);
-        if (stream.good())
+        } while (stream.IsGood() && !fDone);
+        if (stream.IsGood())
         {
             _saidsOffset.push_back(wBeginingOfSaid);
             _saids.push_back(saidSequence);
@@ -1069,20 +1069,20 @@ bool CompiledScript::_ReadStrings(sci::istream &stream, uint16_t wDataSize)
 {
     // I have a feeling these may map to objects, which would be great for us.
     // Look up a string, and then its index corresponds to an object?
-    DWORD dwMaxPos = stream.tellg() + wDataSize;
-    while (stream.good() && (stream.tellg() < dwMaxPos))
+    DWORD dwMaxPos = stream.GetAbsolutePosition() + wDataSize;
+    while (stream.IsGood() && (stream.GetAbsolutePosition() < dwMaxPos))
     {
         string str;
-        DWORD dwOffset = stream.tellg();
+        DWORD dwOffset = stream.GetAbsolutePosition();
         stream >> str;
-        if (stream.good())
+        if (stream.IsGood())
         {
             ASSERT(dwOffset <= 0xffff);
             _stringsOffset.push_back(static_cast<uint16_t>(dwOffset));
             _strings.push_back(str);
         }
     }
-    return stream.good();
+    return stream.IsGood();
 }
 
 //

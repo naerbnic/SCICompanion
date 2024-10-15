@@ -205,7 +205,7 @@ void AudioMapReadFrom(ResourceEntity &resource, sci::istream &stream, const std:
         stream >> cumOffset;
     }
 
-    while (stream.getBytesRemaining() > GetEntryByteCount(map.Version))
+    while (stream.GetBytesRemaining() > GetEntryByteCount(map.Version))
     {
         AudioMapEntry entry = { };
         switch (map.Version)
@@ -233,7 +233,7 @@ void AudioMapReadFrom(ResourceEntity &resource, sci::istream &stream, const std:
             case AudioMapVersion::EightBytes:
             {
                 stream >> entry.Number;
-                stream.skip(2); // This should be 0xffff
+                stream.SkipBytes(2); // This should be 0xffff
                 stream >> entry.Offset;
             }
                 break;

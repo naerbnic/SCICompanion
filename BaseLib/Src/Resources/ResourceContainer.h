@@ -202,18 +202,18 @@ public:
             state.mapStreamOffset = lookupPointers[state.lookupTableIndex].wOffset;
         }
 
-        mapStream.seekg(state.mapStreamOffset);
+        mapStream.SeekAbsolute(state.mapStreamOffset);
 
         assert(lookupPointers.size() > 0);
         // If the current seek pointer is beyond the next lookup then stop.
         // We use a while loop, since it's possible some sections are of zero length.
         // And we can do a perf optimization to skip unneeded sections too
         while ((state.lookupTableIndex < (lookupPointers.size() - 1))  &&
-            ((mapStream.tellg() >= (uint32_t)lookupPointers[state.lookupTableIndex + 1].wOffset) ||
+            ((mapStream.GetAbsolutePosition() >= (uint32_t)lookupPointers[state.lookupTableIndex + 1].wOffset) ||
             !IsFlagSet(typeFlags, ResourceTypeToFlag((ResourceType)(lookupPointers[state.lookupTableIndex].bType & ~0x80)))))
         {
             state.lookupTableIndex++;
-            mapStream.seekg(lookupPointers[state.lookupTableIndex].wOffset);
+            mapStream.SeekAbsolute(lookupPointers[state.lookupTableIndex].wOffset);
         }
 
         if (lookupPointers[state.lookupTableIndex].bType == 0xff)
@@ -234,8 +234,8 @@ public:
         entryOut.Type = (ResourceType)(lookupPointers[state.lookupTableIndex].bType & 0x7f);
         entry.SetOffsetNumberAndPackage(entryOut);
 
-        state.mapStreamOffset = mapStream.tellg();
-        return mapStream.good();
+        state.mapStreamOffset = mapStream.GetAbsolutePosition();
+        return mapStream.IsGood();
     }
 
     void WriteEntry(const ResourceMapEntryAgnostic &entryIn, sci::ostream &mapStreamWriteMain, sci::ostream &mapStreamWriteSecondary, bool isNewEntry)
@@ -279,7 +279,7 @@ public:
         sci::istream readStream = istream_from_ostream(mapStreamWriteSecondary);
         // Write the version-specific map entries to individual streams corresponding to their type.
         // First stick them in an array to sort them though. SCI1.1 requires sorted resources. Not sure if SCI1.0 does.
-        while (readStream.getBytesRemaining() > 0)
+        while (readStream.GetBytesRemaining() > 0)
         {
             ResourceMapEntryAgnostic mapEntry;
             readStream >> mapEntry;
@@ -307,7 +307,7 @@ public:
         }
 
 
-        assert(readStream.getBytesRemaining() == 0);
+        assert(readStream.GetBytesRemaining() == 0);
 
         // Now write the lookup table for all non-empty types. First, see how many entries we need.
         assert(mapStreamWriteMain.GetDataSize() == 0);
@@ -402,7 +402,7 @@ public:
 
     bool NavAndReadNextEntry(ResourceTypeFlags typeFlags, sci::istream &mapStream, IteratorState &state, ResourceMapEntryAgnostic &entryOut, std::vector<uint8_t> *optionalRawData = nullptr)
     {
-        mapStream.seekg(state.mapStreamOffset);
+        mapStream.SeekAbsolute(state.mapStreamOffset);
 
         // lookupTableIndex not used for SCI0
         _TReaderMapHeader entry;
@@ -414,8 +414,8 @@ public:
         }
 
         entryOut = entry.ToAgnostic();
-        state.mapStreamOffset = mapStream.tellg();
-        return mapStream.good();
+        state.mapStreamOffset = mapStream.GetAbsolutePosition();
+        return mapStream.IsGood();
     }
 
     void WriteEntry(const ResourceMapEntryAgnostic &entryIn, sci::ostream &mapStreamWriteMain, sci::ostream &mapStreamWriteSecondary, bool isNewEntry)
@@ -431,8 +431,8 @@ public:
     {
         // The SCI1 navigator will need to do something more complicated here.
         sci::istream reader = istream_from_ostream(mapStreamWriteSecondary);
-        reader.seekg(0);
-        transfer(reader, mapStreamWriteMain, reader.getBytesRemaining());
+        reader.SeekAbsolute(0);
+        transfer(reader, mapStreamWriteMain, reader.GetBytesRemaining());
 
         // We need to write the terminating bits here
         _TReaderMapHeader entryTerm;

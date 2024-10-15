@@ -148,7 +148,7 @@ sci::istream AudioResourceSource::GetHeaderAndPositionedStream(const ResourceMap
     if (auto optReader= _EnsureReadOnlyAudioVolume(mapEntry.Base36Number))
     {
         sci::istream reader = std::move(optReader).value();
-        reader.seekg(mapEntry.Offset);
+        reader.SeekAbsolute(mapEntry.Offset);
         headerEntry.Number = mapEntry.Number;
         headerEntry.Base36Number = mapEntry.Base36Number;
         headerEntry.PackageHint = mapEntry.PackageNumber;
@@ -170,7 +170,7 @@ sci::istream AudioResourceSource::GetHeaderAndPositionedStream(const ResourceMap
         // To know how big we are, we need to read the audio header.
         // This comes after the lipsync data
         sci::istream audioReader = reader;      // Make a copy
-        audioReader.skip(mapEntry.ExtraData);   // Lip sync data size
+        audioReader.SkipBytes(mapEntry.ExtraData);   // Lip sync data size
 
         if (_version.AudioIsWav && (_mapContext == _version.AudioMapResourceNumber))
         {

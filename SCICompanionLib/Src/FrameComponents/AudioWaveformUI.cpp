@@ -101,7 +101,7 @@ void AudioWaveformUI::SetRawLipSyncData(const SyncComponent &sync)
         uint16_t binaryPhoneme;
         stream >> binaryPhoneme;
         uint16_t previousAccTick = 0;
-        while (stream.has_more_data() && binaryPhoneme != 0x7d7d) // }}
+        while (stream.HasMoreData() && binaryPhoneme != 0x7d7d) // }}
         {
             uint16_t accumulatedTicks;
             stream >> accumulatedTicks;

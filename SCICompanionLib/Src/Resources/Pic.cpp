@@ -133,7 +133,7 @@ void _ReadRelativePatterns(vector<PicCommand> &picCommands, sci::istream &stream
     RelativeCoords relCoords(absCoords);
 
     uint8_t bTemp;
-    while (stream.has_more_data() && stream.peek(bTemp) && (bTemp < 0xf0))
+    while (stream.HasMoreData() && stream.PeekByte(bTemp) && (bTemp < 0xf0))
     {
         if (patterns.bPatternCode & PATTERN_FLAG_USE_PATTERN)
         {
@@ -163,7 +163,7 @@ void _ReadRelativePatterns(vector<PicCommand> &picCommands, sci::istream &stream
 void _ReadAbsolutePatterns(vector<PicCommand> &picCommands, sci::istream &stream, PatternInfo &patterns, bool supportsPenCommands)
 {
     uint8_t bTemp;
-    while (stream.has_more_data() && stream.peek(bTemp) && (bTemp < 0xf0))
+    while (stream.HasMoreData() && stream.PeekByte(bTemp) && (bTemp < 0xf0))
     {
         if (patterns.bPatternCode & PATTERN_FLAG_USE_PATTERN)
         {
@@ -211,7 +211,7 @@ void _ReadRelativeMediumPatterns(vector<PicCommand> &picCommands, sci::istream &
             (patterns.bPatternCode & PATTERN_FLAG_RECTANGLE) != 0));
     }
 
-    while (stream.has_more_data() && stream.peek(bTemp) && (bTemp < 0xf0))
+    while (stream.HasMoreData() && stream.PeekByte(bTemp) && (bTemp < 0xf0))
     {
         if (patterns.bPatternCode & PATTERN_FLAG_USE_PATTERN)
         {
@@ -255,7 +255,7 @@ void _ReadRelativeMediumLines(vector<PicCommand> &picCommands, sci::istream &str
     AbsoluteCoords absCoords;
     stream >> absCoords;
     uint8_t bInput;
-    while (stream.peek(bInput) && (bInput < 0xf0))
+    while (stream.PeekByte(bInput) && (bInput < 0xf0))
     {
         uint8_t bTemp;
         stream >> bTemp;
@@ -281,7 +281,7 @@ void _ReadRelativeLongLines(vector<PicCommand> &picCommands, sci::istream &strea
     AbsoluteCoords absCoordsOne;
     stream >> absCoordsOne;
     uint8_t bInput;
-    while (stream.peek(bInput) && (bInput < 0xf0))
+    while (stream.PeekByte(bInput) && (bInput < 0xf0))
     {
         AbsoluteCoords absCoordsTwo;
         stream >> absCoordsTwo;
@@ -298,7 +298,7 @@ void _ReadRelativeShortLines(vector<PicCommand> &picCommands, sci::istream &stre
     stream >> absCoords;
     RelativeCoords relCoords(absCoords);
     uint8_t bInput;
-    while (stream.peek(bInput) && (bInput < 0xf0))
+    while (stream.PeekByte(bInput) && (bInput < 0xf0))
     {
         stream >> relCoords;
         picCommands.push_back(PicCommand::CreateLine(relCoords.xPrev, relCoords.yPrev, relCoords.x, relCoords.y));
@@ -309,7 +309,7 @@ void _ReadRelativeShortLines(vector<PicCommand> &picCommands, sci::istream &stre
 void _ReadFill(vector<PicCommand> &picCommands, sci::istream &stream)
 {
     uint8_t bTemp;
-    while (stream.has_more_data() && stream.peek(bTemp) && (bTemp < 0xf0))
+    while (stream.HasMoreData() && stream.PeekByte(bTemp) && (bTemp < 0xf0))
     {
         AbsoluteCoords absCoords;
         stream >> absCoords;
@@ -321,7 +321,7 @@ void _ReadFill(vector<PicCommand> &picCommands, sci::istream &stream)
 void _ReadSetPaletteEntry(vector<PicCommand> &picCommands, sci::istream &stream)
 {
     uint8_t bTemp;
-    while (stream.has_more_data() && stream.peek(bTemp) && (bTemp < 0xf0))
+    while (stream.HasMoreData() && stream.PeekByte(bTemp) && (bTemp < 0xf0))
     {
         uint8_t bIndex, bColor;
         stream >> bIndex;
@@ -424,13 +424,13 @@ void ReadEmbeddedView(sci::istream &byteStream, PicComponent &pic, bool isVGA)
     byteStream >> absCoords;
     uint16_t size;
     byteStream >> size;
-    DWORD finalPosition = byteStream.tellg() + size;
+    DWORD finalPosition = byteStream.GetAbsolutePosition() + size;
     Cel cel;
     byteStream >> cel.size.cx;
     byteStream >> cel.size.cy;
-    byteStream.skip(2);
+    byteStream.SkipBytes(2);
     byteStream >> cel.TransparentColor; // TODO: SCI1.1 ignores this and uses white always.
-    byteStream.skip(1);
+    byteStream.SkipBytes(1);
     cel.placement.x = absCoords.x;
     cel.placement.y = absCoords.y;
     ReadImageData(byteStream, cel, isVGA);
@@ -441,7 +441,7 @@ void ReadEmbeddedView(sci::istream &byteStream, PicComponent &pic, bool isVGA)
     // Should invesigate why this hits. Or does it not matter?
     // Should we just advance the thing??
     //assert(finalPosition == byteStream.tellg());
-    byteStream.seekg(finalPosition);
+    byteStream.SeekAbsolute(finalPosition);
 }
 
 void PicReadExtendedFunctionSCI1(ResourceEntity &resource, PicComponent &pic, sci::istream &byteStream)
@@ -501,12 +501,12 @@ void PicReadExtendedFunctionSCI0(ResourceEntity &resource, PicComponent &pic, sc
             break;
         case 0x02: // PIC_OPX_MONO0 
             // assert(false); // Hits in KQ1VGA
-            byteStream.skip(41);
+            byteStream.SkipBytes(41);
             break;
         case 0x03: // PIC_OPX_MONO1 
         case 0x05: // PIC_OPX_MONO3 
             // assert(false); // Hits in LB
-            byteStream.skip(1);
+            byteStream.SkipBytes(1);
             break;
         case 0x04: // PIC_OPX_MONO2 
         case 0x06: // PIC_OPX_MONO4
@@ -539,7 +539,7 @@ void PicReadFromSCI0_SCI1(ResourceEntity &resource, sci::istream &byteStream, bo
 
     PatternInfo patterns;
     bool fDone = false;
-    while (!fDone && byteStream.good() && byteStream.has_more_data())
+    while (!fDone && byteStream.IsGood() && byteStream.HasMoreData())
     {
         uint8_t bOpcode;
         byteStream >> bOpcode;
@@ -751,13 +751,13 @@ void PicReadFromVGA11(ResourceEntity &resource, sci::istream &byteStream, const 
 
     // Priority bands are at offset 40.
     // Make a priority band set command
-    byteStream.seekg(40);
+    byteStream.SeekAbsolute(40);
     AddSetPriorityBarsCommand(byteStream, pic, true, true);
 
     if (header.paletteOffset)
     {
         resource.AddComponent(move(make_unique<PaletteComponent>()));
-        byteStream.seekg(header.paletteOffset);
+        byteStream.SeekAbsolute(header.paletteOffset);
         ReadPalette(resource.GetComponent<PaletteComponent>(), byteStream);
     }
 
@@ -766,7 +766,7 @@ void PicReadFromVGA11(ResourceEntity &resource, sci::istream &byteStream, const 
         assert(header.celCount == 1);
         assert(header.paletteOffset != 0);
         Cel celTemp;
-        byteStream.seekg(header.celHeaderOffset);
+        byteStream.SeekAbsolute(header.celHeaderOffset);
         ReadCelFromVGA11(byteStream, celTemp, true);
         // "plug it in" to our system by making a drawing command for it, just like SCI 1.0 VGA would do
         // SCI 1.1 pics can be 200 pixels high:
@@ -778,7 +778,7 @@ void PicReadFromVGA11(ResourceEntity &resource, sci::istream &byteStream, const 
         pic.commands.back().CreateDrawVisualBitmap(celTemp, true);
     }
 
-    byteStream.seekg(header.vectorDataOffset);
+    byteStream.SeekAbsolute(header.vectorDataOffset);
     PicReadFromSCI0_SCI1(resource, byteStream, true);
 }
 
@@ -922,7 +922,7 @@ void ReadPicCelFromVGA2(sci::istream &byteStream, Cel &cel, int16_t &priority, b
         gMAxPri = max(priority, gMAxPri);
     }
 
-    byteStream.seekg(celHeader.controlOffset);
+    byteStream.SeekAbsolute(celHeader.controlOffset);
     if ((celHeader.colorOffset == 0) || (celHeader.compressed == 0))
     {
         size_t dataSize = celHeader.size.cx * celHeader.size.cy; // Not sure if padding happens?
@@ -954,18 +954,18 @@ void PicReadFromVGA2(ResourceEntity &resource, sci::istream &byteStream, const s
     pic.Size.cx = max(pic.Size.cx, 320);
     pic.Size.cy = max(pic.Size.cy, 200);
 
-    uint32_t base = byteStream.tellg();
+    uint32_t base = byteStream.GetAbsolutePosition();
 
 
     // Investigation:
-    byteStream.seekg(base + header.celCount * header.celHeaderSize);
+    byteStream.SeekAbsolute(base + header.celCount * header.celHeaderSize);
     Temp temp;
     byteStream >> temp;
 
 
     for (uint8_t cel = 0; cel < header.celCount; cel++)
     {
-        byteStream.seekg(base + cel * header.celHeaderSize);
+        byteStream.SeekAbsolute(base + cel * header.celHeaderSize);
         Cel picCel;
         int16_t priority;
         ReadPicCelFromVGA2(byteStream, picCel, priority, pic.Size.cx >= 640);
@@ -984,7 +984,7 @@ void PicReadFromVGA2(ResourceEntity &resource, sci::istream &byteStream, const s
     if (header.paletteOffset)
     {
         resource.AddComponent(move(make_unique<PaletteComponent>()));
-        byteStream.seekg(header.paletteOffset);
+        byteStream.SeekAbsolute(header.paletteOffset);
         ReadPalette(resource.GetComponent<PaletteComponent>(), byteStream);
     }
 }

@@ -54,7 +54,7 @@ void ReadLetter(RasterComponent &raster, int nLetter, sci::istream &byteStream)
     int cBytesToReadPerLine = (((int)cel.size.cx) + 7) / 8;
 
     // Now transfer from the resource into our datastructure.
-    for (int y = 0; byteStream.good() && (y < (int)cel.size.cy); y++)
+    for (int y = 0; byteStream.IsGood() && (y < (int)cel.size.cy); y++)
     {
         int cBitsRemainingThisLine = cx;
 
@@ -105,7 +105,7 @@ void FontReadFrom(ResourceEntity &resource, sci::istream &byteStream, const std:
         uint16_t wOffset;
         byteStream >> wOffset;
         sci::istream byteStreamLetter(byteStream);
-        byteStreamLetter.seekg(wOffset);
+        byteStreamLetter.SeekAbsolute(wOffset);
         ReadLetter(raster, i, byteStreamLetter);
     }
 }

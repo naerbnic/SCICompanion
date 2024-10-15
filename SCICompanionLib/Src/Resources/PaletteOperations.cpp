@@ -352,9 +352,9 @@ void WritePaletteSCI2(sci::ostream &byteStream, const PaletteComponent &palette)
 
 void ReadPalette(PaletteComponent &palette, sci::istream &byteStream)
 {
-    uint32_t startPosition = byteStream.tellg();
+    uint32_t startPosition = byteStream.GetAbsolutePosition();
     int end = 0;
-    if (byteStream.getBytesRemaining() >= 37)   // This is a special case for pic 0 in SQ5.
+    if (byteStream.GetBytesRemaining() >= 37)   // This is a special case for pic 0 in SQ5.
     {
         PaletteHeader header;
         byteStream >> header;
@@ -381,7 +381,7 @@ void ReadPalette(PaletteComponent &palette, sci::istream &byteStream)
             palOffset = 37;
         }
 
-        byteStream.seekg(startPosition + palOffset);
+        byteStream.SeekAbsolute(startPosition + palOffset);
 
         end = (header.palColorStart + header.palColorCount);
 

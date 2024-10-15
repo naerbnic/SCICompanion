@@ -49,7 +49,7 @@ static ViewFormat _DetectViewVGAVersion(const ResourceLoader& resource_loader, c
                 uint16_t headerSize;
                 stream >> headerSize;
                 uint8_t loopHeaderSize, celHeaderSize;
-                stream.seekg(12);
+                stream.SeekAbsolute(12);
                 stream >> loopHeaderSize;
                 stream >> celHeaderSize;
                 if ((headerSize >= 16) && (loopHeaderSize >= 16) && (celHeaderSize >= 32))
@@ -100,10 +100,10 @@ ResourcePackageFormat _DetectPackageFormat(const GameFolderHelper &helper, Resou
         sci::istream byteStream = sci::istream::ReadFromFile(holder.hFile);
         bool sci1Aligned = false;
 
-        while ((byteStream.getBytesRemaining() >= 9) && (byteStream.tellg() < dataReadLimit))
+        while ((byteStream.GetBytesRemaining() >= 9) && (byteStream.GetAbsolutePosition() < dataReadLimit))
         {
             // [type/resid], or [type,resid]
-            byteStream.skip((packageFormat == ResourcePackageFormat::SCI0) ? 2 : 3);
+            byteStream.SkipBytes((packageFormat == ResourcePackageFormat::SCI0) ? 2 : 3);
             uint16_t packedSize, unpackedSize, compression;
             byteStream >> packedSize;
             byteStream >> unpackedSize;
@@ -142,18 +142,18 @@ ResourcePackageFormat _DetectPackageFormat(const GameFolderHelper &helper, Resou
                 }
 
                 // Start from the beginning again
-                byteStream.seekg(0);
+                byteStream.SeekAbsolute(0);
             }
             else
             {
                 // Keep going to the next resource
                 if (packageFormat < ResourcePackageFormat::SCI11)
                 {
-                    byteStream.seekg(packedSize - 4, ios_base::cur);
+                    byteStream.Seek(packedSize - 4, ios_base::cur);
                 }
                 else if (packageFormat == ResourcePackageFormat::SCI11)
                 {
-                    byteStream.seekg(sci1Aligned && ((9 + packedSize) % 2) ? packedSize + 1 : packedSize, ios_base::cur);
+                    byteStream.Seek(sci1Aligned && ((9 + packedSize) % 2) ? packedSize + 1 : packedSize, ios_base::cur);
                 }
                 else
                 {
@@ -176,7 +176,7 @@ static bool _HasEarlySCI0Scripts(const GameFolderHelper &helper, const SCIVersio
         uint32_t offset = 2;
         while (byteStream.GetDataSize() > offset)
         {
-            byteStream.seekg(offset);
+            byteStream.SeekAbsolute(offset);
             uint16_t objectType;
             byteStream >> objectType;
 
@@ -361,10 +361,10 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
     // Detect SCI0 by checking to see if the last 6 bytes are 0xff
     {
         sci::istream byteStreamSCI0 = byteStream;
-        byteStreamSCI0.seekg(-6, std::ios_base::end);
+        byteStreamSCI0.Seek(-6, std::ios_base::end);
         uint8_t ffs[6];
         byteStreamSCI0.read_data(ffs, sizeof(ffs));
-        if (byteStreamSCI0.good())
+        if (byteStreamSCI0.IsGood())
         {
             mustBeSCI0 = std::count(ffs, ffs + sizeof(ffs), 0xff) == 6;
         }
@@ -375,7 +375,7 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
     bool couldBeSCI2 = false;
     int remainingEntries = 7;
     std::vector<uint16_t> offsets;
-    while (byteStream.good() && couldBeSCI1 && (remainingEntries > 0))
+    while (byteStream.IsGood() && couldBeSCI1 && (remainingEntries > 0))
     {
         RESOURCEMAPPREENTRY_SCI1 sci1Header;
         byteStream >> sci1Header;
@@ -437,7 +437,7 @@ ResourceMapFormat _DetectMapFormat(const GameFolderHelper &helper)
             std::set<int> volumesSCI0;
             std::set<int> volumesSCI1;
             static_assert(sizeof(RESOURCEMAPENTRY_SCI0) == sizeof(RESOURCEMAPENTRY_SCI0_SCI1LAYOUT), "Mismatched resource map entry size.");
-            while (byteStreamSCI0.good())
+            while (byteStreamSCI0.IsGood())
             {
                 RESOURCEMAPENTRY_SCI0 mapEntrySCI0;
                 byteStreamSCI0 >> mapEntrySCI0;

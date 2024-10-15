@@ -34,7 +34,7 @@ void MessageReadFrom_2102(TextComponent &messageComponent, sci::istream &byteStr
         uint16_t textOffset;
         byteStream >> textOffset;
         sci::istream textStream = byteStream;
-        textStream.seekg(textOffset);
+        textStream.SeekAbsolute(textOffset);
         textStream >> message.Text;
 
         messageComponent.Texts.push_back(message);
@@ -43,7 +43,7 @@ void MessageReadFrom_2102(TextComponent &messageComponent, sci::istream &byteStr
 
 void MessageReadFrom_3411(TextComponent &messageComponent, sci::istream &byteStream)
 {
-    byteStream.skip(2);     // ptr to first byte past text data (?)
+    byteStream.SkipBytes(2);     // ptr to first byte past text data (?)
     uint16_t messageCount;
     byteStream >> messageCount;
 
@@ -57,9 +57,9 @@ void MessageReadFrom_3411(TextComponent &messageComponent, sci::istream &byteStr
         byteStream >> message.Talker;
         uint16_t textOffset;
         byteStream >> textOffset;
-        byteStream.skip(3); // Unknown?
+        byteStream.SkipBytes(3); // Unknown?
         sci::istream textStream = byteStream;
-        textStream.seekg(textOffset);
+        textStream.SeekAbsolute(textOffset);
         textStream >> message.Text;
 
         messageComponent.Texts.push_back(message);
@@ -97,7 +97,7 @@ void MessageReadFrom_4000(TextComponent &messageComponent, sci::istream &byteStr
         // At any rate, presumably it's useful.
 
         sci::istream textStream = byteStream;
-        textStream.seekg(textOffset);
+        textStream.SeekAbsolute(textOffset);
         textStream >> message.Text;
 
         messageComponent.Texts.push_back(message);
@@ -149,7 +149,7 @@ void MessageReadFrom(ResourceEntity &resource, sci::istream &byteStream, const s
     TextComponent &message = resource.GetComponent<TextComponent>();
 
     byteStream >> message.msgVersion;
-    byteStream.skip(2);
+    byteStream.SkipBytes(2);
     if (message.msgVersion <= 0x835)        // 2101
     {
         message.Flags = MessagePropertyFlags::Noun | MessagePropertyFlags::Verb;

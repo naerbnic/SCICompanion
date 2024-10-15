@@ -96,12 +96,12 @@ public:
     const uint8_t* GetInternalPointer() const;
 
     // New api
-    bool good()
+    bool IsGood()
     {
         return (_state & (std::ios_base::failbit | std::ios_base::eofbit)) == 0;
     }
 
-    bool has_more_data() { return tellg() < GetDataSize(); }
+    bool HasMoreData() { return GetAbsolutePosition() < GetDataSize(); }
     istream& operator>>(uint16_t& w);
     istream& operator>>(uint8_t& b);
     istream& operator>>(std::string& str);
@@ -122,29 +122,29 @@ public:
     template <class _T>
     istream& operator>>(_T& t)
     {
-        uint32_t dwSave = tellg();
+        uint32_t dwSave = GetAbsolutePosition();
         if (!_Read(reinterpret_cast<uint8_t*>(&t), sizeof(t)))
         {
-            seekg(dwSave);
+            SeekAbsolute(dwSave);
             memset(&t, 0, sizeof(t));
             _state = std::ios_base::eofbit | std::ios_base::failbit;
         }
         return *this;
     }
 
-    void seekg(uint32_t dwIndex);
-    void seekg(int32_t offset, std::ios_base::seekdir way);
-    uint32_t tellg() { return _iIndex; }
+    void SeekAbsolute(uint32_t dwIndex);
+    void Seek(int32_t offset, std::ios_base::seekdir way);
+    uint32_t GetAbsolutePosition() const { return _iIndex; }
 
-    uint32_t getBytesRemaining()
+    uint32_t GetBytesRemaining() const
     {
         return (GetDataSize() > _iIndex) ? (GetDataSize() - _iIndex) : 0;
     }
 
-    void skip(uint32_t cBytes);
-    bool peek(uint8_t& b);
-    bool peek(uint16_t& w);
-    uint8_t peek();
+    void SkipBytes(uint32_t cBytes);
+    bool PeekByte(uint8_t& b);
+    bool PeekWord(uint16_t& w);
+    uint8_t PeekByte();
 
     void setThrowExceptions(bool shouldThrow)
     {

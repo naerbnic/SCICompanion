@@ -145,11 +145,11 @@ void TextReadFrom(ResourceEntity &resource, sci::istream &byteStream, const std:
     // Catch our own exceptions.
     try
     {
-        while (byteStream.has_more_data())
+        while (byteStream.HasMoreData())
         {
             string str;
             byteStream >> str;
-            if (byteStream.good())
+            if (byteStream.IsGood())
             {
                 TextEntry entry = { 0 };
                 entry.Text = str;
