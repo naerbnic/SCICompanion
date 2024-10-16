@@ -30,6 +30,8 @@ namespace sci
         MemoryBuffer& operator=(MemoryBuffer&& other) noexcept = default;
 
         std::size_t GetSize() const;
+        // Returns all the data contained in this buffer. The returned value is owned by
+        // the buffer and will be valid until the buffer is dropped.
         absl::Span<const uint8_t> GetAllData() const;
         absl::StatusOr<absl::Span<const uint8_t>> GetData(std::size_t offset = 0, std::optional<std::size_t> size = std::nullopt) const;
 

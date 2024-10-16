@@ -83,9 +83,6 @@ public:
         // return min(_nLineLimit + 1, );
     }
 
-    int _id;
-    int *GetIdPtr() { return &_id; }    // REVIEW: What's this for?
-
 	int GetLineLength(int nLine)
     {
         return _pBuffer->GetLineLength(nLine);
@@ -139,17 +136,17 @@ public:
 		typedef char& reference;
 		typedef char* pointer;
 
-        const_iterator() : _limiter(NULL), _pidStream(NULL), _id(0) {}
+        const_iterator() : _limiter(nullptr) {}
         const_iterator(CScriptStreamLimiter *limiter, LineCol dwPos = LineCol());
         char operator*();
         const_iterator& operator++();
-        bool operator<(const const_iterator& _Right) const;
+        bool operator<(const const_iterator& other) const;
         std::string tostring() const;
         LineCol GetPosition() const;
         int GetLineNumber() const;
         int GetColumnNumber() const;
-        bool operator==(const const_iterator& value) const;
-        bool operator!=(const const_iterator& value) const;
+        bool operator==(const const_iterator& other) const;
+        bool operator!=(const const_iterator& other) const;
         void Restore(const const_iterator &prev);
         void ResetLine();
 
@@ -158,13 +155,14 @@ public:
 		int CountPosition(int tabSize) const;
 
     private:
+        void Advance();
+        bool AtEnd() const;
+        int Compare(const const_iterator& other) const;
         CScriptStreamLimiter *_limiter;
         int _nLine;
         int _nChar;
         PCTSTR _pszLine;
         int _nLength;
-        int _id;
-        int *_pidStream;
     };
 
     const_iterator begin() { return const_iterator(_pLimiter); }
