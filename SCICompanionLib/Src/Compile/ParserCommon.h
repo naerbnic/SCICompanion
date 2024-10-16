@@ -13,6 +13,7 @@
 ***************************************************************************/
 #pragma once
 
+#include "CrystalScriptStream.h"
 #include "ParseAutoCompleteContext.h"
 
 // Common parser routines
@@ -41,8 +42,8 @@ namespace sci
 //
 // A comment was detected - add it (text and endpoints) to the script.
 //
-template<typename TContext, typename _It>
-inline void _DoComment(TContext *pContext, const _It &streamBegin, const _It &streamEnd, sci::CommentType type)
+template<typename TContext>
+inline void _DoComment(TContext *pContext, const ScriptCharIterator &streamBegin, const ScriptCharIterator &streamEnd, sci::CommentType type)
 {
     std::string comment;
     // Transfer to string:
@@ -78,8 +79,8 @@ class EatCommentCpp
 public:
     // c++ style comments:
     // // and /***/
-    template<typename TContext, typename _It>
-    static void EatWhitespaceAndComments(TContext *pContext, _It &stream)
+    template<typename TContext>
+    static void EatWhitespaceAndComments(TContext *pContext, ScriptCharIterator &stream)
     {
         bool fDone = false;
         while (!fDone)
@@ -91,7 +92,7 @@ public:
                 fDone = false;
                 ++stream;
             }
-            _It streamSave(stream);
+            ScriptCharIterator streamSave(stream);
             if (*stream == '/')
             {
                 char ch = *(++stream);
@@ -113,7 +114,7 @@ public:
                         pContext->PopParseAutoCompleteContext();
                         // If there were previous non-whitespace chars on this line, consider this comment "positioned".
                         bool foundNonWhitespace = false;
-                        _It streamLineBegin(streamSave);
+                        ScriptCharIterator streamLineBegin(streamSave);
                         streamLineBegin.ResetLine();
                         while (!foundNonWhitespace && (streamLineBegin != streamSave))
                         {
@@ -196,8 +197,8 @@ class EatCommentSemi
 public:
     // Semi-colon style comments:
     // ;
-    template<typename TContext, typename _It>
-    static void EatWhitespaceAndComments(TContext *pContext, _It &stream)
+    template<typename TContext>
+    static void EatWhitespaceAndComments(TContext *pContext, ScriptCharIterator &stream)
     {
         bool fDone = false;
         while (!fDone)
@@ -211,7 +212,7 @@ public:
                 fDone = false;
                 ++stream;
             }
-            _It streamSave(stream);
+            ScriptCharIterator streamSave(stream);
             if (*stream == ';')
             {
                 // Indicate we're in a comment for autocomplete's sake
@@ -279,8 +280,8 @@ private:
 // Forced spaces are indicated by underscores.
 // Underscores are indicated by \_
 //
-template<typename _TContext, typename _It, char Q1, char Q2>
-bool _ReadStringSCI(_TContext *pContext, _It &stream, std::string &str)
+template<typename _TContext, char Q1, char Q2>
+bool _ReadStringSCI(_TContext *pContext, ScriptCharIterator &stream, std::string &str)
 {
     str.clear();
     if (Q1 == *stream)
@@ -408,8 +409,8 @@ private:
 //
 // Optimized delimiter reader
 //
-template<typename _TContext, typename _CommentPolicy, typename _It, char Q1, char Q2>
-bool _ReadStringStudio(_TContext *pContext, _It &stream, std::string &str)
+template<typename _TContext, typename _CommentPolicy, char Q1, char Q2>
+bool _ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::string &str)
 {
     IndicateStringType<_TContext> indicateStringType(pContext, Q1);
     str.clear();
@@ -463,7 +464,7 @@ bool _ReadStringStudio(_TContext *pContext, _It &stream, std::string &str)
                 // If we encountered a '+', then skip whitespace until we hit another open quote
                 // "huwehuierger"+   "gejriger"
                 ++stream;
-                _CommentPolicy::EatWhitespaceAndComments<_TContext, _It>(nullptr, stream);
+                _CommentPolicy::EatWhitespaceAndComments<_TContext>(nullptr, stream);
                 // ... and continue...
             }
             else
@@ -502,7 +503,7 @@ private:
 };
 
 
-template<typename _TContext, typename _It, typename _CommentPolicy>
+template<typename _TContext, typename _CommentPolicy>
 class ParserBase : private _CommentPolicy
 {
     using _CommentPolicy::EatWhitespaceAndComments;
@@ -513,9 +514,9 @@ public:
     std::string Name;
 #endif
 
-    using MatchingFunction = bool(*)(const ParserBase *pParser, _TContext *pContext, _It &stream);
+    using MatchingFunction = bool(*)(const ParserBase *pParser, _TContext *pContext, ScriptCharIterator &stream);
     using DebugFunction = void(*)(bool fEnter, bool fResult);
-    using Action = void(*)(MatchResult &match, const ParserBase *pParser, _TContext *pContext, const _It &stream);
+    using Action = void(*)(MatchResult &match, const ParserBase *pParser, _TContext *pContext, const ScriptCharIterator &stream);
 
     struct ActionAndContext
     {
@@ -534,14 +535,12 @@ public:
     // Fwd decl (Used for circular references in grammer descriptions)
     // If an empty Parser is created (since you need to refer to it subsequently, but you can't
     // define it yet), it will be endowed with this matching function.
-    template<typename _It>
-    bool static ReferenceForwarderP(const ParserBase *pParser, _TContext *pContext, _It &stream)
+    bool static ReferenceForwarderP(const ParserBase *pParser, _TContext *pContext, ScriptCharIterator &stream)
     {
         assert(FALSE);
         return false; // Just a dummy return value
     }
 
-    template<typename _It>
     void static CopyParserVector(std::vector<std::unique_ptr<ParserBase>> &out, const std::vector<std::unique_ptr<ParserBase>> &in)
     {
         out.clear();
@@ -560,13 +559,13 @@ public:
             _pa.reset(nullptr);
             _psz = nullptr;
             _pRef = &src;
-            _pfn = ReferenceForwarderP<_It>;
+            _pfn = ReferenceForwarderP;
             _pfnA = nullptr;
             _pacc = NoChannels;
             _pfnDebug = nullptr;
             _fLiteral = false; // Doesn't matter
             _fOnlyRef = false; // We're a ref, so people can copy us.
-            //assert(src._pfn != ReferenceForwarderP<_It>); 
+            //assert(src._pfn != ReferenceForwarderP<ScriptCharIterator>); 
         }
         else
         {
@@ -583,10 +582,10 @@ public:
             {
                 // No matching function means this is an empty parser... pass a ref to the source
                 _pRef = &src;
-                _pfn = ReferenceForwarderP<_It>;
-                assert(src._pfn != ReferenceForwarderP<_It>);
+                _pfn = ReferenceForwarderP;
+                assert(src._pfn != ReferenceForwarderP);
             }
-            CopyParserVector<_It>(_parsers, src._parsers);
+            CopyParserVector(_parsers, src._parsers);
         }
 #ifdef DEBUG
         Name = src.Name;
@@ -612,11 +611,11 @@ public:
                 //assert(FALSE); // We probably never hit this - but if we do, we should check if things are right.
                 // No matching function means this is an empty parser... pass a ref to the source
                 _pRef = &src;
-                _pfn = ReferenceForwarderP<_It>;
+                _pfn = ReferenceForwarderP;
             }
             else
             {
-                CopyParserVector<_It>(_parsers, src._parsers);
+                CopyParserVector(_parsers, src._parsers);
             }
 #ifdef DEBUG
             Name = src.Name;
@@ -633,14 +632,14 @@ public:
     ParserBase(MatchingFunction pfn, const char *psz) : _pfn(pfn), _psz(psz), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _pacc(NoChannels)
     {
     }
-    MatchResult Match(_TContext *pContext, _It &stream) const
+    MatchResult Match(_TContext *pContext, ScriptCharIterator &stream) const
     {
         assert(_pfn);
         if (!_fLiteral)
         {
-            EatWhitespaceAndComments<_TContext, _It>(pContext, stream);
+            EatWhitespaceAndComments<_TContext>(pContext, stream);
         }
-        _It streamSave(stream);
+        ScriptCharIterator streamSave(stream);
 #ifdef PARSE_DEBUG
         string text;
 
@@ -752,14 +751,14 @@ public:
     {
         // This is for matching functions that need an array
         // Be careful the matching function hasn't been replaced with a reference forwarder!
-        assert(_pfn != ReferenceForwarderP<_It>);
+        assert(_pfn != ReferenceForwarderP);
         _parsers.push_back(std::move(std::make_unique<ParserBase>(add)));
     }
 
-    template<typename _TContext, typename _It, char Q1, char Q2>
-    bool ReadStringStudio(_TContext *pContext, _It &stream, std::string &str) const
+    template<typename _TContext, char Q1, char Q2>
+    bool ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::string &str) const
     {
-        return _ReadStringStudio<_TContext, _CommentPolicy, _It, Q1, Q2>(pContext, stream, str);
+        return _ReadStringStudio<_TContext, _CommentPolicy, Q1, Q2>(pContext, stream, str);
     }
 
     std::unique_ptr<ParserBase> _pa;
@@ -912,8 +911,8 @@ bool IntegerExpandedPWorker(_TContext *pContext, _It &stream)
 //
 // Handles negation, hex, binary, character literals, etc...
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool IntegerExpandedP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool IntegerExpandedP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     return IntegerExpandedPWorker(pContext, stream);
 }

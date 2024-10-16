@@ -23,7 +23,8 @@ namespace sci
 }
 
 template<typename _TParser>
-void FunctionStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FunctionStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                        const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -32,7 +33,7 @@ void FunctionStatementA(MatchResult &match, const _TParser *pParser, SyntaxConte
 }
 
 template<typename _TParser>
-void AddUseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void AddUseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -41,7 +42,7 @@ void AddUseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContex
 }
 
 template<typename _TParser>
-void AddIncludeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void AddIncludeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -50,7 +51,8 @@ void AddIncludeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pCo
 }
 
 template<typename _TParser>
-void ScriptNumberA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ScriptNumberA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -66,7 +68,7 @@ void ScriptNumberA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<typename _TParser>
-void GenTextA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void GenTextA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -75,7 +77,8 @@ void GenTextA(MatchResult &match, const _TParser *pParser, SyntaxContext *pConte
 }
 
 template<char const* error = nullptr, typename _TParser>
-void PropValueIntA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void PropValueIntA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -94,7 +97,8 @@ void PropValueIntA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<sci::ValueType type, const char *error = nullptr, typename _TParser>
-void PropValueStringA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void PropValueStringA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -113,7 +117,8 @@ void PropValueStringA(MatchResult &match, const _TParser *pParser, SyntaxContext
 // Defines
 //
 template<typename _TParser>
-void CreateDefineA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void CreateDefineA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -123,7 +128,8 @@ void CreateDefineA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<typename _TParser>
-void DefineLabelA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void DefineLabelA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                  const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -137,7 +143,8 @@ void DefineLabelA(MatchResult &match, const _TParser *pParser, SyntaxContext *pC
 }
 
 template<typename _TParser>
-void DefineValueA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void DefineValueA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                  const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -159,7 +166,8 @@ void DefineValueA(MatchResult &match, const _TParser *pParser, SyntaxContext *pC
 }
 
 template<typename _TParser>
-void FinishDefineA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishDefineA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -172,7 +180,8 @@ void FinishDefineA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 
 // Script variable
 template<typename _TParser>
-void CreateScriptVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void CreateScriptVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -185,7 +194,8 @@ void CreateScriptVarA(MatchResult &match, const _TParser *pParser, SyntaxContext
 }
 
 template<typename _TParser>
-void ScriptVarInitA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ScriptVarInitA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                    const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -199,7 +209,8 @@ void ScriptVarInitA(MatchResult &match, const _TParser *pParser, SyntaxContext *
 }
 
 template<typename _TParser>
-void ScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                              const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -218,7 +229,8 @@ void ScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser, Synta
 }
 
 template<typename _TParser>
-void FinishScriptVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishScriptVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -229,7 +241,8 @@ void FinishScriptVarA(MatchResult &match, const _TParser *pParser, SyntaxContext
 
 // Variable Declaration (e.g. foo[5])
 template<typename _TParser>
-void CreateVarDeclA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void CreateVarDeclA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                    const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -239,7 +252,8 @@ void CreateVarDeclA(MatchResult &match, const _TParser *pParser, SyntaxContext *
 }
 
 template<typename _TParser>
-void VarDeclSizeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void VarDeclSizeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                  const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -248,7 +262,8 @@ void VarDeclSizeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pC
 }
 
 template<typename _TParser>
-void VarDeclSizeConstantA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void VarDeclSizeConstantA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                          const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -257,7 +272,8 @@ void VarDeclSizeConstantA(MatchResult &match, const _TParser *pParser, SyntaxCon
 }
 
 template<typename _TParser>
-void VarDeclSizeErrorA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void VarDeclSizeErrorA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                       const ScriptCharIterator& stream)
 {
     if (!match.Result())
     {
@@ -267,7 +283,8 @@ void VarDeclSizeErrorA(MatchResult &match, const _TParser *pParser, SyntaxContex
 
 // Function temp vars
 template<typename _TParser>
-void StartFunctionTempVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void StartFunctionTempVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                           const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -286,7 +303,8 @@ void StartFunctionTempVarA(MatchResult &match, const _TParser *pParser, SyntaxCo
 }
 
 template<typename _TParser>
-void FinishFunctionTempVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishFunctionTempVarA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                            const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -308,7 +326,8 @@ void FinishFunctionTempVarA(MatchResult &match, const _TParser *pParser, SyntaxC
 
 // Function
 template<typename _TParser>
-void CreateProcedureA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void CreateProcedureA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -317,7 +336,8 @@ void CreateProcedureA(MatchResult &match, const _TParser *pParser, SyntaxContext
 }
 
 template<typename _TParser>
-void CreateMethodA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void CreateMethodA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -327,7 +347,8 @@ void CreateMethodA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<typename _TParser>
-void ProcedurePublicA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ProcedurePublicA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -336,7 +357,8 @@ void ProcedurePublicA(MatchResult &match, const _TParser *pParser, SyntaxContext
 }
 
 template<typename _TParser>
-void FunctionNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FunctionNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -351,7 +373,8 @@ void FunctionNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<typename _TParser>
-void FunctionParameterA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FunctionParameterA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                        const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -362,7 +385,8 @@ void FunctionParameterA(MatchResult &match, const _TParser *pParser, SyntaxConte
 }
 
 template<typename _TParser>
-void FunctionCloseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FunctionCloseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                    const ScriptCharIterator& stream)
 {
     pContext->FunctionPtr->SetEndPosition(stream.GetPosition());
     if (!match.Result() && pParser->_psz) // Check for _psz here... might have ')', or nothing.
@@ -372,7 +396,8 @@ void FunctionCloseA(MatchResult &match, const _TParser *pParser, SyntaxContext *
 }
 
 template<typename _TParser>
-void FinishProcedureA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishProcedureA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -381,7 +406,8 @@ void FinishProcedureA(MatchResult &match, const _TParser *pParser, SyntaxContext
 }
 
 template<typename _TParser>
-void ProcedureClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ProcedureClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                     const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -396,7 +422,8 @@ void ProcedureClassA(MatchResult &match, const _TParser *pParser, SyntaxContext 
 
 // Add a statement to a SyntaxNode
 template<typename _T, typename _TParser>
-void AddStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void AddStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -405,7 +432,8 @@ void AddStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<typename _TParser>
-void StartStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void StartStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                     const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -414,7 +442,8 @@ void StartStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext 
 }
 
 template<typename _TParser>
-void FinishStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -429,7 +458,8 @@ void FinishStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext
 }
 
 template<typename _T, typename _TParser>
-void SetStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -439,7 +469,8 @@ void SetStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<typename _T, char const* error, typename _TParser>
-void StatementBindTo1stA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void StatementBindTo1stA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                         const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -452,7 +483,8 @@ void StatementBindTo1stA(MatchResult &match, const _TParser *pParser, SyntaxCont
 }
 
 template<typename _T, char const* error, typename _TParser>
-void StatementBindTo2ndA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void StatementBindTo2ndA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                         const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -471,7 +503,8 @@ void StatementBindTo2ndA(MatchResult &match, const _TParser *pParser, SyntaxCont
 
 // Complex properties
 template<char const* error = nullptr, typename _TParser>
-void ComplexValueIntA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ComplexValueIntA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -489,7 +522,8 @@ void ComplexValueIntA(MatchResult &match, const _TParser *pParser, SyntaxContext
 }
 
 template<typename _TParser>
-void ComplexValueParamTotalA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ComplexValueParamTotalA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                             const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -500,7 +534,8 @@ void ComplexValueParamTotalA(MatchResult &match, const _TParser *pParser, Syntax
 
 // Set the name of a SyntaxNode
 template<typename _T, typename _TParser>
-void SetStatementNameToParamTotalA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetStatementNameToParamTotalA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -510,7 +545,8 @@ void SetStatementNameToParamTotalA(MatchResult &match, const _TParser *pParser, 
 }
 
 template<typename _TParser>
-void ComplexValuePointerA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ComplexValuePointerA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                          const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -519,7 +555,8 @@ void ComplexValuePointerA(MatchResult &match, const _TParser *pParser, SyntaxCon
 }
 
 template<sci::ValueType type, char const* error = nullptr, typename _TParser>
-void ComplexValueStringA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ComplexValueStringA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                         const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -539,7 +576,8 @@ void ComplexValueStringA(MatchResult &match, const _TParser *pParser, SyntaxCont
 }
 
 template<typename _TParser>
-void ComplexValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ComplexValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                          const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -555,7 +593,7 @@ void ComplexValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxCon
 // Syntax node
 //
 template<typename _TParser>
-bool SyntaxNodeD(const _TParser *pParser, SyntaxContext *pContext, streamIt &stream)
+bool SyntaxNodeD(const _TParser *pParser, SyntaxContext *pContext, ScriptCharIterator& stream)
 {
     // Make room on the stack for a statement
     pContext->PushSyntaxNode();
@@ -563,7 +601,8 @@ bool SyntaxNodeD(const _TParser *pParser, SyntaxContext *pContext, streamIt &str
     return pParser->_pa->Match(pContext, stream).Result();
 }
 template<typename _TParser>
-void EndSyntaxNodeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void EndSyntaxNodeA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                    const ScriptCharIterator& stream)
 {
     // No matter what the state, pop a node off the stack.
     pContext->DeleteAndPopSyntaxNode();
@@ -571,7 +610,8 @@ void EndSyntaxNodeA(MatchResult &match, const _TParser *pParser, SyntaxContext *
 
 // l-value
 template<typename _TParser>
-void LValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void LValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                    const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -585,7 +625,8 @@ void LValueIndexerA(MatchResult &match, const _TParser *pParser, SyntaxContext *
 
 // Assignments
 template<typename _TParser>
-void AssignmentVariableA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void AssignmentVariableA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                         const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -599,7 +640,8 @@ void AssignmentVariableA(MatchResult &match, const _TParser *pParser, SyntaxCont
 }
 
 template<typename _TParser>
-void AddSendParamA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void AddSendParamA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -608,7 +650,8 @@ void AddSendParamA(MatchResult &match, const _TParser *pParser, SyntaxContext *p
 }
 
 template<typename _TParser>
-void AddSimpleSendParamA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void AddSimpleSendParamA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                         const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -620,7 +663,8 @@ void AddSimpleSendParamA(MatchResult &match, const _TParser *pParser, SyntaxCont
 
 // Set the name of a SyntaxNode
 template<typename _T, typename _TParser>
-void SetStatementNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetStatementNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                       const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -630,7 +674,8 @@ void SetStatementNameA(MatchResult &match, const _TParser *pParser, SyntaxContex
     }
 }
 template<typename _T, typename _TParser>
-void SetSelectorNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetSelectorNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                      const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -641,7 +686,8 @@ void SetSelectorNameA(MatchResult &match, const _TParser *pParser, SyntaxContext
 }
 
 template<typename _TParser>
-void SendParamIsMethod(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SendParamIsMethod(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                       const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -650,7 +696,7 @@ void SendParamIsMethod(MatchResult &match, const _TParser *pParser, SyntaxContex
 }
 
 template<typename _T, typename _TParser>
-void SetNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -659,7 +705,7 @@ void SetNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pConte
 }
 
 template<typename _TParser>
-void AddExportA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void AddExportA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -673,7 +719,8 @@ void AddExportA(MatchResult &match, const _TParser *pParser, SyntaxContext *pCon
 
 // Classes
 template<bool fInstance, typename _TParser>
-void CreateClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void CreateClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                  const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -685,7 +732,8 @@ void CreateClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pC
 }
 
 template<typename _TParser>
-void FinishClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                  const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -694,7 +742,7 @@ void FinishClassA(MatchResult &match, const _TParser *pParser, SyntaxContext *pC
 }
 
 template<typename _TParser>
-void ClassNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ClassNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -703,7 +751,7 @@ void ClassNameA(MatchResult &match, const _TParser *pParser, SyntaxContext *pCon
 }
 
 template<typename _TParser>
-void ClassSuperA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ClassSuperA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -712,7 +760,7 @@ void ClassSuperA(MatchResult &match, const _TParser *pParser, SyntaxContext *pCo
 }
 
 template<typename _TParser>
-void ClassCloseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ClassCloseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     pContext->ClassPtr->SetEndPosition(stream.GetPosition()); // set the closing position no matter what
     if (!match.Result() && pParser->_psz)
@@ -722,7 +770,8 @@ void ClassCloseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pCo
 }
 
 template<typename _TParser>
-void FinishClassMethodA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishClassMethodA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                        const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -736,7 +785,8 @@ void FinishClassMethodA(MatchResult &match, const _TParser *pParser, SyntaxConte
 
 // Class properties
 template<typename _TParser>
-void CreateClassPropertyA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void CreateClassPropertyA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                          const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -747,7 +797,8 @@ void CreateClassPropertyA(MatchResult &match, const _TParser *pParser, SyntaxCon
 }
 
 template<typename _TParser>
-void FinishClassPropertyA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishClassPropertyA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                          const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -757,7 +808,8 @@ void FinishClassPropertyA(MatchResult &match, const _TParser *pParser, SyntaxCon
 }
 
 template<typename _TParser>
-void FinishClassPropertyStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void FinishClassPropertyStatementA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                                   const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -772,17 +824,19 @@ void FinishClassPropertyStatementA(MatchResult &match, const _TParser *pParser, 
 
 // asm
 template<typename _TParser>
-void SetOpcodesExtraKeywordsA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetOpcodesExtraKeywordsA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                              const ScriptCharIterator& stream)
 {
     pContext->extraKeywords = &GetOpcodeSet();
 }
 template<typename _TParser>
-void RemoveExtraKeywordsA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void RemoveExtraKeywordsA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                          const ScriptCharIterator& stream)
 {
     pContext->extraKeywords = nullptr;
 }
 template<typename _TParser>
-void SetLabelA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetLabelA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -792,7 +846,8 @@ void SetLabelA(MatchResult &match, const _TParser *pParser, SyntaxContext *pCont
 
 // switch/case
 template<typename _TParser>
-void SetDefaultCaseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void SetDefaultCaseA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                     const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -811,7 +866,8 @@ void IdentifierE(MatchResult &match, const _TParser *pParser, SyntaxContext *pCo
 }
 
 template<typename _TParser>
-void ExpectedProperyValueE(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ExpectedProperyValueE(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                           const ScriptCharIterator& stream)
 {
     if (!match.Result())
     {
@@ -819,7 +875,7 @@ void ExpectedProperyValueE(MatchResult &match, const _TParser *pParser, SyntaxCo
     }
 }
 template<char const* error, typename _TParser>
-void ErrorA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void ErrorA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
 {
     if (!match.Result())
     {
@@ -828,7 +884,8 @@ void ErrorA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext
 }
 
 template<typename _TParser>
-void EvaluateIfDefA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void EvaluateIfDefA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                    const ScriptCharIterator& stream)
 {
     if (match.Result())
     {
@@ -837,7 +894,8 @@ void EvaluateIfDefA(MatchResult &match, const _TParser *pParser, SyntaxContext *
 }
 
 template<typename _TParser>
-void EvaluateEndIfA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext, const streamIt &stream)
+void EvaluateEndIfA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
+                    const ScriptCharIterator& stream)
 {
     if (match.Result())
     {

@@ -17,9 +17,6 @@
 #include "AutoCompleteSourceTypes.h"
 #include "ParseAutoCompleteContext.h"
 
-// The kind of iterator we use.
-typedef CCrystalScriptStream::const_iterator streamIt;
-
 enum class IfDefDefineState
 {
     None,
@@ -30,7 +27,7 @@ enum class IfDefDefineState
 class SyntaxContext
 {
 public:
-    SyntaxContext(streamIt beginning, sci::Script &script, std::unordered_set<std::string> preProcessorDefines, bool addCommentsDirectly, bool collectComments) : _beginning(beginning), _script(script), extraKeywords(nullptr), ifDefDefineState(IfDefDefineState::None), _preProcessorDefines(preProcessorDefines), _addCommentsToOM(addCommentsDirectly), _collectComments(collectComments), CurrentStringType(0)
+    SyntaxContext(ScriptCharIterator beginning, sci::Script &script, std::unordered_set<std::string> preProcessorDefines, bool addCommentsDirectly, bool collectComments) : _beginning(beginning), _script(script), extraKeywords(nullptr), ifDefDefineState(IfDefDefineState::None), _preProcessorDefines(preProcessorDefines), _addCommentsToOM(addCommentsDirectly), _collectComments(collectComments), CurrentStringType(0)
 #ifdef PARSE_DEBUG
         , ParseDebug(false), ParseDebugIndent(0)
 #endif
@@ -40,13 +37,14 @@ public:
     {
         assert(_statements.empty()); // Or else someone messed up, or there could have been an exception
     }
-    void ReportError(const std::string &error, streamIt pos);
+    void ReportError(const std::string &error, ScriptCharIterator pos);
 
     std::string GetErrorText()
     {
         return _error;
     }
-    streamIt GetErrorPosition()
+
+    ScriptCharIterator GetErrorPosition()
     {
         return _beginning;
     }
@@ -93,7 +91,7 @@ public:
     sci::Script &Script() { return _script; }
     std::string &ScratchString() { return _scratch; }
     std::string &ScratchString2() { return _scratch2; }
-    void SetInteger(int i, bool fNeg, bool fHex, streamIt pos)
+    void SetInteger(int i, bool fNeg, bool fHex, ScriptCharIterator pos)
     {
         if ((i > 0xffff) || (i < -32768))
         {
@@ -188,7 +186,7 @@ public:
     // Make a syntax node (forloop, assignment, etc...) at the top of the statement stack
     // (use PushSyntaxNode to push a new spot onto the stack)
     template<typename _T>
-    void CreateSyntaxNode(const streamIt &stream)
+    void CreateSyntaxNode(const ScriptCharIterator& stream)
     {
         assert(!_statements.empty());       // That would mean there is no statement stack frame at all.
         if (_statements.top())
@@ -259,7 +257,7 @@ public:
         _statements.pop();
     }
 
-    void EvaluateIfDefScratch(const streamIt &stream, const std::string &value)
+    void EvaluateIfDefScratch(const ScriptCharIterator& stream, const std::string &value)
     {
         if (ifDefDefineState != IfDefDefineState::None)
         {
@@ -275,7 +273,7 @@ public:
             ifDefDefineState = IfDefDefineState::False;
         }
     }
-    void EndIf(const streamIt &stream)
+    void EndIf(const ScriptCharIterator& stream)
     {
         if (ifDefDefineState == IfDefDefineState::None)
         {
@@ -311,7 +309,7 @@ private:
     std::unordered_set<std::string> _preProcessorDefines;
 
     std::string _error;
-    streamIt _beginning;
+    ScriptCharIterator _beginning;
     bool _collectComments;  // Do we care baout comments at all?
     bool _addCommentsToOM;  // And if so, do we add them to the OM?
     sci::Script &_script;

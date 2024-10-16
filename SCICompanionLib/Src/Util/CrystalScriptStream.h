@@ -172,6 +172,6 @@ private:
     CScriptStreamLimiter *_pLimiter;
 };
 
-
+using ScriptCharIterator = CCrystalScriptStream::const_iterator;
 
 

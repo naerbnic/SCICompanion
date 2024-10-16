@@ -24,8 +24,7 @@
 #include <deque>
 #include <numeric>
 
-template<typename _It>
-bool ExtractToken(std::string &str, _It &stream)
+inline bool ExtractToken(std::string &str, ScriptCharIterator&stream)
 {
     bool fRet = false;
     str.clear();
@@ -49,8 +48,8 @@ bool ExtractToken(std::string &str, _It &stream)
 //
 // Common parsing primitives
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool AlphanumP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool AlphanumP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator&stream)
 {
     return ExtractToken(pContext->ScratchString(), stream);
 }
@@ -59,8 +58,8 @@ bool AlphanumP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TCont
 //
 // Quick way to specify filesnames without needing quotes. Accepts alphanumeric characters, _ and .
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool FilenameP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool FilenameP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = false;
     std::string &str = pContext->ScratchString();
@@ -82,8 +81,8 @@ bool FilenameP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TCont
 }
 
 // Asm instructions can include '?' in the name too
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool AsmInstructionP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool AsmInstructionP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = false;
     std::string &str = pContext->ScratchString();
@@ -113,8 +112,8 @@ bool AsmInstructionP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, 
 extern const char *g_keywords[4];
 
 // TODO: Refactor with above
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool AlphanumPNoKeyword(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool AlphanumPNoKeyword(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = AlphanumP(pParser, pContext, stream);
     if (fRet)
@@ -132,8 +131,8 @@ bool AlphanumPNoKeyword(const ParserBase<_TContext, _It, _CommentPolicy> *pParse
     return fRet;
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool SequenceP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool SequenceP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     for (auto &parser : pParser->_parsers)
     {
@@ -145,8 +144,8 @@ bool SequenceP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TCont
     return true;
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool AlternativeP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool AlternativeP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     for (auto &parser : pParser->_parsers)
     {
@@ -159,8 +158,8 @@ bool AlternativeP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TC
     return false;
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool KleeneP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool KleeneP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     while (pParser->_pa->Match(pContext, stream).Result())
     {
@@ -172,8 +171,8 @@ bool KleeneP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContex
     return true; // Always matches
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool OneOrMoreP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool OneOrMoreP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool atLeastOne = false;
     while (pParser->_pa->Match(pContext, stream).Result())
@@ -187,44 +186,44 @@ bool OneOrMoreP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TCon
     return atLeastOne;
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool ZeroOrOnceP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool ZeroOrOnceP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     pParser->_pa->Match(pContext, stream);
     return true; // Always matches
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool NotP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool NotP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     return !pParser->_pa->Match(pContext, stream).Result();
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool QuotedStringP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool QuotedStringP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
-    return pParser->ReadStringStudio<_TContext, _It, '"', '"'>(pContext, stream, pContext->ScratchString());
+    return pParser->ReadStringStudio<_TContext, '"', '"'>(pContext, stream, pContext->ScratchString());
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool SQuotedStringP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool SQuotedStringP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     // Note: We could expand autocomplete coverage to include said tokens. In that case we'd need to
     // have ReadStringStudio *not* block all autocomplete channels.
-    return pParser->ReadStringStudio<_TContext, _It, '\'', '\''>(pContext, stream, pContext->ScratchString());
+    return pParser->ReadStringStudio<_TContext, '\'', '\''>(pContext, stream, pContext->ScratchString());
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool BraceStringP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool BraceStringP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
-    return pParser->ReadStringStudio<_TContext, _It, '{', '}'>(pContext, stream, pContext->ScratchString());
+    return pParser->ReadStringStudio<_TContext, '{', '}'>(pContext, stream, pContext->ScratchString());
 }
 
 //
 // Handles negation, hex, etc...
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool IntegerP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool IntegerP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     int i = 0;
     bool fNeg = false;
@@ -292,8 +291,8 @@ bool IntegerP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TConte
 }
 
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool AlphanumOpenP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool AlphanumOpenP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = false;
     std::string &str = pContext->ScratchString();
@@ -322,8 +321,8 @@ bool AlphanumOpenP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _T
     }
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool AlwaysMatchP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool AlwaysMatchP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     return true; // Always matches
 }
@@ -332,8 +331,8 @@ bool AlwaysMatchP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TC
 //
 // Matches a single character
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool CharP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool CharP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
@@ -348,8 +347,8 @@ bool CharP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext 
 //
 // Matches a keyword (e.g. a piece of text NOT followed by an alphanumeric character).
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool KeywordP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool KeywordP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
@@ -366,8 +365,8 @@ bool KeywordP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TConte
     return false;
 }
 
-template<typename _It, typename _TContext, typename _CommentPolicy>
-bool OperatorP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+bool OperatorP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
@@ -411,10 +410,10 @@ bool OperatorP(const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TCont
 // 
 // Matches n instances of a  (where n can be 0)
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-inline ParserBase<_TContext, _It, _CommentPolicy> operator*(const ParserBase<_TContext, _It, _CommentPolicy> &a)
+template<typename _TContext, typename _CommentPolicy>
+inline ParserBase<_TContext, _CommentPolicy> operator*(const ParserBase<_TContext, _CommentPolicy> &a)
 {
-    return ParserBase<_TContext, _It, _CommentPolicy>(KleeneP<_It, _TContext, _CommentPolicy>, a);
+    return ParserBase<_TContext, _CommentPolicy>(KleeneP<_TContext, _CommentPolicy>, a);
 }
 
 //
@@ -422,8 +421,8 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator*(const ParserBase<_TC
 // 
 // Matches a followed by b
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-inline ParserBase<_TContext, _It, _CommentPolicy> operator>>(const ParserBase<_TContext, _It, _CommentPolicy> &a, const ParserBase<_TContext, _It, _CommentPolicy> &b)
+template<typename _TContext, typename _CommentPolicy>
+inline ParserBase<_TContext, _CommentPolicy> operator>>(const ParserBase<_TContext, _CommentPolicy> &a, const ParserBase<_TContext, _CommentPolicy> &b)
 {
     // We must create a new "sequence" thing if a is not a sequence, or if a has an action.
     // If a has an action, then we'll mis-place it if we don't create a new sequence.
@@ -437,9 +436,9 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator>>(const ParserBase<_T
     //      d[act2]
     // The result would be act2 gets called prior to act1.
     // It looks like this optimization won't be useful, since most things have actions.
-    if ((a._pfn != SequenceP<_It, _TContext, _CommentPolicy>) || (a._pfnA))
+    if ((a._pfn != SequenceP<_TContext, _CommentPolicy>) || (a._pfnA))
     {
-        ParserBase<_TContext, _It, _CommentPolicy> alternative(SequenceP<_It, _TContext, _CommentPolicy>);
+        ParserBase<_TContext, _CommentPolicy> alternative(SequenceP<_TContext, _CommentPolicy>);
         alternative.AddParser(a);
         alternative.AddParser(b);
         return alternative;
@@ -447,8 +446,8 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator>>(const ParserBase<_T
     else
     {
         // A is already an alternative.  Add b to it.
-        ParserBase<_TContext, _It, _CommentPolicy> parserA(a);
-        if (parserA._pfn == SequenceP<_It, _TContext, _CommentPolicy>)
+        ParserBase<_TContext, _CommentPolicy> parserA(a);
+        if (parserA._pfn == SequenceP<_TContext, _CommentPolicy>)
         {
             parserA.AddParser(b);
             return parserA;
@@ -456,7 +455,7 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator>>(const ParserBase<_T
         else
         {
             // The matching function changed (reference forwarding...) we can't just add it...
-            ParserBase<_TContext, _It, _CommentPolicy> alternative(SequenceP<_It, _TContext, _CommentPolicy>);
+            ParserBase<_TContext, _CommentPolicy> alternative(SequenceP<_TContext, _CommentPolicy>);
             alternative.AddParser(a);
             alternative.AddParser(b);
             return alternative;
@@ -469,13 +468,13 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator>>(const ParserBase<_T
 // 
 // Matches a or b
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-inline ParserBase<_TContext, _It, _CommentPolicy> operator|(const ParserBase<_TContext, _It, _CommentPolicy> &a, const ParserBase<_TContext, _It, _CommentPolicy> &b)
+template<typename _TContext, typename _CommentPolicy>
+inline ParserBase<_TContext, _CommentPolicy> operator|(const ParserBase<_TContext, _CommentPolicy> &a, const ParserBase<_TContext, _CommentPolicy> &b)
 {
     // See operator>>
-    if ((a._pfn != AlternativeP<_It, _TContext, _CommentPolicy>) || (a._pfnA))
+    if ((a._pfn != AlternativeP<_TContext, _CommentPolicy>) || (a._pfnA))
     {
-        ParserBase<_TContext, _It, _CommentPolicy> alternative(AlternativeP<_It, _TContext, _CommentPolicy>);
+        ParserBase<_TContext, _CommentPolicy> alternative(AlternativeP<_TContext, _CommentPolicy>);
         alternative.AddParser(a);
         alternative.AddParser(b);
         return alternative;
@@ -483,8 +482,8 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator|(const ParserBase<_TC
     else
     {
         // A is already an alternative.  Add b to it.
-        ParserBase<_TContext, _It, _CommentPolicy> parserA(a);
-        if (parserA._pfn == AlternativeP<_It, _TContext, _CommentPolicy>)
+        ParserBase<_TContext, _CommentPolicy> parserA(a);
+        if (parserA._pfn == AlternativeP<_TContext, _CommentPolicy>)
         {
             parserA.AddParser(b);
             return parserA;
@@ -492,7 +491,7 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator|(const ParserBase<_TC
         else
         {
             // The matching function of a changed... we can no longer just add.
-            ParserBase<_TContext, _It, _CommentPolicy> alternative(AlternativeP<_It, _TContext, _CommentPolicy>);
+            ParserBase<_TContext, _CommentPolicy> alternative(AlternativeP<_TContext, _CommentPolicy>);
             alternative.AddParser(a);
             alternative.AddParser(b);
             return alternative;
@@ -505,8 +504,8 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator|(const ParserBase<_TC
 //
 // equivalent to    (a >> *(b >> a))
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-inline ParserBase<_TContext, _It, _CommentPolicy> operator%(const ParserBase<_TContext, _It, _CommentPolicy> &a, const ParserBase<_TContext, _It, _CommentPolicy> &b)
+template<typename _TContext, typename _CommentPolicy>
+inline ParserBase<_TContext, _CommentPolicy> operator%(const ParserBase<_TContext, _CommentPolicy> &a, const ParserBase<_TContext, _CommentPolicy> &b)
 {
     return a >> *(b >> a);
 }
@@ -516,10 +515,10 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator%(const ParserBase<_TC
 // 
 // 0 or 1 instances of a
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-inline ParserBase<_TContext, _It, _CommentPolicy> operator-(const ParserBase<_TContext, _It, _CommentPolicy> &a)
+template<typename _TContext, typename _CommentPolicy>
+inline ParserBase<_TContext, _CommentPolicy> operator-(const ParserBase<_TContext, _CommentPolicy> &a)
 {
-    return ParserBase<_TContext, _It, _CommentPolicy>(ZeroOrOnceP<_It, _TContext, _CommentPolicy>, a);
+    return ParserBase<_TContext, _CommentPolicy>(ZeroOrOnceP<_TContext, _CommentPolicy>, a);
 }
 
 //
@@ -527,10 +526,10 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator-(const ParserBase<_TC
 // 
 // Matches one or more instances of a
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-inline ParserBase<_TContext, _It, _CommentPolicy> operator++(const ParserBase<_TContext, _It, _CommentPolicy> &a)
+template<typename _TContext, typename _CommentPolicy>
+inline ParserBase<_TContext, _CommentPolicy> operator++(const ParserBase<_TContext, _CommentPolicy> &a)
 {
-    return ParserBase<_TContext, _It, _CommentPolicy>(OneOrMoreP<_It, _TContext, _CommentPolicy>, a);
+    return ParserBase<_TContext, _CommentPolicy>(OneOrMoreP<_TContext, _CommentPolicy>, a);
 }
 
 //
@@ -538,18 +537,18 @@ inline ParserBase<_TContext, _It, _CommentPolicy> operator++(const ParserBase<_T
 // 
 // true if a fails to match
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-inline ParserBase<_TContext, _It, _CommentPolicy> operator!(const ParserBase<_TContext, _It, _CommentPolicy> &a)
+template<typename _TContext, typename _CommentPolicy>
+inline ParserBase<_TContext, _CommentPolicy> operator!(const ParserBase<_TContext, _CommentPolicy> &a)
 {
-    return ParserBase<_TContext, _It, _CommentPolicy>(NotP<_It, _TContext, _CommentPolicy>, a);
+    return ParserBase<_TContext, _CommentPolicy>(NotP<_TContext, _CommentPolicy>, a);
 }
 
 
 //
 // Common error primitives
 //
-template<typename _It, typename _TContext, typename _CommentPolicy>
-void GeneralE(MatchResult &match, const ParserBase<_TContext, _It, _CommentPolicy> *pParser, _TContext *pContext, const _It &stream)
+template<typename _TContext, typename _CommentPolicy>
+void GeneralE(MatchResult &match, const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, const ScriptCharIterator &stream)
 {
     assert(pParser->_psz); // Not valid to call this if there isn't something we can say was expected.
     if (!match.Result())
@@ -562,7 +561,7 @@ void GeneralE(MatchResult &match, const ParserBase<_TContext, _It, _CommentPolic
 }
 
 // Our parser...
-typedef ParserBase<SyntaxContext, streamIt, EatCommentCpp> Parser;
+typedef ParserBase<SyntaxContext, EatCommentCpp> Parser;
 
 class ICompileLog; // fwd decl
 

@@ -9,7 +9,7 @@
 #include <deque>
 
 // Our parser...
-typedef ParserBase<SyntaxContext, streamIt, EatCommentSemi> ParserSCI;
+typedef ParserBase<SyntaxContext, EatCommentSemi> ParserSCI;
 
 class SCISyntaxParser
 {
