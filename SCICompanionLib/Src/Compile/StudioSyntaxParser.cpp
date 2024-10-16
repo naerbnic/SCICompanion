@@ -904,7 +904,7 @@ bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::
 {
     SyntaxContext context(stream, script, preProcessorDefines, addCommentsToOM, collectComments);
     bool fRet = false;
-    if (entire_script.Match(&context, stream).Result() && (*stream == 0)) // Needs a full match
+    if (entire_script.Match(&context, stream).Result() && stream.AtEnd()) // Needs a full match
     {
         fRet = true;
     }
@@ -928,7 +928,7 @@ bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::
 bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context)
 {
     bool fRet = false;
-    if (entire_script.Match(&context, stream).Result() && (*stream == 0)) // Needs a full match
+    if (entire_script.Match(&context, stream).Result() && stream.AtEnd()) // Needs a full match
     {
         fRet = true;
     }
@@ -938,7 +938,7 @@ bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::
 bool StudioSyntaxParser::ParseHeader(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments)
 {
     SyntaxContext context(stream, script, preProcessorDefines, false, collectComments);
-    bool fRet = entire_header.Match(&context, stream).Result() && (*stream == 0);
+    bool fRet = entire_header.Match(&context, stream).Result() && stream.AtEnd();
     if (!fRet)
     {
         std::string strError = context.GetErrorText();

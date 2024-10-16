@@ -42,19 +42,19 @@ inline bool SelectorP(const ParserSCI *pParser, SyntaxContext *pContext, ScriptC
     bool fRet = false;
     std::string &str = pContext->ScratchString();
     str.clear();
-    char ch = *stream;
+    char ch = stream.GetChar();
     bool hadAlpha = !!isalpha(ch);
     if (hadAlpha || (ch == '_') || (ch == '-'))     // First character must be a letter or _ or -
     {
         fRet = true;
         str += ch;
-        ch = *(++stream);
+        ch = stream.AdvanceAndGetChar();
         while (isalnum(ch) || (ch == '_') || (ch == '-'))  // Then any alphanumeric character is fine.
         {
             hadAlpha = hadAlpha || isalpha(ch);
             fRet = true;
             str += ch;
-            ch = *(++stream);
+            ch = stream.AdvanceAndGetChar();
         }
     }
     return fRet && hadAlpha;
@@ -131,7 +131,7 @@ bool AlphanumPNoKeywordOrTerm(const ParserSCI *pParser, _TContext *pContext, Scr
     bool fRet = SelectorP(pParser, pContext, stream);
     if (fRet)
     {
-        char chTerm = *stream;
+        char chTerm = stream.GetChar();
         fRet = (chTerm != ':') && (chTerm != '?');
         if (fRet)
         {
@@ -153,7 +153,7 @@ bool AlphanumPNoKeywordOrTerm2(const ParserSCI *pParser, _TContext *pContext, Sc
     bool fRet = SelectorP(pParser, pContext, stream);
     if (fRet)
     {
-        char chTerm = *stream;
+        char chTerm = stream.GetChar();
         fRet = (chTerm != ':') && (chTerm != '?');
         if (fRet)
         {
@@ -170,7 +170,7 @@ bool AlphanumPSendTokenOrTerm(const ParserSCI *pParser, _TContext *pContext, Scr
     bool fRet = SelectorP(pParser, pContext, stream);
     if (fRet)
     {
-        char chTerm = *stream;
+        char chTerm = stream.GetChar();
         fRet = (chTerm != ':') && (chTerm != '?');
         if (fRet)
         {
@@ -193,10 +193,10 @@ template<char terminator>
 bool SelectorP_Term(const ParserSCI *pParser, SyntaxContext *pContext, ScriptCharIterator &stream)
 {
     bool fRet = SelectorP(pParser, pContext, stream);
-    fRet = fRet && (*(stream) == terminator);
+    fRet = fRet && (stream.GetChar() == terminator);
     if (fRet)
     {
-        ++stream; // Skip over our terminator
+        stream.Advance(); // Skip over our terminator
     }
     return fRet;
 }
@@ -229,15 +229,15 @@ bool SCIOperatorP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContex
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
-    while (*psz && (*stream == *psz))
+    while (*psz && (stream.GetChar() == *psz))
     {
-        ++stream;
+        stream.Advance();
         ++psz;
     }
     if (*psz == 0)
     {
         pContext->ScratchString() = pParser->_psz;
-        return !!isspace(*stream);
+        return !!isspace(stream.GetChar());
     }
     else
     {
@@ -486,7 +486,7 @@ bool SCIOptimizedOperatorP(const ParserSCI *pParser, _TContext *pContext, Script
     char finalOperator[MaxOpLength + 1];
     char *buildOperator = finalOperator;
     char ch;
-    while (ch = *stream)
+    while (ch = stream.GetChar())
     {
         const char *currentDbStart = currentdb;
 
@@ -515,7 +515,7 @@ bool SCIOptimizedOperatorP(const ParserSCI *pParser, _TContext *pContext, Script
             // Not a match
             return false;
         }
-        ++stream;
+        stream.Advance();
     }
     return false;
 }
@@ -1363,11 +1363,11 @@ void PostProcessScript(ICompileLog *pLog, Script &script)
 // For error reporting:
 inline void ExtractSomeToken(std::string &str, ScriptCharIterator &stream)
 {
-    char ch = *stream;
+    char ch = stream.GetChar();
     while (ch && !isspace(ch) && (ch != '(') && (ch != ')'))
     {
         str += ch;
-        ch = *(++stream);
+        ch = stream.AdvanceAndGetChar();
     }
 }
 
@@ -1384,7 +1384,7 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
     context.ParseDebug = true;
 #endif
 
-    if (entire_script.Match(&context, stream).Result() && (*stream == 0)) // Needs a full match
+    if (entire_script.Match(&context, stream).Result() && stream.AtEnd()) // Needs a full match
     {
         PostProcessScript(pError, script);
         fRet = true;
@@ -1437,7 +1437,7 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
 bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context)
 {
     bool fRet = false;
-    if (entire_script.Match(&context, stream).Result() && (*stream == 0)) // Needs a full match
+    if (entire_script.Match(&context, stream).Result() && stream.AtEnd()) // Needs a full match
     {
         PostProcessScript(nullptr, script);
         fRet = true;
@@ -1448,7 +1448,7 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
 bool SCISyntaxParser::ParseHeader(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments)
 {
     SyntaxContext context(stream, script, preProcessorDefines, false, collectComments);
-    bool fRet = entire_header.Match(&context, stream).Result() && (*stream == 0);
+    bool fRet = entire_header.Match(&context, stream).Result() && stream.AtEnd();
     if (!fRet)
     {
         std::string strError = context.GetErrorText();

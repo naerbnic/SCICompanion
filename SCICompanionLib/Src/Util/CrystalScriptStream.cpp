@@ -188,6 +188,11 @@ CCrystalScriptStream::const_iterator::const_iterator(CScriptStreamLimiter *limit
 
 char CCrystalScriptStream::const_iterator::operator*()
 {
+    return GetChar();
+}
+
+char CCrystalScriptStream::const_iterator::GetChar() const
+{
     return (_nChar == _nLength) ? '\n' : _pszLine[_nChar];
 }
 
@@ -218,41 +223,6 @@ int CCrystalScriptStream::const_iterator::CountPosition(int tabSize) const
 }
 
 void CCrystalScriptStream::const_iterator::Advance()
-{
-    assert(!AtEnd());
-}
-
-bool CCrystalScriptStream::const_iterator::AtEnd() const
-{
-    return _pszLine == nullptr || *_pszLine == '\0' || (_nChar == _nLength && _nLine == (_limiter->GetLineCount() - 1));
-}
-
-int CCrystalScriptStream::const_iterator::Compare(const const_iterator& other) const
-{
-    if (AtEnd())
-    {
-        return other.AtEnd() ? 0 : 1;
-    }
-
-    if (other.AtEnd())
-    {
-        return -1;
-    }
-
-    if (_nLine != other._nLine)
-    {
-        return _nLine < other._nLine ? -1 : 1;
-    }
-
-    if (_nChar != other._nChar)
-    {
-        return _nChar < other._nChar ? -1 : 1;
-    }
-
-    return 0;
-}
-
-CCrystalScriptStream::const_iterator& CCrystalScriptStream::const_iterator::operator++()
 {
     assert((_pszLine == nullptr) || (*_pszLine != 0)); // EOF
     _nChar++;
@@ -291,6 +261,48 @@ CCrystalScriptStream::const_iterator& CCrystalScriptStream::const_iterator::oper
         }
         // else we're all good.
     }
+}
+
+bool CCrystalScriptStream::const_iterator::AtEnd() const
+{
+    return GetChar() == '\0';
+    //return _pszLine == nullptr || *_pszLine == '\0' || (_nChar == _nLength && _nLine == (_limiter->GetLineCount() - 1));
+}
+
+char CCrystalScriptStream::const_iterator::AdvanceAndGetChar()
+{
+    Advance();
+    return GetChar();
+}
+
+int CCrystalScriptStream::const_iterator::Compare(const const_iterator& other) const
+{
+    if (AtEnd())
+    {
+        return other.AtEnd() ? 0 : 1;
+    }
+
+    if (other.AtEnd())
+    {
+        return -1;
+    }
+
+    if (_nLine != other._nLine)
+    {
+        return _nLine < other._nLine ? -1 : 1;
+    }
+
+    if (_nChar != other._nChar)
+    {
+        return _nChar < other._nChar ? -1 : 1;
+    }
+
+    return 0;
+}
+
+CCrystalScriptStream::const_iterator& CCrystalScriptStream::const_iterator::operator++()
+{
+    Advance();
     return *this;
 }
 

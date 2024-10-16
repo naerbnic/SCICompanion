@@ -47,7 +47,14 @@ inline void _DoComment(TContext *pContext, const ScriptCharIterator &streamBegin
 {
     std::string comment;
     // Transfer to string:
-    copy(streamBegin, streamEnd, back_inserter(comment));
+    {
+        auto currIt = streamBegin;
+        while (currIt != streamEnd)
+        {
+            comment.push_back(currIt.GetChar());
+            currIt.Advance();
+        }
+    }
     // Create a new Comment syntax node and add it to the script
     std::unique_ptr<sci::Comment> pComment = std::make_unique<sci::Comment>(comment, type); // TODO
     if (type == sci::CommentType::Positioned)
@@ -87,15 +94,15 @@ public:
         {
             fDone = true;
             // Eat whitespace
-            while (isspace(*stream))
+            while (isspace(stream.GetChar()))
             {
                 fDone = false;
-                ++stream;
+                stream.Advance();
             }
             ScriptCharIterator streamSave(stream);
-            if (*stream == '/')
+            if (stream.GetChar() == '/')
             {
-                char ch = *(++stream);
+                char ch = stream.AdvanceAndGetChar();
                 if (ch == '/')
                 {
                     // Indicate we're in a comment for autocomplete's sake
@@ -105,7 +112,7 @@ public:
                     }
 
                     // Go until end of line
-                    while ((ch = *(++stream)) && (ch != '\n')) {} // Look for \n or EOF
+                    while ((ch = stream.AdvanceAndGetChar()) && (ch != '\n')) {} // Look for \n or EOF
                     fDone = false; // Check for whitespace again
 
                     // Comment gathering.  This may be expensive, so only do this if pContext is non-NULL
@@ -118,8 +125,8 @@ public:
                         streamLineBegin.ResetLine();
                         while (!foundNonWhitespace && (streamLineBegin != streamSave))
                         {
-                            foundNonWhitespace = !isspace(*streamLineBegin);
-                            ++streamLineBegin;
+                            foundNonWhitespace = !isspace(streamLineBegin.GetChar());
+                            streamLineBegin.Advance();
                         }
                         if (pContext->CollectComments())
                         {
@@ -130,7 +137,7 @@ public:
 
                     if (ch == '\n') // As opposed to EOF
                     {
-                        ++stream; // Move past \n now that we've done _DoComment. Otherwise the comment will be tagged as ending on the next line.
+                        stream.Advance(); // Move past \n now that we've done _DoComment. Otherwise the comment will be tagged as ending on the next line.
                     }
                 }
                 else if (ch == '*')
@@ -145,7 +152,7 @@ public:
                     bool fLookingForSlash = false;
                     while (TRUE)
                     {
-                        ch = *(++stream);
+                        ch = stream.AdvanceAndGetChar();
                         if (ch == 0)
                         {
                             break;
@@ -168,7 +175,7 @@ public:
                     }
                     if (ch == '/') // As opposed to 0
                     {
-                        ++stream; // Move past '/'
+                        stream.Advance(); // Move past '/'
                     }
 
                     if (pContext)
@@ -207,13 +214,13 @@ public:
             // Eat whitespace
             // REVIEW: We need to audit all our uses of isspace, and cast char to unsigned char before passing to isspace.
             // Otherwise, isspace asserts for chars over 127.
-            while (isspace(*stream))
+            while (isspace(stream.GetChar()))
             {
                 fDone = false;
-                ++stream;
+                stream.Advance();
             }
             ScriptCharIterator streamSave(stream);
-            if (*stream == ';')
+            if (stream.GetChar() == ';')
             {
                 // Indicate we're in a comment for autocomplete's sake
                 if (pContext)
@@ -224,13 +231,13 @@ public:
                 char ch;
                 // Go until end of line, after counting the number of semicolons
                 int semiCount = 0;
-                while ((ch = *stream) && (ch == ';'))
+                while ((ch = stream.GetChar()) && (ch == ';'))
                 {
                     semiCount++;
-                    ++stream;
+                    stream.Advance();
                 }
                 // Now stream points to after the semicolons
-                while ((ch = *stream) && (ch != '\n')) { ++stream; } // Look for \n or EOF
+                while ((ch = stream.GetChar()) && (ch != '\n')) { stream.Advance(); } // Look for \n or EOF
                 // Now stream points to after the newline
                 fDone = false; // Check for whitespace again
 
@@ -250,7 +257,7 @@ public:
 
                 if (ch == '\n') // As opposed to EOF
                 {
-                    ++stream; // Move past \n now that we've done _DoComment. Otherwise the comment will be tagged as ending on the next line.
+                    stream.Advance(); // Move past \n now that we've done _DoComment. Otherwise the comment will be tagged as ending on the next line.
                 }
             }
         }
@@ -284,7 +291,7 @@ template<typename _TContext, char Q1, char Q2>
 bool _ReadStringSCI(_TContext *pContext, ScriptCharIterator &stream, std::string &str)
 {
     str.clear();
-    if (Q1 == *stream)
+    if (Q1 == stream.GetChar())
     {
         BlockAllACChannelsGuard<_TContext> blockGuard(pContext);
 
@@ -296,7 +303,7 @@ bool _ReadStringSCI(_TContext *pContext, ScriptCharIterator &stream, std::string
         bool addedSpace = false;
         bool lookingForSecondHex = false;
         int chHex = 0;
-        while ((ch = *(++stream)) && ((ch != Q2) || (chPrev == '\\')))
+        while ((ch = stream.AdvanceAndGetChar()) && ((ch != Q2) || (chPrev == '\\')))
         {
             chPrev = ch;
             bool processCharNormally = true;
@@ -378,7 +385,7 @@ bool _ReadStringSCI(_TContext *pContext, ScriptCharIterator &stream, std::string
         }
         if (ch == Q2)
         {
-            ++stream;
+            stream.Advance();
             return true; // We're done
         }
         else
@@ -414,7 +421,7 @@ bool _ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::str
 {
     IndicateStringType<_TContext> indicateStringType(pContext, Q1);
     str.clear();
-    while (Q1 == *stream)
+    while (Q1 == stream.GetChar())
     {
         BlockAllACChannelsGuard<_TContext> blockGuard(pContext);
 
@@ -423,7 +430,7 @@ bool _ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::str
         // Continue while no EOF, and while the character isn't the closing quote
         // (unless the previous character was an escape char)
         bool fEscape = false;
-        while ((ch = *(++stream)) && ((ch != Q2) || (chPrev == '\\')))
+        while ((ch = stream.AdvanceAndGetChar()) && ((ch != Q2) || (chPrev == '\\')))
         {
             chPrev = ch;
             if (!fEscape)
@@ -458,12 +465,12 @@ bool _ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::str
         }
         if (ch == Q2)
         {
-            ++stream;
-            if (*stream == '+')
+            stream.Advance();
+            if (stream.GetChar() == '+')
             {
                 // If we encountered a '+', then skip whitespace until we hit another open quote
                 // "huwehuierger"+   "gejriger"
-                ++stream;
+                stream.Advance();
                 _CommentPolicy::EatWhitespaceAndComments<_TContext>(nullptr, stream);
                 // ... and continue...
             }
@@ -908,11 +915,143 @@ bool IntegerExpandedPWorker(_TContext *pContext, _It &stream)
 }
 
 
+template<typename _TContext>
+bool IntegerExpandedPWorkerScriptCharIter(_TContext* pContext, ScriptCharIterator& stream)
+{
+    int i = 0;
+    bool fNeg = false;
+    bool fRet = false;
+    bool fHex = false;
+    if (stream.GetChar() == '$')
+    {
+        fHex = true;
+        stream.Advance();
+        while (isxdigit(stream.GetChar()) && (i <= (std::numeric_limits<uint16_t>::max)()))
+        {
+            i *= 16;
+            i += charToI(stream.GetChar());
+            fRet = true;
+            stream.Advance();
+        }
+    }
+    else if (stream.GetChar() == '%')
+    {
+        // Binary
+        fHex = true; // Seems reasonable.
+        stream.Advance();
+        auto value = stream.GetChar();
+        while ((value == '0' || value == '1') && (i <= (std::numeric_limits<uint16_t>::max)()))
+        {
+            i *= 2;
+            i += charToI(value);
+            fRet = true;
+            stream.Advance();
+            value = stream.GetChar();
+        }
+    }
+    else if (stream.GetChar() == '`')
+    {
+        // Character literal.
+        stream.Advance();
+        auto value = stream.GetChar();
+        stream.Advance();
+        switch (value)
+        {
+        case '@':
+        {
+            // This is an alt key
+            int index = toupper(stream.GetChar()) - 'A';
+            stream.Advance();
+            if ((index >= 0) && (index < ARRAYSIZE(AltKeys)))
+            {
+                i = AltKeys[index] << 8;
+                fRet = true;
+            }
+            break;
+        }
+        case '#':
+        {
+            // A function key
+            i = toupper(stream.GetChar());
+            stream.Advance();
+            if (i == '0') // F10 appears to be `#0
+            {
+                i += 10;
+            }
+            i = (i - '1' + 0x3b) << 8;
+            fRet = true;
+            break;
+        }
+        case '^':
+        {
+            // A control key
+            i = toupper(stream.GetChar()) - '@';
+            stream.Advance();
+            fRet = true;
+            break;
+        }
+        default:
+            i = toupper(value);
+            fRet = true;
+            break;
+
+        }
+    }
+    else
+    {
+        if (stream.GetChar() == '-')
+        {
+            fNeg = true;
+            stream.Advance();
+        }
+        while (isdigit(stream.GetChar()) && (i <= (std::numeric_limits<uint16_t>::max)()))
+        {
+            i *= 10;
+            i += charToI(stream.GetChar());
+            fRet = true;
+            stream.Advance();
+        }
+    }
+    if (fRet)
+    {
+        // Make sure that the number isn't followed by an alphanumeric char
+        fRet = !isalnum(stream.GetChar());
+    }
+    if (fNeg)
+    {
+        i = -i;
+    }
+    if (fRet)
+    {
+        if (fRet)
+        {
+            fRet = (i <= (std::numeric_limits<uint16_t>::max)());
+            if (!fRet)
+            {
+                pContext->ReportError(errIntegerTooLarge, stream);
+            }
+            else
+            {
+                fRet = (i >= (std::numeric_limits<int16_t>::min)());
+                if (!fRet)
+                {
+                    pContext->ReportError(errIntegerTooSmall, stream);
+                }
+            }
+        }
+
+        // Let the context know so people can use it.
+        pContext->SetInteger(i, fNeg, fHex, stream);
+    }
+    return fRet;
+}
+
+
 //
 // Handles negation, hex, binary, character literals, etc...
 //
 template<typename _TContext, typename _CommentPolicy>
 bool IntegerExpandedP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
-    return IntegerExpandedPWorker(pContext, stream);
+    return IntegerExpandedPWorkerScriptCharIter(pContext, stream);
 }

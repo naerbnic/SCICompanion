@@ -138,8 +138,6 @@ public:
 
         const_iterator() : _limiter(nullptr) {}
         const_iterator(CScriptStreamLimiter *limiter, LineCol dwPos = LineCol());
-        char operator*();
-        const_iterator& operator++();
         bool operator<(const const_iterator& other) const;
         std::string tostring() const;
         LineCol GetPosition() const;
@@ -150,13 +148,19 @@ public:
         void Restore(const const_iterator &prev);
         void ResetLine();
 
+        // Future API
+        char GetChar() const;
+        void Advance();
+        bool AtEnd() const;
+        char AdvanceAndGetChar();
+
         // For debugging
         std::string GetLookAhead(int nChars);
 		int CountPosition(int tabSize) const;
 
     private:
-        void Advance();
-        bool AtEnd() const;
+        char operator*();
+        const_iterator& operator++();
         int Compare(const const_iterator& other) const;
         CScriptStreamLimiter *_limiter;
         int _nLine;

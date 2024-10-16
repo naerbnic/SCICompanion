@@ -28,17 +28,17 @@ inline bool ExtractToken(std::string &str, ScriptCharIterator&stream)
 {
     bool fRet = false;
     str.clear();
-    char ch = *stream;
+    char ch = stream.GetChar();
     if (isalpha(ch) || (ch == '_'))     // First character must be a letter or _
     {
         fRet = true;
         str += ch;
-        ch = *(++stream);
+        ch = stream.AdvanceAndGetChar();
         while (isalnum(ch) || (ch == '_'))  // Then any alphanumeric character is fine.
         {
             fRet = true;
             str += ch;
-            ch = *(++stream);
+            ch = stream.AdvanceAndGetChar();
         }
     }
     return fRet;
@@ -64,17 +64,17 @@ bool FilenameP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *
     bool fRet = false;
     std::string &str = pContext->ScratchString();
     str.clear();
-    char ch = *stream;
+    char ch = stream.GetChar();
     if (isalnum(ch) || (ch == '_'))
     {
         fRet = true;
         str += ch;
-        ch = *(++stream);
+        ch = stream.AdvanceAndGetChar();
         while (isalnum(ch) || (ch == '_') || (ch == '.'))
         {
             fRet = true;
             str += ch;
-            ch = *(++stream);
+            ch = stream.AdvanceAndGetChar();
         }
     }
     return fRet;
@@ -87,17 +87,17 @@ bool AsmInstructionP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TCon
     bool fRet = false;
     std::string &str = pContext->ScratchString();
     str.clear();
-    char ch = *stream;
+    char ch = stream.GetChar();
     if (isalpha(ch) || (ch == '_') || (ch == '&') || (ch == '-') || (ch == '+'))     // First character must be a letter or _ or & or + or - (for the rest instruction, or inc/dec)
     {
         fRet = true;
         str += ch;
-        ch = *(++stream);
+        ch = stream.AdvanceAndGetChar();
         while (isalnum(ch) || (ch == '_') || (ch == '?'))  // Then any alphanumeric character is fine, or ?
         {
             fRet = true;
             str += ch;
-            ch = *(++stream);
+            ch = stream.AdvanceAndGetChar();
         }
     }
 
@@ -163,9 +163,9 @@ bool KleeneP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pC
 {
     while (pParser->_pa->Match(pContext, stream).Result())
     {
-        while (isspace(*stream))
+        while (isspace(stream.GetChar()))
         {
-            ++stream;
+            stream.Advance();
         }
     }
     return true; // Always matches
@@ -178,9 +178,9 @@ bool OneOrMoreP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext 
     while (pParser->_pa->Match(pContext, stream).Result())
     {
         atLeastOne = true;
-        while (isspace(*stream))
+        while (isspace(stream.GetChar()))
         {
-            ++stream;
+            stream.Advance();
         }
     }
     return atLeastOne;
@@ -229,37 +229,37 @@ bool IntegerP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *p
     bool fNeg = false;
     bool fRet = false;
     bool fHex = false;
-    if (*stream == '$')
+    if (stream.GetChar() == '$')
     {
         fHex = true;
-        ++stream;
-        while (isxdigit(*stream) && (i <= (std::numeric_limits<uint16_t>::max)()))
+        stream.Advance();
+        while (isxdigit(stream.GetChar()) && (i <= (std::numeric_limits<uint16_t>::max)()))
         {
             i *= 16;
-            i += charToI(*stream);
+            i += charToI(stream.GetChar());
             fRet = true;
-            ++stream;
+            stream.Advance();
         }
     }
     else
     {
-        if (*stream == '-')
+        if (stream.GetChar() == '-')
         {
             fNeg = true;
-            ++stream;
+            stream.Advance();
         }
-        while (isdigit(*stream) && (i <= (std::numeric_limits<uint16_t>::max)()))
+        while (isdigit(stream.GetChar()) && (i <= (std::numeric_limits<uint16_t>::max)()))
         {
             i *= 10;
-            i += charToI(*stream);
+            i += charToI(stream.GetChar());
             fRet = true;
-            ++stream;
+            stream.Advance();
         }
     }
     if (fRet)
     {
         // Make sure that the number isn't followed by an alphanumeric char
-        fRet = !isalnum(*stream);
+        fRet = !isalnum(stream.GetChar());
     }
     if (fNeg)
     {
@@ -297,22 +297,22 @@ bool AlphanumOpenP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TConte
     bool fRet = false;
     std::string &str = pContext->ScratchString();
     str.clear();
-    char ch = *stream;
+    char ch = stream.GetChar();
     if (isalpha(ch) || (ch == '_'))
     {
         fRet = true;
         str += ch;
-        ch = *(++stream);
+        ch = stream.AdvanceAndGetChar();
         while (isalnum(ch) || (ch == '_'))
         {
             fRet = true;
             str += ch;
-            ch = *(++stream);
+            ch = stream.AdvanceAndGetChar();
         }
     }
-    if (fRet && (*stream == '('))
+    if (fRet && (stream.GetChar() == '('))
     {
-        ++stream;
+        stream.Advance();
         return true;
     }
     else
@@ -336,9 +336,9 @@ bool CharP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pCon
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
-    while (*psz && (*stream == *psz))
+    while (*psz && (stream.GetChar() == *psz))
     {
-        ++stream;
+        stream.Advance();
         ++psz;
     }
     return (*psz == 0);
@@ -352,15 +352,15 @@ bool KeywordP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *p
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
-    while (*psz && (*stream == *psz))
+    while (*psz && (stream.GetChar() == *psz))
     {
-        ++stream;
+        stream.Advance();
         ++psz;
     }
     if (*psz == 0)
     {
         // We used up the whole keyword.  Make sure it isn't followed by another alpha numeric char.
-        return !isalnum(*stream);
+        return !isalnum(stream.GetChar());
     }
     return false;
 }
@@ -370,16 +370,16 @@ bool OperatorP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
-    while (*psz && (*stream == *psz))
+    while (*psz && (stream.GetChar() == *psz))
     {
-        ++stream;
+        stream.Advance();
         ++psz;
     }
     if (*psz == 0)
     {
         pContext->ScratchString() = pParser->_psz;
 
-        char chNext = *stream;
+        char chNext = stream.GetChar();
         // REVIEW: we're relying on careful ordering of rules to have this parser work.
         // The "operator" parser needs to make sure there isn't another "operator char" following
         // this:
