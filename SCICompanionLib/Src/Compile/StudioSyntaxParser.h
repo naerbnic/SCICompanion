@@ -24,6 +24,8 @@
 #include <deque>
 #include <numeric>
 
+#include "SyntaxParser.h"
+
 inline bool ExtractToken(std::string &str, ScriptCharIterator&stream)
 {
     bool fRet = false;
@@ -571,16 +573,16 @@ public:
     virtual void ReportError(PCTSTR pszError) = 0;
 };
 
-class StudioSyntaxParser
+class StudioSyntaxParser : public SyntaxParser
 {
 public:
     bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
                std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool addCommentsToOM,
-               bool collectComments);
+               bool collectComments) override;
     bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
-               std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context);
+               std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context) override;
     bool ParseHeader(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
-                     std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments);
+                     std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments) override;
     void Load();
 
 private:

@@ -11,7 +11,7 @@
 // Our parser...
 typedef ParserBase<SyntaxContext, EatCommentSemi> ParserSCI;
 
-class SCISyntaxParser
+class SCISyntaxParser : public SyntaxParser
 {
 public:
     SCISyntaxParser();
