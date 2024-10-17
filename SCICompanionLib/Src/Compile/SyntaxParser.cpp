@@ -26,80 +26,48 @@ void InitializeSyntaxParsers()
     g_studio.Load();
 }
 
+static SyntaxParser* GetSyntaxParser(LangSyntax lang)
+{
+    if (lang == LangSyntaxStudio)
+    {
+        return &g_studio;
+    }
+    else if (lang == LangSyntaxSCI)
+    {
+        return &g_sci;
+    }
+    assert(false);
+}
+
 bool SyntaxParser_ParseAC(sci::Script &script, CCrystalScriptStream::const_iterator &streamIt, std::unordered_set<std::string> preProcessorDefines, SyntaxContext *pContext)
 {
-    bool fRet = false;
+    auto* parser = GetSyntaxParser(script.Language());
 
-    if (script.Language() == LangSyntaxStudio)
+    if (!script.IsHeader())
     {
-        if (script.IsHeader())
-        {
-        }
-        else
-        {
-            fRet = g_studio.Parse(script, streamIt, preProcessorDefines, *pContext);
-        }
+        parser->Parse(script, streamIt, preProcessorDefines, *pContext);
     }
-    else if (script.Language() == LangSyntaxSCI)
-    {
-        if (script.IsHeader())
-        {
-        }
-        else
-        {
-            fRet = g_sci.Parse(script, streamIt, preProcessorDefines, *pContext);
-        }
-    }
-    return fRet;
+    return false;
 }
 
 bool SyntaxParser_Parse(sci::Script &script, CCrystalScriptStream &stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pLog, bool fParseComments, SyntaxContext *pContext, bool addCommentsToOM)
 {
-    bool fRet = false;
-    if (script.Language() == LangSyntaxStudio)
+    auto* parser = GetSyntaxParser(script.Language());
+    if (script.IsHeader())
     {
-        if (script.IsHeader())
-        {
-            fRet = g_studio.ParseHeader(script, stream.begin(), preProcessorDefines, pLog, fParseComments);
-        }
-        else
-        {
-            if (pContext)
-            {
-                // Someone is doing a partial compile (e.g. tooltips) and supply their own context.
-                fRet = g_studio.Parse(script, stream.begin(), preProcessorDefines, *pContext);
-            }
-            else
-            {
-                // Or maybe someone either wants error logs:
-                fRet = g_studio.Parse(script, stream.begin(), preProcessorDefines, pLog, addCommentsToOM, fParseComments);
-            }
-        }
-    }
-    else if (script.Language() == LangSyntaxSCI)
-    {
-        if (script.IsHeader())
-        {
-            fRet = g_sci.ParseHeader(script, stream.begin(), preProcessorDefines, pLog, fParseComments);
-        }
-        else
-        {
-            if (pContext)
-            {
-                // Someone is doing a partial compile (e.g. tooltips) and supply their own context.
-                fRet = g_sci.Parse(script, stream.begin(), preProcessorDefines, *pContext);
-            }
-            else
-            {
-                // Or maybe someone either wants error logs:
-                fRet = g_sci.Parse(script, stream.begin(), preProcessorDefines, pLog, addCommentsToOM, fParseComments);
-            }
-        }
-
+        return parser->ParseHeader(script, stream.begin(), preProcessorDefines, pLog, fParseComments);
     }
     else
     {
-        assert(false);
+        if (pContext)
+        {
+            // Someone is doing a partial compile (e.g. tooltips) and supply their own context.
+            return parser->Parse(script, stream.begin(), preProcessorDefines, *pContext);
+        }
+        else
+        {
+            // Or maybe someone either wants error logs:
+            return parser->Parse(script, stream.begin(), preProcessorDefines, pLog, addCommentsToOM, fParseComments);
+        }
     }
-    return fRet;
 }
