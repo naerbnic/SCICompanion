@@ -185,8 +185,6 @@ AppState::AppState(CWinApp *pApp) : _resourceMap(this, &_resourceRecency)
     PaletteColorsClipboardFormat = RegisterClipboardFormat("SCICompanionPaletteColors");
     EGAPaletteColorsClipboardFormat = RegisterClipboardFormat("SCICompanionEGAPaletteColors");
     LoadSyntaxHighlightingColors();
-
-    InitializeSyntaxParsers();
 }
 
 DependencyTracker &AppState::GetDependencyTracker()

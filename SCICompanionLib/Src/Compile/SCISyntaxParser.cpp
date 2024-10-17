@@ -534,11 +534,11 @@ public:
 
     bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
         std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool addCommentsToOM,
-        bool collectComments);
+        bool collectComments) const override;
     bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
-        std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context);
+        std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context) const override;
     bool ParseHeader(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
-        std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments);
+        std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments) const override;
     void Load();
 
 private:
@@ -1525,7 +1525,7 @@ inline void ExtractSomeToken(std::string &str, ScriptCharIterator &stream)
 //
 // This does the parsing.
 //
-bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool addCommentsToOM, bool collectComments)
+bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool addCommentsToOM, bool collectComments) const
 {
     SyntaxContext context(stream, script, preProcessorDefines, addCommentsToOM, collectComments);
     bool fRet = false;
@@ -1584,7 +1584,7 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
     return fRet;
 }
 
-bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context)
+bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context) const
 {
     bool fRet = false;
     if (entire_script.Match(&context, stream).Result() && stream.AtEnd()) // Needs a full match
@@ -1595,7 +1595,7 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
     return fRet;
 }
 
-bool SCISyntaxParser::ParseHeader(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments)
+bool SCISyntaxParser::ParseHeader(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments) const
 {
     SyntaxContext context(stream, script, preProcessorDefines, false, collectComments);
     bool fRet = entire_header.Match(&context, stream).Result() && stream.AtEnd();

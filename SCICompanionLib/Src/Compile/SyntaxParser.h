@@ -28,15 +28,13 @@ public:
     virtual ~SyntaxParser() = default;
     virtual bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
         std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool addCommentsToOM,
-        bool collectComments) = 0;
+        bool collectComments) const = 0;
     virtual bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
-        std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context) = 0;
+        std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context) const = 0;
     virtual bool ParseHeader(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
-        std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments) = 0;
+        std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments) const = 0;
 };
 
 bool SyntaxParser_Parse(sci::Script &script, CCrystalScriptStream &stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pLog = nullptr, bool fParseComments = false, SyntaxContext *pContext = nullptr, bool addCommentsToOM = false);
 
 std::unordered_set<std::string> PreProcessorDefinesFromSCIVersion(SCIVersion version);
-
-void InitializeSyntaxParsers();
