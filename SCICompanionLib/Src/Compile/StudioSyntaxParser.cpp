@@ -511,12 +511,6 @@ void StudioScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser,
 //
 void StudioSyntaxParser::Load()
 {
-    if (_fLoaded)
-    {
-        return;
-    }
-    _fLoaded = true;
-
     // An integer or plain alphanumeric token
     immediateValue = integer_p[PropValueIntA] | alphanum_p[PropValueStringA<ValueType::Token>] | bracestring_p[PropValueStringA<ValueType::Token>];
 

@@ -586,8 +586,6 @@ public:
     void Load();
 
 private:
-    bool _fLoaded;
-
     // Grammar rules
 
     Parser statement;

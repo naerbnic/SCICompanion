@@ -26,9 +26,6 @@ public:
     void Load();
 
 private:
-    bool _fLoaded;
-
-
     ParserSCI entire_script;
 
     // Basics

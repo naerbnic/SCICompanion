@@ -761,12 +761,6 @@ SCISyntaxParser::SCISyntaxParser() :
 //
 void SCISyntaxParser::Load()
 {
-    if (_fLoaded)
-    {
-        return;
-    }
-    _fLoaded = true;
-
     // Some defaults.
     ParseACChannels ch1StartStatement = SetChannel(NoChannels, ParseAutoCompleteChannel::One, ParseAutoCompleteContext::StartStatementExtras);
     ParseACChannels ch1Block = SetChannel(NoChannels, ParseAutoCompleteChannel::One, ParseAutoCompleteContext::Block);

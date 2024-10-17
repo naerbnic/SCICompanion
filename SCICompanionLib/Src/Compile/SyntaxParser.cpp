@@ -17,24 +17,26 @@
 #include "SCISyntaxParser.h"
 
 // Our parser global variables
-StudioSyntaxParser g_studio;
-SCISyntaxParser g_sci;
+std::unique_ptr<StudioSyntaxParser> g_studio;
+std::unique_ptr<SCISyntaxParser> g_sci;
 
 void InitializeSyntaxParsers()
 {
-    g_sci.Load();
-    g_studio.Load();
+    g_studio = std::make_unique<StudioSyntaxParser>();
+    g_studio->Load();
+    g_sci = std::make_unique<SCISyntaxParser>();
+    g_sci->Load();
 }
 
 static SyntaxParser* GetSyntaxParser(LangSyntax lang)
 {
     if (lang == LangSyntaxStudio)
     {
-        return &g_studio;
+        return g_studio.get();
     }
     else if (lang == LangSyntaxSCI)
     {
-        return &g_sci;
+        return g_sci.get();
     }
     assert(false);
 }
