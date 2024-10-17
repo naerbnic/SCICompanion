@@ -768,6 +768,11 @@ public:
         return _ReadStringStudio<_TContext, _CommentPolicy, Q1, Q2>(pContext, stream, str);
     }
 
+    MatchingFunction GetMatchingFunction() const
+    {
+        return _pfn;
+    }
+
     std::unique_ptr<ParserBase> _pa;
     std::vector<std::unique_ptr<ParserBase>> _parsers;
     const char *_psz;
@@ -777,9 +782,9 @@ public:
     const ParserBase *_pRef;
     bool _fLiteral; // Don't skip whitespace
     bool _fOnlyRef; // Only references to this parser... it's lifetime is guaranteed.
+private:
     // PERF: perhaps we could optimize for some cases here, and not have a matching functino (e.g. char)
     MatchingFunction _pfn;
-private:
 };
 
 extern const int AltKeys[26];

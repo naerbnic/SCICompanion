@@ -438,7 +438,7 @@ inline ParserBase<_TContext, _CommentPolicy> operator>>(const ParserBase<_TConte
     //      d[act2]
     // The result would be act2 gets called prior to act1.
     // It looks like this optimization won't be useful, since most things have actions.
-    if ((a._pfn != SequenceP<_TContext, _CommentPolicy>) || (a._pfnA))
+    if ((a.GetMatchingFunction() != SequenceP<_TContext, _CommentPolicy>) || (a._pfnA))
     {
         ParserBase<_TContext, _CommentPolicy> alternative(SequenceP<_TContext, _CommentPolicy>);
         alternative.AddParser(a);
@@ -449,7 +449,7 @@ inline ParserBase<_TContext, _CommentPolicy> operator>>(const ParserBase<_TConte
     {
         // A is already an alternative.  Add b to it.
         ParserBase<_TContext, _CommentPolicy> parserA(a);
-        if (parserA._pfn == SequenceP<_TContext, _CommentPolicy>)
+        if (parserA.GetMatchingFunction() == SequenceP<_TContext, _CommentPolicy>)
         {
             parserA.AddParser(b);
             return parserA;
@@ -474,7 +474,7 @@ template<typename _TContext, typename _CommentPolicy>
 inline ParserBase<_TContext, _CommentPolicy> operator|(const ParserBase<_TContext, _CommentPolicy> &a, const ParserBase<_TContext, _CommentPolicy> &b)
 {
     // See operator>>
-    if ((a._pfn != AlternativeP<_TContext, _CommentPolicy>) || (a._pfnA))
+    if ((a.GetMatchingFunction() != AlternativeP<_TContext, _CommentPolicy>) || (a._pfnA))
     {
         ParserBase<_TContext, _CommentPolicy> alternative(AlternativeP<_TContext, _CommentPolicy>);
         alternative.AddParser(a);
@@ -485,7 +485,7 @@ inline ParserBase<_TContext, _CommentPolicy> operator|(const ParserBase<_TContex
     {
         // A is already an alternative.  Add b to it.
         ParserBase<_TContext, _CommentPolicy> parserA(a);
-        if (parserA._pfn == AlternativeP<_TContext, _CommentPolicy>)
+        if (parserA.GetMatchingFunction() == AlternativeP<_TContext, _CommentPolicy>)
         {
             parserA.AddParser(b);
             return parserA;
