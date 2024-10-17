@@ -563,14 +563,5 @@ void GeneralE(MatchResult &match, const ParserBase<_TContext, _CommentPolicy> *p
 }
 
 // Our parser...
-typedef ParserBase<SyntaxContext, EatCommentCpp> Parser;
-
-class ICompileLog; // fwd decl
-
-class IReportError
-{
-public:
-    virtual void ReportError(PCTSTR pszError) = 0;
-};
 
 std::unique_ptr<SyntaxParser> CreateStudioSyntaxParser();

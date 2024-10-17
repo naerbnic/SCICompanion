@@ -27,6 +27,8 @@
 using namespace sci;
 using namespace std;
 
+typedef ParserBase<SyntaxContext, EatCommentCpp> Parser;
+
 const char *g_keywords[4] =
 {
     "if",

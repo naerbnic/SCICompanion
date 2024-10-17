@@ -27,11 +27,15 @@ enum class IfDefDefineState
 class SyntaxContext
 {
 public:
-    SyntaxContext(ScriptCharIterator beginning, sci::Script &script, std::unordered_set<std::string> preProcessorDefines, bool addCommentsDirectly, bool collectComments) : _beginning(beginning), _script(script), extraKeywords(nullptr), ifDefDefineState(IfDefDefineState::None), _preProcessorDefines(preProcessorDefines), _addCommentsToOM(addCommentsDirectly), _collectComments(collectComments), CurrentStringType(0)
+    SyntaxContext(ScriptCharIterator beginning, sci::Script &script, std::unordered_set<std::string> preProcessorDefines, bool addCommentsDirectly, bool collectComments) :
+        _beginning(beginning), _script(script), extraKeywords(nullptr), ifDefDefineState(IfDefDefineState::None),
+        _preProcessorDefines(preProcessorDefines), _addCommentsToOM(addCommentsDirectly),
+        _collectComments(collectComments), CurrentStringType(0), Integer(0), NegInt(false), HexInt(false), Integer2(0)
 #ifdef PARSE_DEBUG
         , ParseDebug(false), ParseDebugIndent(0)
 #endif
-    {}
+    {
+    }
 
     ~SyntaxContext()
     {
