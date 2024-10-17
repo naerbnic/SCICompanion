@@ -10,6 +10,8 @@
 #include "ScriptOM.h"
 #include "CrystalScriptStream.h"
 #include "ParserCommon.h"
+#include "SyntaxParserUtil.h"
+#include "ParserErrors.h"
 
 using namespace sci;
 using namespace std;

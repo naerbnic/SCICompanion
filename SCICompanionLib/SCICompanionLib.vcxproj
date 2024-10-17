@@ -194,6 +194,7 @@
     <ClCompile Include="Src\Compile\OutputCodeHelper.cpp" />
     <ClCompile Include="Src\Compile\OutputScriptStrings.cpp" />
     <ClCompile Include="Src\Compile\ParseAutoCompleteContext.cpp" />
+    <ClCompile Include="Src\Compile\ParserErrors.cpp" />
     <ClCompile Include="Src\Compile\SCISourceCodeFormatter.cpp" />
     <ClCompile Include="Src\Compile\StudioSourceCodeFormatter.cpp" />
     <ClCompile Include="Src\Compile\SCISyntaxParser.cpp" />
@@ -283,8 +284,10 @@
     <ClInclude Include="Src\Compile\OutputScriptStrings.h" />
     <ClInclude Include="Src\Compile\ParseAutoCompleteContext.h" />
     <ClInclude Include="Src\Compile\ParserActions.h" />
+    <ClInclude Include="Src\Compile\ParserErrors.h" />
     <ClInclude Include="Src\Compile\SCISyntaxParser.h" />
     <ClInclude Include="Src\Compile\SyntaxContext.h" />
+    <ClInclude Include="Src\Compile\SyntaxParserUtil.h" />
     <ClInclude Include="Src\Compile\ValidateSaid.h" />
     <ClInclude Include="Src\Dialogs\AudioEditDialog.h" />
     <ClInclude Include="Src\Dialogs\AudioPreferencesDialog.h" />

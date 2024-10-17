@@ -15,6 +15,7 @@
 
 #include "CrystalScriptStream.h"
 #include "ParseAutoCompleteContext.h"
+#include "ParserErrors.h"
 
 // Common parser routines
 
