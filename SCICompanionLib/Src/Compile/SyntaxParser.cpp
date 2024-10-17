@@ -17,15 +17,13 @@
 #include "SCISyntaxParser.h"
 
 // Our parser global variables
-std::unique_ptr<StudioSyntaxParser> g_studio;
-std::unique_ptr<SCISyntaxParser> g_sci;
+std::unique_ptr<SyntaxParser> g_studio;
+std::unique_ptr<SyntaxParser> g_sci;
 
 void InitializeSyntaxParsers()
 {
-    g_studio = std::make_unique<StudioSyntaxParser>();
-    g_studio->Load();
-    g_sci = std::make_unique<SCISyntaxParser>();
-    g_sci->Load();
+    g_studio = CreateStudioSyntaxParser();
+    g_sci = CreateSCISyntaxParser();
 }
 
 static SyntaxParser* GetSyntaxParser(LangSyntax lang)

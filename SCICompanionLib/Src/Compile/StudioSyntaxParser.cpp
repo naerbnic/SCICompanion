@@ -506,6 +506,149 @@ void StudioScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser,
 }
 
 
+class StudioSyntaxParser : public SyntaxParser
+{
+public:
+    bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+        std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool addCommentsToOM,
+        bool collectComments) override;
+    bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+        std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context) override;
+    bool ParseHeader(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+        std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments) override;
+    void Load();
+
+private:
+    // Grammar rules
+
+    Parser statement;
+    Parser immediateValue;
+    Parser string_immediateValue;
+    Parser string_immediateValue2;
+    Parser general_token;
+    Parser pointer;
+    Parser selector;
+    Parser value;
+    Parser simple_value;
+    Parser property_value;
+    Parser property_value_expanded;
+    Parser property_decl;
+    Parser properties_decl;
+    Parser array_init;
+    Parser string_array_init;
+
+    // Operators
+    Parser binary_operator;
+    Parser unary_operator;
+    Parser assignment_operator;
+    // Variable declaration
+    Parser var_decl;
+
+    // General code pieces
+    Parser variable;
+    Parser base_conditional_v1;
+    Parser base_conditional_v2;
+    Parser conditional;
+    Parser conditional_v1;
+    Parser conditional_v2;
+    Parser do_loop;
+    Parser while_loop;
+    Parser if_statement;
+    Parser asm_statement;
+    Parser asm_block;
+    Parser asm_label;
+    Parser asm_arg;
+    Parser ternary_expression;
+    Parser for_loop;
+    Parser case_statement;
+    Parser default_statement;
+    Parser switch_statement;
+    Parser break_statement;
+    Parser rest_statement;
+    Parser return_statement;
+    // Force the oppar to come right after the alphanum_token, to eliminate ambiguity
+    // = gWnd clBlack (send gEgo:x)        = gWnd Print("foo")         (= button (+ 5 5))
+    Parser procedure_call;
+    Parser send_param_call;
+    Parser send_call;
+    Parser code_block;
+    Parser code_block_no_paren;
+    Parser assignment;
+    Parser binary_operation;
+    Parser unary_operation;
+
+    // Functions
+    Parser function_var_decl;
+    Parser function_var_decl_inner;
+    Parser function_var_decl_begin;
+    Parser method_base;
+    Parser method_decl;
+    Parser procedure_base;
+
+    // Classes
+    Parser classbase_decl;
+    Parser instancebase_decl;
+
+    // Main script section.
+    Parser include;
+    Parser use;
+    Parser version;
+    Parser define;
+    Parser exports;
+    Parser export_entry;
+    Parser scriptNum;
+    Parser instance_decl;
+    Parser class_decl;
+    Parser procedure_decl;
+    Parser synonyms;
+    Parser script_var;
+    Parser script_string;
+
+    Parser entire_script;
+    Parser entire_header;
+
+
+    // Additional ones required for c++ syntax
+    Parser expression_statement;
+    Parser argument_expression_list;
+    Parser expression;
+    Parser assignment_expression;
+    Parser assignment_expression_core;
+    Parser lvalue_expression;
+    Parser rvalue_expression;
+    Parser unary_expression;
+    Parser unary_expression_core;
+    Parser conditional_expression;
+    Parser logical_or_expression;
+    Parser logical_and_expression;
+    Parser inclusive_or_expression;
+    Parser primary_expression;
+    Parser postfix_expression;
+    Parser cast_expression;
+    Parser multiplicative_expression;
+    Parser additive_expression;
+    Parser shift_expression;
+    Parser relational_expression;
+    Parser equality_expression;
+    Parser and_expression;
+    Parser exclusive_or_expression;
+    Parser parameter;
+    Parser labeled_statement;
+    Parser selection_statement;
+    Parser iteration_statement;
+    Parser for_loop_initializer;
+    Parser for_loop_condition;
+    Parser for_loop_looper;
+    Parser jump_statement;
+    Parser array_index;
+    Parser method_call;
+    Parser function_call;
+    Parser property_access;
+    Parser postfix_expression_root;
+    Parser statement_list;
+};
+
+
 //
 // The constructor sets up the parse tree
 //
@@ -959,4 +1102,11 @@ unordered_set<string> PreProcessorDefinesFromSCIVersion(SCIVersion version)
         defines.insert("SCI_0");
     }
     return defines;
+}
+
+std::unique_ptr<SyntaxParser> CreateStudioSyntaxParser()
+{
+    auto parser = make_unique<StudioSyntaxParser>();
+    parser->Load();
+    return parser;
 }
