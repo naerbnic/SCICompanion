@@ -762,7 +762,7 @@ public:
         _parsers.push_back(std::move(std::make_unique<ParserBase>(add)));
     }
 
-    template<typename _TContext, char Q1, char Q2>
+    template<char Q1, char Q2>
     bool ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::string &str) const
     {
         return _ReadStringStudio<_TContext, _CommentPolicy, Q1, Q2>(pContext, stream, str);
@@ -771,14 +771,15 @@ public:
     std::unique_ptr<ParserBase> _pa;
     std::vector<std::unique_ptr<ParserBase>> _parsers;
     const char *_psz;
-    // PERF: perhaps we could optimize for some cases here, and not have a matching functino (e.g. char)
-    MatchingFunction _pfn;
     Action _pfnA;
     ParseACChannels _pacc;
     DebugFunction _pfnDebug;
     const ParserBase *_pRef;
     bool _fLiteral; // Don't skip whitespace
     bool _fOnlyRef; // Only references to this parser... it's lifetime is guaranteed.
+    // PERF: perhaps we could optimize for some cases here, and not have a matching functino (e.g. char)
+    MatchingFunction _pfn;
+private:
 };
 
 extern const int AltKeys[26];

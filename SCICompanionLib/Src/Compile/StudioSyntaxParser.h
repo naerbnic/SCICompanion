@@ -204,7 +204,7 @@ bool NotP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pCont
 template<typename _TContext, typename _CommentPolicy>
 bool QuotedStringP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
-    return pParser->ReadStringStudio<_TContext, '"', '"'>(pContext, stream, pContext->ScratchString());
+    return pParser->ReadStringStudio<'"', '"'>(pContext, stream, pContext->ScratchString());
 }
 
 template<typename _TContext, typename _CommentPolicy>
@@ -212,13 +212,13 @@ bool SQuotedStringP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TCont
 {
     // Note: We could expand autocomplete coverage to include said tokens. In that case we'd need to
     // have ReadStringStudio *not* block all autocomplete channels.
-    return pParser->ReadStringStudio<_TContext, '\'', '\''>(pContext, stream, pContext->ScratchString());
+    return pParser->ReadStringStudio<'\'', '\''>(pContext, stream, pContext->ScratchString());
 }
 
 template<typename _TContext, typename _CommentPolicy>
 bool BraceStringP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
 {
-    return pParser->ReadStringStudio<_TContext, '{', '}'>(pContext, stream, pContext->ScratchString());
+    return pParser->ReadStringStudio<'{', '}'>(pContext, stream, pContext->ScratchString());
 }
 
 //
