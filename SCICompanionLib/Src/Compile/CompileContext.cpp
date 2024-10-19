@@ -150,7 +150,7 @@ void CompileContext::_LoadSCOIfNone(WORD wScript)
         {
             std::stringstream ss;
             ss << "Unable to find name for script #" << wScript;
-            ReportResult(CompileResult(ss.str()));
+            _results.ReportResult(CompileResult(ss.str()));
         }
         else
         {
@@ -160,6 +160,31 @@ void CompileContext::_LoadSCOIfNone(WORD wScript)
 }
 
 const uint16_t TempTokenBase = 2345;
+
+ContextLookupDefine::ContextLookupDefine(CompileContext* parent): _parent(parent)
+{}
+
+bool ContextLookupDefine::LookupDefine(const std::string& str, uint16_t& wValue)
+{
+    return _parent->LookupDefine(str, wValue);
+}
+
+ContextTrackCodeSink::ContextTrackCodeSink(CompileContext* parent) : _parent(parent)
+{}
+
+void ContextTrackCodeSink::WroteCodeSink(uint16_t tempToken, uint16_t offset)
+{
+    _parent->WroteCodeSink(tempToken, offset);
+}
+
+ContextLookupSaids::ContextLookupSaids(CompileContext* parent) : _parent(parent)
+{
+}
+
+bool ContextLookupSaids::LookupWord(const std::string& word, uint16_t& wordGroup)
+{
+    return _parent->LookupWord(word, wordGroup);
+}
 
 CompileContext::CompileContext(SCIClassBrowser& browser, CResourceMap& resource_map, SCIVersion version, Script& script, PrecompiledHeaders& headers, CompileTables& tables,
                                ICompileLog& results, bool generateDebugInfo) :
@@ -174,7 +199,10 @@ CompileContext::CompileContext(SCIClassBrowser& browser, CResourceMap& resource_
     _headers(headers),
     _version(version),
     _code(_version),
-    _autoTextNumber(InvalidResourceNumber)
+    _autoTextNumber(InvalidResourceNumber),
+    _lookupDefine(this),
+    _trackCodeSink(this),
+    _lookupSaids(this)
 {
     _pErrorScript = &_script;
     _modifier = VM_None;
@@ -807,11 +835,6 @@ sci::Script* CompileContext::SetErrorContext(sci::Script* pScript)
     return pOld;
 }
 
-void CompileContext::ReportResult(const CompileResult& result)
-{
-    _results.ReportResult(result);
-}
-
 void CompileContext::ReportWarning(const ISourceCodePosition* pPos,
                                    const char* pszFormat, ...)
 {
@@ -1025,7 +1048,7 @@ void CompileContext::FixupLocalCalls()
 
 void CompileContext::PreScanSaid(const std::string& theSaid, const ISourceCodePosition* pPos)
 {
-    ParseSaidString(this, *this, theSaid, nullptr, pPos);
+    ParseSaidString(this, this->GetLookupSaids(), theSaid, nullptr, pPos);
     GetTempToken(ValueType::Said, theSaid);
 }
 
@@ -1276,7 +1299,7 @@ void PrecompiledHeaders::Update(CompileContext& context, Script& script)
                         ScriptStream stream(&limiter);
                         auto pNewHeader = std::make_unique<Script>(DetermineFileLanguage(scriptId.GetFullPath()), scriptId);
                         if (SyntaxParser_Parse(*pNewHeader, stream,
-                                               PreProcessorDefinesFromSCIVersion(context.GetVersion()), &context))
+                                               PreProcessorDefinesFromSCIVersion(context.GetVersion()), context.GetLog()))
                         {
                             if (pNewHeader->IsHeader())
                             {
@@ -1296,7 +1319,7 @@ void PrecompiledHeaders::Update(CompileContext& context, Script& script)
                         {
                             std::stringstream ss;
                             ss << "Parsing errors while loading " << scriptId.GetFullPath() << ".";
-                            context.ReportResult(CompileResult(ss.str(), CompileResult::CRT_Error));
+                            context.GetLog()->ReportResult(CompileResult(ss.str(), CompileResult::CRT_Error));
                         }
                         buffer.FreeAll();
                     }
@@ -1304,7 +1327,7 @@ void PrecompiledHeaders::Update(CompileContext& context, Script& script)
                     {
                         std::stringstream ss;
                         ss << "Unable to load " << scriptId.GetFullPath() << ".";
-                        context.ReportResult(CompileResult(ss.str(), CompileResult::CRT_Error));
+                        context.GetLog()->ReportResult(CompileResult(ss.str(), CompileResult::CRT_Error));
                     }
                 }
             }

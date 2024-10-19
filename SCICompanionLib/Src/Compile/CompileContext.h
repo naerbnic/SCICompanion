@@ -132,7 +132,39 @@ struct CompileStats
     int Saids;
 };
 
-class CompileContext : public ICompileLog, public ILookupDefine, public ITrackCodeSink, public ILookupSaids
+// Forward decl for interfaces
+class CompileContext;
+
+class ContextLookupDefine : public ILookupDefine
+{
+public:
+    explicit ContextLookupDefine(CompileContext* parent);
+    bool LookupDefine(const std::string& str, uint16_t& wValue) override;
+
+private:
+    CompileContext* _parent;
+};
+
+class ContextTrackCodeSink : public ITrackCodeSink
+{
+public:
+    explicit ContextTrackCodeSink(CompileContext* parent);
+    void WroteCodeSink(uint16_t tempToken, uint16_t offset) override;
+private:
+    CompileContext* _parent;
+};
+
+class ContextLookupSaids : public ILookupSaids
+{
+public:
+    explicit ContextLookupSaids(CompileContext* parent);
+    bool LookupWord(const std::string& word, uint16_t& wordGroup) override;
+
+private:
+    CompileContext* _parent;
+};
+
+class CompileContext
 {
 public:
   CompileContext(SCIClassBrowser &browser, CResourceMap &resource_map,
@@ -159,7 +191,7 @@ public:
 
     // Called to specify the position in the heap (or script) resource at which a string, said or object is referenced.
     void WroteSink(uint16_t tempToken, uint16_t offset, ResourceType resType);        // Can be many per token. For sinks in hep resources (or scr in SCI0)
-    void WroteCodeSink(uint16_t tempToken, uint16_t offset) override;    // Can be many per token. These are lofsa/lofss, so they may be relative.
+
     void WroteScrSink(uint16_t tempToken, uint16_t offset);     // Can be many per token. For sinks in scr resources.
 
     // Does the heavy work of writing the final offsets into the token reference positions:
@@ -172,6 +204,12 @@ public:
     // Returns all strings or saids that have been tracked via GetTempToken.
     std::vector<std::string> GetStringsThatWereWritten();
     std::vector<std::string> GetSaids();
+
+    // Subobjects for delegation refactorings
+    ICompileLog* GetLog() const { return &_results; }
+    ILookupDefine& GetLookupDefine() { return _lookupDefine; }
+    ITrackCodeSink& GetTrackCodeSink() { return _trackCodeSink; }
+    ILookupSaids& GetLookupSaids() { return _lookupSaids; }
 
     std::map<std::string, uint16_t> ScriptArraySizes;
     const sci::FunctionBase *FunctionBaseForPrescan;
@@ -236,7 +274,6 @@ public:
     WORD LookupSelectorAndAdd(const std::string &str);
     bool LookupSelector(const std::string &str, WORD &wIndex);
     void DefineNewSelector(const std::string &str, WORD &wIndex);
-    bool LookupDefine(const std::string &str, WORD &wValue) override;
     void AddDefine(sci::Define *pDefine);
     const SCIVersion &GetVersion() { return _version; }
     //
@@ -283,10 +320,8 @@ public:
     void NotifySendOrProcCall();
     void PopQuery();
     bool SupportTypeChecking();
-    bool LookupWord(const std::string &word, WORD &wWordGroup) override;
     bool LookupWordGroupClass(uint16_t group, WordClass *wordClass);
     sci::Script *SetErrorContext(sci::Script *pScript);
-    void ReportResult(const CompileResult &result) override;
     void ReportWarning(const ISourceCodePosition *pPos, const char *pszFormat, ...);
     void ReportError(const ISourceCodePosition *pPos, const char *pszFormat, ...);
     void ReportTypeError(const ISourceCodePosition *pPos, SpeciesIndex w1, SpeciesIndex w2, const char *pszFormat);
@@ -395,6 +430,19 @@ private:
     VariableModifier _modifier; // Increment or decrement modifier
 
     std::vector<SpeciesIndex> _allowedReturnValues; // Current allowed return values
+
+    // Fields for Replace Inheritance With Delegation
+    friend class ContextLookupDefine;
+    friend class ContextTrackCodeSink;
+    friend class ContextLookupSaids;
+
+    bool LookupDefine(const std::string& str, WORD& wValue);
+    void WroteCodeSink(uint16_t tempToken, uint16_t offset);    // Can be many per token. These are lofsa/lofss, so they may be relative.
+    bool LookupWord(const std::string& word, WORD& wWordGroup);
+
+    ContextLookupDefine _lookupDefine;
+    ContextTrackCodeSink _trackCodeSink;
+    ContextLookupSaids _lookupSaids;
 };
 
 class ArrayCodeResult

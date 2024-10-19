@@ -45,6 +45,7 @@ enum class BranchBlockIndex
 class ITrackCodeSink
 {
 public:
+    virtual ~ITrackCodeSink() = default;
     virtual void WroteCodeSink(uint16_t tempToken, uint16_t offset) = 0;
 };
 

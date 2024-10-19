@@ -561,7 +561,7 @@ void _Section2_Code(const Script &script, CompileContext &context, vector<BYTE> 
     {
         push_string(results.GetDebugInfo(), script.GetScriptId().GetFileName());
     }
-    context.code().write_code(context, output, context.GenerateDebugInfo ? &results.GetDebugInfo() : nullptr);
+    context.code().write_code(context.GetTrackCodeSink(), output, context.GenerateDebugInfo ? &results.GetDebugInfo() : nullptr);
     zero_pad(output, fRoundUp);
 
     uint16_t after = static_cast<uint16_t>(output.size());
@@ -593,12 +593,12 @@ void _Section3_Synonyms(Script &script, CompileContext &context, vector<BYTE> &o
             for (auto &synonym : synonymClause->Synonyms)
             {
                 WORD wGroup = 0;
-                if (!context.LookupWord(synonym, wGroup))
+                if (!context.GetLookupSaids().LookupWord(synonym, wGroup))
                 {
                     context.ReportError(synonymClause.get(), "'%s' is not in the vocabulary.", synonym.c_str());
                 }
                 push_word(output, wGroup); // Write anyway, so we can continue...
-                if (!context.LookupWord(synonymClause->MainWord, wGroup))
+                if (!context.GetLookupSaids().LookupWord(synonymClause->MainWord, wGroup))
                 {
                     context.ReportError(synonymClause.get(), "'%s' is not in the vocabulary.", synonymClause->MainWord.c_str());
                 }
@@ -630,7 +630,7 @@ void _Section4_Saids(CompileContext &context, vector<BYTE> &output, CompileResul
             context.WroteSource(context.GetTempToken(ValueType::Said, said), wAbsolute);
 
             // b) Parse the said stream
-            ParseSaidString(&context, context, said, &output, nullptr);
+            ParseSaidString(&context, context.GetLookupSaids(), said, &output, nullptr);
             // c) update the offset...
         }
 
@@ -949,7 +949,7 @@ std::vector<species_property> GetOverriddenProperties(CompileContext &context, c
         }
         else
         {
-            if (classProperty->GetStatement1()->Evaluate(context, wValue, &context))    // report errors
+            if (classProperty->GetStatement1()->Evaluate(context.GetLookupDefine(), wValue, &context))    // report errors
             {
                 // We evaluated an expression
             }

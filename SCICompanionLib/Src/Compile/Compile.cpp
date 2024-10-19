@@ -742,7 +742,7 @@ void ValidateVariableDeclaration(CompileContext &context, const ISourceCodePosit
         context.ReportError(pPos, "'%s' is a keyword and cannot be used as a variable name.", name.c_str());
     }
     uint16_t dummy;
-    if (context.LookupDefine(name, dummy))
+    if (context.GetLookupDefine().LookupDefine(name, dummy))
     {
         context.ReportError(pPos, "'%s' is a define and cannot be used as a variable name.", name.c_str());
     }
@@ -826,7 +826,7 @@ bool _PreScanPropertyTokenToNumber(CompileContext &context, SyntaxNode *pNode, c
 {
     bool fRet = true;
     // Resolve it if it's a define.
-    if (context.LookupDefine(token, wValue))
+    if (context.GetLookupDefine().LookupDefine(token, wValue))
     {
         // Convert it to a number value.
     }
@@ -1728,7 +1728,7 @@ CodeResult ProcedureCall::OutputByteCode(CompileContext &context) const
                 uint16_t index;
                 SpeciesIndex dataType;
                 if ((ResolvedToken::Unknown != context.LookupToken(nullptr, _innerName, index, dataType)) ||
-                    context.LookupDefine(_innerName, index))
+                    context.GetLookupDefine().LookupDefine(_innerName, index))
                 {
                     message += " -- (solitary values don't need to be enclosed in parentheses). ";
                     checkUse = false;
@@ -2571,7 +2571,7 @@ CodeResult SwitchStatement::OutputByteCode(CompileContext &context) const
 
                     // For simple values, catch duplication
                     uint16_t numberValue;
-                    if (pCase->GetCaseValue()->Evaluate(context, numberValue, nullptr))
+                    if (pCase->GetCaseValue()->Evaluate(context.GetLookupDefine(), numberValue, nullptr))
                     {
                         if (caseValues.find(numberValue) != caseValues.end())
                         {
@@ -3837,7 +3837,7 @@ void MaybeSubstituteWithSimpleValue(CompileContext &context, std::unique_ptr<Syn
         return;
     }
     uint16_t result;
-    if (node->Evaluate(context, result, nullptr))
+    if (node->Evaluate(context.GetLookupDefine(), result, nullptr))
     {
         node = std::make_unique<PropertyValue>(result);
     }
