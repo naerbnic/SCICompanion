@@ -98,6 +98,7 @@
     <ClInclude Include="Src\Audio\AudioProcessingSettings.h" />
     <ClInclude Include="Src\Audio\SoundUtil.h" />
     <ClInclude Include="Src\Compile\PMachine.h" />
+    <ClInclude Include="Src\Compile\scii.h" />
     <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
     <ClInclude Include="Src\Resources\Components.h" />
@@ -140,6 +141,7 @@
     <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp" />
     <ClCompile Include="Src\Audio\SoundUtil.cpp" />
     <ClCompile Include="Src\Compile\PMachine.cpp" />
+    <ClCompile Include="Src\Compile\scii.cpp" />
     <ClCompile Include="Src\Util\LineCol.cpp" />
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />

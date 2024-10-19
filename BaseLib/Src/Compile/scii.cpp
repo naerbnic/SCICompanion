@@ -11,12 +11,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
 #include "scii.h"
 #include "PMachine.h"
-
-#include <numeric>
 #include <format.h>
+
+#include "StlUtil.h"
 
 // Instructions that pop from the stack, and how many frames they pop
 int scii::is_stackpop_op()
@@ -399,7 +398,7 @@ uint16_t scii::calc_size(code_pos self, int *pfNeedToRedo)
 
 
 
-void push_wordIt(std::vector<BYTE> &output, uint16_t w)
+void push_wordIt(std::vector<uint8_t> &output, uint16_t w)
 {
     // big-endian
     output.push_back(w & 0xff);
@@ -414,7 +413,7 @@ void push_wordIt(std::vector<BYTE> &output, uint16_t w)
 // Note: SCI01+ games use a relative offset instead.
 // See SCIVersion::lofsaOpcodeIsAbsolute
 
-void scii::output_code(ITrackCodeSink &trackCodeSink, std::vector<BYTE> &output)
+void scii::output_code(ITrackCodeSink &trackCodeSink, std::vector<uint8_t> &output)
 {
     _wFinalOffset = (uint16_t)output.size();
     assert(_bOpcode != Opcode::INDETERMINATE); // Any invalid instructions must be replaced before writing the code.
@@ -848,9 +847,7 @@ uint16_t scii::get_final_offset_dontcare() const  { return _wFinalOffset; }
 // Used for decompilation
 void scii::set_offset_and_size(uint16_t wOffset, uint16_t wSize) { _wFinalOffset = wOffset; _wSize = wSize; }
 
-#ifdef DEBUG
 void scii::set_debug_info(int p) { _pDebug = p; }
-#endif
 bool scii::is_branch_determined() { return !_fUndetermined; }
 
 void scii::mark() { }

@@ -16,7 +16,14 @@
 //
 #pragma once
 
+#include <list>
 #include <stack>
+#include <unordered_map>
+#include <vector>
+#include <cassert>
+#include <map>
+
+#include "Version.h"
 
 // Fwd declaration
 enum OperandType : uint8_t;
@@ -69,7 +76,7 @@ public:
     uint16_t get_second_operand() const;
     uint16_t get_third_operand() const;
 
-    void output_code(ITrackCodeSink &trackCodeSink, std::vector<BYTE>&);
+    void output_code(ITrackCodeSink &trackCodeSink, std::vector<uint8_t>&);
 
     Opcode get_opcode() const;
     Opcode set_opcode(Opcode opcode);
@@ -83,9 +90,7 @@ public:
     // Used for decompilation
     void set_offset_and_size(uint16_t wOffset, uint16_t wSize);
 
-#ifdef DEBUG
     void set_debug_info(int p);
-#endif
     bool is_branch_determined();
 
     //
