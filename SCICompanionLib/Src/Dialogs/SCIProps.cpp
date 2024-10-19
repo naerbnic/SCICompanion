@@ -13,8 +13,6 @@
 ***************************************************************************/
 #include "stdafx.h"
 #include "SCIProps.h"
-#include "ClassBrowser.h"
-#include "AppState.h"
 #include "ScriptOMAll.h"
 
 using namespace sci;
