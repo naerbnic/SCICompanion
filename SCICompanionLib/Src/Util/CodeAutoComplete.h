@@ -13,7 +13,7 @@
 ***************************************************************************/
 #pragma once
 
-class CCrystalScriptStream;
+class ScriptStream;
 class CCrystalTextBuffer;
 class CScriptStreamLimiter;
 class SyntaxContext;;
@@ -121,7 +121,7 @@ private:
     // Both
     AutoCompleteId _id;
     std::unique_ptr<CScriptStreamLimiter> _limiterPending;
-    std::unique_ptr<CCrystalScriptStream> _streamPending;
+    std::unique_ptr<ScriptStream> _streamPending;
     uint16_t _scriptNumberPending;
     std::mutex _mutex;
     std::condition_variable _condition;

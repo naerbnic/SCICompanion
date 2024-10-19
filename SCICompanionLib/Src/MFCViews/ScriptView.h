@@ -41,7 +41,7 @@ struct HoverTipPayload
     HoverTipPayload(LangSyntax language, ScriptId scriptId, CCrystalTextBuffer *pBuffer, CPoint ptLimit) : Language(language), ScriptId(scriptId), Limiter(pBuffer, ptLimit, 0), Stream(&Limiter), Location(ptLimit) {}
     CScriptStreamLimiter Limiter;
     CPoint Location;
-    CCrystalScriptStream Stream;
+    ScriptStream Stream;
     LangSyntax Language;
     ScriptId ScriptId;
 };

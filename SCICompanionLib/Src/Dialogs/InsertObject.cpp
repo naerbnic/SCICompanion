@@ -74,7 +74,7 @@ AvailableMethods::AvailableMethods(const SCIVersion& version, const ResourceLoad
     if (buffer.LoadFromFile(fullPath.c_str()))
     {
         CScriptStreamLimiter limiter(&buffer);
-        CCrystalScriptStream stream(&limiter);
+        ScriptStream stream(&limiter);
         _script = std::make_unique<sci::Script>(DetermineFileLanguage(fullPath), ScriptId::FromFullFileName(fullPath));
         if (SyntaxParser_Parse(*_script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log, false, nullptr, true))
         {
@@ -140,7 +140,7 @@ AvailableObjects::AvailableObjects(const SCIVersion& version, const ResourceLoad
         if (buffer.LoadFromFile(fullPath.c_str()))
         {
             CScriptStreamLimiter limiter(&buffer);
-            CCrystalScriptStream stream(&limiter);
+            ScriptStream stream(&limiter);
             std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(DetermineFileLanguage(fullPath), ScriptId::FromFullFileName(fullPath));
             if (SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log, false, nullptr, true))
             {

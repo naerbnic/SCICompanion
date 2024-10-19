@@ -1273,7 +1273,7 @@ void PrecompiledHeaders::Update(CompileContext& context, Script& script)
                     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
                     {
                         CScriptStreamLimiter limiter(&buffer);
-                        CCrystalScriptStream stream(&limiter);
+                        ScriptStream stream(&limiter);
                         auto pNewHeader = std::make_unique<Script>(DetermineFileLanguage(scriptId.GetFullPath()), scriptId);
                         if (SyntaxParser_Parse(*pNewHeader, stream,
                                                PreProcessorDefinesFromSCIVersion(context.GetVersion()), &context))

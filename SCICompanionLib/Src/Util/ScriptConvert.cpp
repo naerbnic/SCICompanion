@@ -44,7 +44,7 @@ bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId& scri
         if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
         {
             CScriptStreamLimiter limiter(&buffer);
-            CCrystalScriptStream stream(&limiter);
+            ScriptStream stream(&limiter);
             // 1)
             sci::Script script(sourceLanguage, scriptId);
             success = SyntaxParser_Parse(script, stream, PreProcessorDefinesFromSCIVersion(version), &log, true); // true: Parse comments

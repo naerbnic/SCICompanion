@@ -2,13 +2,13 @@
 
 #include <cassert>
 
-CCrystalScriptStream::CCrystalScriptStream(ScriptStreamLineSource* pLimiter)
+ScriptStream::ScriptStream(ScriptStreamLineSource* pLimiter)
 {
     _pLimiter = pLimiter;
 }
 
 
-CCrystalScriptStream::const_iterator::const_iterator(ScriptStreamLineSource* limiter, LineCol dwPos) : _limiter(limiter)
+ScriptStreamIterator::ScriptStreamIterator(ScriptStreamLineSource* limiter, LineCol dwPos) : _limiter(limiter)
 {
     _nLine = dwPos.Line();
     _nChar = dwPos.Column();
@@ -23,17 +23,17 @@ CCrystalScriptStream::const_iterator::const_iterator(ScriptStreamLineSource* lim
     }
 }
 
-char CCrystalScriptStream::const_iterator::operator*()
+char ScriptStreamIterator::operator*()
 {
     return GetChar();
 }
 
-char CCrystalScriptStream::const_iterator::GetChar() const
+char ScriptStreamIterator::GetChar() const
 {
     return (_nChar == _nLength) ? '\n' : _pszLine[_nChar];
 }
 
-std::string CCrystalScriptStream::const_iterator::GetLookAhead(int nChars)
+std::string ScriptStreamIterator::GetLookAhead(int nChars)
 {
     const char* pszLine = _limiter->GetLineChars(_nLine);
     std::size_t cLineChars = _limiter->GetLineLength(_nLine);
@@ -46,7 +46,7 @@ std::string CCrystalScriptStream::const_iterator::GetLookAhead(int nChars)
     return text;
 }
 
-int CCrystalScriptStream::const_iterator::CountPosition(int tabSize) const
+int ScriptStreamIterator::CountPosition(int tabSize) const
 {
     int visualPosition = 0;
     std::size_t charPos = 0;
@@ -67,7 +67,7 @@ int CCrystalScriptStream::const_iterator::CountPosition(int tabSize) const
     return visualPosition;
 }
 
-void CCrystalScriptStream::const_iterator::Advance()
+void ScriptStreamIterator::Advance()
 {
     assert((_pszLine == nullptr) || (*_pszLine != 0)); // EOF
     _nChar++;
@@ -111,19 +111,19 @@ void CCrystalScriptStream::const_iterator::Advance()
     }
 }
 
-bool CCrystalScriptStream::const_iterator::AtEnd() const
+bool ScriptStreamIterator::AtEnd() const
 {
     return GetChar() == '\0';
     //return _pszLine == nullptr || *_pszLine == '\0' || (_nChar == _nLength && _nLine == (_limiter->GetLineCount() - 1));
 }
 
-char CCrystalScriptStream::const_iterator::AdvanceAndGetChar()
+char ScriptStreamIterator::AdvanceAndGetChar()
 {
     Advance();
     return GetChar();
 }
 
-int CCrystalScriptStream::const_iterator::Compare(const const_iterator& other) const
+int ScriptStreamIterator::Compare(const ScriptStreamIterator& other) const
 {
     if (AtEnd())
     {
@@ -148,40 +148,40 @@ int CCrystalScriptStream::const_iterator::Compare(const const_iterator& other) c
     return 0;
 }
 
-CCrystalScriptStream::const_iterator& CCrystalScriptStream::const_iterator::operator++()
+ScriptStreamIterator& ScriptStreamIterator::operator++()
 {
     Advance();
     return *this;
 }
 
-bool CCrystalScriptStream::const_iterator::operator<(const const_iterator& other) const
+bool ScriptStreamIterator::operator<(const ScriptStreamIterator& other) const
 {
     return Compare(other) < 0;
 }
 
-std::string CCrystalScriptStream::const_iterator::tostring() const
+std::string ScriptStreamIterator::tostring() const
 {
     char sz[50];
     sprintf_s(sz, sizeof(sz), "Line %d, column %d", _nLine + 1, _nChar);
     return sz;
 }
 
-bool CCrystalScriptStream::const_iterator::operator==(const const_iterator& other) const
+bool ScriptStreamIterator::operator==(const ScriptStreamIterator& other) const
 {
     return Compare(other) == 0;
 }
 
-bool CCrystalScriptStream::const_iterator::operator!=(const const_iterator& other) const
+bool ScriptStreamIterator::operator!=(const ScriptStreamIterator& other) const
 {
     return Compare(other) != 0;
 }
 
-void CCrystalScriptStream::const_iterator::ResetLine()
+void ScriptStreamIterator::ResetLine()
 {
     _nChar = 0;
 }
 
-void CCrystalScriptStream::const_iterator::Restore(const const_iterator& prev)
+void ScriptStreamIterator::Restore(const ScriptStreamIterator& prev)
 {
     // This is a hack for autocomplete. Ideally, we should retrieve line length each time.
     // If on the same line, keep the furthest length, since it may have been modified by AC.
@@ -190,15 +190,15 @@ void CCrystalScriptStream::const_iterator::Restore(const const_iterator& prev)
     _nLength = furthestLength;
 }
 
-LineCol CCrystalScriptStream::const_iterator::GetPosition() const
+LineCol ScriptStreamIterator::GetPosition() const
 {
     return LineCol(_nLine, _nChar);
 }
-int CCrystalScriptStream::const_iterator::GetLineNumber() const
+int ScriptStreamIterator::GetLineNumber() const
 {
     return _nLine;
 }
-int CCrystalScriptStream::const_iterator::GetColumnNumber() const
+int ScriptStreamIterator::GetColumnNumber() const
 {
     return _nChar;
 }

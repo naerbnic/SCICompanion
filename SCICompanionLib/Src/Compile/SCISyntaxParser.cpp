@@ -19,7 +19,7 @@ using namespace std;
 // Our parser...
 typedef ParserBase<SyntaxContext, EatCommentSemi> ParserSCI;
 
-void NoCaseE(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void NoCaseE(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (!match.Result())
     {
@@ -29,7 +29,7 @@ void NoCaseE(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pConte
 
 
 
-inline bool IntegerNonZeroP(const ParserSCI *pParser, SyntaxContext *pContext, ScriptCharIterator &stream)
+inline bool IntegerNonZeroP(const ParserSCI *pParser, SyntaxContext *pContext, ScriptStreamIterator &stream)
 {
     bool fRet = IntegerExpandedP(pParser, pContext, stream);
     if (fRet)
@@ -46,7 +46,7 @@ inline bool IntegerNonZeroP(const ParserSCI *pParser, SyntaxContext *pContext, S
 // Selectors, as far as I can tell, look like this:
 // A-Za-z0-9_-
 // But they must have at least one letter and not start with a number
-inline bool SelectorP(const ParserSCI *pParser, SyntaxContext *pContext, ScriptCharIterator &stream)
+inline bool SelectorP(const ParserSCI *pParser, SyntaxContext *pContext, ScriptStreamIterator &stream)
 {
     bool fRet = false;
     std::string &str = pContext->ScratchString();
@@ -135,7 +135,7 @@ vector<string> SCIKeywords =
 };
 
 template<typename _TContext>
-bool AlphanumPNoKeywordOrTerm(const ParserSCI *pParser, _TContext *pContext, ScriptCharIterator &stream)
+bool AlphanumPNoKeywordOrTerm(const ParserSCI *pParser, _TContext *pContext, ScriptStreamIterator &stream)
 {
     bool fRet = SelectorP(pParser, pContext, stream);
     if (fRet)
@@ -157,7 +157,7 @@ bool AlphanumPNoKeywordOrTerm(const ParserSCI *pParser, _TContext *pContext, Scr
 
 // Same as above, but ignores extra keywords.
 template<typename _TContext>
-bool AlphanumPNoKeywordOrTerm2(const ParserSCI *pParser, _TContext *pContext, ScriptCharIterator &stream)
+bool AlphanumPNoKeywordOrTerm2(const ParserSCI *pParser, _TContext *pContext, ScriptStreamIterator &stream)
 {
     bool fRet = SelectorP(pParser, pContext, stream);
     if (fRet)
@@ -174,7 +174,7 @@ bool AlphanumPNoKeywordOrTerm2(const ParserSCI *pParser, _TContext *pContext, Sc
 }
 
 template<typename _TContext>
-bool AlphanumPSendTokenOrTerm(const ParserSCI *pParser, _TContext *pContext, ScriptCharIterator &stream)
+bool AlphanumPSendTokenOrTerm(const ParserSCI *pParser, _TContext *pContext, ScriptStreamIterator &stream)
 {
     bool fRet = SelectorP(pParser, pContext, stream);
     if (fRet)
@@ -199,7 +199,7 @@ bool AlphanumPSendTokenOrTerm(const ParserSCI *pParser, _TContext *pContext, Scr
 
 // foo: or foo?, no whitespace allowed.
 template<char terminator>
-bool SelectorP_Term(const ParserSCI *pParser, SyntaxContext *pContext, ScriptCharIterator &stream)
+bool SelectorP_Term(const ParserSCI *pParser, SyntaxContext *pContext, ScriptStreamIterator &stream)
 {
     bool fRet = SelectorP(pParser, pContext, stream);
     fRet = fRet && (stream.GetChar() == terminator);
@@ -234,7 +234,7 @@ UnaryOperator SCINameToOperator<UnaryOperator>(const std::string &name)
 // Different from Studio syntax, since the operator must be followed by whitespace.
 // That is, ++i is not allowed. It must be (++ i)
 template<typename _TContext, typename _CommentPolicy>
-bool SCIOperatorP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
+bool SCIOperatorP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptStreamIterator &stream)
 {
     bool fRet = false;
     const char *psz = pParser->_psz;
@@ -257,7 +257,7 @@ bool SCIOperatorP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContex
 
 template<typename _T, typename _TOperator>
 void SetOperatorA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                  const ScriptCharIterator& stream)
+                  const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -269,7 +269,7 @@ void SetOperatorA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *p
 }
 
 void SetRepeatStatementA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                         const ScriptCharIterator& stream)
+                         const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -283,7 +283,7 @@ void SetRepeatStatementA(MatchResult &match, const ParserSCI *pParser, SyntaxCon
 
 template<typename _TBreakContinue>
 void FinishBreakContinueIfA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                            const ScriptCharIterator& stream)
+                            const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -313,7 +313,7 @@ _TBreakContinue *GetBreakContinue(SyntaxContext *pContext)
 }
 
 template<typename _TBreakContinue, _TBreakContinue *(*_TGetFunc)(SyntaxContext *)>
-void SetLevelsA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void SetLevelsA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -322,7 +322,7 @@ void SetLevelsA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pCo
 }
 
 void FinishClassProcedureA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                           const ScriptCharIterator& stream)
+                           const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -339,7 +339,7 @@ void FinishClassProcedureA(MatchResult &match, const ParserSCI *pParser, SyntaxC
 
 template<typename _T>
 void SetStatementAsConditionA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                              const ScriptCharIterator& stream)
+                              const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -350,7 +350,7 @@ void SetStatementAsConditionA(MatchResult &match, const ParserSCI *pParser, Synt
 
 template<typename _T>
 void AddCodeBlockA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                   const ScriptCharIterator& stream)
+                   const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -359,7 +359,7 @@ void AddCodeBlockA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *
     }
 }
 void AddLooperCodeBlockA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                         const ScriptCharIterator& stream)
+                         const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -369,7 +369,7 @@ void AddLooperCodeBlockA(MatchResult &match, const ParserSCI *pParser, SyntaxCon
 }
 
 template<typename _T>
-void SetCaseA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void SetCaseA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -379,12 +379,12 @@ void SetCaseA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pCont
 }
 
 void InitEnumStartA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                    const ScriptCharIterator& stream)
+                    const ScriptStreamIterator& stream)
 {
     if (match.Result()) { pContext->Integer = 0; }
 }
 void CreateEnumDefineA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                       const ScriptCharIterator& stream)
+                       const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -398,7 +398,7 @@ void CreateEnumDefineA(MatchResult &match, const ParserSCI *pParser, SyntaxConte
     }
 }
 void RestructureNaryAssociativeOpA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                                   const ScriptCharIterator& stream)
+                                   const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -489,7 +489,7 @@ std::string GenerateOperatorString(const set<std::string> &ops)
 }
 
 template<typename _TContext>
-bool SCIOptimizedOperatorP(const ParserSCI *pParser, _TContext *pContext, ScriptCharIterator& stream)
+bool SCIOptimizedOperatorP(const ParserSCI *pParser, _TContext *pContext, ScriptStreamIterator& stream)
 {
     const char *currentdb = pParser->_psz;
     char finalOperator[MaxOpLength + 1];
@@ -534,12 +534,12 @@ class SCISyntaxParser : public SyntaxParser
 public:
     SCISyntaxParser();
 
-    bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+    bool Parse(sci::Script& script, ScriptStreamIterator& stream,
         std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool addCommentsToOM,
         bool collectComments) const override;
-    bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+    bool Parse(sci::Script& script, ScriptStreamIterator& stream,
         std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context) const override;
-    bool ParseHeader(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+    bool ParseHeader(sci::Script& script, ScriptStreamIterator& stream,
         std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments) const override;
     void Load();
 
@@ -690,19 +690,19 @@ ParserSCI SCISyntaxParser::generateSyntaxNodeD()
 
 
 template<typename _TContext, typename _CommentPolicy>
-bool QuotedStringSCIP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
+bool QuotedStringSCIP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptStreamIterator &stream)
 {
     return _ReadStringSCI<_TContext, '"', '"'>(pContext, stream, pContext->ScratchString());
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool BraceStringSCIP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
+bool BraceStringSCIP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptStreamIterator &stream)
 {
     return _ReadStringSCI<_TContext, '{', '}'>(pContext, stream, pContext->ScratchString());
 }
 
 template<typename _TContext, typename _CommentPolicy>
-void ValueErrorE(MatchResult &match, const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, const ScriptCharIterator &stream)
+void ValueErrorE(MatchResult &match, const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, const ScriptStreamIterator &stream)
 {
     if (!match.Result())
     {
@@ -710,7 +710,7 @@ void ValueErrorE(MatchResult &match, const ParserBase<_TContext, _CommentPolicy>
     }
 }
 
-void CreateSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void CreateSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -723,7 +723,7 @@ void CreateSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pCo
         pContext->ReportError("Expected word.", stream);
     }
 }
-void AddSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void AddSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -734,7 +734,7 @@ void AddSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pConte
         pContext->ReportError("Expected word.", stream);
     }
 }
-void FinishSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void FinishSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -743,7 +743,7 @@ void FinishSynA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pCo
 }
 
 void SaveScratchStringA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                        const ScriptCharIterator& stream)
+                        const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -751,7 +751,7 @@ void SaveScratchStringA(MatchResult &match, const ParserSCI *pParser, SyntaxCont
     }
 }
 void SaveGlobalVarIndexA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                         const ScriptCharIterator& stream)
+                         const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -760,7 +760,7 @@ void SaveGlobalVarIndexA(MatchResult &match, const ParserSCI *pParser, SyntaxCon
     }
 }
 void AddExternDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                    const ScriptCharIterator& stream)
+                    const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -774,7 +774,7 @@ void AddExternDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContext 
     }
 }
 void AddSelectorDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                      const ScriptCharIterator& stream)
+                      const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -787,7 +787,7 @@ void AddSelectorDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContex
 }
 
 void AddClassDefDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                      const ScriptCharIterator& stream)
+                      const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -795,7 +795,7 @@ void AddClassDefDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContex
     }
 }
 void SetScriptNumberA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                      const ScriptCharIterator& stream)
+                      const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -807,7 +807,7 @@ void SetScriptNumberA(MatchResult &match, const ParserSCI *pParser, SyntaxContex
     }
 }
 void SetClassNumberA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                     const ScriptCharIterator& stream)
+                     const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -819,7 +819,7 @@ void SetClassNumberA(MatchResult &match, const ParserSCI *pParser, SyntaxContext
     }
 }
 void SetSuperNumberA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                     const ScriptCharIterator& stream)
+                     const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -830,7 +830,7 @@ void SetSuperNumberA(MatchResult &match, const ParserSCI *pParser, SyntaxContext
         pContext->ReportError(errInteger, stream);
     }
 }
-void SetFileA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void SetFileA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -842,17 +842,17 @@ void SetFileA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pCont
     }
 }
 void AddClassDefPropA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                      const ScriptCharIterator& stream)
+                      const ScriptStreamIterator& stream)
 {
     if (match.Result()) { pContext->GetSyntaxNode<ClassDefDeclaration>()->Properties.push_back({ pContext->ScratchString(), pContext->Integer }); }
 }
 void AddClassDefMethodA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                        const ScriptCharIterator& stream)
+                        const ScriptStreamIterator& stream)
 {
     if (match.Result()) { pContext->GetSyntaxNode<ClassDefDeclaration>()->Methods.push_back(pContext->ScratchString()); }
 }
 void AddGlobalEntryA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                     const ScriptCharIterator& stream)
+                     const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -867,7 +867,7 @@ void AddGlobalEntryA(MatchResult &match, const ParserSCI *pParser, SyntaxContext
     }
 }
 void AddMethodFwdA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                   const ScriptCharIterator& stream)
+                   const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -875,7 +875,7 @@ void AddMethodFwdA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *
     }
 }
 void AddProcedureFwdA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
-                      const ScriptCharIterator& stream)
+                      const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -1513,7 +1513,7 @@ void PostProcessScript(ICompileLog *pLog, Script &script)
 }
 
 // For error reporting:
-inline void ExtractSomeToken(std::string &str, ScriptCharIterator &stream)
+inline void ExtractSomeToken(std::string &str, ScriptStreamIterator &stream)
 {
     char ch = stream.GetChar();
     while (ch && !isspace(ch) && (ch != '(') && (ch != ')'))
@@ -1527,7 +1527,7 @@ inline void ExtractSomeToken(std::string &str, ScriptCharIterator &stream)
 //
 // This does the parsing.
 //
-bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool addCommentsToOM, bool collectComments) const
+bool SCISyntaxParser::Parse(Script &script, ScriptStreamIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool addCommentsToOM, bool collectComments) const
 {
     SyntaxContext context(stream, script, preProcessorDefines, addCommentsToOM, collectComments);
     bool fRet = false;
@@ -1547,13 +1547,13 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
         // recover afterwards.
         std::string strError = "Error: (" + script.GetScriptId().GetFileNameOrig() + ") ";
         strError += context.GetErrorText();
-        ScriptCharIterator errorPos = context.GetErrorPosition();
+        ScriptStreamIterator errorPos = context.GetErrorPosition();
 
         strError += fmt::format(" ({}, {})", errorPos.GetLineNumber(), errorPos.GetColumnNumber());
 
         // We can maybe improve the error by extracting a token here and seeing if it's a keyword.
         std::string maybeKeyword;
-        ScriptCharIterator errorPosCopy = errorPos;
+        ScriptStreamIterator errorPosCopy = errorPos;
         ExtractSomeToken(maybeKeyword, errorPosCopy);
         if (!maybeKeyword.empty())
         {
@@ -1586,7 +1586,7 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
     return fRet;
 }
 
-bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context) const
+bool SCISyntaxParser::Parse(Script &script, ScriptStreamIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context) const
 {
     bool fRet = false;
     if (entire_script.Match(&context, stream).Result() && stream.AtEnd()) // Needs a full match
@@ -1597,14 +1597,14 @@ bool SCISyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::uno
     return fRet;
 }
 
-bool SCISyntaxParser::ParseHeader(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments) const
+bool SCISyntaxParser::ParseHeader(Script &script, ScriptStreamIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments) const
 {
     SyntaxContext context(stream, script, preProcessorDefines, false, collectComments);
     bool fRet = entire_header.Match(&context, stream).Result() && stream.AtEnd();
     if (!fRet)
     {
         std::string strError = context.GetErrorText();
-        ScriptCharIterator errorPos = context.GetErrorPosition();
+        ScriptStreamIterator errorPos = context.GetErrorPosition();
         auto scriptId = ScriptId::FromFullFileName(script.GetPath().c_str());
         if (pError)
         {

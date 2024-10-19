@@ -43,7 +43,7 @@ static unique_ptr<Script> GetDefinesScript(const SCIVersion& version, const Game
     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
     {
         CScriptStreamLimiter limiter(&buffer);
-        CCrystalScriptStream stream(&limiter);
+        ScriptStream stream(&limiter);
         if (!SyntaxParser_Parse(*script, stream, PreProcessorDefinesFromSCIVersion(version), &log))
         {
             assert(false);

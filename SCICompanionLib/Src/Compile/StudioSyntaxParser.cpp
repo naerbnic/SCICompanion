@@ -159,7 +159,7 @@ sci::NodeType SyntaxContext::GetTopKnownNode() const
 // send call
 //
 
-void AddSendRestA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void AddSendRestA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -167,7 +167,7 @@ void AddSendRestA(MatchResult &match, const Parser *pParser, SyntaxContext *pCon
     }
 }
 template<typename _T>
-void SetLValueA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void SetLValueA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -175,7 +175,7 @@ void SetLValueA(MatchResult &match, const Parser *pParser, SyntaxContext *pConte
     }
 }
 void AddSingleSendParamA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                         const ScriptCharIterator& stream)
+                         const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -197,7 +197,7 @@ Parser generateSyntaxNodeD()
 // Use this:
 Parser syntaxnode_d = generateSyntaxNodeD();
 
-bool RootNodeD(const Parser *pParser, SyntaxContext *pContext, ScriptCharIterator& stream)
+bool RootNodeD(const Parser *pParser, SyntaxContext *pContext, ScriptStreamIterator& stream)
 {
     // Make room on the stack for a statement
     //pContext->PushSyntaxNode();
@@ -223,7 +223,7 @@ Parser rootnode_d = generateRootNodeD();
 // Actions
 //
 
-void SetVersionA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void SetVersionA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -237,7 +237,7 @@ void SetVersionA(MatchResult &match, const Parser *pParser, SyntaxContext *pCont
 }
 
 // Statements
-void StatementA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void StatementA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (!match.Result())
     {
@@ -271,7 +271,7 @@ UnaryOperator StudioNameToOperator<UnaryOperator>(const std::string &name)
 }
 
 template<typename _T, typename _TOperator>
-void SetOperatorA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void SetOperatorA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -286,7 +286,7 @@ void SetOperatorA(MatchResult &match, const Parser *pParser, SyntaxContext *pCon
 // Synonyms
 // 
 void CreateSynonymA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                    const ScriptCharIterator& stream)
+                    const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -299,7 +299,7 @@ void CreateSynonymA(MatchResult &match, const Parser *pParser, SyntaxContext *pC
     }
 }
 void FinishSynonymA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                    const ScriptCharIterator& stream)
+                    const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -312,7 +312,7 @@ void FinishSynonymA(MatchResult &match, const Parser *pParser, SyntaxContext *pC
     }
 }
 
-void FailedVarDecl(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void FailedVarDecl(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (!match.Result())
     {
@@ -324,7 +324,7 @@ void FailedVarDecl(MatchResult &match, const Parser *pParser, SyntaxContext *pCo
 
 // Script string
 void ScriptStringInitA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                       const ScriptCharIterator& stream)
+                       const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -337,7 +337,7 @@ void ScriptStringInitA(MatchResult &match, const Parser *pParser, SyntaxContext 
     }
 }
 void FinishScriptStringA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                         const ScriptCharIterator& stream)
+                         const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -345,7 +345,7 @@ void FinishScriptStringA(MatchResult &match, const Parser *pParser, SyntaxContex
     }
 }
 
-void NoCaseE(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void NoCaseE(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (!match.Result())
     {
@@ -355,7 +355,7 @@ void NoCaseE(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
 
 template<int _Version>
 void EnableScriptVersionA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                          const ScriptCharIterator& stream)
+                          const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -364,7 +364,7 @@ void EnableScriptVersionA(MatchResult &match, const Parser *pParser, SyntaxConte
     }
 }
 
-void ClassPublicA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void ClassPublicA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -377,7 +377,7 @@ void ClassPublicA(MatchResult &match, const Parser *pParser, SyntaxContext *pCon
 //
 template<bool fAnd>
 void ConditionOperatorA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                        const ScriptCharIterator& stream)
+                        const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -387,7 +387,7 @@ void ConditionOperatorA(MatchResult &match, const Parser *pParser, SyntaxContext
 
 template<typename _T>
 void FinishConditionA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                      const ScriptCharIterator& stream)
+                      const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -410,7 +410,7 @@ void FinishConditionA(MatchResult &match, const Parser *pParser, SyntaxContext *
 
 template<typename _T>
 void FinishCondition2A(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                       const ScriptCharIterator& stream)
+                       const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -433,7 +433,7 @@ void FinishCondition2A(MatchResult &match, const Parser *pParser, SyntaxContext 
 // CodeBlock
 //
 template<typename _T>
-void AddCodeBlockA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void AddCodeBlockA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -442,7 +442,7 @@ void AddCodeBlockA(MatchResult &match, const Parser *pParser, SyntaxContext *pCo
     }
 }
 void AddLooperCodeBlockA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext,
-                         const ScriptCharIterator& stream)
+                         const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -451,7 +451,7 @@ void AddLooperCodeBlockA(MatchResult &match, const Parser *pParser, SyntaxContex
     }
 }
 
-void FinishCaseA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptCharIterator& stream)
+void FinishCaseA(MatchResult &match, const Parser *pParser, SyntaxContext *pContext, const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -462,7 +462,7 @@ void FinishCaseA(MatchResult &match, const Parser *pParser, SyntaxContext *pCont
 
 template<typename _TParser>
 void StudioScriptVarInitA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
-                          const ScriptCharIterator& stream)
+                          const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -477,7 +477,7 @@ void StudioScriptVarInitA(MatchResult &match, const _TParser *pParser, SyntaxCon
 
 template<typename _TParser>
 void StudioScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser, SyntaxContext *pContext,
-                                    const ScriptCharIterator& stream)
+                                    const ScriptStreamIterator& stream)
 {
     if (match.Result())
     {
@@ -499,12 +499,12 @@ void StudioScriptVarInitAutoExpandA(MatchResult &match, const _TParser *pParser,
 class StudioSyntaxParser : public SyntaxParser
 {
 public:
-    bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+    bool Parse(sci::Script& script, ScriptStreamIterator& stream,
         std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool addCommentsToOM,
         bool collectComments) const override;
-    bool Parse(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+    bool Parse(sci::Script& script, ScriptStreamIterator& stream,
         std::unordered_set<std::string> preProcessorDefines, SyntaxContext& context) const override;
-    bool ParseHeader(sci::Script& script, CCrystalScriptStream::const_iterator& stream,
+    bool ParseHeader(sci::Script& script, ScriptStreamIterator& stream,
         std::unordered_set<std::string> preProcessorDefines, ICompileLog* pError, bool collectComments) const override;
     void Load();
 
@@ -1005,7 +1005,7 @@ void StudioSyntaxParser::Load()
         );
 }
 
-void SyntaxContext::ReportError(const std::string &error, ScriptCharIterator pos)
+void SyntaxContext::ReportError(const std::string &error, ScriptStreamIterator pos)
 {
 #ifdef PARSE_DEBUG
     if (ParseDebug)
@@ -1027,7 +1027,7 @@ void SyntaxContext::ReportError(const std::string &error, ScriptCharIterator pos
 //
 // This does the parsing.
 //
-bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool addCommentsToOM, bool collectComments) const
+bool StudioSyntaxParser::Parse(Script &script, ScriptStreamIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool addCommentsToOM, bool collectComments) const
 {
     SyntaxContext context(stream, script, preProcessorDefines, addCommentsToOM, collectComments);
     bool fRet = false;
@@ -1041,7 +1041,7 @@ bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::
         // recover afterwards.
         std::string strError = "  [Error]: ";
         strError += context.GetErrorText();
-        ScriptCharIterator errorPos = context.GetErrorPosition();
+        ScriptStreamIterator errorPos = context.GetErrorPosition();
         auto scriptId = ScriptId::FromFullFileName(script.GetPath().c_str());
         if (pError)
         {
@@ -1052,7 +1052,7 @@ bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::
     return fRet;
 }
 
-bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context) const
+bool StudioSyntaxParser::Parse(Script &script, ScriptStreamIterator& stream, std::unordered_set<std::string> preProcessorDefines, SyntaxContext &context) const
 {
     bool fRet = false;
     if (entire_script.Match(&context, stream).Result() && stream.AtEnd()) // Needs a full match
@@ -1062,14 +1062,14 @@ bool StudioSyntaxParser::Parse(Script &script, ScriptCharIterator& stream, std::
     return fRet;
 }
 
-bool StudioSyntaxParser::ParseHeader(Script &script, ScriptCharIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments) const
+bool StudioSyntaxParser::ParseHeader(Script &script, ScriptStreamIterator& stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pError, bool collectComments) const
 {
     SyntaxContext context(stream, script, preProcessorDefines, false, collectComments);
     bool fRet = entire_header.Match(&context, stream).Result() && stream.AtEnd();
     if (!fRet)
     {
         std::string strError = context.GetErrorText();
-        ScriptCharIterator errorPos = context.GetErrorPosition();
+        ScriptStreamIterator errorPos = context.GetErrorPosition();
         auto scriptId = ScriptId::FromFullFileName(script.GetPath().c_str());
         if (pError)
         {

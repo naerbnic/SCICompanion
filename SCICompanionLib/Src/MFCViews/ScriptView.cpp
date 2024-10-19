@@ -64,7 +64,7 @@ using namespace std;
 #define UWM_AUTOCOMPLETEREADY      (WM_APP + 0)
 #define UWM_HOVERTIPREADY          (WM_APP + 1)
 
-void DoToolTipParse(LangSyntax language, ScriptId scriptId, CCrystalScriptStream &stream, CScriptStreamLimiter &limiter, ToolTipResult &result)
+void DoToolTipParse(LangSyntax language, ScriptId scriptId, ScriptStream &stream, CScriptStreamLimiter &limiter, ToolTipResult &result)
 {
     class CToolTipSyntaxParserCallback : public ISyntaxParserCallback
     {
@@ -1327,7 +1327,7 @@ void CScriptView::OnContextMenu(CWnd *pWnd, CPoint point)
             CPoint ptRight = WordToRight(ptText);
 
             CScriptStreamLimiter limiter(LocateTextBuffer(), ptRight, 0);
-            CCrystalScriptStream stream(&limiter);
+            ScriptStream stream(&limiter);
             ToolTipResult result;
             DoToolTipParse(GetDocument()->GetLanguage(), GetDocument()->GetScriptId(), stream, limiter, result);
             if (!result.empty())

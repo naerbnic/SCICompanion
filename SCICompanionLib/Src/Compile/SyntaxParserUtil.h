@@ -5,7 +5,7 @@
 #include "ScriptStream.h"
 #include "ParserCommon.h"
 
-inline bool ExtractToken(std::string& str, ScriptCharIterator& stream)
+inline bool ExtractToken(std::string& str, ScriptStreamIterator& stream)
 {
     bool fRet = false;
     str.clear();
@@ -30,7 +30,7 @@ inline bool ExtractToken(std::string& str, ScriptCharIterator& stream)
 // Common parsing primitives
 //
 template<typename _TContext, typename _CommentPolicy>
-bool AlphanumP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool AlphanumP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     return ExtractToken(pContext->ScratchString(), stream);
 }
@@ -40,7 +40,7 @@ bool AlphanumP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* 
 // Quick way to specify filesnames without needing quotes. Accepts alphanumeric characters, _ and .
 //
 template<typename _TContext, typename _CommentPolicy>
-bool FilenameP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool FilenameP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool fRet = false;
     std::string& str = pContext->ScratchString();
@@ -63,7 +63,7 @@ bool FilenameP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* 
 
 // Asm instructions can include '?' in the name too
 template<typename _TContext, typename _CommentPolicy>
-bool AsmInstructionP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool AsmInstructionP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool fRet = false;
     std::string& str = pContext->ScratchString();
@@ -94,7 +94,7 @@ extern const char* g_keywords[4];
 
 // TODO: Refactor with above
 template<typename _TContext, typename _CommentPolicy>
-bool AlphanumPNoKeyword(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool AlphanumPNoKeyword(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool fRet = AlphanumP(pParser, pContext, stream);
     if (fRet)
@@ -113,7 +113,7 @@ bool AlphanumPNoKeyword(const ParserBase<_TContext, _CommentPolicy>* pParser, _T
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool SequenceP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool SequenceP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     for (auto& parser : pParser->_parsers)
     {
@@ -126,7 +126,7 @@ bool SequenceP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* 
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool AlternativeP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool AlternativeP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     for (auto& parser : pParser->_parsers)
     {
@@ -140,7 +140,7 @@ bool AlternativeP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContex
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool KleeneP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool KleeneP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     while (pParser->_pa->Match(pContext, stream).Result())
     {
@@ -153,7 +153,7 @@ bool KleeneP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pC
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool OneOrMoreP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool OneOrMoreP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool atLeastOne = false;
     while (pParser->_pa->Match(pContext, stream).Result())
@@ -168,26 +168,26 @@ bool OneOrMoreP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext*
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool ZeroOrOnceP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool ZeroOrOnceP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     pParser->_pa->Match(pContext, stream);
     return true; // Always matches
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool NotP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool NotP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     return !pParser->_pa->Match(pContext, stream).Result();
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool QuotedStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool QuotedStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     return pParser->ReadStringStudio<'"', '"'>(pContext, stream, pContext->ScratchString());
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool SQuotedStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool SQuotedStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     // Note: We could expand autocomplete coverage to include said tokens. In that case we'd need to
     // have ReadStringStudio *not* block all autocomplete channels.
@@ -195,7 +195,7 @@ bool SQuotedStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TCont
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool BraceStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool BraceStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     return pParser->ReadStringStudio<'{', '}'>(pContext, stream, pContext->ScratchString());
 }
@@ -204,7 +204,7 @@ bool BraceStringP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContex
 // Handles negation, hex, etc...
 //
 template<typename _TContext, typename _CommentPolicy>
-bool IntegerP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool IntegerP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     int i = 0;
     bool fNeg = false;
@@ -273,7 +273,7 @@ bool IntegerP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* p
 
 
 template<typename _TContext, typename _CommentPolicy>
-bool AlphanumOpenP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool AlphanumOpenP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool fRet = false;
     std::string& str = pContext->ScratchString();
@@ -303,7 +303,7 @@ bool AlphanumOpenP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TConte
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool AlwaysMatchP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool AlwaysMatchP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     return true; // Always matches
 }
@@ -313,7 +313,7 @@ bool AlwaysMatchP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContex
 // Matches a single character
 //
 template<typename _TContext, typename _CommentPolicy>
-bool CharP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool CharP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool fRet = false;
     const char* psz = pParser->_psz;
@@ -329,7 +329,7 @@ bool CharP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pCon
 // Matches a keyword (e.g. a piece of text NOT followed by an alphanumeric character).
 //
 template<typename _TContext, typename _CommentPolicy>
-bool KeywordP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool KeywordP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool fRet = false;
     const char* psz = pParser->_psz;
@@ -347,7 +347,7 @@ bool KeywordP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* p
 }
 
 template<typename _TContext, typename _CommentPolicy>
-bool OperatorP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptCharIterator& stream)
+bool OperatorP(const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, ScriptStreamIterator& stream)
 {
     bool fRet = false;
     const char* psz = pParser->_psz;
@@ -529,7 +529,7 @@ inline ParserBase<_TContext, _CommentPolicy> operator!(const ParserBase<_TContex
 // Common error primitives
 //
 template<typename _TContext, typename _CommentPolicy>
-void GeneralE(MatchResult& match, const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, const ScriptCharIterator& stream)
+void GeneralE(MatchResult& match, const ParserBase<_TContext, _CommentPolicy>* pParser, _TContext* pContext, const ScriptStreamIterator& stream)
 {
     assert(pParser->_psz); // Not valid to call this if there isn't something we can say was expected.
     if (!match.Result())

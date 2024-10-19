@@ -39,7 +39,7 @@ struct ParsePayload
     ParsePayload(LangSyntax language, ScriptId script, CCrystalTextBuffer *pBuffer);
 
     CScriptStreamLimiter Limiter;
-    CCrystalScriptStream Stream;
+    ScriptStream Stream;
     LangSyntax Language;
     ScriptId Script;
 };

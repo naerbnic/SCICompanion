@@ -32,7 +32,7 @@ static const SyntaxParser* GetSyntaxParser(LangSyntax lang)
     assert(false);
 }
 
-bool SyntaxParser_ParseAC(sci::Script &script, CCrystalScriptStream::const_iterator &streamIt, std::unordered_set<std::string> preProcessorDefines, SyntaxContext *pContext)
+bool SyntaxParser_ParseAC(sci::Script &script, ScriptStreamIterator &streamIt, std::unordered_set<std::string> preProcessorDefines, SyntaxContext *pContext)
 {
     auto* parser = GetSyntaxParser(script.Language());
 
@@ -43,7 +43,7 @@ bool SyntaxParser_ParseAC(sci::Script &script, CCrystalScriptStream::const_itera
     return false;
 }
 
-bool SyntaxParser_Parse(sci::Script &script, CCrystalScriptStream &stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pLog, bool fParseComments, SyntaxContext *pContext, bool addCommentsToOM)
+bool SyntaxParser_Parse(sci::Script &script, ScriptStream &stream, std::unordered_set<std::string> preProcessorDefines, ICompileLog *pLog, bool fParseComments, SyntaxContext *pContext, bool addCommentsToOM)
 {
     auto* parser = GetSyntaxParser(script.Language());
     if (script.IsHeader())

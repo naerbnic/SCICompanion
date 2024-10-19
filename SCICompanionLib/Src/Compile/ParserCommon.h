@@ -44,7 +44,7 @@ namespace sci
 // A comment was detected - add it (text and endpoints) to the script.
 //
 template<typename TContext>
-inline void _DoComment(TContext *pContext, const ScriptCharIterator &streamBegin, const ScriptCharIterator &streamEnd, sci::CommentType type)
+inline void _DoComment(TContext *pContext, const ScriptStreamIterator &streamBegin, const ScriptStreamIterator &streamEnd, sci::CommentType type)
 {
     std::string comment;
     // Transfer to string:
@@ -88,7 +88,7 @@ public:
     // c++ style comments:
     // // and /***/
     template<typename TContext>
-    static void EatWhitespaceAndComments(TContext *pContext, ScriptCharIterator &stream)
+    static void EatWhitespaceAndComments(TContext *pContext, ScriptStreamIterator &stream)
     {
         bool fDone = false;
         while (!fDone)
@@ -100,7 +100,7 @@ public:
                 fDone = false;
                 stream.Advance();
             }
-            ScriptCharIterator streamSave(stream);
+            ScriptStreamIterator streamSave(stream);
             if (stream.GetChar() == '/')
             {
                 char ch = stream.AdvanceAndGetChar();
@@ -122,7 +122,7 @@ public:
                         pContext->PopParseAutoCompleteContext();
                         // If there were previous non-whitespace chars on this line, consider this comment "positioned".
                         bool foundNonWhitespace = false;
-                        ScriptCharIterator streamLineBegin(streamSave);
+                        ScriptStreamIterator streamLineBegin(streamSave);
                         streamLineBegin.ResetLine();
                         while (!foundNonWhitespace && (streamLineBegin != streamSave))
                         {
@@ -206,7 +206,7 @@ public:
     // Semi-colon style comments:
     // ;
     template<typename TContext>
-    static void EatWhitespaceAndComments(TContext *pContext, ScriptCharIterator &stream)
+    static void EatWhitespaceAndComments(TContext *pContext, ScriptStreamIterator &stream)
     {
         bool fDone = false;
         while (!fDone)
@@ -220,7 +220,7 @@ public:
                 fDone = false;
                 stream.Advance();
             }
-            ScriptCharIterator streamSave(stream);
+            ScriptStreamIterator streamSave(stream);
             if (stream.GetChar() == ';')
             {
                 // Indicate we're in a comment for autocomplete's sake
@@ -289,7 +289,7 @@ private:
 // Underscores are indicated by \_
 //
 template<typename _TContext, char Q1, char Q2>
-bool _ReadStringSCI(_TContext *pContext, ScriptCharIterator &stream, std::string &str)
+bool _ReadStringSCI(_TContext *pContext, ScriptStreamIterator &stream, std::string &str)
 {
     str.clear();
     if (Q1 == stream.GetChar())
@@ -418,7 +418,7 @@ private:
 // Optimized delimiter reader
 //
 template<typename _TContext, typename _CommentPolicy, char Q1, char Q2>
-bool _ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::string &str)
+bool _ReadStringStudio(_TContext *pContext, ScriptStreamIterator &stream, std::string &str)
 {
     IndicateStringType<_TContext> indicateStringType(pContext, Q1);
     str.clear();
@@ -522,9 +522,9 @@ public:
     std::string Name;
 #endif
 
-    using MatchingFunction = bool(*)(const ParserBase *pParser, _TContext *pContext, ScriptCharIterator &stream);
+    using MatchingFunction = bool(*)(const ParserBase *pParser, _TContext *pContext, ScriptStreamIterator &stream);
     using DebugFunction = void(*)(bool fEnter, bool fResult);
-    using Action = void(*)(MatchResult &match, const ParserBase *pParser, _TContext *pContext, const ScriptCharIterator &stream);
+    using Action = void(*)(MatchResult &match, const ParserBase *pParser, _TContext *pContext, const ScriptStreamIterator &stream);
 
     struct ActionAndContext
     {
@@ -543,7 +543,7 @@ public:
     // Fwd decl (Used for circular references in grammer descriptions)
     // If an empty Parser is created (since you need to refer to it subsequently, but you can't
     // define it yet), it will be endowed with this matching function.
-    bool static ReferenceForwarderP(const ParserBase *pParser, _TContext *pContext, ScriptCharIterator &stream)
+    bool static ReferenceForwarderP(const ParserBase *pParser, _TContext *pContext, ScriptStreamIterator &stream)
     {
         assert(FALSE);
         return false; // Just a dummy return value
@@ -573,7 +573,7 @@ public:
             _pfnDebug = nullptr;
             _fLiteral = false; // Doesn't matter
             _fOnlyRef = false; // We're a ref, so people can copy us.
-            //assert(src._pfn != ReferenceForwarderP<ScriptCharIterator>); 
+            //assert(src._pfn != ReferenceForwarderP<ScriptStreamIterator>); 
         }
         else
         {
@@ -640,14 +640,14 @@ public:
     ParserBase(MatchingFunction pfn, const char *psz) : _pfn(pfn), _psz(psz), _pfnA(nullptr), _pfnDebug(nullptr), _pRef(nullptr), _fLiteral(false), _fOnlyRef(false), _pacc(NoChannels)
     {
     }
-    MatchResult Match(_TContext *pContext, ScriptCharIterator &stream) const
+    MatchResult Match(_TContext *pContext, ScriptStreamIterator &stream) const
     {
         assert(_pfn);
         if (!_fLiteral)
         {
             EatWhitespaceAndComments<_TContext>(pContext, stream);
         }
-        ScriptCharIterator streamSave(stream);
+        ScriptStreamIterator streamSave(stream);
 #ifdef PARSE_DEBUG
         string text;
 
@@ -764,7 +764,7 @@ public:
     }
 
     template<char Q1, char Q2>
-    bool ReadStringStudio(_TContext *pContext, ScriptCharIterator &stream, std::string &str) const
+    bool ReadStringStudio(_TContext *pContext, ScriptStreamIterator &stream, std::string &str) const
     {
         return _ReadStringStudio<_TContext, _CommentPolicy, Q1, Q2>(pContext, stream, str);
     }
@@ -923,7 +923,7 @@ bool IntegerExpandedPWorker(_TContext *pContext, _It &stream)
 
 
 template<typename _TContext>
-bool IntegerExpandedPWorkerScriptCharIter(_TContext* pContext, ScriptCharIterator& stream)
+bool IntegerExpandedPWorkerScriptCharIter(_TContext* pContext, ScriptStreamIterator& stream)
 {
     int i = 0;
     bool fNeg = false;
@@ -1058,7 +1058,7 @@ bool IntegerExpandedPWorkerScriptCharIter(_TContext* pContext, ScriptCharIterato
 // Handles negation, hex, binary, character literals, etc...
 //
 template<typename _TContext, typename _CommentPolicy>
-bool IntegerExpandedP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptCharIterator &stream)
+bool IntegerExpandedP(const ParserBase<_TContext, _CommentPolicy> *pParser, _TContext *pContext, ScriptStreamIterator &stream)
 {
     return IntegerExpandedPWorkerScriptCharIter(pContext, stream);
 }

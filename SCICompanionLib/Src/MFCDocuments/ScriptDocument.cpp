@@ -204,7 +204,7 @@ std::unique_ptr<sci::Script> SimpleCompile(CompileLog &log, ScriptId &scriptId, 
     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
     {
         CScriptStreamLimiter limiter(&buffer);
-        CCrystalScriptStream stream(&limiter);
+        ScriptStream stream(&limiter);
         if (SyntaxParser_Parse(*script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log, addCommentsToOM))
         {
 
@@ -228,7 +228,7 @@ bool NewCompileScript(CompileResults &results, CompileLog &log, CompileTables &t
     if (buffer.LoadFromFile(script.GetFullPath().c_str()))
     {
         CScriptStreamLimiter limiter(&buffer);
-        CCrystalScriptStream stream(&limiter);
+        ScriptStream stream(&limiter);
 
 		std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(language, script);
 
@@ -463,7 +463,7 @@ void CScriptDocument::OnViewSyntaxTree()
     // 2) If successful, write to the file.
     // 3) Reload
     CScriptStreamLimiter limiter(&_buffer);
-    CCrystalScriptStream stream(&limiter);
+    ScriptStream stream(&limiter);
     //SCIClassBrowser &browser = appState->GetClassBrowser(); 
     //browser.Lock();
     // 1)

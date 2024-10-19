@@ -16,58 +16,56 @@ public:
     virtual bool TryGetMoreData() = 0;
 };
 
-class CCrystalScriptStream
+class ScriptStreamIterator
 {
 public:
-    CCrystalScriptStream(ScriptStreamLineSource* lineSource);
+    typedef std::forward_iterator_tag iterator_category;
+    typedef char value_type;
+    typedef std::ptrdiff_t difference_type; // ??
+    typedef char& reference;
+    typedef char* pointer;
 
-    class const_iterator
-    {
-    public:
-        typedef std::forward_iterator_tag iterator_category;
-        typedef char value_type;
-        typedef std::ptrdiff_t difference_type; // ??
-        typedef char& reference;
-        typedef char* pointer;
+    ScriptStreamIterator() : _limiter(nullptr) {}
+    ScriptStreamIterator(ScriptStreamLineSource* lineSource, LineCol dwPos = LineCol());
+    bool operator<(const ScriptStreamIterator& other) const;
+    std::string tostring() const;
+    LineCol GetPosition() const;
+    int GetLineNumber() const;
+    int GetColumnNumber() const;
+    bool operator==(const ScriptStreamIterator& other) const;
+    bool operator!=(const ScriptStreamIterator& other) const;
+    void Restore(const ScriptStreamIterator& prev);
+    void ResetLine();
 
-        const_iterator() : _limiter(nullptr) {}
-        const_iterator(ScriptStreamLineSource* lineSource, LineCol dwPos = LineCol());
-        bool operator<(const const_iterator& other) const;
-        std::string tostring() const;
-        LineCol GetPosition() const;
-        int GetLineNumber() const;
-        int GetColumnNumber() const;
-        bool operator==(const const_iterator& other) const;
-        bool operator!=(const const_iterator& other) const;
-        void Restore(const const_iterator& prev);
-        void ResetLine();
+    // Future API
+    char GetChar() const;
+    void Advance();
+    bool AtEnd() const;
+    char AdvanceAndGetChar();
 
-        // Future API
-        char GetChar() const;
-        void Advance();
-        bool AtEnd() const;
-        char AdvanceAndGetChar();
+    // For debugging
+    std::string GetLookAhead(int nChars);
+    int CountPosition(int tabSize) const;
 
-        // For debugging
-        std::string GetLookAhead(int nChars);
-        int CountPosition(int tabSize) const;
+private:
+    char operator*();
+    ScriptStreamIterator& operator++();
+    int Compare(const ScriptStreamIterator& other) const;
+    ScriptStreamLineSource* _limiter;
+    std::size_t _nLine;
+    std::size_t _nChar;
+    const char* _pszLine;
+    std::size_t _nLength;
+};
 
-    private:
-        char operator*();
-        const_iterator& operator++();
-        int Compare(const const_iterator& other) const;
-        ScriptStreamLineSource* _limiter;
-        std::size_t _nLine;
-        std::size_t _nChar;
-        const char* _pszLine;
-        std::size_t _nLength;
-    };
+class ScriptStream
+{
+public:
+    ScriptStream(ScriptStreamLineSource* lineSource);
 
-    const_iterator begin() { return const_iterator(_pLimiter); }
-    const_iterator get_at(LineCol dwPos) { return const_iterator(_pLimiter, dwPos); }
+    ScriptStreamIterator begin() { return ScriptStreamIterator(_pLimiter); }
+    ScriptStreamIterator get_at(LineCol dwPos) { return ScriptStreamIterator(_pLimiter, dwPos); }
 
 private:
     ScriptStreamLineSource* _pLimiter;
 };
-
-using ScriptCharIterator = CCrystalScriptStream::const_iterator;

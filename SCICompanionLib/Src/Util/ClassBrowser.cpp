@@ -750,7 +750,7 @@ bool SCIClassBrowser::_AddFileName(std::string fullPath, bool fReplace)
         std::transform(fullPathLower.begin(), fullPathLower.end(), fullPathLower.begin(), ::tolower);
 
         CScriptStreamLimiter limiter(&buffer);
-        CCrystalScriptStream stream(&limiter);
+        ScriptStream stream(&limiter);
         std::unique_ptr<Script> pScript = std::make_unique<Script>(DetermineFileLanguage(fullPath), ScriptId::FromFullFileName(fullPath.c_str()));
         if (SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {
@@ -960,7 +960,7 @@ void SCIClassBrowser::TriggerCustomIncludeCompile(std::string name)
                     if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
                     {
                         CScriptStreamLimiter limiter(&buffer);
-                        CCrystalScriptStream stream(&limiter);
+                        ScriptStream stream(&limiter);
                         unique_ptr<Script> pNewHeader = std::make_unique<Script>(DetermineFileLanguage(path), scriptId);
                         if (SyntaxParser_Parse(*pNewHeader, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), nullptr))
                         {
@@ -1060,7 +1060,7 @@ std::unique_ptr<sci::Script> SCIClassBrowser::_LoadScript(PCTSTR pszPath)
     if (buffer.LoadFromFile(pszPath))
     {
         CScriptStreamLimiter limiter(&buffer);
-        CCrystalScriptStream stream(&limiter);
+        ScriptStream stream(&limiter);
         std::unique_ptr<Script> pScriptT = std::make_unique<Script>(DetermineFileLanguage(pszPath), ScriptId::FromFullFileName(pszPath));
         if (SyntaxParser_Parse(*pScriptT, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {

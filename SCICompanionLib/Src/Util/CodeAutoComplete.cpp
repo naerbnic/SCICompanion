@@ -24,7 +24,7 @@
 using namespace sci;
 using namespace std;
 
-bool SyntaxParser_ParseAC(sci::Script &script, CCrystalScriptStream::const_iterator &streamIt, std::unordered_set<std::string> preProcessorDefines, SyntaxContext *pContext);
+bool SyntaxParser_ParseAC(sci::Script &script, ScriptStreamIterator &streamIt, std::unordered_set<std::string> preProcessorDefines, SyntaxContext *pContext);
 
 AutoCompleteChoice::AutoCompleteChoice() { _iIcon = AutoCompleteIconIndex::Unknown; }
 AutoCompleteChoice::AutoCompleteChoice(const std::string &text, AutoCompleteIconIndex iIcon)
@@ -432,7 +432,7 @@ void AutoCompleteThread2::StartAutoComplete(CPoint pt, HWND hwnd, UINT message, 
         // Make a copy of the text buffer
         std::unique_ptr<CScriptStreamLimiter> limiter = std::make_unique<CScriptStreamLimiter>(_bufferUI, pt, EXTRA_AC_CHARS);
         //limiter->Limit(LineCol(pt.y, pt.x));
-        std::unique_ptr<CCrystalScriptStream> stream = std::make_unique<CCrystalScriptStream>(limiter.get());
+        std::unique_ptr<ScriptStream> stream = std::make_unique<ScriptStream>(limiter.get());
 
         //OutputDebugString(fmt::format("UI: Start new parse at {0},{1}\n", pt.x, pt.y).c_str());
 
@@ -527,7 +527,7 @@ void AutoCompleteThread2::_DoWork()
             _instruction = AutoCompleteInstruction::None;
 
             std::unique_ptr<CScriptStreamLimiter> limiter = move(_limiterPending);
-            std::unique_ptr<CCrystalScriptStream> stream = move(_streamPending);
+            std::unique_ptr<ScriptStream> stream = move(_streamPending);
             _bgStatus = AutoCompleteStatus::Parsing;
             if (!this->_additionalCharacters.empty())
             {
@@ -604,7 +604,7 @@ void AutoCompleteThread2::_DoWork()
                 ScriptId scriptId;
                 sci::Script script(_lang, scriptId);
                 // Needed to get the language right.
-                CCrystalScriptStream::const_iterator it(limiter.get());
+                ScriptStreamIterator it(limiter.get());
                 SyntaxContext context(it, script, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), false, false);
 #ifdef PARSE_DEBUG
                 context.ParseDebug = true;
