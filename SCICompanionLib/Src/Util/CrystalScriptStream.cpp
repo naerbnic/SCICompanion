@@ -103,23 +103,9 @@ CScriptStreamLimiter::CScriptStreamLimiter(CCrystalTextBuffer *pBuffer, CPoint p
 
 // CCrystalScriptStream
 
-CCrystalScriptStream::CCrystalScriptStream(CScriptStreamLimiter *pLimiter)
+CCrystalScriptStream::CCrystalScriptStream(ScriptStreamLineSource *pLimiter)
 {
     _pLimiter = pLimiter;
-}
-
-// For debugging
-std::string CScriptStreamLimiter::GetLookAhead(int nLine, int nChar, int cChars)
-{
-    PCSTR pszLine = _pBuffer->GetLineChars(nLine);
-    int cLineChars = _pBuffer->GetLineLength(nLine);
-    std::string text;
-    while (pszLine && (nChar < cLineChars) && pszLine[nChar] && (cChars > 0))
-    {
-        text += pszLine[nChar++];
-        --cChars;
-    }
-    return text;
 }
 
 // For autocomplete
@@ -148,30 +134,16 @@ std::string CScriptStreamLimiter::GetLastWord()
 }
 
 // Ensure we are on the line with nChar and nLine.
-void CScriptStreamLimiter::GetMoreData(int &nChar, int &nLine, int &nLength, PCSTR &pszLine)
+bool CScriptStreamLimiter::TryGetMoreData()
 {
-    // If we're limited, call the callback
-    if (_pCallback && !_fCancel && (nChar == nLength) && (nLine == (GetLineCount() - 1)))
+    if (!_pCallback)
     {
-        // We're limited.
-        _fCancel = !_pCallback->Done();
-        if (!_fCancel)
-        {
-            nLength = GetLineLength(nLine);
-            pszLine = GetLineChars(nLine);
-        }
-        else
-        {
-            // We ran out of data. "go to next line" and specify EOF
-            pszLine = "\0"; // EOF
-            nLine++;
-            nLength = 1;
-            nChar = 0;
-        }
+        return false;
     }
+    return !_pCallback->Done();
 }
 
-CCrystalScriptStream::const_iterator::const_iterator(CScriptStreamLimiter *limiter, LineCol dwPos) : _limiter(limiter)
+CCrystalScriptStream::const_iterator::const_iterator(ScriptStreamLineSource* limiter, LineCol dwPos) : _limiter(limiter)
 {
     _nLine = dwPos.Line();
     _nChar = dwPos.Column();
@@ -198,7 +170,15 @@ char CCrystalScriptStream::const_iterator::GetChar() const
 
 std::string CCrystalScriptStream::const_iterator::GetLookAhead(int nChars)
 {
-   return  _limiter->GetLookAhead(_nLine, _nChar, nChars);
+    PCSTR pszLine = _limiter->GetLineChars(_nLine);
+    int cLineChars = _limiter->GetLineLength(_nLine);
+    std::string text;
+    while (pszLine && (_nChar < cLineChars) && pszLine[_nChar] && (nChars > 0))
+    {
+        text += pszLine[_nChar++];
+        --nChars;
+    }
+    return text;
 }
 
 int CCrystalScriptStream::const_iterator::CountPosition(int tabSize) const
@@ -229,7 +209,10 @@ void CCrystalScriptStream::const_iterator::Advance()
     if ((_nChar > _nLength) ||
         ((_nChar >= _nLength) && (_nLine == (_limiter->GetLineCount() - 1)))) // for == we use '\n', unless this is the last line
     {
-        _limiter->GetMoreData(_nChar, _nLine, _nLength, _pszLine);
+        if (_limiter->TryGetMoreData()) {
+            _nLength = _limiter->GetLineLength(_nLine);
+            _pszLine = _limiter->GetLineChars(_nLine);
+        }
     }
 
 

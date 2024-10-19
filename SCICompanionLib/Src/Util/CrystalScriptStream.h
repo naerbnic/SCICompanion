@@ -49,23 +49,34 @@ private:
     CPoint _limit;
 };
 
+
+class ScriptStreamLineSource
+{
+public:
+    virtual ~ScriptStreamLineSource() = default;
+
+    virtual std::size_t GetLineCount() const = 0;
+    virtual std::size_t GetLineLength(int nLine) const = 0;
+    virtual const char* GetLineChars(int nLine) const = 0;
+    virtual bool TryGetMoreData() = 0;
+};
+
 //
 // Limits the text buffer to a particular line/char
 // (used for autocomplete and tooltips)
 //
-class CScriptStreamLimiter
+class CScriptStreamLimiter : public ScriptStreamLineSource
 {
 public:
     CScriptStreamLimiter(CCrystalTextBuffer *pBuffer);
     CScriptStreamLimiter(CCrystalTextBuffer *pBuffer, CPoint ptLimit, int extraSpace);
 
-    ~CScriptStreamLimiter()
-    {
-    }
-
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    //
+    // Modifies the internal buffer.
     void Extend(const std::string &extraChars) { _pBuffer->Extend(extraChars); }
 
-    CPoint GetLimit()
+    CPoint GetLimit() const
     {
         return _pBuffer->GetLimit();
     }
@@ -76,40 +87,19 @@ public:
     }
 
     // Reflect some methods on CCrystalTextBuffer:
-	int GetLineCount()
+	std::size_t GetLineCount() const override
     {
-        return _pBuffer->GetLineCount(); // REVIEW: Might be off by one.
-        // + 1 since we really want to include the current line in the calc
-        // return min(_nLineLimit + 1, );
+        return _pBuffer->GetLineCount();
     }
 
-	int GetLineLength(int nLine)
+	std::size_t GetLineLength(int nLine) const override
     {
         return _pBuffer->GetLineLength(nLine);
-        // REVIEW: Might have some off by one errors here.
-        /*
-        int iLength = 0;
-        if (nLine == _nLineLimit + 1)
-        {
-            ASSERT(FALSE);
-        }
-        if (nLine == _nLineLimit)
-        {
-            // Last line.  Limit it.
-            // nCharLimit + 1, since we really want to include the point *after* the cursor pos.
-            iLength = min(_nCharLimit, _pBuffer->GetLineLength(nLine));
-        }
-        else
-        {
-            iLength = _pBuffer->GetLineLength(nLine);
-        }
-        return iLength;*/
     }
 
-    LPCTSTR GetLineChars(int nLine) { return _pBuffer->GetLineChars(nLine); } // Just fwd through.  We're limited by _nCharLimit
-    void GetMoreData(int &nChar, int &nLine, int &nLength, PCSTR &pszLine);
+    LPCTSTR GetLineChars(int nLine) const override { return _pBuffer->GetLineChars(nLine); }
+    bool TryGetMoreData() override;
     std::string GetLastWord();
-    std::string GetLookAhead(int nLine, int nChar, int nChars);
 
 private:
     std::unique_ptr<ReadOnlyTextBuffer> _pBuffer;
@@ -119,13 +109,10 @@ private:
     ISyntaxParserCallback *_pCallback;
 };
 
-
-
-
 class CCrystalScriptStream
 {
 public:
-    CCrystalScriptStream(CScriptStreamLimiter *pLimiter);
+    CCrystalScriptStream(ScriptStreamLineSource* lineSource);
 
     class const_iterator
     {
@@ -137,7 +124,7 @@ public:
 		typedef char* pointer;
 
         const_iterator() : _limiter(nullptr) {}
-        const_iterator(CScriptStreamLimiter *limiter, LineCol dwPos = LineCol());
+        const_iterator(ScriptStreamLineSource* lineSource, LineCol dwPos = LineCol());
         bool operator<(const const_iterator& other) const;
         std::string tostring() const;
         LineCol GetPosition() const;
@@ -162,7 +149,7 @@ public:
         char operator*();
         const_iterator& operator++();
         int Compare(const const_iterator& other) const;
-        CScriptStreamLimiter *_limiter;
+        ScriptStreamLineSource* _limiter;
         int _nLine;
         int _nChar;
         PCTSTR _pszLine;
@@ -173,7 +160,7 @@ public:
     const_iterator get_at(LineCol dwPos) { return const_iterator(_pLimiter, dwPos); }
 
 private:
-    CScriptStreamLimiter *_pLimiter;
+    ScriptStreamLineSource* _pLimiter;
 };
 
 using ScriptCharIterator = CCrystalScriptStream::const_iterator;
