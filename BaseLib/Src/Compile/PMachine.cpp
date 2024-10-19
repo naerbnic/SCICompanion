@@ -11,8 +11,13 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 ***************************************************************************/
-#include "stdafx.h"
 #include "PMachine.h"
+
+#include <array>
+#include <string>
+#include <unordered_set>
+
+#include "Version.h"
 
 Opcode RawToOpcode(const SCIVersion &version, uint8_t rawOpcode)
 {
@@ -346,16 +351,16 @@ const OperandType *GetOperandTypes(const SCIVersion &version, Opcode opcode)
                 return lineNumberOperands;
         }
     
-        return OpArgTypes_SCI2[static_cast<BYTE>(opcode)];
+        return OpArgTypes_SCI2[static_cast<uint8_t>(opcode)];
     }
     else
     {
-        return OpArgTypes_SCI0[static_cast<BYTE>(opcode)];
+        return OpArgTypes_SCI0[static_cast<uint8_t>(opcode)];
     }
 }
 
 // Corresponds to Opcode enum
-char *OpcodeNames[130]={
+std::array<const char*, 130> OpcodeNames ={
 	"bnot",
 	"add",
 	"sub",
@@ -505,7 +510,7 @@ std::unordered_set<std::string> &GetOpcodeSet()
 {
     if (opcodeSet.empty())
     {
-        opcodeSet.insert(OpcodeNames, OpcodeNames + ARRAYSIZE(OpcodeNames));
+        opcodeSet.insert(OpcodeNames.begin(), OpcodeNames.end());
         opcodeSet.insert("leai");   // Special case
     }
     return opcodeSet;
@@ -520,7 +525,7 @@ Opcode NameToOpcode(const std::string &opcodeName, bool &usesAccIndex)
         usesAccIndex = true;
         return Opcode::LEA;
     }
-    for (int i = 0; i < ARRAYSIZE(OpcodeNames); i++)
+    for (int i = 0; i < OpcodeNames.size(); i++)
     {
         if (OpcodeNames[i] == opcodeName)
         {

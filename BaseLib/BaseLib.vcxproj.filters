@@ -132,6 +132,9 @@
     <ClInclude Include="Src\Util\interfaces.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Compile\PMachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Util\Logger.cpp">
@@ -218,13 +221,16 @@
     <ClCompile Include="Src\Util\DataBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Src\LineCol.cpp">
+    <ClCompile Include="Src\Util\LineCol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Util\ScriptStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Resources\Vocab000.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Compile\PMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

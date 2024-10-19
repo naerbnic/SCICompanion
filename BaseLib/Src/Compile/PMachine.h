@@ -13,6 +13,13 @@
 ***************************************************************************/
 #pragma once
 
+#include <cstdint>
+#include <string>
+#include <unordered_set>
+
+#include "Version.h"
+
+
 //#define TOTAL_KERNELS 				    114 // SCI0 only
 #define TOTAL_KERNELS 				    (114 + 27) // SCI1+ only
 
@@ -25,7 +32,7 @@ enum class Opcode : uint8_t;
 struct SaidToken
 {
     char Character;
-    BYTE Code;
+    uint8_t Code;
 };
 
 bool IsOpcode(const std::string &theString);
@@ -228,7 +235,7 @@ bool IsOpcode(const std::string &theString);
 
 // The lea instruction (load effective address into acc)
 // bits 0-1  (actually bits 1-2)
-#define LEA_GLOBAL           0x00 // REVIEW -> make them static const BYTE or something.
+#define LEA_GLOBAL           0x00 // REVIEW -> make them static const uint8_t or something.
 #define LEA_LOCAL            0x01
 #define LEA_TEMP             0x02
 #define LEA_PARAM            0x03

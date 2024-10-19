@@ -380,7 +380,6 @@
     <ClCompile Include="Src\Compile\CompiledScript.cpp" />
     <ClCompile Include="Src\Compile\DecompilerCore.cpp" />
     <ClCompile Include="Src\Compile\ParserCommon.cpp" />
-    <ClCompile Include="Src\Compile\PMachine.cpp" />
     <ClCompile Include="Src\Compile\scii.cpp" />
     <ClCompile Include="Src\Compile\StudioSyntaxParser.cpp" />
     <ClCompile Include="Src\Compile\SCO.cpp" />
@@ -556,7 +555,6 @@
     <ClInclude Include="Src\Compile\CompileInterfaces.h" />
     <ClInclude Include="Src\Compile\DecompilerCore.h" />
     <ClInclude Include="Src\Compile\ParserCommon.h" />
-    <ClInclude Include="Src\Compile\PMachine.h" />
     <ClInclude Include="Src\Compile\scii.h" />
     <ClInclude Include="Src\Compile\StudioSyntaxParser.h" />
     <ClInclude Include="Src\Compile\SCO.h" />

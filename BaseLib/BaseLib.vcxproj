@@ -57,12 +57,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Src\Compile;$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Src\Compile;$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
-    <PublicIncludeDirectories>$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir)Src\Compile;$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(IncludePath)</IncludePath>
+    <PublicIncludeDirectories>$(ProjectDir)Src\Compile;$(ProjectDir)Src\Audio;$(ProjectDir)Src\Resources;$(ProjectDir)Src\Util;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -97,6 +97,7 @@
     <ClInclude Include="Src\Audio\AudioProcessing.h" />
     <ClInclude Include="Src\Audio\AudioProcessingSettings.h" />
     <ClInclude Include="Src\Audio\SoundUtil.h" />
+    <ClInclude Include="Src\Compile\PMachine.h" />
     <ClInclude Include="Src\Resources\BaseResourceUtil.h" />
     <ClInclude Include="Src\Resources\BaseWindowsUtil.h" />
     <ClInclude Include="Src\Resources\Components.h" />
@@ -138,7 +139,8 @@
     <ClCompile Include="Src\Audio\AudioProcessing.cpp" />
     <ClCompile Include="Src\Audio\AudioProcessingSettings.cpp" />
     <ClCompile Include="Src\Audio\SoundUtil.cpp" />
-    <ClCompile Include="Src\LineCol.cpp" />
+    <ClCompile Include="Src\Compile\PMachine.cpp" />
+    <ClCompile Include="Src\Util\LineCol.cpp" />
     <ClCompile Include="Src\Resources\BaseResourceUtil.cpp" />
     <ClCompile Include="Src\Resources\BaseWindowsUtil.cpp" />
     <ClCompile Include="Src\Resources\Components\Audio.cpp" />
