@@ -51,7 +51,6 @@ Opcode NameToOpcode(const std::string &opcodeName, bool &usesAccIndex);
 
 enum OperandType : uint8_t
 {
-    otEMPTY =     0,
     otINT =       1,
     otVAR =       2,
     otPVAR =      3,

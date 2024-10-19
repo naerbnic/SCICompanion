@@ -3107,166 +3107,160 @@ CodeResult Asm::OutputByteCode(CompileContext &context) const
             {
                 uint16_t args[3] = {};
                 auto opTypes = GetOperandTypes(context.GetVersion(), opcode);
+                if (_segments.size() > opTypes.size())
+                {
+                    context.ReportError(this, "Too many arguments for '%s'.", _innerName.c_str());
+                }
                 for (size_t i = 0; i < opTypes.size(); i++)
                 {
                     OperandType ot = opTypes[i];
-                    if (ot != otEMPTY)
+                    if (_segments.size() >= (i + 1))
                     {
-                        if (_segments.size() >= (i + 1))
+                        // Special cases: jmp, bnt, bt. lofsa, call*
+                        ComplexPropertyValue *pValue = SafeSyntaxNode<ComplexPropertyValue>(_segments[i].get());
+                        if (pValue)
                         {
-                            // Special cases: jmp, bnt, bt. lofsa, call*
-                            ComplexPropertyValue *pValue = SafeSyntaxNode<ComplexPropertyValue>(_segments[i].get());
-                            if (pValue)
+                            switch (pValue->GetType())
                             {
-                                switch (pValue->GetType())
-                                {
-                                    case ValueType::Number:
-                                        args[i] = pValue->GetNumberValue();
-                                        break;
-
-                                    case ValueType::String:
-                                    case ValueType::ResourceString:
-                                        args[i] = context.GetTempToken(ValueType::String, pValue->GetStringValue());
-                                        break;
-
-                                    case ValueType::Said:
-                                        args[i] = context.GetTempToken(ValueType::Said, pValue->GetStringValue());
-                                        break;
-
-                                    case ValueType::Selector:
-                                    {
-                                        uint16_t selectorNum;
-                                        if (context.LookupSelector(pValue->GetStringValue(), selectorNum))
-                                        {
-                                            args[i] = selectorNum;
-                                        }
-                                        else
-                                        {
-                                            context.ReportError(this, "Unknown property or method: '%s'.", pValue->GetStringValue().c_str());
-                                        }
-                                    }
+                                case ValueType::Number:
+                                    args[i] = pValue->GetNumberValue();
                                     break;
 
-                                    case ValueType::Pointer:
+                                case ValueType::String:
+                                case ValueType::ResourceString:
+                                    args[i] = context.GetTempToken(ValueType::String, pValue->GetStringValue());
+                                    break;
+
+                                case ValueType::Said:
+                                    args[i] = context.GetTempToken(ValueType::Said, pValue->GetStringValue());
+                                    break;
+
+                                case ValueType::Selector:
+                                {
+                                    uint16_t selectorNum;
+                                    if (context.LookupSelector(pValue->GetStringValue(), selectorNum))
                                     {
-                                        context.ReportError(this, "Pointer syntax is not valid for this opcode.");
+                                        args[i] = selectorNum;
                                     }
+                                    else
+                                    {
+                                        context.ReportError(this, "Unknown property or method: '%s'.", pValue->GetStringValue().c_str());
+                                    }
+                                }
+                                break;
+
+                                case ValueType::Pointer:
+                                {
+                                    context.ReportError(this, "Pointer syntax is not valid for this opcode.");
+                                }
+                                    break;
+
+                                case ValueType::Token:
+                                {
+                                    // REVIEW: We have additional restrictions here. We'll need special code to handle some cases.
+                                    // For instance, lofsa only makes sense with a class/instance/string. A load/store for a global var only
+                                    // makes sense with a global var. calle only makes sense with a public proc name. And in that case, two of
+                                    // the operands are involved.
+                                    uint16_t wInstanceScript;
+                                    uint16_t number;
+                                    SpeciesIndex wType;
+                                    ResolvedToken tokenType = context.LookupToken(pValue, pValue->GetStringValue(), number, wType, &wInstanceScript);
+                                    switch (tokenType)
+                                    {
+                                        case ResolvedToken::Instance:
+                                        case ResolvedToken::Class:
+                                            args[i] = number;
+                                            if ((opcode == Opcode::LOFSA) || (opcode == Opcode::LOFSS))
+                                            {
+                                                // A little confused here...
+                                                args[i] = context.GetTempToken(ValueType::Token, pValue->GetStringValue());
+                                            }
+                                            else
+                                            {
+                                               // assert(false);
+                                            }
+                                            break;
+
+                                        case ResolvedToken::ScriptString:
+                                        {
+                                            args[i] = context.GetTempToken(ValueType::String, context.GetScriptStringFromToken(pValue->GetStringValue()));
+                                            WORD wImmediateIndex = 0;
+                                            if (pValue->GetIndexer())
+                                            {
+                                                if (!CanDoIndexOptimization(pValue->GetIndexer(), wImmediateIndex))
+                                                {
+                                                    context.ReportError(pValue->GetIndexer(), "Expected an integer for the index.");
+                                                }
+                                            }
+                                        }
                                         break;
 
-                                    case ValueType::Token:
-                                    {
-                                        // REVIEW: We have additional restrictions here. We'll need special code to handle some cases.
-                                        // For instance, lofsa only makes sense with a class/instance/string. A load/store for a global var only
-                                        // makes sense with a global var. calle only makes sense with a public proc name. And in that case, two of
-                                        // the operands are involved.
-                                        uint16_t wInstanceScript;
-                                        uint16_t number;
-                                        SpeciesIndex wType;
-                                        ResolvedToken tokenType = context.LookupToken(pValue, pValue->GetStringValue(), number, wType, &wInstanceScript);
-                                        switch (tokenType)
+                                        case ResolvedToken::ClassProperty:
                                         {
-                                            case ResolvedToken::Instance:
-                                            case ResolvedToken::Class:
-                                                args[i] = number;
-                                                if ((opcode == Opcode::LOFSA) || (opcode == Opcode::LOFSS))
-                                                {
-                                                    // A little confused here...
-                                                    args[i] = context.GetTempToken(ValueType::Token, pValue->GetStringValue());
-                                                }
-                                                else
-                                                {
-                                                   // assert(false);
-                                                }
-                                                break;
-
-                                            case ResolvedToken::ScriptString:
+                                            if (IsPropertyOpcode(opcode))
                                             {
-                                                args[i] = context.GetTempToken(ValueType::String, context.GetScriptStringFromToken(pValue->GetStringValue()));
-                                                WORD wImmediateIndex = 0;
-                                                if (pValue->GetIndexer())
-                                                {
-                                                    if (!CanDoIndexOptimization(pValue->GetIndexer(), wImmediateIndex))
-                                                    {
-                                                        context.ReportError(pValue->GetIndexer(), "Expected an integer for the index.");
-                                                    }
-                                                }
-                                            }
-                                            break;
-
-                                            case ResolvedToken::ClassProperty:
-                                            {
-                                                if (IsPropertyOpcode(opcode))
-                                                {
-                                                    args[0] = number;
-                                                }
-                                                else
-                                                {
-                                                    context.ReportError(pValue, "Invalid opcode to use with property '%s'.", pValue->GetStringValue().c_str());
-                                                }
-                                            }
-                                            break;
-
-                                            case ResolvedToken::Parameter:
-                                            case ResolvedToken::GlobalVariable:
-                                            case ResolvedToken::TempVariable:
-                                            case ResolvedToken::ScriptVariable:
-                                            {
-                                                uint8_t variableOpType = TokenTypeToVOType(tokenType);
-                                                uint8_t bOpcode = (uint8_t)opcode;
-                                                uint8_t opcodeOpType = (bOpcode & VO_TYPEMASK);
-                                                if (opcode == Opcode::REST)
-                                                {
-                                                    opcodeOpType = VO_PARAM;
-                                                }
-                                                if (context.GetScriptNumber() == 0)
-                                                {
-                                                    // Ok if local/global used interchangeably in main.
-                                                    if (opcodeOpType == VO_GLOBAL)
-                                                    {
-                                                        opcodeOpType = VO_LOCAL;
-                                                    }
-                                                    if (variableOpType == VO_GLOBAL)
-                                                    {
-                                                        variableOpType = VO_LOCAL;
-                                                    }
-                                                }
-                                                if (opcodeOpType != variableOpType)
-                                                {
-                                                    context.ReportError(pValue, "Opcode is '%s', but variable is '%s'.", VOTypeToString(bOpcode & VO_TYPEMASK), VOTypeToString(variableOpType));
-                                                }
                                                 args[0] = number;
                                             }
-                                                break;
-
-                                            case ResolvedToken::Unknown:
+                                            else
                                             {
-                                                context.ReportError(pValue, "Unknown token '%s'.", pValue->GetStringValue().c_str());
+                                                context.ReportError(pValue, "Invalid opcode to use with property '%s'.", pValue->GetStringValue().c_str());
                                             }
+                                        }
+                                        break;
+
+                                        case ResolvedToken::Parameter:
+                                        case ResolvedToken::GlobalVariable:
+                                        case ResolvedToken::TempVariable:
+                                        case ResolvedToken::ScriptVariable:
+                                        {
+                                            uint8_t variableOpType = TokenTypeToVOType(tokenType);
+                                            uint8_t bOpcode = (uint8_t)opcode;
+                                            uint8_t opcodeOpType = (bOpcode & VO_TYPEMASK);
+                                            if (opcode == Opcode::REST)
+                                            {
+                                                opcodeOpType = VO_PARAM;
+                                            }
+                                            if (context.GetScriptNumber() == 0)
+                                            {
+                                                // Ok if local/global used interchangeably in main.
+                                                if (opcodeOpType == VO_GLOBAL)
+                                                {
+                                                    opcodeOpType = VO_LOCAL;
+                                                }
+                                                if (variableOpType == VO_GLOBAL)
+                                                {
+                                                    variableOpType = VO_LOCAL;
+                                                }
+                                            }
+                                            if (opcodeOpType != variableOpType)
+                                            {
+                                                context.ReportError(pValue, "Opcode is '%s', but variable is '%s'.", VOTypeToString(bOpcode & VO_TYPEMASK), VOTypeToString(variableOpType));
+                                            }
+                                            args[0] = number;
+                                        }
                                             break;
 
-                                            default:
-                                                context.ReportError(this, "Unimplemented token type: '%d'.", tokenType);
+                                        case ResolvedToken::Unknown:
+                                        {
+                                            context.ReportError(pValue, "Unknown token '%s'.", pValue->GetStringValue().c_str());
                                         }
+                                        break;
+
+                                        default:
+                                            context.ReportError(this, "Unimplemented token type: '%d'.", tokenType);
                                     }
-                                    break;
                                 }
-                            }
-                            else
-                            {
-                                context.ReportError(this, "Unable to process argument %d for '%s'", i, _innerName.c_str());
+                                break;
                             }
                         }
                         else
                         {
-                            context.ReportError(this, "'%s' requires %d arguments.", _innerName.c_str(), (i + 1));
+                            context.ReportError(this, "Unable to process argument %d for '%s'", i, _innerName.c_str());
                         }
                     }
                     else
                     {
-                        if (_segments.size() > i)
-                        {
-                            context.ReportError(this, "Too many arguments for '%s'.", _innerName.c_str());
-                        }
+                        context.ReportError(this, "'%s' requires %d arguments.", _innerName.c_str(), (i + 1));
                     }
                 }
                 context.code().inst(GetLineNumber(), opcode, args[0], args[1], args[2]);

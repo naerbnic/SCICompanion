@@ -68,9 +68,6 @@ int GetOperandSize(BYTE bOpcode, OperandType operandType, const uint8_t *pNext)
     int cIncr = 0;
     switch (operandType)
     {
-    case otEMPTY:
-        cIncr = 0;
-        break;
     case otVAR:
     case otPVAR:
     case otCLASS:
@@ -83,28 +80,23 @@ int GetOperandSize(BYTE bOpcode, OperandType operandType, const uint8_t *pNext)
     case otINT:
     case otUINT:
     case otOFFS:
-        cIncr = (bOpcode & 1) ? 1 : 2;
-        break;
+        return (bOpcode & 1) ? 1 : 2;
     case otINT16:
     case otUINT16:
-        cIncr = 2;
-        break;
+        return 2;
     case otINT8:
     case otUINT8:
-        cIncr = 1;
-        break;
+        return 1;
     case otDEBUGSTRING:
     {
         // file name
         const char *psz = reinterpret_cast<const char *>(pNext);
-        cIncr += lstrlen(psz) + 1;    // TODO: Bound this somehow
+        return lstrlen(psz) + 1;  // TODO: Bound this somehow
     }
-        break;
     default:
         assert(false && "Unknown operand type");
-        break;
+        return 0;
     }
-    return cIncr;
 }
 
 // This really needs a re-working, it should not be responsible for outputting text.
@@ -219,7 +211,7 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                             // This is a bit of a hack here.  We're making the assumption that a otOFFS parameter
                             // is the one and only parameter for this opcode.  CalcOffset makes this assumption
                             // in order to calculate the offset.
-                            assert(opTypes.size() == (i + 1) || opTypes[i+i] == otEMPTY);
+                            assert(opTypes.size() == (i + 1));
                             if (version.lofsaOpcodeIsAbsolute)
                             {
                                 wOperands[i] = wOperandsRaw[i]; // Unnecessary, but reinforces the point.
@@ -229,8 +221,6 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                                 wOperands[i] = CalcOffset(version, wOperandStart, wOperandsRaw[i], bByte, bRawOpcode);
                             }
                             out << "$" << setw(4) << setfill('0') << wOperands[i];
-                            break;
-                        case otEMPTY:
                             break;
 
                         case otPROP:

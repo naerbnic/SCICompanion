@@ -155,13 +155,10 @@ uint16_t scii::_get_instruction_size(const SCIVersion &version, Opcode bOpcode, 
     auto argTypes = ::GetOperandTypes(version, bOpcode);
     uint16_t wSize = 1; // for the opcode
     bool fDone = false;
-    for (int i = 0; !fDone && i < argTypes.size(); i++)
+    for (int i = 0; i < argTypes.size(); i++)
     {
         switch (argTypes[i])
         {
-        case otEMPTY:
-            fDone = true;
-            break;
         case otVAR:
         case otPVAR:
         case otCLASS:
@@ -279,9 +276,6 @@ uint16_t scii::calc_size(code_pos self, int *pfNeedToRedo)
             {
                 switch (argTypes[i])
                 {
-                case otEMPTY:
-                    fDone = true;
-                    break;
                 case otVAR:
                 case otPVAR:
                 case otCLASS:
@@ -427,9 +421,6 @@ void scii::output_code(ITrackCodeSink &trackCodeSink, std::vector<uint8_t> &outp
         bool bByte = false;
         switch (argTypes[i])
         {
-        case otEMPTY:
-            fDone = true;
-            break;
         case otVAR:
         case otPVAR:
         case otCLASS:
@@ -822,7 +813,7 @@ void scii::update_second_operand(uint16_t wValue)
 {
     _wOperands[1] = wValue;
 }
-uint16_t scii::get_operand(int i)  const { assert(GetOperandTypes()[i] != otEMPTY); return _wOperands[i]; }
+uint16_t scii::get_operand(int i)  const { assert(i < GetOperandTypes().size()); return _wOperands[i]; }
 uint16_t scii::get_first_operand() const
 {
     return _wOperands[0];
