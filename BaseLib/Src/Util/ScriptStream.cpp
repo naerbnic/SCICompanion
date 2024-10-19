@@ -1,6 +1,7 @@
 ﻿#include "ScriptStream.h"
 
 #include <cassert>
+#include <optional>
 
 ScriptStream::ScriptStream(ScriptStreamLineSource* line_source)
 {
@@ -30,6 +31,10 @@ char ScriptStreamIterator::operator*() const
 
 char ScriptStreamIterator::GetChar() const
 {
+    if (line_index_ == line_source_->GetLineCount())
+    {
+        return '\0';
+    }
     return (char_index_ == line_length_) ? '\n' : line_ptr_[char_index_];
 }
 
@@ -69,7 +74,7 @@ int ScriptStreamIterator::CountPosition(int tab_size) const
 
 void ScriptStreamIterator::Advance()
 {
-    assert((line_ptr_ == nullptr) || (*line_ptr_ != 0)); // EOF
+    assert(!AtEnd()); // EOF
     char_index_++;
     if ((char_index_ > line_length_) ||
         ((char_index_ >= line_length_) && (line_index_ == (line_source_->GetLineCount() - 1)))) // for == we use '\n', unless this is the last line
@@ -201,4 +206,60 @@ int ScriptStreamIterator::GetLineNumber() const
 int ScriptStreamIterator::GetColumnNumber() const
 {
     return static_cast<int>(char_index_);
+}
+
+std::optional<std::pair<std::size_t, std::size_t>> FindNextNewline(std::string_view str, std::size_t start)
+{
+    std::size_t r_pos = str.find('\r', start);
+    if (r_pos != std::string_view::npos)
+    {
+        if (r_pos + 1 < str.size() && str[r_pos + 1] == '\n') {
+            return std::make_pair(r_pos, r_pos + 2);
+        }
+        return std::make_pair(r_pos, r_pos + 1);
+    }
+    std::size_t n_pos = str.find('\n', start);
+    if (n_pos != std::string_view::npos)
+    {
+        return std::make_pair(n_pos, n_pos + 1);
+    }
+    return std::nullopt;
+}
+
+StringLineSource::StringLineSource(std::string_view str) : str_(str)
+{
+    std::size_t curr_line_start = 0;
+    while (true)
+    {
+        auto next_newline = FindNextNewline(str, curr_line_start);
+        if (!next_newline)
+        {
+            break;
+        }
+        line_offsets_.emplace_back(curr_line_start, next_newline->first);
+        curr_line_start = next_newline->second;
+    }
+    line_offsets_.emplace_back(curr_line_start, str.size());
+}
+
+std::size_t StringLineSource::GetLineCount() const
+{
+    return line_offsets_.size();
+}
+
+std::size_t StringLineSource::GetLineLength(std::size_t line_index) const
+{
+    auto [start, end] = line_offsets_[line_index];
+    return end - start;
+}
+
+const char* StringLineSource::GetLineChars(std::size_t line_index) const
+{
+    auto [start, end] = line_offsets_[line_index];
+    return str_.data() + start;
+}
+
+bool StringLineSource::TryGetMoreData()
+{
+    return false;
 }

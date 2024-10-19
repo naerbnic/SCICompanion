@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <iterator>
 #include <string>
+#include <vector>
 
 #include "LineCol.h"
 
@@ -71,4 +72,19 @@ public:
 
 private:
     ScriptStreamLineSource* line_source_;
+};
+
+class StringLineSource : public ScriptStreamLineSource
+{
+public:
+    explicit StringLineSource(std::string_view str);
+
+    std::size_t GetLineCount() const override;
+    std::size_t GetLineLength(std::size_t line_index) const override;
+    const char* GetLineChars(std::size_t line_index) const override;
+    bool TryGetMoreData() override;
+
+private:
+    std::string_view str_;
+    std::vector<std::pair<std::size_t, std::size_t>> line_offsets_;
 };

@@ -100,6 +100,17 @@ absl::StatusOr<std::vector<uint8_t>> ReadFileContents(std::string_view filename,
 
     return ReadFileContents(file_handle.GetValue(), start, size);
 }
+absl::StatusOr<std::string> ReadTextFileContents(std::string_view filename, std::size_t start,
+    std::optional<std::size_t> size)
+{
+    auto data = ReadFileContents(filename, start, size);
+    if (!data.ok())
+    {
+        return data.status();
+    }
+
+    return std::string(data->begin(), data->end());
+}
 
 absl::StatusOr<std::vector<uint8_t>> ReadFileContents(HANDLE file_handle, std::size_t start,
     std::optional<std::size_t> size)
