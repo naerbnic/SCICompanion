@@ -11,8 +11,8 @@ public:
     virtual ~ScriptStreamLineSource() = default;
 
     virtual std::size_t GetLineCount() const = 0;
-    virtual std::size_t GetLineLength(int nLine) const = 0;
-    virtual const char* GetLineChars(int nLine) const = 0;
+    virtual std::size_t GetLineLength(std::size_t line_index) const = 0;
+    virtual const char* GetLineChars(std::size_t line_index) const = 0;
     virtual bool TryGetMoreData() = 0;
 };
 
@@ -25,10 +25,13 @@ public:
     typedef char& reference;
     typedef char* pointer;
 
-    ScriptStreamIterator() : _limiter(nullptr) {}
-    ScriptStreamIterator(ScriptStreamLineSource* lineSource, LineCol dwPos = LineCol());
+    ScriptStreamIterator() : line_source_(nullptr), line_index_(0), char_index_(0), line_ptr_(nullptr), line_length_(0)
+    {
+    }
+
+    explicit ScriptStreamIterator(ScriptStreamLineSource* line_source, LineCol initial_pos = LineCol());
     bool operator<(const ScriptStreamIterator& other) const;
-    std::string tostring() const;
+    std::string ToString() const;
     LineCol GetPosition() const;
     int GetLineNumber() const;
     int GetColumnNumber() const;
@@ -44,28 +47,28 @@ public:
     char AdvanceAndGetChar();
 
     // For debugging
-    std::string GetLookAhead(int nChars);
-    int CountPosition(int tabSize) const;
+    std::string GetLookAhead(int lookahead_len);
+    int CountPosition(int tab_size) const;
 
 private:
-    char operator*();
+    char operator*() const;
     ScriptStreamIterator& operator++();
     int Compare(const ScriptStreamIterator& other) const;
-    ScriptStreamLineSource* _limiter;
-    std::size_t _nLine;
-    std::size_t _nChar;
-    const char* _pszLine;
-    std::size_t _nLength;
+    ScriptStreamLineSource* line_source_;
+    std::size_t line_index_;
+    std::size_t char_index_;
+    const char* line_ptr_;
+    std::size_t line_length_;
 };
 
 class ScriptStream
 {
 public:
-    ScriptStream(ScriptStreamLineSource* lineSource);
+    explicit ScriptStream(ScriptStreamLineSource* line_source);
 
-    ScriptStreamIterator begin() { return ScriptStreamIterator(_pLimiter); }
-    ScriptStreamIterator get_at(LineCol dwPos) { return ScriptStreamIterator(_pLimiter, dwPos); }
+    ScriptStreamIterator Begin() const { return ScriptStreamIterator(line_source_); }
+    ScriptStreamIterator GetAt(LineCol buffer_pos) const { return ScriptStreamIterator(line_source_, buffer_pos); }
 
 private:
-    ScriptStreamLineSource* _pLimiter;
+    ScriptStreamLineSource* line_source_;
 };

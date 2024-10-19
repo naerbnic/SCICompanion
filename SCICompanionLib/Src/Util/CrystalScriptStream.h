@@ -81,12 +81,12 @@ public:
         return _pBuffer->GetLineCount();
     }
 
-	std::size_t GetLineLength(int nLine) const override
+	std::size_t GetLineLength(std::size_t nLine) const override
     {
         return _pBuffer->GetLineLength(nLine);
     }
 
-    LPCTSTR GetLineChars(int nLine) const override { return _pBuffer->GetLineChars(nLine); }
+    LPCTSTR GetLineChars(std::size_t nLine) const override { return _pBuffer->GetLineChars(nLine); }
     bool TryGetMoreData() override;
     std::string GetLastWord();
 

@@ -48,19 +48,19 @@ bool SyntaxParser_Parse(sci::Script &script, ScriptStream &stream, std::unordere
     auto* parser = GetSyntaxParser(script.Language());
     if (script.IsHeader())
     {
-        return parser->ParseHeader(script, stream.begin(), preProcessorDefines, pLog, fParseComments);
+        return parser->ParseHeader(script, stream.Begin(), preProcessorDefines, pLog, fParseComments);
     }
     else
     {
         if (pContext)
         {
             // Someone is doing a partial compile (e.g. tooltips) and supply their own context.
-            return parser->Parse(script, stream.begin(), preProcessorDefines, *pContext);
+            return parser->Parse(script, stream.Begin(), preProcessorDefines, *pContext);
         }
         else
         {
             // Or maybe someone either wants error logs:
-            return parser->Parse(script, stream.begin(), preProcessorDefines, pLog, addCommentsToOM, fParseComments);
+            return parser->Parse(script, stream.Begin(), preProcessorDefines, pLog, addCommentsToOM, fParseComments);
         }
     }
 }
