@@ -120,9 +120,6 @@
     <ClInclude Include="Src\Util\ScopedValue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Util\ParserStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Util\LineCol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -210,9 +207,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Util\DataBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Util\ParserStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\LineCol.cpp">
