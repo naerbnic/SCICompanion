@@ -138,21 +138,21 @@ bool scii::is_acc_op()
     }
 }
 
-uint16_t scii::GetInstructionSize(const SCIVersion &version, uint8_t rawOpcode)
+uint16_t scii::GetInstructionSize(const TargetArchitecture* arch, uint8_t rawOpcode)
 {
-    Opcode opcode = RawToOpcode(version, rawOpcode);
-    return _get_instruction_size(version, opcode, (rawOpcode & 1) ? Byte : Word);
+    Opcode opcode = arch->RawToOpcode(rawOpcode);
+    return _get_instruction_size(arch, opcode, (rawOpcode & 1) ? Byte : Word);
 }
 
-uint16_t scii::GetInstructionArgumentSize(const SCIVersion &version, uint8_t rawOpcode)
+uint16_t scii::GetInstructionArgumentSize(const TargetArchitecture* arch, uint8_t rawOpcode)
 {
-    return GetInstructionSize(version, rawOpcode) - 1;
+    return GetInstructionSize(arch, rawOpcode) - 1;
 }
 
-uint16_t scii::_get_instruction_size(const SCIVersion &version, Opcode bOpcode, OPSIZE opSize)
+uint16_t scii::_get_instruction_size(const TargetArchitecture* arch, Opcode bOpcode, OPSIZE opSize)
 {
     assert(opSize != Undefined);
-    auto argTypes = ::GetOperandTypes(version, bOpcode);
+    auto argTypes = arch->GetOperandTypes(bOpcode);
     uint16_t wSize = 1; // for the opcode
     bool fDone = false;
     for (int i = 0; i < argTypes.size(); i++)
@@ -220,7 +220,7 @@ uint16_t distance(code_pos from, code_pos to, bool fForward, int *pfNeedToRedo)
 
 absl::Span<const OperandType> scii::GetOperandTypes() const
 {
-    return ::GetOperandTypes(*_version, _bOpcode);
+    return _arch->GetOperandTypes(_bOpcode);
 }
 
 void scii::set_final_branch_operands(code_pos self)
@@ -266,7 +266,7 @@ uint16_t scii::calc_size(code_pos self, int *pfNeedToRedo)
             // right now, we could end up in an infinite loop.  So let's be optimistic and assume we're a
             // Byte-based instruction.
             _opSize = opSizeCalculated;
-            _wSize = _get_instruction_size(*_version, _bOpcode, _opSize);
+            _wSize = _get_instruction_size(_arch, _bOpcode, _opSize);
         }
         if (opSizeCalculated == Byte) // Only makes sense to do the expensive calculation if we don't know for sure that we're a Word
         {
@@ -382,10 +382,10 @@ uint16_t scii::calc_size(code_pos self, int *pfNeedToRedo)
             }
             else
             {
-                assert(_wSize == _get_instruction_size(*_version, _bOpcode, opSizeCalculated));
+                assert(_wSize == _get_instruction_size(_arch, _bOpcode, opSizeCalculated));
             }
         }
-        _wSize = _get_instruction_size(*_version, _bOpcode, opSizeCalculated);
+        _wSize = _get_instruction_size(_arch, _bOpcode, opSizeCalculated);
         _opSize = opSizeCalculated; 
     }
     return _wSize;
@@ -412,7 +412,7 @@ void scii::output_code(ITrackCodeSink &trackCodeSink, std::vector<uint8_t> &outp
 {
     _wFinalOffset = (uint16_t)output.size();
     assert(_bOpcode != Opcode::INDETERMINATE); // Any invalid instructions must be replaced before writing the code.
-    output.push_back(OpcodeToRaw(*_version, _bOpcode, (_opSize != Byte)));
+    output.push_back(_arch->OpcodeToRaw(_bOpcode, (_opSize != Byte)));
     bool fDone = false;
 	auto argTypes = GetOperandTypes();
     for (int i = 0; !fDone && i < argTypes.size(); i++)
@@ -732,6 +732,10 @@ bool scicode::has_dangling_branches(bool &fAllBranchesPrecededByReturns)
     return fDangle;
 }
 
+absl::Span<const OperandType> GetOperandTypes(const SCIVersion& version, Opcode opcode)
+{
+    return GetTargetArchitecture(version)->GetOperandTypes(opcode);
+}
 
 scii::scii(const SCIVersion &version, Opcode bOpcode, int lineNumber) : scii(version, bOpcode, (uint16_t)0xffff, lineNumber) {}
 
@@ -739,7 +743,7 @@ scii::scii(const SCIVersion &version, Opcode bOpcode, uint16_t w1, int lineNumbe
 
 scii::scii(const SCIVersion &version, Opcode bOpcode, uint16_t w1, uint16_t w2, int lineNumber) : scii(version, bOpcode, w1, w2, (uint16_t)0xffff, lineNumber) {}
 
-scii::scii(const SCIVersion &version, Opcode bOpcode, uint16_t w1, uint16_t w2, uint16_t w3, int lineNumber) : _version(&version), LineNumber(lineNumber)
+scii::scii(const SCIVersion &version, Opcode bOpcode, uint16_t w1, uint16_t w2, uint16_t w3, int lineNumber) : _arch(GetTargetArchitecture(version)), LineNumber(lineNumber)
 {
     _opSize = Undefined;
     _wSize = 0;
@@ -757,7 +761,7 @@ scii::scii(const SCIVersion &version, Opcode bOpcode, uint16_t w1, uint16_t w2, 
 #endif
 }
 
-scii::scii(const SCIVersion &version, Opcode bOpcode, _code_pos branch, bool fUndetermined, int lineNumber) : _version(&version), LineNumber(lineNumber)
+scii::scii(const SCIVersion &version, Opcode bOpcode, _code_pos branch, bool fUndetermined, int lineNumber) : _arch(GetTargetArchitecture(version)), LineNumber(lineNumber)
 {
     _opSize = Undefined;
     _wSize = 0;

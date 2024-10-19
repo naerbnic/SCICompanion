@@ -1090,10 +1090,10 @@ bool CompiledScript::_ReadStrings(sci::istream &stream, uint16_t wDataSize)
 // of the last operand in an instruction.  1 or 2 will be added to it prior to
 // calculating the offset.
 //
-uint16_t CalcOffset(const SCIVersion &version, uint16_t wOperandStart, uint16_t wRelOffset, bool bByte, BYTE bRawOpcode)
+uint16_t CalcOffset(const TargetArchitecture* arch, uint16_t wOperandStart, uint16_t wRelOffset, bool bByte, BYTE bRawOpcode)
 {
     // Move to the pc post instruction.
-    uint16_t wResult = wOperandStart + scii::GetInstructionArgumentSize(version, bRawOpcode);
+    uint16_t wResult = wOperandStart + scii::GetInstructionArgumentSize(arch, bRawOpcode);
     if (bByte)
     {
         if (wRelOffset >= 0x0080)
@@ -1142,15 +1142,15 @@ set<uint16_t> CompiledScript::FindInternalCallsTO() const
                 pCur++;
                 wCurrentOffsetTO++;
                 
-                if (RawToOpcode(_version, bRawOpcode) == Opcode::CALL)
+                if (GetTargetArchitecture(_version)->RawToOpcode(bRawOpcode) == Opcode::CALL)
                 {
                     // This is one. The first operand is a word or byte
                     wRelOffset = (bByte ? ((uint16_t)*pCur) : (uint16_t)*pCur + (((uint16_t)*(pCur + 1)) << 8));
-                    uint16_t theOffset = CalcOffset(_version, wCurrentOffsetTO, wRelOffset, bByte, bRawOpcode);
+                    uint16_t theOffset = CalcOffset(GetTargetArchitecture(_version), wCurrentOffsetTO, wRelOffset, bByte, bRawOpcode);
                     wOffsets.insert(wOffsets.end(), theOffset);
                 }
                 // Skip past to the next instruction
-                uint16_t argumentByteCount = scii::GetInstructionArgumentSize(_version, bRawOpcode);
+                uint16_t argumentByteCount = scii::GetInstructionArgumentSize(GetTargetArchitecture(_version), bRawOpcode);
                 pCur += argumentByteCount;
                 wCurrentOffsetTO += argumentByteCount;
             }

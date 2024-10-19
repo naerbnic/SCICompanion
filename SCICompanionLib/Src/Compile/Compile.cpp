@@ -611,7 +611,7 @@ void VariableOperand(CompileContext &context, WORD wIndex, BYTE bOpcode, int lin
     // silently corrupt.
     bOpcode |= 0x40; // bit6 is always 1  (bit 7 in the final result)
     bOpcode <<= 1; // Since we're calling RawToOpcode, need to turn it back to Raw.
-    context.code().inst(lineNumber, RawToOpcode(context.GetVersion(), bOpcode), wIndex);
+    context.code().inst(lineNumber, GetTargetArchitecture(context.GetVersion())->RawToOpcode(bOpcode), wIndex);
 }
 
 void LoadEffectiveAddress(CompileContext &context, WORD wIndex, BYTE bVarType, const SyntaxNode *pIndexer, int lineNumber)

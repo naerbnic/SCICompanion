@@ -102,6 +102,7 @@ int GetOperandSize(BYTE bOpcode, OperandType operandType, const uint8_t *pNext)
 // This really needs a re-working, it should not be responsible for outputting text.
 void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLookups *pLookups, IObjectFileScriptLookups *pOFLookups, const ICompiledScriptSpecificLookups *pScriptThings, const ILookupPropertyName *pPropertyNames, const BYTE *pBegin, const BYTE *pEnd, uint16_t wBaseOffset, AnalyzeInstructionPtr analyzeInstruction)
 {
+    auto arch = GetTargetArchitecture(version);
     try
     {
         set<uint16_t> codeLabelOffsets; // Keep track of places that are branched to.
@@ -113,7 +114,7 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
             while (pCur < pEnd) // Possibility of read AVs here, but we catch exceptions.
             {
                 BYTE bRawOpcode = *pCur;
-                Opcode bOpcode = RawToOpcode(version, bRawOpcode);
+                Opcode bOpcode = arch->RawToOpcode(bRawOpcode);
 
                 assert(bOpcode <= Opcode::LastOne);
                 const char *pszOpcode = OpcodeToName(bOpcode, 0);   // Passing zero here is ok, since this code will never show an LEAI instruction.
@@ -134,7 +135,7 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                     out << "  " << setw(4) << setfill('0') << wOffset << ":";
                     int indent = 22;
                     const BYTE *pCurTemp = pCur; // skip past opcode
-                    auto opTypes = GetOperandTypes(version, bOpcode);
+                    auto opTypes = arch->GetOperandTypes(bOpcode);
                     for (int i = -1; i < opTypes.size(); i++)
                     {
                         int cIncr = (i == -1) ? 1 : GetOperandSize(bRawOpcode, opTypes[i], pCur + 1);
@@ -168,13 +169,13 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                         // This is a branch instruction.  Figure out the offset.
                         // The relative offset is either a byte or word, and is calculated post instruction
                         // (hence we add 1 or 2 to our calculation)
-                        codeLabelOffsets.insert(CalcOffset(version, wOperandStart, (bByte ? ((uint16_t)*pCur) : (*((uint16_t*)pCur))), bByte, bRawOpcode));
+                        codeLabelOffsets.insert(CalcOffset(arch, wOperandStart, (bByte ? ((uint16_t)*pCur) : (*((uint16_t*)pCur))), bByte, bRawOpcode));
                     }
                 }
 
                 uint16_t wOperandsRaw[3];
                 uint16_t wOperands[3];
-                auto opTypes = GetOperandTypes(version, bOpcode);
+                auto opTypes = arch->GetOperandTypes(bOpcode);
                 for (int i = 0; !fDone && i < opTypes.size(); i++)
                 {
                     szBuf[0] = 0;
@@ -218,7 +219,7 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                             }
                             else
                             {
-                                wOperands[i] = CalcOffset(version, wOperandStart, wOperandsRaw[i], bByte, bRawOpcode);
+                                wOperands[i] = CalcOffset(arch, wOperandStart, wOperandsRaw[i], bByte, bRawOpcode);
                             }
                             out << "$" << setw(4) << setfill('0') << wOperands[i];
                             break;
@@ -248,7 +249,9 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
 
                         case otLABEL:
                             // This is a relative position from the post pc
-                            out << ((bOpcode == Opcode::CALL) ? "proc" : "code") << "_" << setw(4) << setfill('0') << CalcOffset(version, wOperandStart, wOperands[i], bByte, bRawOpcode);
+                            out << ((bOpcode == Opcode::CALL) ? "proc" : "code") << "_" << setw(4) << setfill('0') <<
+                                CalcOffset(arch, wOperandStart, wOperands[i], bByte,
+                                           bRawOpcode);
                             break;
 
                         case otDEBUGSTRING:

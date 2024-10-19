@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_set>
+#include <absl/types/span.h>
 
 #include "Version.h"
 
@@ -208,8 +209,18 @@ enum class Opcode : uint8_t
     LastOne = 129,
 };
 
-Opcode RawToOpcode(const SCIVersion &version, uint8_t rawOpcode);
-uint8_t OpcodeToRaw(const SCIVersion &version, Opcode opcode, bool wide);
+class TargetArchitecture
+{
+public:
+    virtual ~TargetArchitecture() = default;
+
+    virtual absl::Span<const OperandType> GetOperandTypes(Opcode opcode) const = 0;
+    virtual Opcode RawToOpcode(uint8_t rawOpcode) const = 0;
+    virtual uint8_t OpcodeToRaw(Opcode opcode, bool wide) const = 0;
+};
+
+TargetArchitecture const* GetTargetArchitecture(const SCIVersion& version);
+
 std::unordered_set<std::string> &GetOpcodeSet();
 bool IsOpcode(const std::string &theString);
 

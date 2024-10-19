@@ -141,7 +141,7 @@ const BYTE *_ConvertToInstructions(DecompileLookups &lookups, std::list<scii> &c
         const BYTE *pThisInstruction = pCur;
         BYTE bRawOpcode = *pCur;
         bool bByte = (*pCur) & 1;
-        Opcode bOpcode = RawToOpcode(sciVersion, bRawOpcode);
+        Opcode bOpcode = GetTargetArchitecture(sciVersion)->RawToOpcode(bRawOpcode);
         assert(bOpcode <= Opcode::LastOne);
         ++pCur; // Advance past opcode.
         uint16_t wOperands[3];
@@ -183,7 +183,7 @@ const BYTE *_ConvertToInstructions(DecompileLookups &lookups, std::list<scii> &c
         if ((bOpcode == Opcode::BNT) || (bOpcode == Opcode::BT) || (bOpcode == Opcode::JMP))
         {
             // +1 because its the operand start pos.
-            uint16_t wTarget = CalcOffset(lookups.GetVersion(), wReferencePosition + 1, wOperands[0], bByte, bRawOpcode);
+            uint16_t wTarget = CalcOffset(GetTargetArchitecture(lookups.GetVersion()), wReferencePosition + 1, wOperands[0], bByte, bRawOpcode);
 
             if (wTarget > codeLength)
             {

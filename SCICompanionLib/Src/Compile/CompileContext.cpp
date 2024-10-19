@@ -1502,7 +1502,7 @@ void CompileContext::FixupSinksAndSources(std::vector<uint8_t>& scriptResource, 
             // lofsa and lofss).
 #ifdef DEBUG
             uint8_t rawOpcode = resourceToUse[sinkOffset - 1];
-            Opcode opcode = RawToOpcode(_version, rawOpcode);
+            Opcode opcode = GetTargetArchitecture(_version)->RawToOpcode(rawOpcode);
             assert((opcode == Opcode::LOFSA) || (opcode == Opcode::LOFSS));
 #endif
             uint16_t from = sinkOffset + 2;

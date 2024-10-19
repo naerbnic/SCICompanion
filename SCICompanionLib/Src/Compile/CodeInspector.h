@@ -23,7 +23,7 @@
 // Enumerates the VM instructions within a section of script resource, and calls the supplied
 // analyzeInstruction function. Used for inspecting script resources to determine version information.
 
-inline bool InspectCode(SCIVersion version, const uint8_t *pBegin, const uint8_t *pEnd, uint16_t wBaseOffset, FunctionRef<bool(Opcode, uint16_t[3], uint16_t)> analyzeInstruction)
+inline bool InspectCode(const TargetArchitecture* arch, const uint8_t *pBegin, const uint8_t *pEnd, uint16_t wBaseOffset, FunctionRef<bool(Opcode, uint16_t[3], uint16_t)> analyzeInstruction)
 {
     try
     {
@@ -32,12 +32,12 @@ inline bool InspectCode(SCIVersion version, const uint8_t *pBegin, const uint8_t
         while (pCur < pEnd) // Possibility of read AVs here, but we catch exceptions.
         {
             uint8_t bRawOpcode = *pCur;
-            Opcode opcode = RawToOpcode(version, bRawOpcode);
+            Opcode opcode = arch->RawToOpcode(bRawOpcode);
             // Advance past opcode
             pCur++;
             wOffset++;
             uint16_t wOperandsRaw[3];
-            auto opTypes = GetOperandTypes(version, opcode);
+            auto opTypes = arch->GetOperandTypes(opcode);
             for (int i = 0; i < opTypes.size(); i++)
             {
                 int cIncr = GetOperandSize(bRawOpcode, opTypes[i], pCur);
@@ -71,7 +71,7 @@ inline bool InspectFunction(const CompiledScript& script, uint16_t wCodeOffsetTO
         {
             const BYTE* pBegin = &script.GetRawBytes()[section.begin];
             const BYTE* pEnd = &script.GetRawBytes()[section.end];
-            if (!InspectCode(script.GetVersion(), pBegin, pEnd, wCodeOffsetTO, analyzeInstruction))
+            if (!InspectCode(GetTargetArchitecture(script.GetVersion()), pBegin, pEnd, wCodeOffsetTO, analyzeInstruction))
             {
                 return false;
             }
@@ -144,7 +144,7 @@ inline bool InspectScriptCode(const CompiledScript &script, ICompiledScriptLooku
                         {
                             const BYTE *pStartCode = &scriptResource[section.begin];
                             const BYTE *pEndCode = &scriptResource[section.end];
-                            if (!InspectCode(object->GetVersion(), pStartCode, pEndCode, functionOffsetsTO[i], analyzeInstruction))
+                            if (!InspectCode(GetTargetArchitecture(object->GetVersion()), pStartCode, pEndCode, functionOffsetsTO[i], analyzeInstruction))
                             {
                                 return false;
                             }

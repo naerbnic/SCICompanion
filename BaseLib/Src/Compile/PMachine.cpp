@@ -21,36 +21,6 @@
 
 #include "Version.h"
 
-Opcode RawToOpcode(const SCIVersion &version, uint8_t rawOpcode)
-{
-    if (version.PackageFormat >= ResourcePackageFormat::SCI2)
-    {
-        switch (rawOpcode)
-        {
-            case 0x7d:
-                return Opcode::Filename;
-            case 0x7e:
-                return Opcode::LineNumber;
-        }
-    }
-    return (Opcode)(rawOpcode >> 1);
-}
-
-uint8_t OpcodeToRaw(const SCIVersion &version, Opcode opcode, bool wide)
-{
-    if (version.PackageFormat >= ResourcePackageFormat::SCI2)
-    {
-        switch (opcode)
-        {
-            case Opcode::Filename:
-                return 0x7d;
-            case Opcode::LineNumber:
-                return 0x7e;
-        }
-    }
-    return (((uint8_t)opcode) << 1) | (wide ? 0 : 1);
-}
-
 /******************************************************************************/
 std::vector<OperandType> OpArgTypes_SCI0[TOTAL_OPCODES] = {
 	/*bnot*/     {},
@@ -341,27 +311,79 @@ std::vector<OperandType> OpArgTypes_SCI2[TOTAL_OPCODES] = {
 OperandType filenameOperands[3] = { otDEBUGSTRING};
 OperandType lineNumberOperands[3] = { otUINT16};
 
-absl::Span<const OperandType> GetOperandTypes(const SCIVersion &version, Opcode opcode)
+class TargetArchitectureSCO0 : public TargetArchitecture
 {
-    switch (opcode)
-    {
-    case Opcode::Filename:
-        return filenameOperands;
-    case Opcode::LineNumber:
-        return lineNumberOperands;
-    default:
-        break;
-    }
-
-    if (version.PackageFormat == ResourcePackageFormat::SCI2)
-    {
-    
-        return OpArgTypes_SCI2[static_cast<uint8_t>(opcode)];
-    }
-    else
+public:
+    absl::Span<const OperandType> GetOperandTypes(Opcode opcode) const override
     {
         assert(opcode != Opcode::Filename && opcode != Opcode::LineNumber);
         return OpArgTypes_SCI0[static_cast<uint8_t>(opcode)];
+    }
+
+    Opcode RawToOpcode(uint8_t rawOpcode) const override
+    {
+        return (Opcode)(rawOpcode >> 1);
+    }
+
+    uint8_t OpcodeToRaw(Opcode opcode, bool wide) const override
+    {
+        return (((uint8_t)opcode) << 1) | (wide ? 0 : 1);
+    }
+};
+
+class TargetArchitectureSCO2 : public TargetArchitecture
+{
+public:
+    absl::Span<const OperandType> GetOperandTypes(Opcode opcode) const override
+    {
+        switch (opcode)
+        {
+        case Opcode::Filename:
+            return filenameOperands;
+        case Opcode::LineNumber:
+            return lineNumberOperands;
+        default:
+            break;
+        }
+        return OpArgTypes_SCI2[static_cast<uint8_t>(opcode)];
+    }
+
+    Opcode RawToOpcode(uint8_t rawOpcode) const override
+    {
+        switch (rawOpcode)
+        {
+        case 0x7d:
+            return Opcode::Filename;
+        case 0x7e:
+            return Opcode::LineNumber;
+        }
+        return (Opcode)(rawOpcode >> 1);
+    }
+
+    uint8_t OpcodeToRaw(Opcode opcode, bool wide) const override
+    {
+        switch (opcode)
+        {
+        case Opcode::Filename:
+            return 0x7d;
+        case Opcode::LineNumber:
+            return 0x7e;
+        }
+        return (((uint8_t)opcode) << 1) | (wide ? 0 : 1);
+    }
+};
+
+
+TargetArchitecture const* GetTargetArchitecture(const SCIVersion& version)
+{
+    static TargetArchitecture const* sci0 = new TargetArchitectureSCO0();
+    static TargetArchitecture const* sci2 = new TargetArchitectureSCO2();
+    if (version.PackageFormat >= ResourcePackageFormat::SCI2)
+    {
+        return sci2;
+    } else
+    {
+        return sci0;
     }
 }
 

@@ -25,6 +25,7 @@
 #include <absl/types/span.h>
 
 #include "Version.h"
+#include "PMachine.h"
 
 // Fwd declaration
 enum OperandType : uint8_t;
@@ -106,8 +107,8 @@ public:
     bool _is_branch_instruction();
     bool is_conditional_branch_instruction();
 
-    static uint16_t GetInstructionSize(const SCIVersion &version, uint8_t rawOpcode);
-    static uint16_t GetInstructionArgumentSize(const SCIVersion &version, uint8_t rawOpcode);
+    static uint16_t GetInstructionSize(const TargetArchitecture* arch, uint8_t rawOpcode);
+    static uint16_t GetInstructionArgumentSize(const TargetArchitecture* arch, uint8_t rawOpcode);
 
     int LineNumber;
 
@@ -125,7 +126,7 @@ private:
 
     _code_pos _itOffset;
     uint16_t _wFinalOffset;
-    const SCIVersion *_version; // pointer instead of reference between we need to support assignment op.
+    const TargetArchitecture* _arch;
 
     enum OPSIZE
     {
@@ -135,7 +136,7 @@ private:
     };
     OPSIZE _opSize;
 
-    static uint16_t _get_instruction_size(const SCIVersion &version, Opcode bOpcode, OPSIZE opSize);
+    static uint16_t _get_instruction_size(const TargetArchitecture* arch, Opcode bOpcode, OPSIZE opSize);
 };
 
 //
