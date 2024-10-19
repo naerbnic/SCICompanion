@@ -484,7 +484,6 @@
     <ClCompile Include="Src\Resources\PicDrawManager.cpp" />
     <ClCompile Include="Src\Resources\RasterOperations.cpp" />
     <ClCompile Include="Src\Resources\ResourceMap.cpp" />
-    <ClCompile Include="Src\Resources\Vocab000.cpp" />
     <ClCompile Include="Src\Resources\Vocab99x.cpp" />
     <ClCompile Include="Src\Util\AppState.cpp" />
     <ClCompile Include="Src\Util\ClassBrowser.cpp" />
@@ -670,7 +669,6 @@
     <ClInclude Include="Src\Resources\PicDrawManager.h" />
     <ClInclude Include="Src\Resources\RasterOperations.h" />
     <ClInclude Include="Src\Resources\ResourceMap.h" />
-    <ClInclude Include="Src\Resources\Vocab000.h" />
     <ClInclude Include="Src\Resources\Vocab99x.h" />
     <ClInclude Include="Src\Util\AppState.h" />
     <ClInclude Include="Src\Util\ClassBrowser.h" />
@@ -680,7 +678,6 @@
     <ClInclude Include="Src\Util\Delegates.h" />
     <ClInclude Include="Src\Util\DialogFactory.h" />
     <ClInclude Include="Src\Util\DrawHelper.h" />
-    <ClInclude Include="Src\Util\interfaces.h" />
     <ClInclude Include="Src\Util\NonViewClient.h" />
     <ClInclude Include="Src\Util\QueueItems.h" />
     <ClInclude Include="Src\Util\sci.h" />

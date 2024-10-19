@@ -12,6 +12,7 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
+#include <string>
 
 //
 // Generic interface used for looking up names based on an index
@@ -19,6 +20,6 @@
 class ILookupNames
 {
 public:
-    virtual std::string Lookup(WORD wName) const = 0;
+    virtual std::string Lookup(uint16_t wName) const = 0;
 };
 

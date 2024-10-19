@@ -111,12 +111,14 @@
     <ClInclude Include="Src\Resources\ResourceRecency.h" />
     <ClInclude Include="Src\Resources\ResourceSourceImpls.h" />
     <ClInclude Include="Src\Resources\ResourceUtil.h" />
+    <ClInclude Include="Src\Resources\Vocab000.h" />
     <ClInclude Include="Src\Util\Codec.h" />
     <ClInclude Include="Src\Util\CodecAlt.h" />
     <ClInclude Include="Src\Util\CompileLog.h" />
     <ClInclude Include="Src\Util\DataBuffer.h" />
     <ClInclude Include="Src\Util\EnumFlags.h" />
     <ClInclude Include="Src\Util\Geometry.h" />
+    <ClInclude Include="Src\Util\interfaces.h" />
     <ClInclude Include="Src\Util\Iterators.h" />
     <ClInclude Include="Src\Util\LineCol.h" />
     <ClInclude Include="Src\Util\Logger.h" />
@@ -151,6 +153,7 @@
     <ClCompile Include="Src\Resources\ResourceSourceImpls.cpp" />
     <ClCompile Include="Src\Resources\ResourceTypes.cpp" />
     <ClCompile Include="Src\Resources\ResourceUtil.cpp" />
+    <ClCompile Include="Src\Resources\Vocab000.cpp" />
     <ClCompile Include="Src\Util\Codec.cpp" />
     <ClCompile Include="Src\Util\CodecAlt.cpp" />
     <ClCompile Include="Src\Util\CompileLog.cpp" />

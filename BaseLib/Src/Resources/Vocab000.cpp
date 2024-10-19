@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 ***************************************************************************/
 
-#include "stdafx.h"
 #include "Vocab000.h"
-#include "AppState.h"
+
+#include "Logger.h"
 #include "ResourceEntity.h"
 
 using namespace std;
@@ -41,9 +41,7 @@ bool IsValidVocabString(PCTSTR pszWord, bool fShowUI)
 
     if (!fRet && fShowUI)
     {
-        TCHAR szBuffer[MAX_PATH];
-        StringCchPrintf(szBuffer, ARRAYSIZE(szBuffer), TEXT("Invalid word: %s.\nWords must contain only letters or numbers."), pszWord);
-        AfxMessageBox(szBuffer, MB_OK | MB_APPLMODAL | MB_ICONEXCLAMATION);
+        Logger::UserError("Invalid word: %s.\nWords must contain only letters or numbers.", pszWord);
     }
 
     return fRet;
@@ -257,7 +255,7 @@ Vocab000::WordGroup Vocab000::GroupFromString(PCTSTR pszString) const
 {
     std::string strLower = pszString;
     std::transform(strLower.begin(), strLower.end(), strLower.begin(), 
-                   (int(*)(int)) tolower);
+                   static_cast<int(*)(int)>(std::tolower));
 
     PCTSTR pszLower = strLower.c_str();
     // Try for an exact match, before searching.
@@ -365,7 +363,7 @@ Vocab000::WordGroup Vocab000::_FindLargestEmptyGroup()
 VocabChangeHint Vocab000::AddNewWord(PCTSTR pszWordIn, WordClass dwClass, bool fShowUI)
 {
     std::string strLower = pszWordIn;
-    transform(strLower.begin(), strLower.end(), strLower.begin(), tolower);
+    transform(strLower.begin(), strLower.end(), strLower.begin(), static_cast<int(*)(int)>(std::tolower));
     VocabChangeHint hint = VocabChangeHint::None;
     TCHAR szBuffer[MAX_PATH];
     szBuffer[0] = 0;
@@ -385,13 +383,7 @@ VocabChangeHint Vocab000::AddNewWord(PCTSTR pszWordIn, WordClass dwClass, bool f
     }
     else
     {
-        StringCchPrintf(szBuffer, ARRAYSIZE(szBuffer), TEXT("Failed to add \"%s\": Word already exists!"), pszWordIn);
-    }
-
-    if (hint == VocabChangeHint::None)
-    {
-        assert(szBuffer[0]);
-        AfxMessageBox(szBuffer, MB_OK | MB_APPLMODAL | MB_ICONEXCLAMATION);
+        Logger::UserError("Failed to add \"%s\": Word already exists!", pszWordIn);
     }
 
     return hint;
@@ -417,7 +409,7 @@ void Vocab000::_InsertWord(PCTSTR pszWord, WordGroup dwGroup)
 VocabChangeHint Vocab000::AddSynonym(PCTSTR pszWordIn, PCTSTR pszOriginal)
 {
     std::string strLower = pszWordIn;
-    transform(strLower.begin(), strLower.end(), strLower.begin(), tolower);
+    transform(strLower.begin(), strLower.end(), strLower.begin(), static_cast<int(*)(int)>(std::tolower));
     VocabChangeHint hint = VocabChangeHint::EditWordGroup;
     WordGroup dwGroup;
     if (LookupWord(pszOriginal, dwGroup))
@@ -436,7 +428,7 @@ VocabChangeHint Vocab000::AddSynonym(PCTSTR pszWordIn, PCTSTR pszOriginal)
 VocabChangeHint Vocab000::AddWordToGroup(PCTSTR pszWord, WordGroup group, bool fShowUI)
 {
     std::string strLower = pszWord;
-    transform(strLower.begin(), strLower.end(), strLower.begin(), tolower);
+    transform(strLower.begin(), strLower.end(), strLower.begin(), static_cast<int(*)(int)>(std::tolower));
     VocabChangeHint hint = VocabChangeHint::None;
     WordGroup dwGroupDummy;
     if (!LookupWord(strLower, dwGroupDummy))
@@ -451,9 +443,7 @@ VocabChangeHint Vocab000::AddWordToGroup(PCTSTR pszWord, WordGroup group, bool f
     }
     else if (fShowUI)
     {
-        TCHAR szBuffer[MAX_PATH];
-        StringCchPrintf(szBuffer, ARRAYSIZE(szBuffer), TEXT("Failed to add \"%s\": Word already exists!"), pszWord);
-        AfxMessageBox(szBuffer, MB_ERRORFLAGS);
+        Logger::UserError("Failed to add \"%s\": Word already exists!", pszWord);
     }
     return hint;
 }
@@ -531,7 +521,7 @@ VocabChangeHint Vocab000::RemoveWord(PCTSTR pszWord)
 {
     VocabChangeHint hint = VocabChangeHint::None;
     std::string strLower = pszWord;
-    transform(strLower.begin(), strLower.end(), strLower.begin(), tolower);
+    std::transform(strLower.begin(), strLower.end(), strLower.begin(), static_cast<int(*)(int)>(std::tolower));
     
     WordGroup dwGroup;
     if (LookupWord(strLower, dwGroup))

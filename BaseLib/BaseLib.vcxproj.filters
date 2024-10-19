@@ -126,6 +126,12 @@
     <ClInclude Include="Src\Util\ScriptStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Resources\Vocab000.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Util\interfaces.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Util\Logger.cpp">
@@ -216,6 +222,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\Util\ScriptStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Resources\Vocab000.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
