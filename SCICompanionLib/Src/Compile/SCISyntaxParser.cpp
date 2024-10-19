@@ -8,7 +8,7 @@
 #include "format.h"
 
 #include "ScriptOM.h"
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "ParserCommon.h"
 #include "SyntaxParserUtil.h"
 #include "ParserErrors.h"

@@ -13,7 +13,7 @@
 ***************************************************************************/
 #pragma once
 
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "AutoCompleteSourceTypes.h"
 #include "ParseAutoCompleteContext.h"
 

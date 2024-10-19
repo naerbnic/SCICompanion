@@ -12,7 +12,7 @@
     GNU General Public License for more details.
 ***************************************************************************/
 #pragma once
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "CompileLog.h"
 
 namespace sci

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "ParserCommon.h"
 
 inline bool ExtractToken(std::string& str, ScriptCharIterator& stream)

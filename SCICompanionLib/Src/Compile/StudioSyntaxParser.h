@@ -15,7 +15,7 @@
 #pragma once
 
 #include "ScriptOM.h"
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "AutoCompleteSourceTypes.h"
 #include "PMachine.h"
 #include "SyntaxContext.h"

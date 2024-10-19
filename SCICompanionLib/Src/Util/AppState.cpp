@@ -43,7 +43,6 @@
 #include "ResourceEntity.h"
 #include "GamePropertiesDialog.h"
 #include "ColoredToolTip.h"
-#include "CrystalScriptStream.h"
 #include "CodeAutoComplete.h"
 #include "CCrystalTextView.h"
 #include "View.h"
