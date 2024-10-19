@@ -152,10 +152,10 @@ uint16_t scii::GetInstructionArgumentSize(const SCIVersion &version, uint8_t raw
 uint16_t scii::_get_instruction_size(const SCIVersion &version, Opcode bOpcode, OPSIZE opSize)
 {
     assert(opSize != Undefined);
-    const OperandType *argTypes = ::GetOperandTypes(version, bOpcode);
+    auto argTypes = ::GetOperandTypes(version, bOpcode);
     uint16_t wSize = 1; // for the opcode
     bool fDone = false;
-    for (int i = 0; !fDone && i < 3; i++)
+    for (int i = 0; !fDone && i < argTypes.size(); i++)
     {
         switch (argTypes[i])
         {
@@ -204,7 +204,7 @@ uint16_t scii::size()
 // this is a forward or backward branch.  However, that's hard to determine.
 // Backward jumps return negative numbers.
 //
-uint16_t distance(const SCIVersion &version, code_pos from, code_pos to, bool fForward, int *pfNeedToRedo)
+uint16_t distance(code_pos from, code_pos to, bool fForward, int *pfNeedToRedo)
 {
     uint16_t wCodeDistance = 0;
     int iDebug = 0;
@@ -221,7 +221,7 @@ uint16_t distance(const SCIVersion &version, code_pos from, code_pos to, bool fF
     return wCodeDistance;
 }
 
-const OperandType *scii::GetOperandTypes() const
+absl::Span<const OperandType> scii::GetOperandTypes() const
 {
     return ::GetOperandTypes(*_version, _bOpcode);
 }
@@ -232,7 +232,8 @@ void scii::set_final_branch_operands(code_pos self)
     assert(_fUndetermined == false);
     if (_is_label_instruction())
     {
-        assert(GetOperandTypes()[0] == otLABEL);
+        auto opTypes = GetOperandTypes();
+        assert(opTypes.size() >= 1 && opTypes[0] == otLABEL);
         uint16_t wCodeDistance = 0;
         int fRedoDummy = 0;
         if (_fForwardBranch)
@@ -240,14 +241,14 @@ void scii::set_final_branch_operands(code_pos self)
             // Forward...
             code_pos curPos = self;
             curPos++;
-            _wOperands[0] = distance(*_version, curPos, _itOffset, _fForwardBranch, &fRedoDummy);
+            _wOperands[0] = distance(curPos, _itOffset, _fForwardBranch, &fRedoDummy);
         }
         else
         {
             // Backward...
             code_pos curPos = _itOffset;
             self++; // We're jumping back from *after* our current pos (reverse jmps are a little longer than fwds)
-            _wOperands[0] = distance(*_version, _itOffset, self, _fForwardBranch, &fRedoDummy);
+            _wOperands[0] = distance(_itOffset, self, _fForwardBranch, &fRedoDummy);
         }
         assert(!fRedoDummy);
     }
@@ -258,7 +259,7 @@ uint16_t scii::calc_size(code_pos self, int *pfNeedToRedo)
     assert(_fUndetermined == false); // Better not have any undertermined branches
     if (_opSize == Undefined)
     {
-		const OperandType *argTypes = GetOperandTypes();
+		auto argTypes = GetOperandTypes();
         bool fDone = false;
         OPSIZE opSizeCalculated = _fForceWord ? Word : Byte; // Optimistic - unless we already tried this.
         if (_is_label_instruction())
@@ -274,7 +275,7 @@ uint16_t scii::calc_size(code_pos self, int *pfNeedToRedo)
         {
             bool encounteredVariableSizeOperand = false;
 
-            for (int i = 0; !fDone && i < 3; i++)
+            for (int i = 0; !fDone && i < argTypes.size(); i++)
             {
                 switch (argTypes[i])
                 {
@@ -332,14 +333,14 @@ uint16_t scii::calc_size(code_pos self, int *pfNeedToRedo)
                             // Forward...
                             code_pos curPos = self;
                             curPos++;
-                            wCodeDistance = distance(*_version, curPos, _itOffset, _fForwardBranch, pfNeedToRedo);
+                            wCodeDistance = distance(curPos, _itOffset, _fForwardBranch, pfNeedToRedo);
                         }
                         else
                         {
                             // Backward...
                             code_pos curPos = _itOffset;
                             self++; // We're jumping back from *after* our current pos (reverse jmps are a little longer than fwds)
-                            wCodeDistance = distance(*_version, _itOffset, self, _fForwardBranch, pfNeedToRedo);
+                            wCodeDistance = distance(_itOffset, self, _fForwardBranch, pfNeedToRedo);
                         }
                         
                         if ((wCodeDistance > 127) && (wCodeDistance <= 0xff80))
@@ -419,8 +420,8 @@ void scii::output_code(ITrackCodeSink &trackCodeSink, std::vector<uint8_t> &outp
     assert(_bOpcode != Opcode::INDETERMINATE); // Any invalid instructions must be replaced before writing the code.
     output.push_back(OpcodeToRaw(*_version, _bOpcode, (_opSize != Byte)));
     bool fDone = false;
-	const OperandType *argTypes = GetOperandTypes();
-    for (int i = 0; !fDone && i < 3; i++)
+	auto argTypes = GetOperandTypes();
+    for (int i = 0; !fDone && i < argTypes.size(); i++)
     {
         // Treat everything as signed...
         bool bByte = false;

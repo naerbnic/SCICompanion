@@ -3106,9 +3106,10 @@ CodeResult Asm::OutputByteCode(CompileContext &context) const
             default:
             {
                 uint16_t args[3] = {};
-                for (size_t i = 0; i < 3; i++)
+                auto opTypes = GetOperandTypes(context.GetVersion(), opcode);
+                for (size_t i = 0; i < opTypes.size(); i++)
                 {
-                    OperandType ot = GetOperandTypes(context.GetVersion(), opcode)[i];
+                    OperandType ot = opTypes[i];
                     if (ot != otEMPTY)
                     {
                         if (_segments.size() >= (i + 1))

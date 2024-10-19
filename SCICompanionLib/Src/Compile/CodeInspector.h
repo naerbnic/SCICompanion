@@ -37,9 +37,10 @@ inline bool InspectCode(SCIVersion version, const uint8_t *pBegin, const uint8_t
             pCur++;
             wOffset++;
             uint16_t wOperandsRaw[3];
-            for (int i = 0; i < 3; i++)
+            auto opTypes = GetOperandTypes(version, opcode);
+            for (int i = 0; i < opTypes.size(); i++)
             {
-                int cIncr = GetOperandSize(bRawOpcode, GetOperandTypes(version, opcode)[i], pCur);
+                int cIncr = GetOperandSize(bRawOpcode, opTypes[i], pCur);
                 if (cIncr == 0)
                 {
                     break;

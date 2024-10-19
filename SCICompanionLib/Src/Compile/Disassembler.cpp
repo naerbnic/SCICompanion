@@ -142,9 +142,10 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                     out << "  " << setw(4) << setfill('0') << wOffset << ":";
                     int indent = 22;
                     const BYTE *pCurTemp = pCur; // skip past opcode
-                    for (int i = -1; i < 3; i++)
+                    auto opTypes = GetOperandTypes(version, bOpcode);
+                    for (int i = -1; i < opTypes.size(); i++)
                     {
-                        int cIncr = (i == -1) ? 1 : GetOperandSize(bRawOpcode, GetOperandTypes(version, bOpcode)[i], pCur + 1);
+                        int cIncr = (i == -1) ? 1 : GetOperandSize(bRawOpcode, opTypes[i], pCur + 1);
                         if (cIncr == 0)
                         {
                             break;
@@ -181,10 +182,11 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
 
                 uint16_t wOperandsRaw[3];
                 uint16_t wOperands[3];
-                for (int i = 0; !fDone && i < 3; i++)
+                auto opTypes = GetOperandTypes(version, bOpcode);
+                for (int i = 0; !fDone && i < opTypes.size(); i++)
                 {
                     szBuf[0] = 0;
-                    int cIncr = GetOperandSize(bRawOpcode, GetOperandTypes(version, bOpcode)[i], pCur);
+                    int cIncr = GetOperandSize(bRawOpcode, opTypes[i], pCur);
                     if (cIncr == 0)
                     {
                         break;
@@ -193,7 +195,7 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                     {
                         wOperandsRaw[i] = (cIncr == 2) ? *((uint16_t*)pCur) : *pCur;
                         wOperands[i] = wOperandsRaw[i];
-                        switch (GetOperandTypes(version, bOpcode)[i])
+                        switch (opTypes[i])
                         {
                         case otINT:
                         case otUINT:
@@ -217,7 +219,7 @@ void DisassembleCode(SCIVersion version, std::ostream &out, ICompiledScriptLooku
                             // This is a bit of a hack here.  We're making the assumption that a otOFFS parameter
                             // is the one and only parameter for this opcode.  CalcOffset makes this assumption
                             // in order to calculate the offset.
-                            assert(GetOperandTypes(version, bOpcode)[i + 1] == otEMPTY);
+                            assert(opTypes.size() == (i + 1) || opTypes[i+i] == otEMPTY);
                             if (version.lofsaOpcodeIsAbsolute)
                             {
                                 wOperands[i] = wOperandsRaw[i]; // Unnecessary, but reinforces the point.

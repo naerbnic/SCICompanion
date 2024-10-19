@@ -22,6 +22,7 @@
 #include <vector>
 #include <cassert>
 #include <map>
+#include <absl/types/span.h>
 
 #include "Version.h"
 
@@ -29,7 +30,7 @@
 enum OperandType : uint8_t;
 enum class Opcode : uint8_t;
 
-const OperandType *GetOperandTypes(const SCIVersion &version, Opcode opcode);
+absl::Span<const OperandType> GetOperandTypes(const SCIVersion &version, Opcode opcode);
 
 enum class BranchBlockIndex
 {
@@ -113,7 +114,7 @@ public:
 private:
     bool _is_label_instruction();
 
-	const OperandType *GetOperandTypes() const;
+	absl::Span<const OperandType> GetOperandTypes() const;
     uint16_t _wOperands[3];
     uint16_t _wSize;
     bool _fForceWord; // This instruction must be a uint16_t sized one on the next attempt at calculating size.

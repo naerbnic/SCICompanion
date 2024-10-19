@@ -14,8 +14,10 @@
 #include "PMachine.h"
 
 #include <array>
+#include <cassert>
 #include <string>
 #include <unordered_set>
+#include <absl/types/span.h>
 
 #include "Version.h"
 
@@ -50,7 +52,7 @@ uint8_t OpcodeToRaw(const SCIVersion &version, Opcode opcode, bool wide)
 }
 
 /******************************************************************************/
-OperandType OpArgTypes_SCI0[TOTAL_OPCODES][3] = {
+std::vector<OperandType> OpArgTypes_SCI0[TOTAL_OPCODES] = {
 	/*bnot*/     {otEMPTY,otEMPTY,otEMPTY},
 	/*add*/      {otEMPTY,otEMPTY,otEMPTY},
 	/*sub*/      {otEMPTY,otEMPTY,otEMPTY},
@@ -193,7 +195,7 @@ OperandType OpArgTypes_SCI0[TOTAL_OPCODES][3] = {
 	/*-spi*/     {otVAR,otEMPTY,otEMPTY},
 };
 
-OperandType OpArgTypes_SCI2[TOTAL_OPCODES][3] = {
+std::vector<OperandType> OpArgTypes_SCI2[TOTAL_OPCODES] = {
     /*bnot*/{ otEMPTY, otEMPTY, otEMPTY },
     /*add*/{ otEMPTY, otEMPTY, otEMPTY },
     /*sub*/{ otEMPTY, otEMPTY, otEMPTY },
@@ -339,22 +341,26 @@ OperandType OpArgTypes_SCI2[TOTAL_OPCODES][3] = {
 OperandType filenameOperands[3] = { otDEBUGSTRING, otEMPTY, otEMPTY };
 OperandType lineNumberOperands[3] = { otUINT16, otEMPTY, otEMPTY };
 
-const OperandType *GetOperandTypes(const SCIVersion &version, Opcode opcode)
+absl::Span<const OperandType> GetOperandTypes(const SCIVersion &version, Opcode opcode)
 {
+    switch (opcode)
+    {
+    case Opcode::Filename:
+        return filenameOperands;
+    case Opcode::LineNumber:
+        return lineNumberOperands;
+    default:
+        break;
+    }
+
     if (version.PackageFormat == ResourcePackageFormat::SCI2)
     {
-        switch (opcode)
-        {
-            case Opcode::Filename:
-                return filenameOperands;
-            case Opcode::LineNumber:
-                return lineNumberOperands;
-        }
     
         return OpArgTypes_SCI2[static_cast<uint8_t>(opcode)];
     }
     else
     {
+        assert(opcode != Opcode::Filename && opcode != Opcode::LineNumber);
         return OpArgTypes_SCI0[static_cast<uint8_t>(opcode)];
     }
 }

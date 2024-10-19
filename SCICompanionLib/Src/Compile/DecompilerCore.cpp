@@ -148,9 +148,10 @@ const BYTE *_ConvertToInstructions(DecompileLookups &lookups, std::list<scii> &c
         ZeroMemory(wOperands, sizeof(wOperands));
         int cIncr = 0;
 
-        for (int i = 0; i < 3; i++)
+        auto opTypes = GetOperandTypes(sciVersion, bOpcode);
+        for (int i = 0; i < opTypes.size(); i++)
         {
-            OperandType opType = GetOperandTypes(sciVersion, bOpcode)[i];
+            OperandType opType = opTypes[i];
             cIncr = GetOperandSize(bRawOpcode, opType, pCur);
             switch (cIncr)
             {
@@ -272,7 +273,8 @@ bool _IsVariableUse(SCIVersion version, code_pos pos, VarScope varScope, WORD &w
 {
     bool fRet = false;
     Opcode bOpcode = pos->get_opcode();
-    if (GetOperandTypes(version, bOpcode)[0] == otVAR)
+    auto opTypes = GetOperandTypes(version, bOpcode);
+    if (opTypes.size() >= 1 && opTypes[0] == otVAR)
     {
         // It's a variable opcode.
         wIndex = pos->get_first_operand();
