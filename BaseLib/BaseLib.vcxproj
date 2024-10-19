@@ -126,6 +126,7 @@
     <ClInclude Include="Src\Util\SciConstants.h" />
     <ClInclude Include="Src\Util\ScopedValue.h" />
     <ClInclude Include="Src\Util\ScriptId.h" />
+    <ClInclude Include="Src\Util\ScriptStream.h" />
     <ClInclude Include="Src\Util\StlUtil.h" />
     <ClInclude Include="Src\Util\Stream.h" />
     <ClInclude Include="Src\Util\Version.h" />
@@ -158,6 +159,7 @@
     <ClCompile Include="Src\Util\PerfTimer.cpp" />
     <ClCompile Include="Src\Util\RunLogic.cpp" />
     <ClCompile Include="Src\Util\ScriptId.cpp" />
+    <ClCompile Include="Src\Util\ScriptStream.cpp" />
     <ClCompile Include="Src\Util\Stream.cpp" />
     <ClCompile Include="Src\Util\Version.cpp" />
     <ClCompile Include="Src\Util\WindowsUtils.cpp" />

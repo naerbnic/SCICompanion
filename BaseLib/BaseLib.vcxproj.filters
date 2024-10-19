@@ -123,6 +123,9 @@
     <ClInclude Include="Src\Util\LineCol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Util\ScriptStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Util\Logger.cpp">
@@ -210,6 +213,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Src\LineCol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Util\ScriptStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
