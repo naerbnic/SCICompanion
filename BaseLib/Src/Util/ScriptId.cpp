@@ -6,7 +6,9 @@
 #include <fstream>
 
 #include <Shlwapi.h>
+#include <sstream>
 #include <strsafe.h>
+#include <strstream>
 
 const std::string SCILanguageMarker = "Sierra Script";
 
@@ -31,6 +33,23 @@ LangSyntax DetermineFileLanguage(const std::string& filename)
     std::ifstream file(filename);
     std::string line;
     if (std::getline(file, line))
+    {
+        langSniff = ::DetermineLanguageFromFirstLine(line);
+    }
+    else
+    {
+        // This can happen if the file doesn't exist.
+        langSniff = LangSyntaxSCI;
+    }
+    return langSniff;
+}
+
+LangSyntax DetermineLanguage(const std::string& contents)
+{
+    LangSyntax langSniff;
+    std::istringstream data(contents);
+    std::string line;
+    if (std::getline(data, line))
     {
         langSniff = ::DetermineLanguageFromFirstLine(line);
     }

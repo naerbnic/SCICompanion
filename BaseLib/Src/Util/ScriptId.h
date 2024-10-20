@@ -14,6 +14,7 @@ extern const std::string SCILanguageMarker;
 
 LangSyntax DetermineLanguageFromFirstLine(const std::string& firstLine);
 LangSyntax DetermineFileLanguage(const std::string& filename);
+LangSyntax DetermineLanguage(const std::string& contents);
 
 static const uint16_t InvalidResourceNumber = 0xffff;
 
