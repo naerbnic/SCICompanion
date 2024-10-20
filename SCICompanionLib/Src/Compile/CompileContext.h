@@ -132,6 +132,13 @@ struct CompileStats
     int Saids;
 };
 
+class CompilerFileLoader
+{
+public:
+    virtual ~CompilerFileLoader() = default;
+    virtual absl::StatusOr<CSCOFile> LoadSCOFile(const std::string& objectName, const SelectorTable& selectors) = 0;
+};
+
 // Forward decl for interfaces
 class CompileContext;
 
@@ -166,11 +173,11 @@ private:
 
 class CompileContext
 {
+    CompileContext(SCIClassBrowser& browser, CResourceMap& resource_map,
+        SCIVersion version, sci::Script& script,
+        PrecompiledHeaders& headers, CompileTables& tables,
+        ICompileLog& results, bool generateDebugInfo);
 public:
-  CompileContext(SCIClassBrowser &browser, CResourceMap &resource_map,
-                 SCIVersion version, sci::Script &script,
-                 PrecompiledHeaders &headers, CompileTables &tables,
-                 ICompileLog &results, bool generateDebugInfo);
     CompileContext(const CompileContext &src) = delete;
     CompileContext operator=(const CompileContext &src) = delete;
     ~CompileContext() = default;
@@ -237,7 +244,7 @@ private:
 
 
     SCIClassBrowser &_browser;
-    CResourceMap &_resourceMap;
+    std::unique_ptr<CompilerFileLoader> _fileLoader;
     sci::Script &_script;       // Script being compiled
     sci::Script *_pErrorScript;  // Current script used for error reporting (could be header file)
 

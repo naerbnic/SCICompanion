@@ -49,6 +49,36 @@ WORD read_word(vector<BYTE>& output, WORD wOffset)
     return output[wOffset] + (((WORD)output[wOffset + 1]) << 8);
 }
 
+class ResourceMapCompilerFileLoader : public CompilerFileLoader
+{
+public:
+    explicit ResourceMapCompilerFileLoader(CResourceMap* resourceMap) : _resourceMap(resourceMap) {}
+
+    absl::StatusOr<CSCOFile> LoadSCOFile(const std::string& objectName, const SelectorTable& selectors) override
+    {
+        assert(!objectName.empty());
+        std::string scoFileName = _resourceMap->Helper().GetScriptObjectFileName(objectName);
+        try {
+            auto stream = sci::istream::ReadFromFile(scoFileName);
+            CSCOFile scoFile;
+            if (scoFile.Load(stream, selectors))
+            {
+                return scoFile;
+            }
+            else
+            {
+                return absl::InternalError(absl::StrFormat("%s file is corrupt.", scoFileName));
+            }
+        }
+        catch (const std::runtime_error& e) {
+            return absl::InternalError(absl::StrFormat("Unable to open '%s': %s", scoFileName, e.what()));
+        }
+    }
+
+private:
+    CResourceMap* _resourceMap;
+};
+
 //
 // Special properties
 //
@@ -106,32 +136,14 @@ TextComponent& CompileResults::GetTextComponent()
 // e.g. Name is "Feature"
 void CompileContext::_LoadSCO(const std::string& name, bool fErrorIfNotFound)
 {
-    assert(!name.empty());
-  string scoFileName = _resourceMap.Helper().GetScriptObjectFileName(name);
-    HANDLE hFile = CreateFile(scoFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
-      scoFileName = _resourceMap.Helper().GetScriptObjectFileName(name);
-        hFile = CreateFile(scoFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-    }
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
-        CSCOFile scoFile;
-        if (scoFile.Load(sci::istream::ReadFromFile(hFile), _tables.Selectors()))
-        {
-            _scos[scoFile.GetScriptNumber()] = scoFile;
-        }
-        else
-        {
-            ReportError(_pErrorScript, "'%s' is corrupt.", scoFileName.c_str());
-        }
-        CloseHandle(hFile);
+    auto sco = _fileLoader->LoadSCOFile(name, _tables.Selectors());
+    if (sco.ok()) {
+        auto scriptNumber = sco->GetScriptNumber();
+        _scos[scriptNumber] = *std::move(sco);
     }
     else if (fErrorIfNotFound)
     {
-        char szError[200];
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0, szError, ARRAYSIZE(szError), nullptr);
-        ReportError(_pErrorScript, "Unable to open '%s': %s", scoFileName.c_str(), szError);
+        ReportError(_pErrorScript, "%s", sco.status().ToString().c_str());
     }
 }
 
@@ -190,8 +202,8 @@ CompileContext::CompileContext(SCIClassBrowser& browser, CResourceMap& resource_
     FunctionBaseForPrescan(nullptr),
     GenerateDebugInfo(generateDebugInfo),
     _nextTempToken(TempTokenBase),
-      _browser(browser),
-      _resourceMap(resource_map),
+    _browser(browser),
+    _fileLoader(std::make_unique<ResourceMapCompilerFileLoader>(&resource_map)),
     _script(script),
     _results(results),
     _tables(tables),
