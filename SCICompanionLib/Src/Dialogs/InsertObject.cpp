@@ -22,10 +22,11 @@
 #include "CompiledScript.h"
 #include "ScriptMakerHelper.h"
 #include "SyntaxParser.h"
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "OutputCodeHelper.h"
 #include "ClipboardUtil.h"
 #include "FakeEgo.h"
+#include "ScriptContents.h"
 
 using namespace sci;
 using namespace std;
@@ -68,24 +69,25 @@ class DummyLog : public ICompileLog
 AvailableMethods::AvailableMethods(const SCIVersion& version, const ResourceLoader* resource_loader, LangSyntax language) : _version(version), _resourceLoader(resource_loader), _targetLanguage(language)
 {
     string fullPath = appState->GetResourceMap().GetObjectsFolder() + "\\Methods.sc";
+    auto scriptId = ScriptId::FromFullFileName(fullPath);
     DummyLog log;
     // Make a new buffer.
-    CCrystalTextBuffer buffer;
-    if (buffer.LoadFromFile(fullPath.c_str()))
+    auto contents = ScriptContents::FromScriptId(scriptId);
+    if (!contents.ok())
     {
-        CScriptStreamLimiter limiter(&buffer);
-        ScriptStream stream(&limiter);
-        _script = std::make_unique<sci::Script>(DetermineFileLanguage(fullPath), ScriptId::FromFullFileName(fullPath));
-        if (SyntaxParser_Parse(*_script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log, false, nullptr, true))
+        return;
+    }
+    StringLineSource lineSource(contents->GetContents());
+    ScriptStream stream(&lineSource);
+    _script = std::make_unique<sci::Script>(contents->GetSyntax(), scriptId);
+    if (SyntaxParser_Parse(*_script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log, false, nullptr, true))
+    {
+        for (const auto &theClass : _script->GetClassesNC())
         {
-            for (const auto &theClass : _script->GetClassesNC())
-            {
-                transform(theClass->GetMethods().begin(), theClass->GetMethods().end(), back_inserter(_methods),
-                    [](const unique_ptr<MethodDefinition> &theMethod) { return theMethod.get(); }
-                );
-            }
+            transform(theClass->GetMethods().begin(), theClass->GetMethods().end(), back_inserter(_methods),
+                [](const unique_ptr<MethodDefinition> &theMethod) { return theMethod.get(); }
+            );
         }
-        buffer.FreeAll();
     }
 }
 
@@ -134,13 +136,14 @@ AvailableObjects::AvailableObjects(const SCIVersion& version, const ResourceLoad
     for (string filename : filenames)
     {
         string fullPath = appState->GetResourceMap().GetObjectsFolder() + "\\" + filename;
+        auto scriptId = ScriptId::FromFullFileName(fullPath);
         DummyLog log;
-        // Make a new buffer.
-        CCrystalTextBuffer buffer;
-        if (buffer.LoadFromFile(fullPath.c_str()))
+        // Read contents.
+        auto contents = ScriptContents::FromScriptId(scriptId);
+        if (contents.ok())
         {
-            CScriptStreamLimiter limiter(&buffer);
-            ScriptStream stream(&limiter);
+            StringLineSource lineSource(contents->GetContents());
+            ScriptStream stream(&lineSource);
             std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(DetermineFileLanguage(fullPath), ScriptId::FromFullFileName(fullPath));
             if (SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log, false, nullptr, true))
             {
@@ -155,7 +158,6 @@ AvailableObjects::AvailableObjects(const SCIVersion& version, const ResourceLoad
 
                 _scripts.push_back(move(pScript));
             }
-            buffer.FreeAll();
         }
     }
 }

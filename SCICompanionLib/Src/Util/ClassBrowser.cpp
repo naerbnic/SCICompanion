@@ -25,9 +25,10 @@
 #include "AutoCompleteSourceTypes.h"
 #include "Task.h"
 #include "CCrystalTextBuffer.h"
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "ResourceBlob.h"
 #include "DependencyTracker.h"
+#include "ScriptContents.h"
 
 using namespace sci;
 using namespace std;
@@ -742,16 +743,16 @@ bool SCIClassBrowser::_AddFileName(std::string fullPath, bool fReplace)
     _pLKGScript = nullptr; // Clear cache.  Possible optimization: check LKG number, and if this is the same, then set _pLKGScript to this one.
 
     bool fRet = false;
-    CCrystalTextBuffer buffer;
-    if (buffer.LoadFromFile(fullPath.c_str()))
+    // "normalize" it before we use it as a key.
+    std::string fullPathLower = fullPath;
+    std::transform(fullPathLower.begin(), fullPathLower.end(), fullPathLower.begin(), ::tolower);
+    auto scriptId = ScriptId::FromFullFileName(fullPathLower);
+    auto contents = ScriptContents::FromScriptId(scriptId);
+    if (contents.ok())
     {
-        // "normalize" it before we use it as a key.
-        std::string fullPathLower = fullPath;
-        std::transform(fullPathLower.begin(), fullPathLower.end(), fullPathLower.begin(), ::tolower);
-
-        CScriptStreamLimiter limiter(&buffer);
-        ScriptStream stream(&limiter);
-        std::unique_ptr<Script> pScript = std::make_unique<Script>(DetermineFileLanguage(fullPath), ScriptId::FromFullFileName(fullPath.c_str()));
+        StringLineSource lineSource(contents->GetContents());
+        ScriptStream stream(&lineSource);
+        std::unique_ptr<Script> pScript = std::make_unique<Script>(contents->GetSyntax(), scriptId);
         if (SyntaxParser_Parse(*pScript, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {
             Script *pWeakRef = pScript.get();
@@ -797,7 +798,6 @@ bool SCIClassBrowser::_AddFileName(std::string fullPath, bool fReplace)
             }
             fRet = true;
         }
-        buffer.FreeAll();
     }
 
     _AssertScriptsValid();
@@ -956,11 +956,11 @@ void SCIClassBrowser::TriggerCustomIncludeCompile(std::string name)
                     // It's a header we have not yet encountered. Parse it.
                     auto scriptId = ScriptId::FromFullFileName(path);
 
-                    CCrystalTextBuffer buffer;
-                    if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
+                    auto contents = ScriptContents::FromScriptId(scriptId);
+                    if (contents.ok())
                     {
-                        CScriptStreamLimiter limiter(&buffer);
-                        ScriptStream stream(&limiter);
+                        StringLineSource lineSource(contents->GetContents());
+                        ScriptStream stream(&lineSource);
                         unique_ptr<Script> pNewHeader = std::make_unique<Script>(DetermineFileLanguage(path), scriptId);
                         if (SyntaxParser_Parse(*pNewHeader, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), nullptr))
                         {
@@ -973,7 +973,6 @@ void SCIClassBrowser::TriggerCustomIncludeCompile(std::string name)
                             TimeAndHeader th { lastWriteTime, move(pNewHeader) };
                             _customHeaderMap[name] = move(th);
                         }
-                        buffer.FreeAll();
                     }
                 }
             }
@@ -1056,17 +1055,17 @@ void SCIClassBrowser::_CacheHeaderDefines()
 std::unique_ptr<sci::Script> SCIClassBrowser::_LoadScript(PCTSTR pszPath)
 {
     unique_ptr<Script> pScript;
-    CCrystalTextBuffer buffer;
-    if (buffer.LoadFromFile(pszPath))
+    auto scriptId = ScriptId::FromFullFileName(pszPath);
+    auto contents = ScriptContents::FromScriptId(scriptId);
+    if (contents.ok())
     {
-        CScriptStreamLimiter limiter(&buffer);
-        ScriptStream stream(&limiter);
-        std::unique_ptr<Script> pScriptT = std::make_unique<Script>(DetermineFileLanguage(pszPath), ScriptId::FromFullFileName(pszPath));
+        StringLineSource lineSource(contents->GetContents());
+        ScriptStream stream(&lineSource);
+        std::unique_ptr<Script> pScriptT = std::make_unique<Script>(contents->GetSyntax(), scriptId);
         if (SyntaxParser_Parse(*pScriptT, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), this))
         {
             pScript = move(pScriptT);
         }
-        buffer.FreeAll(); // REVIEW: not exception safe.
     }
     return pScript;
 }

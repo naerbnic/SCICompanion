@@ -13,18 +13,18 @@
 ***************************************************************************/
 #include "stdafx.h"
 #include "ScriptConvert.h"
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
 #include "ScriptOM.h"
 #include "CompileContext.h"
 #include "SyntaxParser.h"
 #include "OutputCodeHelper.h"
 #include <filesystem>
-#include "CompileInterfaces.h"
 #include "GameFolderHelper.h"
 #include "ResourceMap.h"
 #include "CompiledScript.h"
 #include <regex>
-#include <filesystem>
+
+#include "ScriptContents.h"
 
 using namespace sci;
 using namespace std;
@@ -33,20 +33,19 @@ using namespace std::filesystem;
 bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId& scriptId, CompileLog& log, bool makeBak, GlobalCompiledScriptLookups* lookups)
 {
     bool success = false;
-    auto sourceLanguage = DetermineFileLanguage(scriptId.GetFullPath());
-    if (targetLanguage != sourceLanguage)
+    auto contents = ScriptContents::FromScriptId(scriptId);
+    if (targetLanguage != contents->GetSyntax())
     {
         // What we do
         // 1) Parse this script and generate a syntax tree.
         // 2) If successful, write to the file.
         // 3) Reload
-        CCrystalTextBuffer buffer;
-        if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
+        if (contents.ok())
         {
-            CScriptStreamLimiter limiter(&buffer);
-            ScriptStream stream(&limiter);
+            StringLineSource lineSource(contents->GetContents());
+            ScriptStream stream(&lineSource);
             // 1)
-            sci::Script script(sourceLanguage, scriptId);
+            sci::Script script(contents->GetSyntax(), scriptId);
             success = SyntaxParser_Parse(script, stream, PreProcessorDefinesFromSCIVersion(version), &log, true); // true: Parse comments
             if (success)
             {
@@ -94,7 +93,6 @@ bool ConvertScript(SCIVersion version, LangSyntax targetLanguage, ScriptId& scri
                     log.ReportResult(CompileResult("There was an error writing to the file " + scriptId.GetFullPath()));
                 }
             }
-            buffer.FreeAll();
         }
         else
         {

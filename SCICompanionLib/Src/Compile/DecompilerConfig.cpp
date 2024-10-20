@@ -18,7 +18,8 @@
 #include "DecompilerCore.h"
 #include "DecompilerConfig.h"
 #include "Vocab99x.h"
-#include "CrystalScriptStream.h"
+#include "ScriptStream.h"
+#include "ScriptContents.h"
 #include "SyntaxParser.h"
 #include "CompileInterfaces.h"
 #include <regex>
@@ -37,18 +38,19 @@ static unique_ptr<Script> GetDefinesScript(const SCIVersion& version, const Game
 {
     DummyLog log;
     auto scriptId = ScriptId::FromFullFileName(helper.GetIncludeFolder() + "\\" + name);
-    unique_ptr<Script> script = make_unique<Script>(DetermineFileLanguage(scriptId.GetFullPath()), scriptId);
-    assert(DetermineFileLanguage(scriptId.GetFullPath()) == LangSyntaxStudio);
-    CCrystalTextBuffer buffer;
-    if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
+    auto contents = ScriptContents::FromScriptId(scriptId);
+    if (!contents.ok())
     {
-        CScriptStreamLimiter limiter(&buffer);
-        ScriptStream stream(&limiter);
-        if (!SyntaxParser_Parse(*script, stream, PreProcessorDefinesFromSCIVersion(version), &log))
-        {
-            assert(false);
-        }
-        buffer.FreeAll();
+        assert(false);
+        return nullptr;
+    }
+    unique_ptr<Script> script = make_unique<Script>(contents->GetSyntax(), scriptId);
+    assert(contents->GetSyntax() == LangSyntaxStudio);
+    StringLineSource lineSource(contents->GetContents());
+    ScriptStream stream(&lineSource);
+    if (!SyntaxParser_Parse(*script, stream, PreProcessorDefinesFromSCIVersion(version), &log))
+    {
+        assert(false);
     }
     return script;
 }

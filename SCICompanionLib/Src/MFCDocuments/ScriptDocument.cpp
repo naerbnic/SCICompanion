@@ -45,6 +45,8 @@
 #include "ScriptConvert.h"
 #include <filesystem>
 
+#include "ScriptContents.h"
+
 using namespace std;
 
 bool CompileLog::HasErrors()
@@ -197,21 +199,23 @@ void CScriptDocument::OnCompile()
 
 std::unique_ptr<sci::Script> SimpleCompile(CompileLog &log, ScriptId &scriptId, bool addCommentsToOM)
 {
-    std::unique_ptr<sci::Script> script = make_unique<sci::Script>();
-    script->SetScriptId(DetermineFileLanguage(scriptId.GetFullPath()), scriptId);
-    // Make a new buffer.
-    CCrystalTextBuffer buffer;
-    if (buffer.LoadFromFile(scriptId.GetFullPath().c_str()))
+    ::unique_ptr<sci::Script> script;
+    auto contents = ScriptContents::FromScriptId(scriptId);
+    if (contents.ok())
     {
-        CScriptStreamLimiter limiter(&buffer);
-        ScriptStream stream(&limiter);
+        script = make_unique<sci::Script>(contents->GetSyntax(), scriptId);
+        // Make a new buffer.
+        StringLineSource lineSource(contents->GetContents());
+        ScriptStream stream(&lineSource);
         if (SyntaxParser_Parse(*script, stream, PreProcessorDefinesFromSCIVersion(appState->GetVersion()), &log, addCommentsToOM))
         {
 
         }
+    } else
+    {
+        script = make_unique<sci::Script>(LangSyntaxSCI, scriptId);
     }
     log.CalculateErrors();
-    buffer.FreeAll();
     return script;
 }
 
@@ -221,14 +225,14 @@ bool NewCompileScript(CompileResults &results, CompileLog &log, CompileTables &t
 	ClassBrowserLock lock(appState->GetClassBrowser());
     lock.Lock();
 
-    auto language = DetermineFileLanguage(script.GetFullPath());
+    auto contents = ScriptContents::FromScriptId(script);
+    auto language = contents->GetSyntax();
 
     // Make a new buffer.
-    CCrystalTextBuffer buffer;
-    if (buffer.LoadFromFile(script.GetFullPath().c_str()))
+    if (contents.ok())
     {
-        CScriptStreamLimiter limiter(&buffer);
-        ScriptStream stream(&limiter);
+        StringLineSource lineSource(contents->GetContents());
+        ScriptStream stream(&lineSource);
 
 		std::unique_ptr<sci::Script> pScript = std::make_unique<sci::Script>(language, script);
 
@@ -306,7 +310,6 @@ bool NewCompileScript(CompileResults &results, CompileLog &log, CompileTables &t
             }
         }
         log.CalculateErrors();
-        buffer.FreeAll();
     }
     return fRet;
 }
