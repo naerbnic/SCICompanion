@@ -613,9 +613,35 @@ int SourceCodeWriter::VisualCharsSinceLastNewLine(int tabSize)
     return visualPosition;
 }
 
+void Script::AppendExtern(std::unique_ptr<ExternDeclaration> externDecl)
+{
+    Externs.push_back(std::move(externDecl));
+}
+
+void Script::AppendSelector(std::unique_ptr<SelectorDeclaration> selector)
+{
+    Selectors.push_back(std::move(selector));
+}
+
+void Script::AppendClassDef(std::unique_ptr<ClassDefDeclaration> classDef)
+{
+    ClassDefs.push_back(std::move(classDef));
+}
+
+void Script::AppendGlobal(std::unique_ptr<GlobalDeclaration> global)
+{
+    Globals.push_back(std::move(global));
+}
+
+void Script::AppendProcedureForward(std::string procedureForward)
+{
+    ProcedureForwards.push_back(std::move(procedureForward));
+}
+
 
 // Visitor pattern, with enter/leave wrapper.
 void Script::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
+
 void ClassDefinition::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
 void FunctionParameter::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
 void FunctionSignature::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }

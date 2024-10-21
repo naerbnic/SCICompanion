@@ -869,10 +869,10 @@ public:
         ForwardOptionalSection("local", script.GetScriptVariables());
 
         //
-        ForwardOptionalSection("extern", script.Externs);
-        ForwardOptionalSection("selectors", script.Selectors);
-        ForwardOptionalSection("global", script.Globals);
-        _AcceptChildren(script.ClassDefs);
+        ForwardOptionalSection("extern", script.GetExterns());
+        ForwardOptionalSection("selectors", script.GetSelectors());
+        ForwardOptionalSection("global", script.GetGlobals());
+        _AcceptChildren(script.GetClassDefs());
 
         // These are not supported. They aren't used by the SCI0 or SCI1.1 template games,
         // and only a few fan-made games declare them (but don't use them).

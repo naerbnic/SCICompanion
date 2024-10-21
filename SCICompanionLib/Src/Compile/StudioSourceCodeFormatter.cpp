@@ -75,10 +75,10 @@ public:
 
         ForwardOptionalSection("string", script.GetScriptStringsDeclarations());
 
-        assert(script.Externs.empty());
-        assert(script.Globals.empty());
-        assert(script.ClassDefs.empty());
-        assert(script.Selectors.empty());
+        assert(!script.HasExterns());
+        assert(!script.HasGlobals());
+        assert(!script.HasClassDefs());
+        assert(!script.HasSelectors());
 
         Forward(script.GetProcedures());
         out.EnsureNewLine();

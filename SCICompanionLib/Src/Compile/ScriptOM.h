@@ -1215,13 +1215,23 @@ namespace sci
 
         ScriptId GetScriptId() const { return _scriptId; }
 
-        //
-        std::vector<std::unique_ptr<GlobalDeclaration>> Globals;
-        std::vector<std::unique_ptr<ExternDeclaration>> Externs;
-        std::vector<std::unique_ptr<SelectorDeclaration>> Selectors;    // selector file
-        std::vector<std::unique_ptr<ClassDefDeclaration>> ClassDefs;    // classdef file
-        std::vector<std::string> ProcedureForwards;
+        void AppendExtern(std::unique_ptr<ExternDeclaration> externDecl);
+        void AppendSelector(std::unique_ptr<SelectorDeclaration> selector);
+        void AppendClassDef(std::unique_ptr<ClassDefDeclaration> classDef);
+        void AppendGlobal(std::unique_ptr<GlobalDeclaration> global);
+        void AppendProcedureForward(std::string procedureForward);
 
+        bool HasExterns() const { return !Externs.empty(); }
+        bool HasSelectors() const { return !Selectors.empty(); }
+        bool HasClassDefs() const { return !ClassDefs.empty(); }
+        bool HasGlobals() const { return !Globals.empty(); }
+        bool HasProcedureForwards() const { return !ProcedureForwards.empty(); }
+
+        const std::vector<std::unique_ptr<ExternDeclaration>>& GetExterns() const { return Externs; }
+        const std::vector<std::unique_ptr<SelectorDeclaration>>& GetSelectors() const { return Selectors; }
+        const std::vector<std::unique_ptr<ClassDefDeclaration>>& GetClassDefs() const { return ClassDefs; }
+        const std::vector<std::unique_ptr<GlobalDeclaration>>& GetGlobals() const { return Globals; }
+        const std::vector<std::string>& GetProcedureForwards() const { return ProcedureForwards; }
     private:
         void _PreScanStringDeclaration(CompileContext &context, VariableDecl &stringDecl);
 
@@ -1253,6 +1263,12 @@ namespace sci
         // These are not serialized:
         ScriptId _scriptId;
         LangSyntax _language;
+
+        std::vector<std::unique_ptr<GlobalDeclaration>> Globals;
+        std::vector<std::unique_ptr<ExternDeclaration>> Externs;
+        std::vector<std::unique_ptr<SelectorDeclaration>> Selectors;    // selector file
+        std::vector<std::unique_ptr<ClassDefDeclaration>> ClassDefs;    // classdef file
+        std::vector<std::string> ProcedureForwards;
     };
 
 }; // namespace sci	

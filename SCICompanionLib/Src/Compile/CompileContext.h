@@ -173,11 +173,11 @@ private:
 
 class CompileContext
 {
+public:
     CompileContext(SCIClassBrowser& browser, CResourceMap& resource_map,
         SCIVersion version, sci::Script& script,
         PrecompiledHeaders& headers, CompileTables& tables,
         ICompileLog& results, bool generateDebugInfo);
-public:
     CompileContext(const CompileContext &src) = delete;
     CompileContext operator=(const CompileContext &src) = delete;
     ~CompileContext() = default;

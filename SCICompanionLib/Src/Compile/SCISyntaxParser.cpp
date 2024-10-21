@@ -770,7 +770,7 @@ void AddExternDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContext 
         externDecl->ScriptNumber = pContext->PropertyValue;
         externDecl->Index = pContext->Integer;
         externDecl->SetPosition(stream.GetPosition());
-        pContext->Script().Externs.push_back(move(externDecl));
+        pContext->Script().AppendExtern(std::move(externDecl));
     }
 }
 void AddSelectorDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
@@ -782,7 +782,7 @@ void AddSelectorDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContex
         selectorDecl->SetName(pContext->ScratchString());
         selectorDecl->Index = pContext->Integer;
         selectorDecl->SetPosition(stream.GetPosition());
-        pContext->Script().Selectors.push_back(move(selectorDecl));
+        pContext->Script().AppendSelector(std::move(selectorDecl));
     }
 }
 
@@ -791,7 +791,7 @@ void AddClassDefDeclA(MatchResult &match, const ParserSCI *pParser, SyntaxContex
 {
     if (match.Result())
     {
-        pContext->Script().ClassDefs.push_back(pContext->StealSyntaxNode<ClassDefDeclaration>());
+        pContext->Script().AppendClassDef(pContext->StealSyntaxNode<ClassDefDeclaration>());
     }
 }
 void SetScriptNumberA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
@@ -863,7 +863,7 @@ void AddGlobalEntryA(MatchResult &match, const ParserSCI *pParser, SyntaxContext
             globalEntry->InitialValue = std::make_unique<PropertyValue>(pContext->PropertyValue);
         }
         globalEntry->SetName(pContext->ScratchString2());
-        pContext->Script().Globals.push_back(move(globalEntry));
+        pContext->Script().AppendGlobal(move(globalEntry));
     }
 }
 void AddMethodFwdA(MatchResult &match, const ParserSCI *pParser, SyntaxContext *pContext,
@@ -879,7 +879,7 @@ void AddProcedureFwdA(MatchResult &match, const ParserSCI *pParser, SyntaxContex
 {
     if (match.Result())
     {
-        pContext->Script().ProcedureForwards.push_back(pContext->ScratchString());
+        pContext->Script().AppendProcedureForward(pContext->ScratchString());
     }
 }
 
@@ -1473,23 +1473,23 @@ void PostProcessScript(ICompileLog *pLog, Script &script)
 
     // Report warnings if any un-implemented constructs are used.
     std::vector<std::string> unimplementedWarnings;
-    if (!script.Externs.empty())
+    if (script.HasExterns())
     {
         unimplementedWarnings.push_back("extern statements(s)");
     }
-    if (!script.Globals.empty())
+    if (script.HasGlobals())
     {
         unimplementedWarnings.push_back("global statements(s)");
     }
-    if (!script.ClassDefs.empty())
+    if (script.HasClassDefs())
     {
         unimplementedWarnings.push_back("classdef statements(s)");
     }
-    if (!script.Selectors.empty())
+    if (script.HasSelectors())
     {
         unimplementedWarnings.push_back("selectors statements(s)");
     }
-    if (!script.ProcedureForwards.empty())
+    if (script.HasProcedureForwards())
     {
         unimplementedWarnings.push_back("procedure fwd declaration(s)");
     }
