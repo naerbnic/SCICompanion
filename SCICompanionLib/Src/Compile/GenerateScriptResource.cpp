@@ -449,7 +449,7 @@ void _Section10_LocalVariables(Script &script, CompileContext &context, vector<B
             int size = 0;
             for (auto &value : var->GetStatements())
             {
-                const PropertyValueBase *pValue = SafeSyntaxNode<PropertyValue>(value.get());
+                const PropertyValueBaseNode *pValue = SafeSyntaxNode<PropertyValueNode>(value.get());
                 if (!pValue)
                 {
                     pValue = SafeSyntaxNode<ComplexPropertyValue>(value.get());
@@ -916,7 +916,7 @@ std::vector<species_property> GetOverriddenProperties(CompileContext &context, c
         }
         // Then the value - defines should already be resolved.
         bool fTrackRelocation = false;
-        const PropertyValueBase *value = classProperty->TryGetValue2();
+        const PropertyValueBaseNode *value = classProperty->TryGetValue2();
         if (value)
         {
             switch (value->GetType())

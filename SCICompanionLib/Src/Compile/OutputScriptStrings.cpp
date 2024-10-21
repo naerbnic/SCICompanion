@@ -10,7 +10,7 @@ class ExtractStrings : public IExploreNode
 public:
     ExtractStrings(std::vector<std::string> &allStrings) : _allStrings(allStrings) {}
 
-    void Extract(PropertyValueBase &value)
+    void Extract(PropertyValueBaseNode &value)
     {
         if (!value.GetStringValue().empty())
         {
@@ -30,7 +30,7 @@ public:
             {
                 case NodeTypeValue:
                 {
-                    Extract(static_cast<PropertyValue&>(node));
+                    Extract(static_cast<PropertyValueNode&>(node));
                 }
                 break;
 

@@ -52,7 +52,7 @@ public:
             {
             case NodeTypeValue:
             {
-                _Extract(static_cast<PropertyValue&>(node));
+                _Extract(static_cast<PropertyValueNode&>(node));
             }
             break;
 
@@ -180,7 +180,7 @@ public:
 
 private:
 
-    void _Extract(PropertyValueBase &value)
+    void _Extract(PropertyValueBaseNode &value)
     {
         if (value.GetType() == ValueType::Said)
         {
@@ -232,7 +232,7 @@ private:
     CompileLog &_log;
     const Vocab000 &_vocab000;
     ScriptId _scriptId;
-    unordered_map<PropertyValueBase*, vector<pair<uint16_t, string>>> _allSaids;
+    unordered_map<PropertyValueBaseNode*, vector<pair<uint16_t, string>>> _allSaids;
     map<uint16_t, int> _allWordGroups; // Includes a count
     map<string, int> _roots;
 };

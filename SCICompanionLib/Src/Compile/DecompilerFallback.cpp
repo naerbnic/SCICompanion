@@ -58,7 +58,7 @@ void _AddSyntaxNode(StatementsNode &statementsNode, unique_ptr<SyntaxNode> synta
 void _AddString(StatementsNode &statementsNode, const string &token, ValueType type)
 {
     _AddSyntaxNode(statementsNode,
-        make_unique<PropertyValue>(
+        make_unique<PropertyValueNode>(
         token, type)
         );
 }
@@ -66,14 +66,14 @@ void _AddString(StatementsNode &statementsNode, const string &token, ValueType t
 void _AddToken(StatementsNode &statementsNode, const string &token)
 {
     _AddSyntaxNode(statementsNode,
-        make_unique<PropertyValue>(
+        make_unique<PropertyValueNode>(
         token, ValueType::Token)
         );
 }
 
-void _AddNumber(StatementsNode &statementsNode, PropertyValue **ppValue, uint16_t number)
+void _AddNumber(StatementsNode &statementsNode, PropertyValueNode **ppValue, uint16_t number)
 {
-    unique_ptr<PropertyValue> value = make_unique<PropertyValue>(number);
+    unique_ptr<PropertyValueNode> value = make_unique<PropertyValueNode>(number);
     *ppValue = value.get();
     _AddSyntaxNode(statementsNode, move(value));
 }
@@ -87,7 +87,7 @@ struct CallFrame
     int cParams;
     bool abandoned;
 
-    std::vector<PropertyValue*> trackValues;
+    std::vector<PropertyValueNode*> trackValues;
 
     bool IsSend()
     {
@@ -108,7 +108,7 @@ public:
     }
 
     // Property value may be null. Opcode may be any
-    void MaybeReportValue(code_pos code, PropertyValue *value)
+    void MaybeReportValue(code_pos code, PropertyValueNode *value)
     {
         Consumption consumption = _GetInstructionConsumption(*code, &_lookups);
         if (consumption.cStackGenerate && !callFrames.empty())
@@ -139,7 +139,7 @@ public:
         int i = (int)frame.trackValues.size() - 1;
         while (i >= 0) // Iterate backward
         {
-            PropertyValue *value = frame.trackValues[i];
+            PropertyValueNode *value = frame.trackValues[i];
             if (lookingForSelector)
             {
                 // This should be a selector
@@ -205,7 +205,7 @@ void DisassembleFallback(const SCIVersion& version, FunctionBase &func, code_pos
     {
         if (cur->get_opcode() != Opcode::LINK)
         {
-            PropertyValue *valueWeak = nullptr;
+            PropertyValueNode *valueWeak = nullptr;
 
             unique_ptr<Asm> asmStatement = make_unique<Asm>();
 

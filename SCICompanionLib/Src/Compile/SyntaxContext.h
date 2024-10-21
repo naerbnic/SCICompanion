@@ -296,7 +296,7 @@ public:
     // A generic values for everyone to use (one at a time!)
     // These kinds of objects are "dead ends" on the parse tree, so it should be ok if
     // there is only instance of them.
-    sci::PropertyValue PropertyValue;
+    sci::PropertyValueNode PropertyValue;
     bool PropertyValueWasSet = false;
     std::unique_ptr<sci::VariableDecl> VariableDecl;
 

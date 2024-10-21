@@ -148,7 +148,7 @@ void CSCIPropertyCtrl::_AddProperty(PCTSTR pszProp)
     }
     else
     {
-        PropertyValue value;
+        PropertyValueNode value;
         // Try getting the property from the bag itself.
         // If that fails, then try to get the default value from the species.
         if (_pBag->GetProperty(pszProp, value))
@@ -218,7 +218,7 @@ void CSCIPropertyCtrl::SetControl(CSCIPropertyBagNotify *pBag)
 
 }
 
-void CSCIPropertyCtrl::OnPropertyChange(ISCIPropertyBag *pSource, PCTSTR pszName, PropertyValue value)
+void CSCIPropertyCtrl::OnPropertyChange(ISCIPropertyBag *pSource, PCTSTR pszName, PropertyValueNode value)
 {
     // REVIEW: ptr equality could be bad... maybe use a unique ID instead.
     if (pSource == _pBag)
@@ -365,7 +365,7 @@ CSCIPropertyBagNotify::CSCIPropertyBagNotify(SCIClassBrowser *pBrowser, ClassDef
     _fSpeciesChanged = FALSE;
 }
 
-bool CSCIPropertyBagNotify::GetProperty(PCTSTR pszName, PropertyValue &value)
+bool CSCIPropertyBagNotify::GetProperty(PCTSTR pszName, PropertyValueNode &value)
 {
     property_map::const_iterator findIt = _properties.find(pszName);
     bool fRet = findIt != _properties.end();
@@ -403,7 +403,7 @@ bool CSCIPropertyBagNotify::GetProperty(PCTSTR pszName, PropertyValue &value)
 }
 
 
-bool CSCIPropertyBagNotify::SetProperty(PCTSTR pszName, PropertyValue value)
+bool CSCIPropertyBagNotify::SetProperty(PCTSTR pszName, PropertyValueNode value)
 {
     bool fRet = false;
     // Special case name and species

@@ -370,7 +370,7 @@ public:
     void Visit(const ClassDefinition &classDef) override {}
     void Visit(const FunctionParameter &param) override {}
     void Visit(const FunctionSignature &sig) override {}
-    void Visit(const PropertyValue &prop) override
+    void Visit(const PropertyValueNode &prop) override
     {
         if (((prop.GetType() == ValueType::Token) || (prop.GetType() == ValueType::Pointer)) && _IsUndetermined(prop.GetStringValue()))
         {
@@ -462,7 +462,7 @@ public:
     void Visit(const ClassDefinition &classDef) override {}
     void Visit(const FunctionParameter &param) override {}
     void Visit(const FunctionSignature &sig) override {}
-    void Visit(const PropertyValue &prop) override
+    void Visit(const PropertyValueNode &prop) override
     {
         if ((prop.GetType() == ValueType::Token) && !_IsUndetermined(prop.GetStringValue()))
         {
@@ -649,7 +649,7 @@ public:
                 case NodeTypeValue:
                 case NodeTypeComplexValue:
                 {
-                    PropertyValueBase &propValue = static_cast<PropertyValueBase&>(node);
+                    PropertyValueBaseNode &propValue = static_cast<PropertyValueBaseNode&>(node);
                     if ((propValue.GetType() == ValueType::Token) || (propValue.GetType() == ValueType::Pointer))
                     {
                         propValue.SetValue(_renameContext.GetRenamed(_functionContext, propValue.GetStringValue()), propValue.GetType());

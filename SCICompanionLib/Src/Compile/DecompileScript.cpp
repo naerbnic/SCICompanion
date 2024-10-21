@@ -82,7 +82,7 @@ void DecompileObject(const SCIVersion& version,
             {
                 unique_ptr<ClassProperty> prop = make_unique<ClassProperty>();
                 prop->SetName(lookups.LookupSelectorName(propertySelectorList[i]));
-                PropertyValue value;
+                PropertyValueNode value;
                 ICompiledScriptSpecificLookups::ObjectType type;
                 std::string saidOrString;
                 if (!propValue.isObjectOrString || !lookups.LookupScriptThing(propValue.value, type, saidOrString))
@@ -280,7 +280,7 @@ public:
                 if (instruction == "call" || instruction == "callb" || instruction == "calle")
                 {
                     SyntaxNode *procNameNode = asmStatement->GetStatements()[0].get();
-                    PropertyValue *value = SafeSyntaxNode<PropertyValue>(procNameNode);
+                    PropertyValueNode *value = SafeSyntaxNode<PropertyValueNode>(procNameNode);
                     uint16_t scriptNumber, index;
                     assert(value->GetType() == ValueType::Token);
                     if (_IsUndeterminedPublicProc(_compiledScript, value->GetStringValue(), scriptNumber, index))

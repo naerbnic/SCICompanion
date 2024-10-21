@@ -215,7 +215,7 @@ void ComplexPropertyValue::Traverse(IExploreNode &en)
         _pArrayInternal->Traverse(en);
     }
 }
-void PropertyValue::Traverse(IExploreNode &en)
+void PropertyValueNode::Traverse(IExploreNode &en)
 {
 	ExploreNodeBlock enb(en, *this);
 }

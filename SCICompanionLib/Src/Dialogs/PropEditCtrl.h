@@ -67,7 +67,7 @@ public:
             _fEnded = TRUE;
             if (fCommit)
             {
-                sci::PropertyValue value;
+                sci::PropertyValueNode value;
                 _GetValue(value);
                 _pBag->SetProperty(_strProperty, value);
             }
@@ -118,7 +118,7 @@ protected:
     }
 
     // Overridables
-    virtual void _GetValue(sci::PropertyValue &value)
+    virtual void _GetValue(sci::PropertyValueNode &value)
     {
     }
     virtual void _PrepareControl()

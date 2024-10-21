@@ -15,7 +15,7 @@
 
 namespace sci
 {
-	class PropertyValue;
+	class PropertyValueNode;
 	class ClassProperty;
 }
 
@@ -27,8 +27,8 @@ class ISCIPropertyBag
 {
 public:
 	// Implement these
-	virtual bool SetProperty(PCTSTR pszName, sci::PropertyValue value) = 0;
-	virtual bool GetProperty(PCTSTR pszName, sci::PropertyValue &value) = 0;
+	virtual bool SetProperty(PCTSTR pszName, sci::PropertyValueNode value) = 0;
+	virtual bool GetProperty(PCTSTR pszName, sci::PropertyValueNode &value) = 0;
 	virtual void SetBagName(PCTSTR pszName) = 0;
 	virtual const std::string GetBagName() = 0;
 	virtual void SetSpecies(PCTSTR pszName) = 0;
@@ -39,7 +39,7 @@ public:
 class ISCIPropertyChange
 {
 public:
-	virtual void OnPropertyChange(ISCIPropertyBag *pSource, PCTSTR pszName, sci::PropertyValue value) = 0;
+	virtual void OnPropertyChange(ISCIPropertyBag *pSource, PCTSTR pszName, sci::PropertyValueNode value) = 0;
 	virtual void OnNameChange(ISCIPropertyBag *pSource, PCTSTR pszName) = 0;
 	virtual void OnSpeciesChange(ISCIPropertyBag *pSource, PCTSTR pszSpecies) = 0;
 	virtual void OnAddProperty(ISCIPropertyBag *pSource, PCTSTR pszName) = 0;

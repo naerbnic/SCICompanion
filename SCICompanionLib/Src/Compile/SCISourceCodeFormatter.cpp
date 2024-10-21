@@ -208,7 +208,7 @@ std::string CleanTokenSCI(const std::string &src)
     return output;
 }
 
-std::string GetPropertyText(const PropertyValueBase &prop)
+std::string GetPropertyText(const PropertyValueBaseNode &prop)
 {
     std::stringstream mw;
     switch (prop.GetType())
@@ -285,7 +285,7 @@ public:
                 }
                 if (!nameAlreadySpecified)
                 {
-                    classDef->GetPropertiesNC().push_back(std::make_unique<ClassProperty>("name", PropertyValue(classDef->GetName(), ValueType::ResourceString)));
+                    classDef->GetPropertiesNC().push_back(std::make_unique<ClassProperty>("name", PropertyValueNode(classDef->GetName(), ValueType::ResourceString)));
                 }
             }
 
@@ -352,7 +352,7 @@ public:
                     case NodeType::NodeTypeValue:
                     case NodeType::NodeTypeComplexValue:
                     {
-                        PropertyValueBase *value = static_cast<PropertyValueBase*>(&node);
+                        PropertyValueBaseNode *value = static_cast<PropertyValueBaseNode*>(&node);
                         if ((value->GetType() == ValueType::Token) || (value->GetType() == ValueType::Pointer))
                         {
                             _explicitVarUsage.insert(value->GetStringValue());
@@ -839,7 +839,7 @@ public:
             }
         }
 
-        const PropertyValue *genTextValue = script.GetGenText();
+        const PropertyValueNode *genTextValue = script.GetGenText();
         if (genTextValue)
         {
             out.out << "(text# ";
@@ -985,13 +985,13 @@ public:
 
     void Visit(const FunctionSignature &sig) override {}
 
-    void _VisitPropertyValue(const PropertyValueBase &prop)
+    void _VisitPropertyValue(const PropertyValueBaseNode &prop)
     {
         _MaybeNewLineIndent();
         out.out << GetPropertyText(prop);
     }
 
-    void Visit(const PropertyValue &prop) override
+    void Visit(const PropertyValueNode &prop) override
     {
         _VisitPropertyValue(prop);
     }

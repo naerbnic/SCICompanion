@@ -52,12 +52,12 @@
 namespace sci
 {
 	class ClassDefinition;
-	class PropertyValue;
+	class PropertyValueNode;
 }
 
 // Pseudo prop conversion
-typedef bool(*PFNCLASSTOPSEUDOPROP)(const sci::ClassDefinition*, PCTSTR, sci::PropertyValue&);
-typedef bool(*PFNPSEUDOPROPTOCLASS)(sci::ClassDefinition*, PCTSTR, const sci::PropertyValue&);
+typedef bool(*PFNCLASSTOPSEUDOPROP)(const sci::ClassDefinition*, PCTSTR, sci::PropertyValueNode&);
+typedef bool(*PFNPSEUDOPROPTOCLASS)(sci::ClassDefinition*, PCTSTR, const sci::PropertyValueNode&);
 
 BOOL IsPseudoProp(PCTSTR pszProp, PFNCLASSTOPSEUDOPROP *ppfn);
 

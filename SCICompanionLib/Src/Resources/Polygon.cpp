@@ -70,18 +70,18 @@ const string AccessType[] =
 unique_ptr<ProcedureCall> GetSetUpPolyProcedureCall(int picResource)
 {
     unique_ptr<ProcedureCall> procCall = make_unique<ProcedureCall>(c_szAddPolysToRoomFunction);
-    procCall->AddNewStatement<PropertyValue>(fmt::format("{0}{1}", c_szDefaultPolyName, picResource), ValueType::Pointer);
+    procCall->AddNewStatement<PropertyValueNode>(fmt::format("{0}{1}", c_szDefaultPolyName, picResource), ValueType::Pointer);
     return procCall;
 }
 
-const PropertyValueBase *_GetPropertyValue(const SyntaxNode *node)
+const PropertyValueBaseNode *_GetPropertyValue(const SyntaxNode *node)
 {
     // Takes one of two forms, depending on the compiled language.
     if (node->GetNodeType() == NodeType::NodeTypeComplexValue)
     {
         return SafeSyntaxNode<ComplexPropertyValue>(node);
     }
-    return SafeSyntaxNode<PropertyValue>(node);
+    return SafeSyntaxNode<PropertyValueNode>(node);
 }
 
 void _ExtractPolygonsFromStatements(const string &name, PolygonComponent &polySource, const SyntaxNodeVector &statements)
@@ -89,7 +89,7 @@ void _ExtractPolygonsFromStatements(const string &name, PolygonComponent &polySo
     auto it = statements.begin();
     if (it != statements.end())
     {
-        const PropertyValueBase *pValue = _GetPropertyValue((*it).get());
+        const PropertyValueBaseNode *pValue = _GetPropertyValue((*it).get());
         int polyCount = 0;
         if (pValue->GetType() == ValueType::Number)
         {
@@ -244,12 +244,12 @@ std::string PolygonComponent::GetPolyFilePath() const
 void _ApplyPolygonToVarDecl(VariableDecl &varDecl, const SCIPolygon &poly)
 {
     // Type, point count, points
-    varDecl.AddSimpleInitializer(PropertyValue(AccessType[(int)poly.Type], ValueType::Token));
-    varDecl.AddSimpleInitializer(PropertyValue((uint16_t)poly.Points().size()));
+    varDecl.AddSimpleInitializer(PropertyValueNode(AccessType[(int)poly.Type], ValueType::Token));
+    varDecl.AddSimpleInitializer(PropertyValueNode((uint16_t)poly.Points().size()));
     for (point16 point : poly.Points())
     {
-        varDecl.AddSimpleInitializer(PropertyValue(point.x));
-        varDecl.AddSimpleInitializer(PropertyValue(point.y));
+        varDecl.AddSimpleInitializer(PropertyValueNode(point.x));
+        varDecl.AddSimpleInitializer(PropertyValueNode(point.y));
     }
 }
 
@@ -267,7 +267,7 @@ void _ApplyPolygonsToScript(int picNumber, Script &script, const vector<SCIPolyg
     defaultPolyVarDecl->SetName(defaultPolyVarName);
 
     // The count
-    defaultPolyVarDecl->AddSimpleInitializer(PropertyValue((uint16_t)defaultPolygons.size()));
+    defaultPolyVarDecl->AddSimpleInitializer(PropertyValueNode((uint16_t)defaultPolygons.size()));
     for (const SCIPolygon &poly : defaultPolygons)
     {
         _ApplyPolygonToVarDecl(*defaultPolyVarDecl, poly);
@@ -282,7 +282,7 @@ void _ApplyPolygonsToScript(int picNumber, Script &script, const vector<SCIPolyg
         {
             unique_ptr<VariableDecl> namedPolyVarDecl = make_unique<VariableDecl>();
             namedPolyVarDecl->SetName(poly.Name);
-            namedPolyVarDecl->AddSimpleInitializer(PropertyValue(1));   // 1: single polygon
+            namedPolyVarDecl->AddSimpleInitializer(PropertyValueNode(1));   // 1: single polygon
             _ApplyPolygonToVarDecl(*namedPolyVarDecl, poly);
             namedPolyVarDecl->SetSize((uint16_t)namedPolyVarDecl->GetStatements().size());
             script.AddVariable(move(namedPolyVarDecl));

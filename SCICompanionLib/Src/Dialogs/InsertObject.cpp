@@ -210,27 +210,27 @@ void AvailableObjects::PrepareBuffer(sci::ClassDefinition *theClass, CString &bu
             auto &prop = props[i];
             if (prop->GetName() == "view")
             {
-                prop->SetValue(sci::PropertyValue((uint16_t)fakeEgo->View));
+                prop->SetValue(sci::PropertyValueNode((uint16_t)fakeEgo->View));
             }
             else if (prop->GetName() == "x")
             {
-                prop->SetValue(sci::PropertyValue((uint16_t)fakeEgo->Location.x, true));
+                prop->SetValue(sci::PropertyValueNode((uint16_t)fakeEgo->Location.x, true));
             }
             else if (prop->GetName() == "y")
             {
-                prop->SetValue(sci::PropertyValue((uint16_t)fakeEgo->Location.y, true));
+                prop->SetValue(sci::PropertyValueNode((uint16_t)fakeEgo->Location.y, true));
             }
             else if (prop->GetName() == "priority")
             {
-                prop->SetValue(sci::PropertyValue((uint16_t)fakeEgo->Pri, true));
+                prop->SetValue(sci::PropertyValueNode((uint16_t)fakeEgo->Pri, true));
             }
             else if (prop->GetName() == "loop")
             {
-                prop->SetValue(sci::PropertyValue((uint16_t)fakeEgo->Loop));
+                prop->SetValue(sci::PropertyValueNode((uint16_t)fakeEgo->Loop));
             }
             else if (prop->GetName() == "cel")
             {
-                prop->SetValue(sci::PropertyValue((uint16_t)fakeEgo->Cel));
+                prop->SetValue(sci::PropertyValueNode((uint16_t)fakeEgo->Cel));
             }
         }
     }

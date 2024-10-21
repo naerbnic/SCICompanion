@@ -22,7 +22,7 @@ using namespace sci;
 
 bool IsStatementImmediateValue(const SyntaxNode &statement, WORD &wValue)
 {
-    const PropertyValue *pValue = SafeSyntaxNode<PropertyValue>(&statement);
+    const PropertyValueNode *pValue = SafeSyntaxNode<PropertyValueNode>(&statement);
     bool fRet = (pValue && (pValue->GetType() == ValueType::Number));
     if (fRet)
     {
@@ -32,9 +32,9 @@ bool IsStatementImmediateValue(const SyntaxNode &statement, WORD &wValue)
 }
 
 // If the statement is an immediate value that maps to a selector, returns the PropertyValue for the immediate.
-PropertyValue *GetPropertyValueMaybeSelector(SyntaxNode &statement, DecompileLookups &lookups, string &selector)
+PropertyValueNode *GetPropertyValueMaybeSelector(SyntaxNode &statement, DecompileLookups &lookups, string &selector)
 {
-    PropertyValue *pValue = SafeSyntaxNode<PropertyValue>(&statement);
+    PropertyValueNode *pValue = SafeSyntaxNode<PropertyValueNode>(&statement);
     bool fRet = (pValue && (pValue->GetType() == ValueType::Number));
     if (fRet)
     {
@@ -96,7 +96,7 @@ bool _DoesProcedureStartWithTextTuple(ProcedureCall &proc, DecompileLookups &loo
                     isTextTuple = true;
                     if (replace)
                     {
-                        unique_ptr<PropertyValue> pNewValue = std::make_unique<PropertyValue>();
+                        unique_ptr<PropertyValueNode> pNewValue = std::make_unique<PropertyValueNode>();
                         pNewValue->SetValue(text, ValueType::ResourceString);
 
                         auto &parameters = proc.GetStatements();
@@ -126,7 +126,7 @@ void _MassagePrint(ProcedureCall &proc, DecompileLookups &lookups)
     {
         SyntaxNode *param = proc.GetParameter(parameterIndex);
         string selectorName;
-        PropertyValue *maybeSelector = GetPropertyValueMaybeSelector(*param, lookups, selectorName);
+        PropertyValueNode *maybeSelector = GetPropertyValueMaybeSelector(*param, lookups, selectorName);
         if (maybeSelector)
         {
             auto it = find_if(c_PrintParams, c_PrintParams + ARRAYSIZE(c_PrintParams),

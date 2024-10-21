@@ -277,7 +277,7 @@ void SetRepeatStatementA(MatchResult &match, const ParserSCI *pParser, SyntaxCon
         pContext->GetSyntaxNode<WhileLoop>()->SetPosition(stream.GetPosition());
         // A repeat loop is just a while (TRUE) loop
         // 1 = TRUE
-        pContext->GetSyntaxNode<WhileLoop>()->SetCondition(make_unique<ConditionalExpression>(make_unique<PropertyValue>(1)));
+        pContext->GetSyntaxNode<WhileLoop>()->SetCondition(make_unique<ConditionalExpression>(make_unique<PropertyValueNode>(1)));
     }
 }
 
@@ -860,7 +860,7 @@ void AddGlobalEntryA(MatchResult &match, const ParserSCI *pParser, SyntaxContext
         globalEntry->Index = pContext->Integer2;
         if (pContext->PropertyValueWasSet)
         {
-            globalEntry->InitialValue = std::make_unique<PropertyValue>(pContext->PropertyValue);
+            globalEntry->InitialValue = std::make_unique<PropertyValueNode>(pContext->PropertyValue);
         }
         globalEntry->SetName(pContext->ScratchString2());
         pContext->Script().AppendGlobal(move(globalEntry));
@@ -1464,7 +1464,7 @@ void PostProcessScript(ICompileLog *pLog, Script &script)
             uint16_t value = 0;
             for (auto &caseStatement : switchStatement._cases)
             {
-                caseStatement->SetCaseValue(std::make_unique<PropertyValue>(value));
+                caseStatement->SetCaseValue(std::make_unique<PropertyValueNode>(value));
                 value++;
             }
         }

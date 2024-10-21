@@ -182,8 +182,8 @@ void _AddPrevRoomNumSwitch(MethodDefinition &method, NewRoomProfile profile)
         unique_ptr<ProcedureCall> pSetUpEgo = std::make_unique<ProcedureCall>();
         pSetUpEgo->SetName("SetUpEgo");
         pCase->AddNewStatement<Comment>("// Set up ego view and loop (direction)", CommentType::Indented);
-        pSetUpEgo->AddNewStatement<PropertyValue>(-1, true); // view = -1
-        pSetUpEgo->AddNewStatement<PropertyValue>(0);  // loop = 0
+        pSetUpEgo->AddNewStatement<PropertyValueNode>(-1, true); // view = -1
+        pSetUpEgo->AddNewStatement<PropertyValueNode>(0);  // loop = 0
         pCase->AddStatement(std::move(pSetUpEgo));
     }
 

@@ -625,7 +625,7 @@ namespace sci
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
 
-        std::unique_ptr<PropertyValue> InitialValue;
+        std::unique_ptr<PropertyValueNode> InitialValue;
         uint16_t Index;
     };
 
@@ -641,7 +641,7 @@ namespace sci
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
 
-        PropertyValue ScriptNumber;
+        PropertyValueNode ScriptNumber;
         uint16_t Index;
     };
 

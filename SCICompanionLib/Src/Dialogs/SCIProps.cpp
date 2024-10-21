@@ -96,7 +96,7 @@ bool _FindSelfSendParamInInit(const ClassDefinition *pClass, PCTSTR pszSelector,
 //
 // Used to obtain the first parameter for a selector in a send call
 // 
-bool _GetFirstSimpleValueInCodeSegmentArray(const SyntaxNodeVector &segments, PropertyValue &value)
+bool _GetFirstSimpleValueInCodeSegmentArray(const SyntaxNodeVector &segments, PropertyValueNode &value)
 {
     bool fRet = false;
     // Reimplement this.
@@ -112,7 +112,7 @@ bool _GetFirstSimpleValueInCodeSegmentArray(const SyntaxNodeVector &segments, Pr
 }
 
 
-bool _PriorityClassToProp(const ClassDefinition *pClass, PCTSTR pszProp, PropertyValue& value)
+bool _PriorityClassToProp(const ClassDefinition *pClass, PCTSTR pszProp, PropertyValueNode& value)
 {
     const SendParam *pSendParam;
     bool fRet = _FindSelfSendParamInInit(pClass, SCIMETHOD_SETPRI, &pSendParam);
@@ -135,7 +135,7 @@ bool _PriorityClassToProp(const ClassDefinition *pClass, PCTSTR pszProp, Propert
     return fRet;
 }
 
-bool _IgnoreActorsToProp(const ClassDefinition *pClass, PCTSTR pszProp, PropertyValue& value)
+bool _IgnoreActorsToProp(const ClassDefinition *pClass, PCTSTR pszProp, PropertyValueNode& value)
 {
     const SendParam *pSendParam;
     bool fRet = _FindSelfSendParamInInit(pClass, SCIMETHOD_IGNOREACTORS, &pSendParam);
@@ -164,7 +164,7 @@ bool _IgnoreActorsToProp(const ClassDefinition *pClass, PCTSTR pszProp, Property
     return fRet;
 }
 
-bool _AddToPicToProp(const ClassDefinition *pClass, PCTSTR pszProp, PropertyValue& value)
+bool _AddToPicToProp(const ClassDefinition *pClass, PCTSTR pszProp, PropertyValueNode& value)
 {
     const SendParam *pSendParam;
     // This only depends on whether we found an addToPic call

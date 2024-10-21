@@ -26,7 +26,7 @@ Opcode GetInstructionForUnaryOperator(UnaryOperator op);
 using namespace sci;
 using namespace std;
 
-bool PropertyValueBase::Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const
+bool PropertyValueBaseNode::Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const
 {
     bool isSimpleValue = false;
     if (GetType() == ValueType::Number)

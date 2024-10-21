@@ -49,7 +49,7 @@ namespace sci
 	class Define;
 	class ClassDefinition;
 	class Script;
-    class PropertyValue;
+    class PropertyValueNode;
     class VariableDecl;
     class FunctionBase;
 }

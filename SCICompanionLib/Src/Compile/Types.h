@@ -21,7 +21,7 @@
 // Fwd decl
 namespace sci
 {
-    class PropertyValueBase;
+    class PropertyValueBaseNode;
     class SyntaxNode;
 }
 class CompileContext;

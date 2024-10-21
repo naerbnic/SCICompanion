@@ -15,16 +15,16 @@
 
 namespace sci
 {
-	class PropertyValue;
+	class PropertyValueNode;
 }
 
 typedef void(* PFNPROPERTYPOPULATOR)(CWnd *pWnd);
-typedef void(* PFNPROPERTYDISPLAYTOVALUE)(const CString strDisplay, sci::PropertyValue &value);
-typedef void(* PFNPROPERTYVALUETODISPLAY)(const sci::PropertyValue &value, CString &strDisplay);
+typedef void(* PFNPROPERTYDISPLAYTOVALUE)(const CString strDisplay, sci::PropertyValueNode &value);
+typedef void(* PFNPROPERTYVALUETODISPLAY)(const sci::PropertyValueNode &value, CString &strDisplay);
 
 IPropEditCtrl *CreatePropEditCtrl(PCTSTR pszName, SCIClassBrowser *pBrowser, CSCIPropertyBagNotify *pBag);
 PCTSTR GetSCIPropertyDescription(PCTSTR pszProp);
 void PopulatePropEditCtrl(PCTSTR pszName, CWnd *pWnd);
-CString ValueToDisplay(PCTSTR pszName, const sci::PropertyValue &value);
-void DisplayToValue(PCTSTR pszName, const CString strDisplay, sci::PropertyValue &value);
+CString ValueToDisplay(PCTSTR pszName, const sci::PropertyValueNode &value);
+void DisplayToValue(PCTSTR pszName, const CString strDisplay, sci::PropertyValueNode &value);
 

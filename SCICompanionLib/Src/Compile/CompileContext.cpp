@@ -350,7 +350,7 @@ ResolvedToken CompileContext::LookupToken(const SyntaxNode* pNodeForError, const
     // 3) class properties
     // e.g. the earlier ones have precedence over the others.
     auto tokenType = ResolvedToken::Unknown;
-    PropertyValue value;
+    PropertyValueNode value;
     if (str == "self")
     {
         tokenType = ResolvedToken::Self; // No index needed
@@ -1558,7 +1558,7 @@ std::string CompileContext::GetScriptStringFromToken(const std::string& stringTo
         if (stringDecl->GetName() == stringToken)
         {
             assert(stringDecl->GetInitializers().size() == 1);
-            PropertyValue* value = SafeSyntaxNode<PropertyValue>(stringDecl->GetInitializers()[0].get());
+            PropertyValueNode* value = SafeSyntaxNode<PropertyValueNode>(stringDecl->GetInitializers()[0].get());
             assert(value && "Should have already resolve string declaration during pre-scan");
             return value->GetStringValue();
         }

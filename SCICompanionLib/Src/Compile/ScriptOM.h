@@ -106,7 +106,7 @@ namespace sci
     class ClassDefinition;
     class FunctionParameter;
     class FunctionSignature;
-    class PropertyValue;
+    class PropertyValueNode;
     class ComplexPropertyValue;
     class Define;
     class ClassProperty;
@@ -154,7 +154,7 @@ namespace sci
         virtual void Visit(const ClassDefinition &classDef) = 0;
         virtual void Visit(const FunctionParameter &param) = 0;
         virtual void Visit(const FunctionSignature &sig) = 0;
-        virtual void Visit(const PropertyValue &prop) = 0;
+        virtual void Visit(const PropertyValueNode &prop) = 0;
         virtual void Visit(const ComplexPropertyValue &prop) = 0;
         virtual void Visit(const Define &define) = 0;
         virtual void Visit(const ClassProperty &classProp) = 0;
@@ -485,13 +485,13 @@ namespace sci
         std::string _innerType;
     };
 	
-    class PropertyValueBase : public SyntaxNode
+    class PropertyValueBaseNode : public SyntaxNode
     {
     public:
-        PropertyValueBase(const PropertyValueBase& src);
-        PropertyValueBase& operator=(const PropertyValueBase& src);
-        bool operator==(const PropertyValueBase& value2) const;
-        bool operator!=(const PropertyValueBase& value);
+        PropertyValueBaseNode(const PropertyValueBaseNode& src);
+        PropertyValueBaseNode& operator=(const PropertyValueBaseNode& src);
+        bool operator==(const PropertyValueBaseNode& value2) const;
+        bool operator!=(const PropertyValueBaseNode& value);
         std::string ToString() const override;
         void SetValue(WORD wValue, bool fHexIn = false)
         {
@@ -526,7 +526,7 @@ namespace sci
     protected:
         virtual SyntaxNode *GetIndexer() const { return nullptr; }
         // No one should construct this directly.
-        PropertyValueBase()
+        PropertyValueBaseNode()
         {
             _type = ValueType::None; _numberValue = 0; _fHex = false; _fNegate = false; 
         }
@@ -537,22 +537,22 @@ namespace sci
         std::string _stringValue;
     };
 
-    class PropertyValue : public PropertyValueBase
+    class PropertyValueNode : public PropertyValueBaseNode
     {
         NODE_IMPL(PropertyValue);
         DECLARE_NODE_TYPE(NodeTypeValue)
     public:
-        PropertyValue(const PropertyValueBase& src) : PropertyValueBase(src) {}
-        PropertyValue() : PropertyValueBase() {}
-        PropertyValue(const std::string &label, ValueType type) : PropertyValueBase()
+        PropertyValueNode(const PropertyValueBaseNode& src) : PropertyValueBaseNode(src) {}
+        PropertyValueNode() : PropertyValueBaseNode() {}
+        PropertyValueNode(const std::string &label, ValueType type) : PropertyValueBaseNode()
         {
             SetValue(label, type);
         }
-        PropertyValue(uint16_t number) : PropertyValueBase()
+        PropertyValueNode(uint16_t number) : PropertyValueBaseNode()
         {
             SetValue(number);
         }
-        PropertyValue(uint16_t number, bool negate) : PropertyValueBase()
+        PropertyValueNode(uint16_t number, bool negate) : PropertyValueBaseNode()
         {
             SetValue(number);
             if (negate)
@@ -565,17 +565,17 @@ namespace sci
 	};
 
     // PropertyValues are always passed by value
-    typedef std::vector<PropertyValue> PropertyValueVector;
+    typedef std::vector<PropertyValueNode> PropertyValueVector;
 
     //
     // Different from a regular property value, because it can have an array indexer.
     //
-    class ComplexPropertyValue : public PropertyValueBase
+    class ComplexPropertyValue : public PropertyValueBaseNode
     {
         NODE_IMPL(ComplexPropertyValue);
         DECLARE_NODE_TYPE(NodeTypeComplexValue)
     public:
-		ComplexPropertyValue() : PropertyValueBase() {}
+		ComplexPropertyValue() : PropertyValueBaseNode() {}
         ComplexPropertyValue(ComplexPropertyValue& src);
         ComplexPropertyValue& operator=(ComplexPropertyValue& src);
         void SetIndexer(SyntaxNode *pIndexer) { _pArrayInternal.reset(pIndexer); }
@@ -708,10 +708,10 @@ namespace sci
         ClassProperty() : NamedNode(), TypedNode() {};
         ClassProperty(const std::string &str, WORD wValue);
         ClassProperty(const std::string &str, const std::string &value);
-        ClassProperty(const std::string &str, const PropertyValue &value);
-        const PropertyValue *TryGetValue() const;
-        const PropertyValueBase *TryGetValue2() const;
-        void SetValue(const PropertyValue &value);
+        ClassProperty(const std::string &str, const PropertyValueNode &value);
+        const PropertyValueNode *TryGetValue() const;
+        const PropertyValueBaseNode *TryGetValue2() const;
+        void SetValue(const PropertyValueNode &value);
 
         // IOutputByteCode
         void PreScan(CompileContext &context) override;
@@ -740,7 +740,7 @@ namespace sci
         uint16_t GetSize() const { assert(_size.GetType() == ValueType::Number); return _size.GetNumberValue(); }
         const SyntaxNodeVector &GetInitializers() const { return _segments; }
 
-        void AddSimpleInitializer(const PropertyValue &value);
+        void AddSimpleInitializer(const PropertyValueNode &value);
         std::vector<uint16_t> GetSimpleValues() const;
 
         void SetName(const std::string &name) { _name = name; }
@@ -758,7 +758,7 @@ namespace sci
 
     private:
         std::string _name;
-        PropertyValue _size;
+        PropertyValueNode _size;
         bool _unspecifiedSize;  // For script string declarations
     };
 
@@ -835,7 +835,7 @@ namespace sci
         const FunctionSignatureVector &GetSignatures() const { return _signatures; }
         FunctionSignatureVector &GetSignaturesNC() { return _signatures; }
 		void AddSignature(std::unique_ptr<FunctionSignature> pSig) { _signatures.push_back(std::move(pSig)); }
-		void AddVariable(std::unique_ptr<VariableDecl> pVar, PropertyValue value);
+		void AddVariable(std::unique_ptr<VariableDecl> pVar, PropertyValueNode value);
         void AddVariable(std::unique_ptr<VariableDecl> pVar) { _tempVars.push_back(std::move(pVar)); }
         std::string ToString() const override;
         const VariableDeclVector &GetVariables() const { return _tempVars; }
@@ -945,11 +945,11 @@ namespace sci
         const MethodVector &GetMethods() const { return _methods; }
         MethodVector &GetMethodsNC() { return _methods; }
 
-        bool GetPropertyConst(PCTSTR pszName, PropertyValue &value) const;
+        bool GetPropertyConst(PCTSTR pszName, PropertyValueNode &value) const;
 
         // ISCIPropertyBag
-        bool SetProperty(PCTSTR pszName, PropertyValue value) override;
-        bool GetProperty(PCTSTR pszName, PropertyValue &value) override;
+        bool SetProperty(PCTSTR pszName, PropertyValueNode value) override;
+        bool GetProperty(PCTSTR pszName, PropertyValueNode &value) override;
         void SetBagName(PCTSTR pszName) override { _innerName = pszName; }
         const std::string GetBagName() override { return _innerName; }
         void SetSpecies(PCTSTR pszName) override { _superClass = pszName; }
@@ -1175,8 +1175,8 @@ namespace sci
         WORD GetScriptNumber() const { return _scriptId.GetResourceNumber(); }
         void SetScriptNumber(WORD wNumber);
         void SetScriptNumberDefine(const std::string &define) { _scriptDefine = define; }
-        void SetGenText(const sci::PropertyValue &propValue);
-        const sci::PropertyValue *GetGenText() const;
+        void SetGenText(const sci::PropertyValueNode &propValue);
+        const sci::PropertyValueNode *GetGenText() const;
         const std::string &GetScriptNumberDefine() const { return _scriptDefine; }
         std::string GetTitle() const { return _scriptId.GetTitle(); }
         std::string GetName() const { return _scriptId.GetFileNameOrig(); }
@@ -1262,7 +1262,7 @@ namespace sci
         DefineVector _defines;
         ExportEntryVector _exports;
 
-        std::unique_ptr<PropertyValue> _genTextValue;
+        std::unique_ptr<PropertyValueNode> _genTextValue;
 
         // Since comments can be anywhere in the script, including the middle of statements,
         // we don't generally store comments as distinct nodes (though it is supported).

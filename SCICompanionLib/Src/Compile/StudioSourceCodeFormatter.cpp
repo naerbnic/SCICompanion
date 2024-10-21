@@ -138,7 +138,7 @@ public:
     void Visit(const FunctionParameter &param) override {}
     void Visit(const FunctionSignature &sig) override {}
 
-    void _VisitPropertyValue(const PropertyValueBase &prop)
+    void _VisitPropertyValue(const PropertyValueBaseNode &prop)
     {
         out.SyncComments(prop);
         DebugLine line(out);
@@ -168,7 +168,7 @@ public:
         }
     }
 
-    void Visit(const PropertyValue &prop) override
+    void Visit(const PropertyValueNode &prop) override
     {
         _VisitPropertyValue(prop);
     }

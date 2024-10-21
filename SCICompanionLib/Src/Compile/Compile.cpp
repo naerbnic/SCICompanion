@@ -718,7 +718,7 @@ void WriteInstanceOrClass(CompileContext &context, ResolvedToken tokenType, WORD
 
 void _AddParameter(ProcedureCall &proc, WORD wValue)
 {
-    proc.AddStatement(std::make_unique<PropertyValue>(wValue));
+    proc.AddStatement(std::make_unique<PropertyValueNode>(wValue));
 }
 
 void WriteScriptID(CompileContext &context, WORD wInstanceScript, WORD wIndex)
@@ -889,7 +889,7 @@ void SanitizeSaid(string &said)
     said.erase(std::remove_if(said.begin(), said.end(), ::isspace), said.end());
 }
 
-void PropertyValueBase::PreScan(CompileContext &context)
+void PropertyValueBaseNode::PreScan(CompileContext &context)
 {
     switch(_type)
     {
@@ -962,7 +962,7 @@ void PropertyValueBase::PreScan(CompileContext &context)
     }
 }
 
-CodeResult PropertyValueBase::OutputByteCode(CompileContext &context) const
+CodeResult PropertyValueBaseNode::OutputByteCode(CompileContext &context) const
 {
     declare_conditional isCondition(context, false);
     if (!context.HasMeaning())
@@ -1523,7 +1523,7 @@ CodeResult SendParam::OutputByteCode(CompileContext &context) const
         //
         // Quick and dirty approach is to make a temporary property value to do the code generation.
         {
-            PropertyValue value;
+            PropertyValueNode value;
             value.SetValue(GetSelectorName(), ValueType::Token);
             value.SetPosition(GetPosition()); // For error reporting.
             COutputContext stackContext(context, OC_Stack); // We want the value pushed to the stack
@@ -2128,7 +2128,7 @@ CodeResult _WriteFakeIfStatement(CompileContext &context, const BinaryOp &binary
     // {
     //     1;
     // } // else being 0 is implicit.
-    PropertyValue success;
+    PropertyValueNode success;
     success.SetValue(1);
 
     {
@@ -3397,7 +3397,7 @@ vector<uint16_t> VariableDecl::GetSimpleValues() const
     vector<uint16_t> result;
     for (auto &value : _segments)
     {
-        const PropertyValue *pValue = SafeSyntaxNode<PropertyValue>(value.get());
+        const PropertyValueNode *pValue = SafeSyntaxNode<PropertyValueNode>(value.get());
         assert(pValue); // Must be a property value if we're calling this.
         result.push_back(pValue->GetNumberValue());
     }
@@ -3644,7 +3644,7 @@ void Script::_PreScanStringDeclaration(CompileContext &context, VariableDecl &st
     // Build the string up from any initializers.
     for (auto &initializer : stringDecl.GetInitializers())
     {
-        PropertyValue *pValue = SafeSyntaxNode<PropertyValue>(initializer.get());
+        PropertyValueNode *pValue = SafeSyntaxNode<PropertyValueNode>(initializer.get());
         assert(pValue); // Must be a property value if we're calling this.
 
         // We can't just "PreScan" the variable declaration, because it will add any strings it finds to the "in code strings",
@@ -3701,7 +3701,7 @@ void Script::_PreScanStringDeclaration(CompileContext &context, VariableDecl &st
 
     // Replace the value in the initializer:
     stringDecl.GetStatements().clear();
-    stringDecl.AddSimpleInitializer(PropertyValue(finalString, ValueType::String));
+    stringDecl.AddSimpleInitializer(PropertyValueNode(finalString, ValueType::String));
 }
 
 void DoLoop::PreScan(CompileContext &context) 
@@ -3797,7 +3797,7 @@ void TrackArraySizes(CompileContext &context, sci::Script &script)
                 {
                     if ((initializer->GetNodeType() == NodeTypeValue) || (initializer->GetNodeType() == NodeTypeComplexValue))
                     {
-                        PropertyValueBase &propValue = static_cast<PropertyValueBase&>(*initializer);
+                        PropertyValueBaseNode &propValue = static_cast<PropertyValueBaseNode&>(*initializer);
                         if (propValue.GetType() == ValueType::ResourceString)
                         {
                             size++; // An additional one...
@@ -3834,7 +3834,7 @@ void MaybeSubstituteWithSimpleValue(CompileContext &context, std::unique_ptr<Syn
     uint16_t result;
     if (node->Evaluate(context.GetLookupDefine(), result, nullptr))
     {
-        node = std::make_unique<PropertyValue>(result);
+        node = std::make_unique<PropertyValueNode>(result);
     }
 }
 

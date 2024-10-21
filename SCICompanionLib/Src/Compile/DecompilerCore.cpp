@@ -739,7 +739,7 @@ public:
         // Set property values to hex if we should:
         if (state == ExploreNodeState::Pre)
         {
-            PropertyValue *propValue = SafeSyntaxNode<PropertyValue>(&node);
+            PropertyValueNode *propValue = SafeSyntaxNode<PropertyValueNode>(&node);
             if (propValue && useHex.top())
             {
                 propValue->_fHex = true;
@@ -918,7 +918,7 @@ public:
         // Set property values to hex if we should:
         if (state == ExploreNodeState::Pre)
         {
-            PropertyValue *propValue = SafeSyntaxNode<PropertyValue>(&node);
+            PropertyValueNode *propValue = SafeSyntaxNode<PropertyValueNode>(&node);
             if (propValue && useNeg.top())
             {
                 if ((propValue->GetType() == ValueType::Number) && (propValue->GetNumberValue() > 32768))
@@ -1161,7 +1161,7 @@ void DecompileRaw(const SCIVersion& version, FunctionBase &func, DecompileLookup
     else
     {
         func.AddSignature(std::make_unique<FunctionSignature>());
-        func.AddStatement(std::make_unique<sci::PropertyValue>("CorruptFunction_CantDetermineCodeBounds", ValueType::Token));
+        func.AddStatement(std::make_unique<sci::PropertyValueNode>("CorruptFunction_CantDetermineCodeBounds", ValueType::Token));
     }
     
     if (!success && !lookups.DecompileResults().IsAborted() && discoveredEnd)
@@ -1737,7 +1737,7 @@ void AddLocalVariablesToScript(sci::Script &script, const CompiledScript &compil
         // We need to supply values from varRange.index to firstAllZeroesFromHereIndex
         for (WORD w = varRange.index; w < firstAllZeroesFromHereIndex; w++)
         {
-            PropertyValue value;
+            PropertyValueNode value;
             uint16_t propValue = localVarValues[w].value;
             if (localVarValues[w].isObjectOrString)
             {

@@ -301,7 +301,7 @@ public:
                 case NodeType::NodeTypeValue:
                 case NodeType::NodeTypeComplexValue:
                 {
-                    PropertyValueBase *value = static_cast<PropertyValueBase*>(&node);
+                    PropertyValueBaseNode *value = static_cast<PropertyValueBaseNode*>(&node);
                     if (value->GetType() == ValueType::Token)
                     {
                         std::string name = value->GetStringValue();

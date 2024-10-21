@@ -1088,7 +1088,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode2(ConsumptionNode &node, Decomp
         case ChunkType::ZeroNode:
         {
             // This could mean FALSE, or NULL, we don't know which. So just use 0.
-            unique_ptr<PropertyValue> valueTemp = make_unique<PropertyValue>();
+            unique_ptr<PropertyValueNode> valueTemp = make_unique<PropertyValueNode>();
             valueTemp->SetValue(0, IntegerFlags::None);
             return unique_ptr<SyntaxNode>(move(valueTemp));
         }
@@ -1096,7 +1096,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode2(ConsumptionNode &node, Decomp
         case ChunkType::TrueNode:
         {
             // This could mean TRUE
-            unique_ptr<PropertyValue> valueTemp = make_unique<PropertyValue>();
+            unique_ptr<PropertyValueNode> valueTemp = make_unique<PropertyValueNode>();
             valueTemp->SetValue("TRUE", ValueType::Token);
             return unique_ptr<SyntaxNode>(move(valueTemp));
         }
@@ -1104,7 +1104,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode2(ConsumptionNode &node, Decomp
         case ChunkType::NeedsAccumulator:
         case ChunkType::NeedsAccumulatorSpecial:
         {
-            unique_ptr<PropertyValue> valueTemp = make_unique<PropertyValue>();
+            unique_ptr<PropertyValueNode> valueTemp = make_unique<PropertyValueNode>();
             valueTemp->SetValue("ERROR_NEED_ACC", ValueType::Token);
             return unique_ptr<SyntaxNode>(move(valueTemp));
         }
@@ -1216,7 +1216,7 @@ bool _MaybeConsumeRestInstruction(SendParam *pSendParam, int index, ConsumptionN
     return foundRest;
 }
 
-void _ProcessLEA(PropertyValueBase &value, const scii &inst, DecompileLookups &lookups)
+void _ProcessLEA(PropertyValueBaseNode &value, const scii &inst, DecompileLookups &lookups)
 {
     VarScope varScope;
     WORD wVarIndex;
@@ -1327,7 +1327,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
         case Opcode::PUSH1:
         case Opcode::PUSH2:
         {
-            unique_ptr<PropertyValue> value = std::make_unique<PropertyValue>();
+            unique_ptr<PropertyValueNode> value = std::make_unique<PropertyValueNode>();
             switch (bOpcode)
             {
                 case Opcode::PUSH0:
@@ -1661,7 +1661,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
             }
             else
             {
-                unique_ptr<PropertyValue> pValue = std::make_unique<PropertyValue>();
+                unique_ptr<PropertyValueNode> pValue = std::make_unique<PropertyValueNode>();
                 _ProcessLEA(*pValue, inst, lookups);
                 return unique_ptr<SyntaxNode>(move(pValue));
             }
@@ -1674,7 +1674,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
             std::string className = (bOpcode == Opcode::CLASS) ? lookups.LookupClassName(inst.get_first_operand()) : SelfToken;
             if (!className.empty())
             {
-                unique_ptr<PropertyValue> value = std::make_unique<PropertyValue>();
+                unique_ptr<PropertyValueNode> value = std::make_unique<PropertyValueNode>();
                 value->SetValue(className, ValueType::Token);
                 return unique_ptr<SyntaxNode>(move(value));
             }
@@ -1695,7 +1695,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
             std::string name = InvalidLookupError;
             // SQ4, main, there is a lofsa that points into the middle of a string.
             lookups.LookupScriptThing(wName, type, name);
-            unique_ptr<PropertyValue> value = std::make_unique<PropertyValue>();
+            unique_ptr<PropertyValueNode> value = std::make_unique<PropertyValueNode>();
             value->SetValue(name, _ScriptObjectTypeToPropertyValueType(type));
             return unique_ptr<SyntaxNode>(move(value));
         }
@@ -1726,7 +1726,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
         case Opcode::IPTOS:   // Inc prop to stack
         case Opcode::DPTOS:   // Dec prop to stack
         {
-            unique_ptr<PropertyValue> pValue = std::make_unique<PropertyValue>();
+            unique_ptr<PropertyValueNode> pValue = std::make_unique<PropertyValueNode>();
             ASSERT(node.GetChildCount() == 0);
             WORD wPropertyIndex = node.GetCode()->get_first_operand();
             pValue->SetValue(lookups.LookupPropertyName(wPropertyIndex), ValueType::Token);
@@ -1809,7 +1809,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
 
         case Opcode::SELFID:
         {
-            unique_ptr<PropertyValue> pv = make_unique<PropertyValue>();
+            unique_ptr<PropertyValueNode> pv = make_unique<PropertyValueNode>();
             // REVIEW: Given that different syntaxes might use different keywords
             // for "self", it is questionable to have it as a string token here.
             pv->SetValue(SelfToken, ValueType::Token);
@@ -1912,7 +1912,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
                 else
                 {
                     // Load operation - make PropertyValue
-                    std::unique_ptr<PropertyValueBase> pValue;
+                    std::unique_ptr<PropertyValueBaseNode> pValue;
 
                     // Does it have an indexer?
                     bool isIndexed = _IsVOIndexed(bOpcode);
@@ -1931,7 +1931,7 @@ std::unique_ptr<SyntaxNode> _CodeNodeToSyntaxNode(ConsumptionNode &node, Decompi
                     }
                     else
                     {
-                        pValue.reset(new PropertyValue);
+                        pValue.reset(new PropertyValueNode);
                     }
 
                     VarScope varScope;

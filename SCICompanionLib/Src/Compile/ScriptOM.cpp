@@ -82,7 +82,7 @@ void ClassDefinition::CreateNew(const Script *pScript, PCTSTR pszName, PCTSTR ps
     _fPublic = false;
 }
 
-bool ClassDefinition::SetProperty(PCTSTR pszName, PropertyValue value)
+bool ClassDefinition::SetProperty(PCTSTR pszName, PropertyValueNode value)
 {
     bool fFound = false;
     for (size_t i = 0; !fFound && i < _properties.size(); i++)
@@ -101,7 +101,7 @@ bool ClassDefinition::SetProperty(PCTSTR pszName, PropertyValue value)
     return fFound;
 }
 
-bool ClassDefinition::GetPropertyConst(PCTSTR pszName, PropertyValue &value) const
+bool ClassDefinition::GetPropertyConst(PCTSTR pszName, PropertyValueNode &value) const
 {
     bool fFound = false;
     // STLCLEANUP
@@ -110,7 +110,7 @@ bool ClassDefinition::GetPropertyConst(PCTSTR pszName, PropertyValue &value) con
         fFound = (_properties[i]->GetName() == pszName);
         if (fFound)
         {
-            const PropertyValue *valueTemp = _properties[i]->TryGetValue();
+            const PropertyValueNode *valueTemp = _properties[i]->TryGetValue();
             fFound = (valueTemp != nullptr);
             if (fFound)
             {
@@ -118,7 +118,7 @@ bool ClassDefinition::GetPropertyConst(PCTSTR pszName, PropertyValue &value) con
             }
             else
             {
-                const PropertyValueBase *valueBaseTemp = _properties[i]->TryGetValue2();
+                const PropertyValueBaseNode *valueBaseTemp = _properties[i]->TryGetValue2();
                 if (valueBaseTemp)
                 {
                     fFound = true;
@@ -139,7 +139,7 @@ bool ClassDefinition::GetPropertyConst(PCTSTR pszName, PropertyValue &value) con
     return fFound;
 }
 
-bool ClassDefinition::GetProperty(PCTSTR pszName, PropertyValue &value)
+bool ClassDefinition::GetProperty(PCTSTR pszName, PropertyValueNode &value)
 {
     return GetPropertyConst(pszName, value);
 }
@@ -209,7 +209,7 @@ ResolvedToken FunctionBase::LookupVariableName(CompileContext &context, const st
 }
 
 
-std::string PropertyValueBase::ToString() const
+std::string PropertyValueBaseNode::ToString() const
 {
     TCHAR szDesc[MAX_PATH];
     szDesc[0] = 0;
@@ -274,11 +274,11 @@ void Script::SetScriptNumber(WORD wNumber)
     _scriptId.SetResourceNumber(wNumber);
 }
 
-void Script::SetGenText(const sci::PropertyValue &propValue)
+void Script::SetGenText(const sci::PropertyValueNode &propValue)
 {
-    _genTextValue = std::make_unique<PropertyValue>(propValue);
+    _genTextValue = std::make_unique<PropertyValueNode>(propValue);
 }
-const PropertyValue *Script::GetGenText() const { return _genTextValue.get(); }
+const PropertyValueNode *Script::GetGenText() const { return _genTextValue.get(); }
 
 ConditionalExpression::ConditionalExpression(std::unique_ptr<SyntaxNode> statement)
 {
@@ -299,7 +299,7 @@ void SendCall::SimplifySendObject()
 	if (_statement1 != nullptr)
 	{
 		// Attempt to turn a complex object into a simple name.
-        const PropertyValue *pValue = SafeSyntaxNode<PropertyValue>(_statement1.get());
+        const PropertyValueNode *pValue = SafeSyntaxNode<PropertyValueNode>(_statement1.get());
 		if (pValue && (pValue->GetType() == ValueType::Token))
 		{
 			_innerName = pValue->GetStringValue();
@@ -307,7 +307,7 @@ void SendCall::SimplifySendObject()
 	}
 }
 
-PropertyValueBase::PropertyValueBase(const PropertyValueBase& src)
+PropertyValueBaseNode::PropertyValueBaseNode(const PropertyValueBaseNode& src)
 {
     _numberValue = src.GetNumberValue();
     _stringValue = src._stringValue;
@@ -317,7 +317,7 @@ PropertyValueBase::PropertyValueBase(const PropertyValueBase& src)
 	SetPosition(src.GetPosition());
 	SetEndPosition(src.GetEndPosition());
 }
-PropertyValueBase& PropertyValueBase::operator=(const PropertyValueBase& src)
+PropertyValueBaseNode& PropertyValueBaseNode::operator=(const PropertyValueBaseNode& src)
 {
     if (this != &src)
     {
@@ -330,7 +330,7 @@ PropertyValueBase& PropertyValueBase::operator=(const PropertyValueBase& src)
     }
     return (*this);
 }
-bool PropertyValueBase::operator==(const PropertyValueBase& value2) const
+bool PropertyValueBaseNode::operator==(const PropertyValueBaseNode& value2) const
 {
     bool fRet = (this == &value2);
     if (!fRet)
@@ -342,12 +342,12 @@ bool PropertyValueBase::operator==(const PropertyValueBase& value2) const
     }
     return fRet;
 }
-bool PropertyValueBase::operator!=(const PropertyValueBase& value)
+bool PropertyValueBaseNode::operator!=(const PropertyValueBaseNode& value)
 {
     return !(*this == value);
 }
 
-void PropertyValueBase::SetValue(int iValue, IntegerFlags flags)
+void PropertyValueBaseNode::SetValue(int iValue, IntegerFlags flags)
 {
     ASSERT(iValue <= 65536);
     _numberValue = static_cast<WORD>(iValue);
@@ -357,7 +357,7 @@ void PropertyValueBase::SetValue(int iValue, IntegerFlags flags)
     _stringValue.clear();
 }
 
-ComplexPropertyValue::ComplexPropertyValue(ComplexPropertyValue& src) : PropertyValueBase(src)
+ComplexPropertyValue::ComplexPropertyValue(ComplexPropertyValue& src) : PropertyValueBaseNode(src)
 {
     // Transfer arrayinternal.
     _pArrayInternal = std::move(src._pArrayInternal);
@@ -367,7 +367,7 @@ ComplexPropertyValue& ComplexPropertyValue::operator=(ComplexPropertyValue& src)
 {
     if (this != &src)
     {
-        PropertyValueBase::operator=(src);
+        PropertyValueBaseNode::operator=(src);
         // Transfer arrayinternal.
 		_pArrayInternal = std::move(src._pArrayInternal);
     }
@@ -377,15 +377,15 @@ ComplexPropertyValue& ComplexPropertyValue::operator=(ComplexPropertyValue& src)
 VariableDecl::VariableDecl() : StatementsNode(), TypedNode(), _size(1), _unspecifiedSize(false)
 {
 }
-void VariableDecl::AddSimpleInitializer(const PropertyValue &value)
+void VariableDecl::AddSimpleInitializer(const PropertyValueNode &value)
 {
     // Add a copy of the property value
-    AddStatement(make_unique<PropertyValue>(value));
+    AddStatement(make_unique<PropertyValueNode>(value));
 }
 ClassProperty::ClassProperty(const std::string &str, WORD wValue) : NamedNode(), TypedNode()
 {
     _innerName = str;
-    PropertyValue value;
+    PropertyValueNode value;
     value.SetValue(wValue);
     SetValue(value);
 }
@@ -393,25 +393,25 @@ ClassProperty::ClassProperty(const std::string &str, WORD wValue) : NamedNode(),
 ClassProperty::ClassProperty(const std::string &str, const std::string &value) : NamedNode(), TypedNode()
 {
 	_innerName = str;
-    PropertyValue valueTemp;
+    PropertyValueNode valueTemp;
     valueTemp.SetValue(value, ValueType::Token);
     SetValue(valueTemp);
 }
 
-ClassProperty::ClassProperty(const std::string &str, const PropertyValue &value) : NamedNode(), TypedNode()
+ClassProperty::ClassProperty(const std::string &str, const PropertyValueNode &value) : NamedNode(), TypedNode()
 {
     _innerName = str;
     SetValue(value);
 }
 
-void ClassProperty::SetValue(const PropertyValue &value)
+void ClassProperty::SetValue(const PropertyValueNode &value)
 {
-    _statement1 = make_unique<PropertyValue>(value);
+    _statement1 = make_unique<PropertyValueNode>(value);
 }
 
-const PropertyValueBase *ClassProperty::TryGetValue2() const
+const PropertyValueBaseNode *ClassProperty::TryGetValue2() const
 {
-    const PropertyValueBase *value = TryGetValue();
+    const PropertyValueBaseNode *value = TryGetValue();
     if (!value)
     {
         ComplexPropertyValue *cValue = SafeSyntaxNode<ComplexPropertyValue>(_statement1.get());
@@ -424,12 +424,12 @@ const PropertyValueBase *ClassProperty::TryGetValue2() const
     return value;
 }
 
-const PropertyValue *ClassProperty::TryGetValue() const
+const PropertyValueNode *ClassProperty::TryGetValue() const
 {
-    PropertyValue *value = nullptr;
+    PropertyValueNode *value = nullptr;
     if (_statement1)
     {
-        value = SafeSyntaxNode<PropertyValue>(_statement1.get());
+        value = SafeSyntaxNode<PropertyValueNode>(_statement1.get());
     }
     return value;
 }
@@ -470,9 +470,9 @@ void FunctionBase::AddParam(const std::string &param)
     ASSERT(!_signatures.empty()); // Whomever calls AddParam had better add a signature.
     _signatures[0]->AddParam(param);
 }
-void FunctionBase::AddVariable(unique_ptr<VariableDecl> pVar, PropertyValue value)
+void FunctionBase::AddVariable(unique_ptr<VariableDecl> pVar, PropertyValueNode value)
 {
-	std::unique_ptr<PropertyValue> pValue = std::make_unique<PropertyValue>(value);
+	std::unique_ptr<PropertyValueNode> pValue = std::make_unique<PropertyValueNode>(value);
     pVar->AddStatement(std::move(pValue));
     _tempVars.push_back(move(pVar));
 }
@@ -645,7 +645,7 @@ void Script::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); v
 void ClassDefinition::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
 void FunctionParameter::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
 void FunctionSignature::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
-void PropertyValue::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
+void PropertyValueNode::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
 void ComplexPropertyValue::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
 void Define::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
 void ClassProperty::Accept(ISyntaxNodeVisitor &visitor) const { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }

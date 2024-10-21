@@ -215,7 +215,7 @@ protected:
         EndEdit(TRUE);
     }
 
-    virtual void _GetValue(PropertyValue &value)
+    virtual void _GetValue(PropertyValueNode &value)
     {
         CString strDisplay;
         GetWindowText(strDisplay);
@@ -227,7 +227,7 @@ protected:
         __super::_PrepareControl();
 
         // Now look at our value, and find the matching entry and select it.
-        PropertyValue value;
+        PropertyValueNode value;
         if (_pBag->GetProperty(_strProperty, value))
         {
             int iIndex = FindStringExact(0, ValueToDisplay(_strProperty, value));
@@ -332,7 +332,7 @@ protected:
         return (HBRUSH)_hEditBrush;
     }
 
-    virtual void _GetValue(PropertyValue &value)
+    virtual void _GetValue(PropertyValueNode &value)
     {
         CString strDisplay;
         GetWindowText(strDisplay);
@@ -342,7 +342,7 @@ protected:
     virtual void _PrepareControl()
     {
         __super::_PrepareControl();
-        PropertyValue value;
+        PropertyValueNode value;
         if (_pBag->GetProperty(_strProperty, value))
         {
             std::string strValue = value.ToString();
@@ -434,7 +434,7 @@ public:
         SetWindowText(szNum);
 
         // And now commit it
-        PropertyValue value;
+        PropertyValueNode value;
         _GetValue(value);
         _pBag->SetProperty(_strProperty, value);
     }
@@ -469,7 +469,7 @@ void CPropEditSpinCtrl::OnUdnDeltaPos(NMHDR *pnmhdr, LRESULT *plres)
 //
 // Generic helper
 //
-void _GeneralDisplayToValue(PCTSTR pszText, PropertyValue &value)
+void _GeneralDisplayToValue(PCTSTR pszText, PropertyValueNode &value)
 {
     // Set the property.  Try to set it as a number
     bool fNumber = false;
@@ -514,7 +514,7 @@ void _PopulatePriorityCombo(CWnd *pWnd)
     }
 }
 
-void _PriorityDisplayToValue(const CString strDisplay, PropertyValue &value)
+void _PriorityDisplayToValue(const CString strDisplay, PropertyValueNode &value)
 {
     if (strDisplay == TEXT("default"))
     {
@@ -527,7 +527,7 @@ void _PriorityDisplayToValue(const CString strDisplay, PropertyValue &value)
 }
 
 
-void _PriorityValueToDisplay(const PropertyValue &value, CString &strDisplay)
+void _PriorityValueToDisplay(const PropertyValueNode &value, CString &strDisplay)
 {
     if (value.GetNumberValue() == (WORD)-1)
     {
@@ -582,7 +582,7 @@ void _PopulateBooleanCombo(CWnd *pWnd)
 // hard would be "i want to set this to the new value"
 // soft would be "i want to set this, but if the end result (e.g. TRUE vs 1) is the same, then don't bother"
 // Right now, we'll be losing that distinction.
-void _BooleanDisplayToValue(const CString strDisplay, PropertyValue &value)
+void _BooleanDisplayToValue(const CString strDisplay, PropertyValueNode &value)
 {
     if (strDisplay == TEXT("true"))
     {
@@ -599,7 +599,7 @@ void _BooleanDisplayToValue(const CString strDisplay, PropertyValue &value)
 }
 
 
-void _BooleanValueToDisplay(const PropertyValue &value, CString &strDisplay)
+void _BooleanValueToDisplay(const PropertyValueNode &value, CString &strDisplay)
 {
     if (value.GetNumberValue() == 0)
     {
@@ -755,7 +755,7 @@ void PopulatePropEditCtrl(PCTSTR pszName, CWnd *pWnd)
 }
 
 
-CString ValueToDisplay(PCTSTR pszName, const PropertyValue &value)
+CString ValueToDisplay(PCTSTR pszName, const PropertyValueNode &value)
 {
     const SCIPROPINFO *ppi = _FindPropInfo(pszName);
     if (ppi)
@@ -777,7 +777,7 @@ CString ValueToDisplay(PCTSTR pszName, const PropertyValue &value)
     }
 }
 
-void DisplayToValue(PCTSTR pszName, const CString strDisplay, PropertyValue &value)
+void DisplayToValue(PCTSTR pszName, const CString strDisplay, PropertyValueNode &value)
 {
     const SCIPROPINFO *ppi = _FindPropInfo(pszName);
     if (ppi)

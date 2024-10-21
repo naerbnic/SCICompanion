@@ -26,7 +26,7 @@ class SCIClassBrowser;
 
 namespace sci
 {
-	class PropertyValue;
+	class PropertyValueNode;
 	class ClassDefinition;
 	class ClassProperty;
 	class Script;
@@ -45,7 +45,7 @@ enum PROPERTYCHANGE_INFO
     PC_CHANGED,
 };
 
-typedef std::unordered_map<std::string, sci::PropertyValue> property_map;
+typedef std::unordered_map<std::string, sci::PropertyValueNode> property_map;
 
 //
 // This represents a bag of properties based on a ClassDefinition
@@ -72,8 +72,8 @@ public:
     }
 
     // ISCIPropertyBag
-    bool SetProperty(PCTSTR pszName, sci::PropertyValue value);
-    bool GetProperty(PCTSTR pszName, sci::PropertyValue &value);
+    bool SetProperty(PCTSTR pszName, sci::PropertyValueNode value);
+    bool GetProperty(PCTSTR pszName, sci::PropertyValueNode &value);
 
     void SetBagName(PCTSTR pszName)
     {
@@ -143,7 +143,7 @@ public:
     void Initialize(const sci::Script *pScript, SCIClassBrowser *pBrowser, CWnd *pDescription);
 
     // ISCIPropertyChange
-    void OnPropertyChange(ISCIPropertyBag *pSource, PCTSTR pszName, sci::PropertyValue value);
+    void OnPropertyChange(ISCIPropertyBag *pSource, PCTSTR pszName, sci::PropertyValueNode value);
     void OnNameChange(ISCIPropertyBag *pSource, PCTSTR pszName);
     void OnSpeciesChange(ISCIPropertyBag *pSource, PCTSTR pszSpecies) { /*TODO*/ }
     void OnAddProperty(ISCIPropertyBag *pSource, PCTSTR pszName) { /*TODO*/ }

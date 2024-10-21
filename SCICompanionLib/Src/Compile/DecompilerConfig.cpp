@@ -171,7 +171,7 @@ private:
         if (source)
         {
             auto itType = _switchValueTypes.end();
-            PropertyValue *pv = SafeSyntaxNode<PropertyValue>(source);
+            PropertyValueNode *pv = SafeSyntaxNode<PropertyValueNode>(source);
             if ((pv != nullptr) && (pv->GetType() == ValueType::Token))
             {
                 itType = _switchValueTypes.find(pv->GetStringValue());
@@ -199,7 +199,7 @@ private:
                 // Now go through the case statements, and see if we can resolve values
                 for (auto &destination : destinations)
                 {
-                    PropertyValue *pvCase = SafeSyntaxNode<PropertyValue>(destination);
+                    PropertyValueNode *pvCase = SafeSyntaxNode<PropertyValueNode>(destination);
                     if ((pvCase != nullptr) && (pvCase->GetType() == ValueType::Number))
                     {
                         auto itValue = enumList.find(pvCase->GetNumberValue());
@@ -218,7 +218,7 @@ private:
         size_t index = 0;
         for (auto &param : statementNode.GetStatements())
         {
-            PropertyValue *value = SafeSyntaxNode<PropertyValue>(param.get());
+            PropertyValueNode *value = SafeSyntaxNode<PropertyValueNode>(param.get());
             if (value && (value->GetType() == ValueType::Number) && (index < types.size()))
             {
                 const string &type = types[index];

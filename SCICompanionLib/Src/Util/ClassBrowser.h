@@ -34,7 +34,7 @@ namespace sci
 	class MethodDefinition;
 	class ClassProperty;
 	class ClassDefinition;
-	class PropertyValue;
+	class PropertyValueNode;
 	class ProcedureDefinition;
 	class VariableDecl;
 }
@@ -93,12 +93,12 @@ public:
     const std::vector<sci::Script*> &GetHeaders();
     const SelectorTable &GetSelectorNames();
     bool IsSubClassOf(PCTSTR pszClass, PCTSTR pszSuper);
-    void ResolveValue(WORD wScript, const sci::PropertyValue &In, sci::PropertyValue &Out);
-    bool ResolveValue(const sci::Script *pScript, const std::string &strValue, sci::PropertyValue &Out) const;
+    void ResolveValue(WORD wScript, const sci::PropertyValueNode &In, sci::PropertyValueNode &Out);
+    bool ResolveValue(const sci::Script *pScript, const std::string &strValue, sci::PropertyValueNode &Out) const;
     WORD GetScriptNumberHelper(sci::Script *pScript) const;
     WORD GetScriptNumberHelperConst(const sci::Script *pScript, bool tryResolve = true) const;
     bool GetPropertyValue(PCTSTR pszName, const sci::ClassDefinition *pClass, WORD *pw);
-    bool GetProperty(PCTSTR pszName, const sci::ClassDefinition *pClass, sci::PropertyValue &Out);
+    bool GetProperty(PCTSTR pszName, const sci::ClassDefinition *pClass, sci::PropertyValueNode &Out);
     bool GetPropertyValue(PCTSTR pszName, ISCIPropertyBag *pBag, const sci::ClassDefinition *pClass, WORD *pw);
     void GetAutoCompleteChoices(const std::string &prefix, AutoCompleteSourceType sourceTypes, std::vector<AutoCompleteChoice> &choices);
     const sci::ClassDefinition *LookUpClass(const std::string &className) const;

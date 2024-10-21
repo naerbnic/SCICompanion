@@ -1537,7 +1537,7 @@ WORD SCIClassBrowser::GetScriptNumberHelperConst(const Script *pScript, bool try
         if (!strDefine.empty() && tryResolve)
         {
             // Look it up.
-            PropertyValue Value;
+            PropertyValueNode Value;
             if (ResolveValue(pScript, strDefine, Value))
             {
                 w = Value.GetNumberValue();
@@ -1550,7 +1550,7 @@ WORD SCIClassBrowser::GetScriptNumberHelperConst(const Script *pScript, bool try
 //
 // Similar to GetPropertyValue, but doesn't resolve the value.
 //
-bool SCIClassBrowser::GetProperty(PCTSTR pszName, const ClassDefinition *pClass, PropertyValue &value)
+bool SCIClassBrowser::GetProperty(PCTSTR pszName, const ClassDefinition *pClass, PropertyValueNode &value)
 {
     bool fRet = false;
     fRet = pClass->GetPropertyConst(pszName, value);
@@ -1575,7 +1575,7 @@ bool SCIClassBrowser::GetPropertyValue(PCTSTR pszName, const ClassDefinition *pC
     *pw = 0;
     bool fRet = false;
     const Script *pScript = pClass->GetOwnerScript();
-    PropertyValue value;
+    PropertyValueNode value;
     fRet = pClass->GetPropertyConst(pszName, value);
     if (fRet)
     {
@@ -1587,7 +1587,7 @@ bool SCIClassBrowser::GetPropertyValue(PCTSTR pszName, const ClassDefinition *pC
         }
         else
         {
-            PropertyValue valueResolved;
+            PropertyValueNode valueResolved;
             fRet = ResolveValue(pScript, value.GetStringValue().c_str(), valueResolved);
             if (fRet)
             {
@@ -1615,7 +1615,7 @@ bool SCIClassBrowser::GetPropertyValue(PCTSTR pszName, const ClassDefinition *pC
 bool SCIClassBrowser::GetPropertyValue(PCTSTR pszName, ISCIPropertyBag *pBag, const ClassDefinition *pClass, WORD *pw)
 {
     *pw = 0;
-    PropertyValue value;
+    PropertyValueNode value;
     bool fRet = pBag->GetProperty(pszName, value);
     if (fRet)
     {
@@ -1626,7 +1626,7 @@ bool SCIClassBrowser::GetPropertyValue(PCTSTR pszName, ISCIPropertyBag *pBag, co
         else
         {
             const Script *pScript = pClass->GetOwnerScript();
-            PropertyValue valueResolved;
+            PropertyValueNode valueResolved;
             fRet = ResolveValue(pScript, value.GetStringValue().c_str(), valueResolved);
             if (fRet)
             {
@@ -1671,7 +1671,7 @@ int SCIClassBrowser::HasErrors()
 }
 
 
-bool SCIClassBrowser::ResolveValue(const Script *pScript, const std::string &strValue, PropertyValue &Out) const
+bool SCIClassBrowser::ResolveValue(const Script *pScript, const std::string &strValue, PropertyValueNode &Out) const
 {
     std::lock_guard<std::recursive_mutex> lock(_mutexClassBrowser); 
     bool fFound = false;
@@ -1713,7 +1713,7 @@ bool SCIClassBrowser::ResolveValue(const Script *pScript, const std::string &str
 //      if it's a string, it will look in the current script to see if it matches and defines,
 //      and then in the headers appropriate for that script. TODO: uses all headers now.
 //
-void SCIClassBrowser::ResolveValue(WORD wScript, const PropertyValue &In, PropertyValue &Out)
+void SCIClassBrowser::ResolveValue(WORD wScript, const PropertyValueNode &In, PropertyValueNode &Out)
 {
     std::lock_guard<std::recursive_mutex> lock(_mutexClassBrowser); 
     assert(_fCBLocked);

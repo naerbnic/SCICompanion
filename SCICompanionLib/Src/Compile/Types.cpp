@@ -37,7 +37,7 @@ const std::string TypeStringKNode = "k_node";
 
 bool IsZero(const sci::SyntaxNode *pStatement)
 {
-    const sci::PropertyValue *pValue = sci::SafeSyntaxNode<sci::PropertyValue>(pStatement);
+    const sci::PropertyValueNode *pValue = sci::SafeSyntaxNode<sci::PropertyValueNode>(pStatement);
     if (pValue)
     {
         return pValue->IsZero();
