@@ -424,7 +424,13 @@ namespace sci
 #define DECLARE_NODE_TYPE(type)\
     public: \
     const static NodeType MyNodeType = type; \
-    NodeType GetNodeType() const override { return type; }
+    NodeType GetNodeType() const override { return type; } \
+    private:
+
+    // void Accept(ISyntaxNodeVisitor& visitor) const override { visitor.Enter(*this); visitor.Visit(*this); visitor.Leave(*this); }
+#define NODE_IMPL(NodeName) \
+    public: \
+        void Accept(ISyntaxNodeVisitor& visitor) const override
 
     template <typename _T>
     const _T *SafeSyntaxNode(const SyntaxNode *pNode)
@@ -533,6 +539,7 @@ namespace sci
 
     class PropertyValue : public PropertyValueBase
     {
+        NODE_IMPL(PropertyValue);
         DECLARE_NODE_TYPE(NodeTypeValue)
     public:
         PropertyValue(const PropertyValueBase& src) : PropertyValueBase(src) {}
@@ -554,8 +561,7 @@ namespace sci
             }
         }
 
-		void Traverse(IExploreNode &en) override;
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        void Traverse(IExploreNode& en) override;
 	};
 
     // PropertyValues are always passed by value
@@ -566,6 +572,7 @@ namespace sci
     //
     class ComplexPropertyValue : public PropertyValueBase
     {
+        NODE_IMPL(ComplexPropertyValue);
         DECLARE_NODE_TYPE(NodeTypeComplexValue)
     public:
 		ComplexPropertyValue() : PropertyValueBase() {}
@@ -579,13 +586,14 @@ namespace sci
         bool Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const override;
 
         void Traverse(IExploreNode &en) override;
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+
     private:
         std::unique_ptr<SyntaxNode> _pArrayInternal;
     };
 
     class Define : public SyntaxNode, public ScriptSite
     {
+        NODE_IMPL(Define);
         DECLARE_NODE_TYPE(NodeTypeDefine)
     public:
         Define() : _flags(IntegerFlags::None), _wValue(0) {}
@@ -605,7 +613,6 @@ namespace sci
         // IOutputByteCode
         void PreScan(CompileContext &context) override;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
     private:
         std::string _label;
 
@@ -692,6 +699,7 @@ namespace sci
     // A class or instance property declaration and value. The value can be complex in version 2 of the syntax.
     class ClassProperty : public SyntaxNode, public NamedNode, public TypedNode, public OneStatementNode
     {
+        NODE_IMPL(ClassProperty);
         DECLARE_NODE_TYPE(NodeTypeClassProperty)
     public:
         ClassProperty(const ClassProperty &cp) = default;
@@ -710,8 +718,6 @@ namespace sci
 
         void Traverse(IExploreNode &en)override;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
     };
 
@@ -723,6 +729,7 @@ namespace sci
     //
     class VariableDecl : public SyntaxNode, public StatementsNode, public TypedNode, public ScriptSite
     {
+        NODE_IMPL(VariableDecl);
         DECLARE_NODE_TYPE(NodeTypeVariableDeclaration)
     public:
         VariableDecl();
@@ -747,7 +754,7 @@ namespace sci
         void Traverse(IExploreNode &en) override;
         
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
 
     private:
         std::string _name;
@@ -762,6 +769,7 @@ namespace sci
 
     class FunctionParameter : public SyntaxNode, public NamedNode, public TypedNode
     {
+        NODE_IMPL(FunctionParameter);
         DECLARE_NODE_TYPE(NodeTypeFunctionParameter)
     public:
         FunctionParameter();
@@ -770,7 +778,6 @@ namespace sci
         FunctionParameter(FunctionParameter &src) = delete;
         FunctionParameter& operator=(FunctionParameter& src) = delete;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         // IOutputByteCode
         void Traverse(IExploreNode &en) override;
@@ -780,6 +787,7 @@ namespace sci
 
     class FunctionSignature : public SyntaxNode, public ScriptSite, public IVariableLookupContext, public TypedNode
     {
+        NODE_IMPL(FunctionSignature);
         DECLARE_NODE_TYPE(NodeTypeFunctionSignature)
     public:
         FunctionSignature();
@@ -802,7 +810,7 @@ namespace sci
         // IVariableLookupContext
         ResolvedToken LookupVariableName(CompileContext &context, const std::string &str, WORD &wIndex, SpeciesIndex &dataType) const override;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
 
     private:
         static const size_t NoOptional = ((size_t)-1);
@@ -864,6 +872,7 @@ namespace sci
 
     class MethodDefinition : public FunctionBase
     {
+        NODE_IMPL(MethodDefinition);
     public:
         MethodDefinition();
         MethodDefinition(MethodDefinition &src) = delete;
@@ -871,8 +880,6 @@ namespace sci
 
         void SetPrivate(bool f) { _fPrivate = f; }
         bool SetPrivate() const { return _fPrivate; }
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
 
@@ -887,6 +894,7 @@ namespace sci
     class ClassDefinition; // fwd decl
     class ProcedureDefinition : public FunctionBase
     {
+        NODE_IMPL(ProcedureDefinition);
     public:
         ProcedureDefinition();
 
@@ -901,9 +909,6 @@ namespace sci
         // IOutputByteCode
         CodeResult OutputByteCode(CompileContext &context) const override;
         void PreScan(CompileContext &context) override;
-        
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         bool _public;
         std::string _class;                 // for class procedures.
@@ -921,6 +926,7 @@ namespace sci
 
     class ClassDefinition : public SyntaxNode, public ScriptSite, public ISCIPropertyBag, public IVariableLookupContext, public NamedNode
     {
+        NODE_IMPL(ClassDefinition);
         DECLARE_NODE_TYPE(NodeTypeClassDefinition)
     public:
         ClassDefinition();
@@ -972,7 +978,7 @@ namespace sci
 
         void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
 
         // Unimplemented (unneeded) Sierra syntax method forward decls
         std::vector<std::string> MethodForwards;
@@ -991,12 +997,13 @@ namespace sci
 
     class Synonym : public SyntaxNode
     {
+        NODE_IMPL(Synonym);
         DECLARE_NODE_TYPE(NodeTypeSynonym)
     public:
         std::string MainWord;
         std::vector<std::string> Synonyms;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
         void Traverse(IExploreNode &en) override;
     };
 
@@ -1011,6 +1018,7 @@ namespace sci
     //
     class CodeBlock : public SyntaxNode, public StatementsNode
     {
+        NODE_IMPL(CodeBlock);
         DECLARE_NODE_TYPE(NodeTypeCodeBlock)
     public:
         CodeBlock() {}
@@ -1039,7 +1047,7 @@ namespace sci
             return pReduced;
         }
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
     };
 
     //
@@ -1055,6 +1063,7 @@ namespace sci
 
     class ConditionalExpression : public SyntaxNode, public StatementsNode
     {
+        NODE_IMPL(ConditionalExpression);
         DECLARE_NODE_TYPE(NodeTypeConditionalExpression)
     public:
         ConditionalExpression() {}
@@ -1068,8 +1077,6 @@ namespace sci
         void PreScan(CompileContext &context) override;
         void Traverse(IExploreNode &en) override;
         bool Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const override;
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
     };
 
     //
@@ -1099,6 +1106,7 @@ namespace sci
     //
     class Comment : public SyntaxNode, public NamedNode
     {
+        NODE_IMPL(Comment);
         DECLARE_NODE_TYPE(NodeTypeComment)
     public:
         Comment(CommentType type) : CommentType(type), NamedNode() {}
@@ -1113,7 +1121,7 @@ namespace sci
         
         std::string GetSanitizedText() const;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
 
         CommentType CommentType;
     };
@@ -1123,6 +1131,7 @@ namespace sci
 
     class ExportEntry : public SyntaxNode
     {
+        NODE_IMPL(ExportEntry);
         DECLARE_NODE_TYPE(NodeTypeExport)
     public:
         ExportEntry() {}
@@ -1136,7 +1145,7 @@ namespace sci
         }
         void PreScan(CompileContext &context) override;
         void Traverse(IExploreNode &en) override {}
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
 
         std::string Name;
         int Slot;
@@ -1149,6 +1158,7 @@ namespace sci
     //
     class Script : public SyntaxNode, public IVariableLookupContext
     {
+        NODE_IMPL(Script);
         DECLARE_NODE_TYPE(NodeTypeScript)
     public:
         Script(PCTSTR pszFilePath, PCTSTR pszFileName);
@@ -1211,7 +1221,7 @@ namespace sci
 
         void OutputSourceCode(LangSyntax lang, SourceCodeWriter& out) const;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
+        
 
         ScriptId GetScriptId() const { return _scriptId; }
 

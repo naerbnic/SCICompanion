@@ -32,6 +32,7 @@ namespace sci
     // 
     class SendParam : public SyntaxNode, public StatementsNode, public NamedNode
     {
+        NODE_IMPL(SendParam);
         DECLARE_NODE_TYPE(NodeTypeSendParam)
     public:
         SendParam(const std::string &name, bool isMethodCall) : StatementsNode(), NamedNode(){ _fIsMethodCall = isMethodCall; _innerName = name; }
@@ -55,8 +56,6 @@ namespace sci
 
         bool ContainsRest() const;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
     private:
         bool _fIsMethodCall;
     };
@@ -67,6 +66,7 @@ namespace sci
     //
     class LValue : public SyntaxNode, public NamedNode
     {
+        NODE_IMPL(LValue);
         DECLARE_NODE_TYPE(NodeTypeLValue)
     public:
         LValue() : NamedNode() { }
@@ -84,8 +84,6 @@ namespace sci
         void Traverse(IExploreNode &en) override;
 
         void SetIndexer(std::unique_ptr<SyntaxNode> indexer) { _indexer = std::move(indexer); }
-        
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
     private:
         std::unique_ptr<SyntaxNode> _indexer;
@@ -96,6 +94,7 @@ namespace sci
     //
     class RestStatement : public SyntaxNode, public NamedNode
     {
+        NODE_IMPL(RestStatement);
         DECLARE_NODE_TYPE(NodeTypeRest)
     public:
         RestStatement() : NamedNode() {}
@@ -107,8 +106,6 @@ namespace sci
             CompileContext &context) const override;
         
         void Traverse(IExploreNode &en) override;
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
     };
 
     //
@@ -116,6 +113,7 @@ namespace sci
     // 
     class Cast : public SyntaxNode, public OneStatementNode, public TypedNode
     {
+        NODE_IMPL(Cast);
         DECLARE_NODE_TYPE(NodeTypeCast)
     public:
         Cast() : OneStatementNode(), TypedNode() {};
@@ -129,8 +127,6 @@ namespace sci
             _statement1->PreScan(context);
         }
         void Traverse(IExploreNode &en) override;
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
     };
 
     //
@@ -138,6 +134,7 @@ namespace sci
     //
     class SendCall : public SyntaxNode, public OneStatementNode, public NamedNode
     {
+        NODE_IMPL(SendCall);
         DECLARE_NODE_TYPE(NodeTypeSendCall)
     public:
         SendCall() : OneStatementNode(), NamedNode(), _fRestHack(false) {};
@@ -164,8 +161,6 @@ namespace sci
         
 		const std::string &GetTargetName() const { return _innerName; }
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         std::unique_ptr<LValue> _object3;            // (send theFlakes[i]:x)
         std::unique_ptr<RestStatement> _rest;
 
@@ -180,6 +175,7 @@ namespace sci
     //
     class ProcedureCall : public SyntaxNode, public NamedNode, public StatementsNode
     {
+        NODE_IMPL(ProcedureCall);
         DECLARE_NODE_TYPE(NodeTypeProcedureCall)
     public:
 		ProcedureCall() {}
@@ -194,15 +190,13 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const override;
         void PreScan(CompileContext &context) override;
         void Traverse(IExploreNode &en) override;
-        
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
 		SyntaxNode *GetParameter(size_t i) { return (i < _segments.size()) ? _segments[i].get() : nullptr; }
     };
 
     class ReturnStatement : public SyntaxNode, public OneStatementNode
     {
+        NODE_IMPL(ReturnStatement);
         DECLARE_NODE_TYPE(NodeTypeReturn)
     public:
         ReturnStatement() : OneStatementNode() {}
@@ -217,9 +211,6 @@ namespace sci
             if (_statement1) _statement1->PreScan(context);
         }
         void Traverse(IExploreNode &en) override;
-        
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         const SyntaxNode *GetValue() const { return _statement1.get(); }
 
@@ -227,6 +218,7 @@ namespace sci
 
     class ForLoop : public SyntaxNode, public StatementsNode, public ConditionNode, public CodeBlockNode
     {
+        NODE_IMPL(ForLoop);
         DECLARE_NODE_TYPE(NodeTypeForLoop)
     public:
         ForLoop() : StatementsNode(), ConditionNode(), CodeBlockNode() {};
@@ -241,14 +233,13 @@ namespace sci
         void SetLooper(std::unique_ptr<CodeBlock> block) { _looper = std::move(block); }
 		CodeBlock *GetInitializer() const { return _list.get(); }
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         std::unique_ptr<CodeBlock> _looper;
     private:
     };
 
     class WhileLoop : public SyntaxNode, public StatementsNode, public ConditionNode
     {
+        NODE_IMPL(WhileLoop);
         DECLARE_NODE_TYPE(NodeTypeWhileLoop)
     public:
 		WhileLoop() {}
@@ -260,14 +251,11 @@ namespace sci
             CompileContext &context) const override;
         void PreScan(CompileContext &context) override;
         void Traverse(IExploreNode &en) override;
-        
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
     };
 
     class DoLoop : public SyntaxNode, public ConditionNode, public StatementsNode
     {
+        NODE_IMPL(DoLoop);
         DECLARE_NODE_TYPE(NodeTypeDoLoop)
     public:
 		DoLoop() {}
@@ -278,14 +266,11 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const;
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-        
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
     };
 
     class BreakStatement : public SyntaxNode
     {
+        NODE_IMPL(BreakStatement);
         DECLARE_NODE_TYPE(NodeTypeBreak)
     public:
         BreakStatement() : Levels(1) {}
@@ -294,21 +279,18 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const;
         void Traverse(IExploreNode &en);
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         uint16_t Levels;
     };
 
     class ContinueStatement : public SyntaxNode
     {
+        NODE_IMPL(ContinueStatement);
         DECLARE_NODE_TYPE(NodeTypeContinue)
     public:
         ContinueStatement() : Levels(1) {}
         // IOutputByteCode
         CodeResult OutputByteCode(CompileContext &context) const;
         void Traverse(IExploreNode &en);
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         uint16_t Levels;
     };
@@ -339,17 +321,16 @@ namespace sci
 
     class CaseStatement : public CaseStatementBase
     {
+        NODE_IMPL(CaseStatement);
         DECLARE_NODE_TYPE(NodeTypeCase)
-
     public:
         // IOutputByteCode
         CodeResult OutputByteCode(CompileContext &context) const;
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
     };
 
     class SwitchStatement : public SyntaxNode, public OneStatementNode
     {
+        NODE_IMPL(SwitchStatement);
         DECLARE_NODE_TYPE(NodeTypeSwitch)
     public:
         SwitchStatement() : OneStatementNode() {}
@@ -358,11 +339,8 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const;
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-
         
 		void AddCase(std::unique_ptr<CaseStatement> pCase) { _cases.push_back(std::move(pCase)); }
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         std::vector<std::unique_ptr<CaseStatement>> _cases;
 
@@ -379,6 +357,7 @@ namespace sci
     // structure.
     class CondStatement : public SyntaxNode, public OneStatementNode
     {
+        NODE_IMPL(CondStatement);
         DECLARE_NODE_TYPE(NodeTypeCond)
     public:
         CondStatement() {}
@@ -389,8 +368,6 @@ namespace sci
         void Traverse(IExploreNode &en);
 
         void AddCase(std::unique_ptr<CaseStatement> pCase) { _clausesTemp.push_back(std::move(pCase)); }
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         std::vector<std::unique_ptr<CaseStatement>> _clausesTemp;
         // The if goes in the OneStatementNode
@@ -406,6 +383,7 @@ namespace sci
     //
     class Assignment : public SyntaxNode, public OneStatementNode
     {
+        NODE_IMPL(Assignment);
         DECLARE_NODE_TYPE(NodeTypeAssignment)
     public:
         Assignment() : OneStatementNode(), Operator(AssignmentOperator::None) {}
@@ -420,8 +398,6 @@ namespace sci
 
         void SetVariable(std::unique_ptr<LValue> var) { _variable = std::move(var); }
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         std::unique_ptr<LValue> _variable;
 
         AssignmentOperator Operator;
@@ -433,6 +409,7 @@ namespace sci
     //
     class BinaryOp : public SyntaxNode, public OneStatementNode, public TwoStatementNode
     {
+        NODE_IMPL(BinaryOp);
         DECLARE_NODE_TYPE(NodeTypeBinaryOperation)
     public:
         BinaryOp() : Operator(BinaryOperator::None) {}
@@ -448,8 +425,6 @@ namespace sci
         bool Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const override;
         virtual std::string ToString() const;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         BinaryOperator Operator;
 
     private:
@@ -462,6 +437,7 @@ namespace sci
     // (< 1 2 3 4 5)    -> This is kept as an N-ary operation, as there is no easy conversion to binary.
     class NaryOp : public SyntaxNode, public StatementsNode
     {
+        NODE_IMPL(NaryOp);
         DECLARE_NODE_TYPE(NodeTypeNaryOperation)
     public:
         NaryOp() : Operator(BinaryOperator::None) {}
@@ -475,8 +451,6 @@ namespace sci
         void Traverse(IExploreNode &en) override;
         bool Evaluate(ILookupDefine &context, uint16_t &result, CompileContext *reportError) const override;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         BinaryOperator Operator;
     };
 
@@ -485,6 +459,7 @@ namespace sci
     //
     class UnaryOp : public SyntaxNode, public OneStatementNode
     {
+        NODE_IMPL(UnaryOp);
         DECLARE_NODE_TYPE(NodeTypeUnaryOperation)
     public:
         UnaryOp() : OneStatementNode(), Operator(UnaryOperator::None) {}
@@ -500,8 +475,6 @@ namespace sci
 
         virtual std::string ToString() const;
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         UnaryOperator Operator;
     };
 
@@ -510,6 +483,7 @@ namespace sci
     //
     class IfStatement : public SyntaxNode, public ConditionNode, public OneStatementNode, public TwoStatementNode
     {
+        NODE_IMPL(IfStatement);
         DECLARE_NODE_TYPE(NodeTypeIf)
     public:
         IfStatement() : OneStatementNode(), TwoStatementNode(), ConditionNode(), _fTernary(false) {}
@@ -524,8 +498,6 @@ namespace sci
         void MakeTernary() { _fTernary = true; }
         bool HasElse() const { return !!_statement2; }
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         bool _fTernary;             // Currently for decompilation only - never used for compilation.
 
     private:
@@ -538,6 +510,7 @@ namespace sci
     //
     class AsmBlock : public SyntaxNode, public StatementsNode
     {
+        NODE_IMPL(AsmBlock);
         DECLARE_NODE_TYPE(NodeTypeAsmBlock)
     public:
         AsmBlock() {}
@@ -550,8 +523,6 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const;
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
     };
 
     // This can be used to substitute or inject new nodes into a tree temporarily.
@@ -559,6 +530,7 @@ namespace sci
     // can't be done.
     class WeakSyntaxNode : public SyntaxNode
     {
+        NODE_IMPL(WeakSyntaxNode);
         DECLARE_NODE_TYPE(NodeTypeWeak)
     public:
         WeakSyntaxNode() : WeakNode(nullptr) {}
@@ -569,8 +541,6 @@ namespace sci
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
 
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
-
         const SyntaxNode *WeakNode;
     };
 
@@ -579,6 +549,7 @@ namespace sci
     // Statements: arguments
     class Asm : public SyntaxNode, public NamedNode, public StatementsNode
     {
+        NODE_IMPL(Asm);
         DECLARE_NODE_TYPE(NodeTypeAsm)
     public:
         Asm() : NamedNode(), StatementsNode() {}
@@ -587,8 +558,6 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const;
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         const std::string &GetLabel() const { return _label; }
         void SetLabel(const std::string &label) {
@@ -606,6 +575,7 @@ namespace sci
     // classdefs in the classdef file
     class ClassDefDeclaration : public SyntaxNode, public NamedNode
     {
+        NODE_IMPL(ClassDefDeclaration);
         DECLARE_NODE_TYPE(NodeTypeClassDefDeclaration)
     public:
         ClassDefDeclaration() : NamedNode(), ScriptNumber(0xffff), ClassNumber(0xffff), SuperNumber(0xffff) {}
@@ -614,8 +584,6 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const { return 0; }
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         uint16_t ScriptNumber;  // script#
         uint16_t ClassNumber;   // class#
@@ -632,6 +600,7 @@ namespace sci
 
     class SelectorDeclaration : public SyntaxNode, public NamedNode
     {
+        NODE_IMPL(SelectorDeclaration);
         DECLARE_NODE_TYPE(NodeTypeSelector)
     public:
         SelectorDeclaration() : NamedNode(), Index(0xffff) {}
@@ -640,13 +609,13 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const { return 0; }
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         uint16_t Index;
     };
 
     class GlobalDeclaration : public SyntaxNode, public NamedNode
     {
+        NODE_IMPL(GlobalDeclaration);
         DECLARE_NODE_TYPE(NodeTypeGlobal)
     public:
         GlobalDeclaration() : Index(0xffff) {}
@@ -655,7 +624,6 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const { return 0; }
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         std::unique_ptr<PropertyValue> InitialValue;
         uint16_t Index;
@@ -663,6 +631,7 @@ namespace sci
 
     class ExternDeclaration : public SyntaxNode, public NamedNode
     {
+        NODE_IMPL(ExternDeclaration);
         DECLARE_NODE_TYPE(NodeTypeExtern)
     public:
         ExternDeclaration() : NamedNode(), Index(0xffff) {}
@@ -671,7 +640,6 @@ namespace sci
         CodeResult OutputByteCode(CompileContext &context) const { return 0; }
         void PreScan(CompileContext &context);
         void Traverse(IExploreNode &en);
-        void Accept(ISyntaxNodeVisitor &visitor) const override;
 
         PropertyValue ScriptNumber;
         uint16_t Index;
